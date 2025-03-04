@@ -3,11 +3,15 @@ package com.example.mypixel.controller;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.mypixel.exception.InvalidImageFormat;
 import com.example.mypixel.storage.StorageService;
+import jakarta.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +26,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class ImageUploadController {
 
     private final StorageService storageService;
+
+    @Autowired
+    private ServletContext servletContext;
 
     @Autowired
     public ImageUploadController(StorageService storageService) {
@@ -46,13 +53,19 @@ public class ImageUploadController {
         if (file == null)
             return ResponseEntity.notFound().build();
 
-        String location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .toUriString();
+        String contentType = null;
+        try {
+            contentType = Files.probeContentType(Paths.get(file.getFile().getAbsolutePath()));
+        } catch (IOException e) {
+            contentType = URLConnection.guessContentTypeFromName(file.getFilename());
+        }
+
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
 
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .header(HttpHeaders.LOCATION, location)
+                .contentType(MediaType.valueOf(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }

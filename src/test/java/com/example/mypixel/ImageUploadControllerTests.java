@@ -1,5 +1,6 @@
 package com.example.mypixel;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
@@ -66,6 +67,7 @@ public class ImageUploadControllerTests {
         String filename = "test.jpg";
         Resource mockResource = mock(Resource.class);
         given(mockResource.getFilename()).willReturn(filename);
+        given(mockResource.getFile()).willReturn(new File(filename));
         given(mockResource.exists()).willReturn(true);
         given(mockResource.isReadable()).willReturn(true);
 
@@ -74,6 +76,7 @@ public class ImageUploadControllerTests {
         mockMvc.perform(get("/images/{filename}", filename))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Disposition", containsString("attachment; filename=\"test.jpg\"")))
+                .andExpect(header().string("Content-Type", containsString("image/jpeg")))
                 .andExpect(content().contentType(MediaType.IMAGE_JPEG));
     }
 
