@@ -44,7 +44,7 @@ public class ImageUploadControllerTests {
     }
 
     @Test
-    public void shouldListAllFiles() throws Exception {
+    public void shouldListAllImages() throws Exception {
 
         given(storageService.loadAll())
                 .willReturn(Stream.of(
@@ -61,7 +61,7 @@ public class ImageUploadControllerTests {
     }
 
     @Test
-    public void shouldServeFile() throws Exception {
+    public void shouldServeImage() throws Exception {
 
         String filename = "test.jpg";
         Resource mockResource = mock(Resource.class);
@@ -89,7 +89,7 @@ public class ImageUploadControllerTests {
     }
 
     @Test
-    public void shouldUploadFile() throws Exception {
+    public void shouldUploadImage() throws Exception {
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -98,8 +98,7 @@ public class ImageUploadControllerTests {
                 "test image content".getBytes());
 
         mockMvc.perform(multipart("/").file(file))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("You successfully uploaded test.jpg")));
+                .andExpect(status().isCreated());
 
         verify(storageService).store(file);
     }
