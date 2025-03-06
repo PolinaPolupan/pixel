@@ -36,5 +36,3 @@ out/
 ### VS Code ###
 .vscode/
 /upload-image-dir/
-/image-processor/.gradle/
-/image-processor/build/
