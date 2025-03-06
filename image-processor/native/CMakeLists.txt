@@ -11,4 +11,8 @@ add_library(native-processor SHARED ${SRCS})
 target_link_libraries(native-processor ${JNI_LIBRARIES})
 target_include_directories(native-processor PUBLIC ${CMAKE_SOURCE_DIR}/src/include)
 
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+target_link_libraries(native-processor ${OpenCV_LIBS})
+
 enable_testing()
