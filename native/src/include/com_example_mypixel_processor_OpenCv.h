@@ -17,6 +17,5 @@ JNIEXPORT void JNICALL Java_com_example_mypixel_processor_OpenCv_hi
 
 #ifdef __cplusplus
 }
-
 #endif
 #endif

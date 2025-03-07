@@ -1,3 +1,7 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+import org.gradle.api.DefaultTask
+
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.4.3"
@@ -33,4 +37,22 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.named<BootRun>("bootTestRun") {
+	dependsOn(":native:assemble")
+	systemProperty("java.library.path", project(":native").layout.buildDirectory.get())
+}
+
+tasks.named<BootRun>("bootRun") {
+	dependsOn(":native:assemble")
+	systemProperty("java.library.path", project(":native").layout.buildDirectory.get())
+}
+
+tasks.named<DefaultTask>("build") {
+	dependsOn(":native:assemble")
+}
+
+tasks.compileJava {
+	options.compilerArgs = options.compilerArgs + listOf("-h", "${rootProject.projectDir}/native/src/include")
 }
