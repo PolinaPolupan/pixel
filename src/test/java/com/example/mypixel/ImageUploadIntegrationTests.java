@@ -35,6 +35,8 @@ public class ImageUploadIntegrationTests {
     @MockitoBean
     private StorageService storageService;
 
+    private final String baseRoute = "/v1/image/";
+
     @LocalServerPort
     private int port;
 
@@ -44,7 +46,7 @@ public class ImageUploadIntegrationTests {
 
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("file", resource);
-        ResponseEntity<String> response = restTemplate.postForEntity("/", map, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(baseRoute, map, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getHeaders().getLocation().toString())
@@ -59,7 +61,7 @@ public class ImageUploadIntegrationTests {
         byte[] expectedImageContent = StreamUtils.copyToByteArray(resource.getInputStream());
 
         ResponseEntity<byte[]> response = restTemplate
-                .getForEntity("/images/{filename}", byte[].class, "testupload.jpg");
+                .getForEntity(baseRoute + "{filename}", byte[].class, "testupload.jpg");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION))

@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import com.example.mypixel.exception.InvalidImageFormat;
 import com.example.mypixel.storage.StorageService;
-import jakarta.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -23,12 +22,10 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
+@RequestMapping(path = "/v1/image")
 public class ImageUploadController {
 
     private final StorageService storageService;
-
-    @Autowired
-    private ServletContext servletContext;
 
     @Autowired
     public ImageUploadController(StorageService storageService) {
@@ -37,17 +34,15 @@ public class ImageUploadController {
 
     @GetMapping("/")
     public List<String> listUploadedFiles() {
-
         return storageService.loadAll().map(
                         path -> MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
                                 "serveFile", path.getFileName().toString()).build().toUri().toString())
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/images/{filename:.+}")
+    @GetMapping("/{filename:.+}")
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws IOException {
-
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         Resource file = storageService.loadAsResource(filename);
 
         if (file == null)
@@ -71,8 +66,7 @@ public class ImageUploadController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Void> handleFileUpload(@RequestParam("file") MultipartFile file) {
-
+    public ResponseEntity<Void> handleFileUpload(@ModelAttribute MultipartFile file) {
         String contentType = file.getContentType();
         if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
             throw new InvalidImageFormat("Only JPEG or PNG images are allowed");

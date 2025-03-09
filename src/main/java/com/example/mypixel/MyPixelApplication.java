@@ -19,7 +19,7 @@ public class MyPixelApplication {
         hello.sayHello();
 
         OpenCv cv = new OpenCv();
-      //  cv.hi();
+//        cv.hi();
         SpringApplication.run(MyPixelApplication.class, args);
     }
 

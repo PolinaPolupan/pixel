@@ -4,9 +4,21 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+#include "opencv2/imgproc.hpp"
+
 
 #include <iostream>
 #include <unistd.h>
+
+using namespace std;
+using namespace cv;
+
+int DELAY_CAPTION = 1500;
+int DELAY_BLUR = 100;
+int MAX_KERNEL_LENGTH = 31;
+
+Mat src; Mat dst;
+char window_name[] = "Smoothing Demo";
 
 JNIEXPORT void JNICALL Java_com_example_mypixel_processor_Hello_sayHello
   (JNIEnv *, jobject) {
@@ -16,24 +28,24 @@ JNIEXPORT void JNICALL Java_com_example_mypixel_processor_Hello_sayHello
 JNIEXPORT void JNICALL Java_com_example_mypixel_processor_OpenCv_hi(JNIEnv *, jobject) {
     std::string image_path = "starry_night.jpg";
 
-    // Print the current working directory
-    char cwd[PATH_MAX];
-    if (getcwd(cwd, sizeof(cwd)) != nullptr) {
-        std::cout << "Current working directory: " << cwd << std::endl;
-    }
+    const char* filename = "starry_night.jpg";
 
-    cv::Mat img = cv::imread(image_path, cv::IMREAD_COLOR);
-
-    if(img.empty())
+    src = imread(filename , IMREAD_COLOR );
+    if (src.empty())
     {
-        std::cout << "Could not read the image: " << image_path << std::endl;
+        printf(" Error opening image\n");
+        return;
     }
 
-    cv::imshow("Display window", img);
-    int k = cv::waitKey(0); // Wait for a keystroke in the window
+    dst = src.clone();
 
-    if(k == 's')
-    {
-        cv::imwrite("starry_night.png", img);
-    }
+    GaussianBlur( src, dst, Size( 11, 11), 1, 1);
+
+    cv::namedWindow("Blurred Image", cv::WINDOW_AUTOSIZE);
+
+    cv::imshow("Blurred Image", dst);
+
+    cv::waitKey(0);
 }
+
+
