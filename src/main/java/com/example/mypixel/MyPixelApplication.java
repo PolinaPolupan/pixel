@@ -1,7 +1,5 @@
 package com.example.mypixel;
 
-import com.example.mypixel.processor.Hello;
-import com.example.mypixel.processor.OpenCv;
 import com.example.mypixel.storage.StorageProperties;
 import com.example.mypixel.storage.StorageService;
 import org.springframework.boot.CommandLineRunner;
@@ -15,11 +13,6 @@ import org.springframework.context.annotation.Bean;
 public class MyPixelApplication {
 
     public static void main(String[] args) {
-        Hello hello = new Hello();
-        hello.sayHello();
-
-        OpenCv cv = new OpenCv();
-//        cv.hi();
         SpringApplication.run(MyPixelApplication.class, args);
     }
 
