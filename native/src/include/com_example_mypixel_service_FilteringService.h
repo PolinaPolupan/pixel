@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     com_example_mypixel_service_FilteringService
- * Method:    gaussianBlur
- * Signature: (Ljava/lang/String;)V
+ * Method:    gaussianBlurNative
+ * Signature: (Ljava/lang/String;IIDD)V
  */
-JNIEXPORT void JNICALL Java_com_example_mypixel_service_FilteringService_gaussianBlur
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT void JNICALL Java_com_example_mypixel_service_FilteringService_gaussianBlurNative
+  (JNIEnv *, jobject, jstring, jint, jint, jdouble, jdouble);
 
 #ifdef __cplusplus
 }

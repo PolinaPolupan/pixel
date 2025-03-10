@@ -1,9 +1,7 @@
 package com.example.mypixel.controller;
 
+import com.example.mypixel.exception.*;
 import com.example.mypixel.model.ErrorInfo;
-import com.example.mypixel.exception.InvalidImageFormat;
-import com.example.mypixel.exception.StorageException;
-import com.example.mypixel.exception.StorageFileNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +23,22 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidImageFormat.class)
     public ResponseEntity<?> handleInvalidImageFormat(InvalidImageFormat ex, HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidNodeType.class)
+    public ResponseEntity<?> handleInvalidNodeType(InvalidNodeType ex, HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidNodeParameter.class)
+    public ResponseEntity<?> handleInvalidNodeParameter(InvalidNodeParameter ex, HttpServletRequest request) {
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);

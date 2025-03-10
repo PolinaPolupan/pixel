@@ -5,6 +5,7 @@ import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Node;
 import com.example.mypixel.storage.StorageService;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,13 @@ public class GraphService {
                 log.info("InputNode processed");
             }
             if (node.getType().equals("GaussianBlurNode")) {
-                filteringService.gaussianBlur(outputImage.getFilename());
+                Map<String, Object> params = node.getParams();
+                int sizeX = (int) params.getOrDefault("sizeX", 0);
+                int sizeY = (int) params.getOrDefault("sizeY", 0);
+                double sigmaX = (double) params.getOrDefault("sigmaX", 0.0);
+                double sigmaY = (double) params.getOrDefault("sigmaY", 0.0);
+
+                filteringService.gaussianBlur(outputImage.getFilename(), sizeX, sizeY, sigmaX, sigmaY);
                 log.info("GaussianBlurNode processed");
             }
             if (node.getType().equals("OutputNode")) {

@@ -15,4 +15,13 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 target_link_libraries(native-processor ${OpenCV_LIBS})
 
+get_filename_component(MYPIXEL_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
+target_compile_definitions(native-processor PRIVATE
+        MYPIXEL_SOURCE_DIR="${MYPIXEL_DIR}"
+        MYPIXEL_IMAGE_STORAGE_DIR="${MYPIXEL_DIR}/upload-image-dir/"
+        PROJECT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+        PROJECT_BINARY_DIR="${CMAKE_BINARY_DIR}"
+        CURRENT_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 enable_testing()

@@ -10,28 +10,19 @@
 using namespace std;
 using namespace cv;
 
-JNIEXPORT void JNICALL Java_com_example_mypixel_service_FilteringService_gaussianBlur
-  (JNIEnv * env, jobject thisObject, jstring filename) {
-  string filename_str = string(env->GetStringUTFChars(filename, NULL));
+JNIEXPORT void JNICALL Java_com_example_mypixel_service_FilteringService_gaussianBlurNative
+  (JNIEnv * env, jobject thisObject, jstring filename, jint sizeX, jint sizeY, jdouble sigmaX, jdouble sigmaY) {
+  string filename_str = string(env->GetStringUTFChars(filename, nullptr));
 
-  // Print the current working directory
-  char cwd[PATH_MAX];
-  if (getcwd(cwd, sizeof(cwd)) != nullptr) {
-      std::cout << "Current working directory: " << cwd << std::endl;
-  }
-
-  Mat src; Mat dst;
-
-  src = imread(string(cwd) + "/upload-image-dir/" + filename_str, IMREAD_COLOR );
-  if (src.empty())
-  {
+  const Mat src = imread(MYPIXEL_IMAGE_STORAGE_DIR + filename_str, IMREAD_COLOR);
+  if (src.empty()) {
     printf(" Error opening image\n");
     return;
   }
 
-  dst = src.clone();
+  Mat dst = src.clone();
 
-  GaussianBlur( src, dst, Size( 33, 33), 1, 1);
+  GaussianBlur( src, dst, Size( sizeX, sizeY), sigmaX, sigmaY);
 
-  imwrite(string(cwd) + "/upload-image-dir/" + filename_str, dst);
+  imwrite(MYPIXEL_IMAGE_STORAGE_DIR + filename_str, dst);
 }
