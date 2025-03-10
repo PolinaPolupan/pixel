@@ -11,10 +11,10 @@ This engine will provide a flexible node-based processing pipeline that allows c
 
 - [ ] Distributed processing with horizontal scaling
 - [ ] Node-based visual workflow editor
-- [ ] OpenCV integration for high-performance image operations
+- [x] OpenCV integration for high-performance image operations
 - [ ] Spring Batch for reliable job execution
-- [ ] REST API for programmatic access
-- [ ] Basic filters (blur, sharpen, edge detection, etc.)
+- [x] REST API for programmatic access
+- [x] Basic filters (blur, sharpen, edge detection, etc.)
 
 ## Future Roadmap
 
