@@ -41,16 +41,20 @@ tasks.jar {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	val nativeDir = file("${projectDir}/native/build") // Turnaround for the wsl serialization path problem
+	systemProperty("java.library.path", nativeDir.absolutePath)
 }
 
 tasks.named<BootRun>("bootTestRun") {
 	dependsOn(":native:assemble")
-	systemProperty("java.library.path", project(":native").layout.buildDirectory.get())
+	val nativeDir = file("${projectDir}/native/build") // Turnaround for the wsl serialization path problem
+	systemProperty("java.library.path", nativeDir.absolutePath)
 }
 
 tasks.named<BootRun>("bootRun") {
 	dependsOn(":native:assemble")
-	systemProperty("java.library.path", project(":native").layout.buildDirectory.get())
+	val nativeDir = file("${projectDir}/native/build") // Turnaround for the wsl serialization path problem
+	systemProperty("java.library.path", nativeDir.absolutePath)
 }
 
 tasks.named<DefaultTask>("build") {
