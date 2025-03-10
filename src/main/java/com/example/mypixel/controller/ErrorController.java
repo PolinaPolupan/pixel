@@ -1,6 +1,6 @@
 package com.example.mypixel.controller;
 
-import com.example.mypixel.ErrorInfo;
+import com.example.mypixel.model.ErrorInfo;
 import com.example.mypixel.exception.InvalidImageFormat;
 import com.example.mypixel.exception.StorageException;
 import com.example.mypixel.exception.StorageFileNotFoundException;

@@ -1,4 +1,4 @@
-package com.example.mypixel;
+package com.example.mypixel.model;
 
 public class ErrorInfo {
     public final String url;
