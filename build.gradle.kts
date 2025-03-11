@@ -42,23 +42,6 @@ tasks.jar {
 tasks.withType<Test> {
 	useJUnitPlatform()
 	dependsOn(":native:assemble")
-	doFirst {
-		// Get the actual path of the native build directory
-		val nativeBuildDir = project(":native").layout.buildDirectory.get().asFile.absolutePath
-
-		// Log the location and contents for debugging
-		logger.lifecycle("Native build directory: $nativeBuildDir")
-		logger.lifecycle("Directory exists: ${File(nativeBuildDir).exists()}")
-		File(nativeBuildDir).listFiles()?.forEach { file ->
-			logger.lifecycle("Found file: ${file.name}")
-		}
-
-		// Set the system property
-		systemProperty("java.library.path", nativeBuildDir)
-
-		// Also print the current java.library.path for debugging
-		logger.lifecycle("Current java.library.path: ${System.getProperty("java.library.path")}")
-	}
 	systemProperty("java.library.path", project(":native").layout.buildDirectory.get().asFile.absolutePath)
 }
 
