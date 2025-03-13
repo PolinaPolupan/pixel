@@ -1,4 +1,4 @@
-package com.example.mypixel.storage;
+package com.example.mypixel.service;
 
 
 import java.io.File;
@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 
 import com.example.mypixel.config.StorageProperties;
 import com.example.mypixel.exception.StorageException;
-import com.example.mypixel.service.TempStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
