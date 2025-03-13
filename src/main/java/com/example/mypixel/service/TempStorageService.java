@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import static com.google.common.io.Files.getFileExtension;
 
 
+
 @Slf4j
 public class TempStorageService implements StorageService {
 
@@ -116,7 +117,7 @@ public class TempStorageService implements StorageService {
                 throw new StorageFileNotFoundException("Could not read file: " + filename);
             }
         } catch (MalformedURLException e) {
-            throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+            throw new StorageFileNotFoundException("MalformedURLException: Could not read file: " + filename, e);
         }
     }
 

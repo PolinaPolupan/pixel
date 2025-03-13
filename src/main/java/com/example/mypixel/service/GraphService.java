@@ -3,11 +3,9 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeType;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Node;
-import com.google.common.io.Files;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,10 +14,10 @@ import java.util.*;
 @Slf4j
 public class GraphService {
 
-    private final StorageService tempStorageService;
     private final StorageService storageService;
+    private final StorageService tempStorageService;
 
-    private final FilteringService filteringService;
+    private final NodeProcessorService nodeProcessorService;
 
     private Queue<String> target = new LinkedList<>();
 
@@ -27,10 +25,10 @@ public class GraphService {
     public GraphService(
             @Qualifier("storageService") StorageService storageService,
             @Qualifier("tempStorageService") StorageService tempStorageService,
-                        FilteringService filteringService) {
-        this.tempStorageService = tempStorageService;
+            NodeProcessorService nodeProcessorService) {
         this.storageService = storageService;
-        this.filteringService = filteringService;
+        this.tempStorageService = tempStorageService;
+        this.nodeProcessorService = nodeProcessorService;
     }
 
     public void  processGraph(Graph graph) {
@@ -53,36 +51,17 @@ public class GraphService {
     }
 
     public void processInputNode(Node node) {
-        String filename = (String) node.getParams().get("filename");
-        String tempFile = tempStorageService.createTempFileFromResource(storageService.loadAsResource(filename));
+        String tempFile = nodeProcessorService.processInputNode(node);
         target.add(tempFile);
-        log.info("InputNode processed");
     }
 
     public void processGaussianBlurNode(Node node) {
-        Map<String, Object> params = node.getParams();
-        int sizeX = (int) params.getOrDefault("sizeX", 1);
-        int sizeY = (int) params.getOrDefault("sizeY", 1);
-        double sigmaX = (double) params.getOrDefault("sigmaX", 0.0);
-        double sigmaY = (double) params.getOrDefault("sigmaY", 0.0);
-
-        String tempName = tempStorageService.createTempFileFromFilename(target.poll());
-        if (tempName != null) {
-            filteringService.gaussianBlur(tempName, sizeX, sizeY, sigmaX, sigmaY);
-            target.add(tempName);
-        }
-
-        log.info("GaussianBlurNode processed");
+        String tempName = nodeProcessorService.processGaussianBlurNode(node, target.poll());
+        target.add(tempName);
     }
 
     public void processOutputNode(Node node) {
-        String filename = target.poll();
-        Resource outputImage = tempStorageService.loadAsResource(filename);
-
-        storageService.store(outputImage, (String) node.getParams().get("filename"));
-        String tempFile = tempStorageService.createTempFileFromResource(outputImage);
+        String tempFile = nodeProcessorService.processOutputNode(node, target.poll());
         target.add(tempFile);
-
-        log.info("OutputNode processed");
     }
 }

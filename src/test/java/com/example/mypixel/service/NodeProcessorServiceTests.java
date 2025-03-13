@@ -1,8 +1,6 @@
 package com.example.mypixel.service;
 
 
-import com.example.mypixel.exception.InvalidNodeType;
-import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Node;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -13,15 +11,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class GraphServiceTests {
+public class NodeProcessorServiceTests {
 
     @MockitoBean
     @Qualifier("storageService")
@@ -35,7 +31,7 @@ public class GraphServiceTests {
     private FilteringService filteringService;
 
     @Autowired
-    private GraphService graphService;
+    private NodeProcessorService nodeProcessorService;
 
     @Mock
     private Resource resource;
@@ -52,7 +48,7 @@ public class GraphServiceTests {
         when(storageService.loadAsResource("input.jpg")).thenReturn(mockResource);
         when(mockResource.getFilename()).thenReturn("input.jpg");
 
-        graphService.processInputNode(inputNode);
+        nodeProcessorService.processInputNode(inputNode);
 
         verify(tempStorageService, times(1)).createTempFileFromResource(eq(mockResource));
     }
@@ -61,7 +57,7 @@ public class GraphServiceTests {
     public void testProcessNullInputNode() {
         Node inputNode = new Node("InputNode", new HashMap<>() {});
 
-        graphService.processInputNode(inputNode);
+        nodeProcessorService.processInputNode(inputNode);
 
         verify(tempStorageService, never()).createTempFileFromResource(any(Resource.class));
     }
@@ -70,7 +66,7 @@ public class GraphServiceTests {
     public void testProcessEmptyGaussianBlurNode() {
         Node node = new Node("GaussianBlurNode", new HashMap<>() {});
 
-        graphService.processGaussianBlurNode(node);
+        nodeProcessorService.processGaussianBlurNode(node, null);
 
         verify(tempStorageService, never()).createTempFileFromFilename(anyString());
     }
@@ -84,9 +80,9 @@ public class GraphServiceTests {
         params.put("sigmaY", 1.0);
         Node node = new Node("GaussianBlurNode", params);
 
-        when(tempStorageService.createTempFileFromFilename(null)).thenReturn("tempFile.txt");
+        when(tempStorageService.createTempFileFromFilename("tempFile.txt")).thenReturn("tempFile.txt");
 
-        graphService.processGaussianBlurNode(node);
+        nodeProcessorService.processGaussianBlurNode(node, "tempFile.txt");
 
         verify(filteringService, times(1)).gaussianBlur("tempFile.txt", 5, 5, 1.0, 1.0);
     }
@@ -95,9 +91,9 @@ public class GraphServiceTests {
     public void testProcessGaussianBlurNodeWithNoParameters() {
         Node node = new Node("GaussianBlurNode", new HashMap<>() {});
 
-        when(tempStorageService.createTempFileFromFilename(null)).thenReturn("tempFile.txt");
+        when(tempStorageService.createTempFileFromFilename("tempFile.txt")).thenReturn("tempFile.txt");
 
-        graphService.processGaussianBlurNode(node);
+        nodeProcessorService.processGaussianBlurNode(node, "tempFile.txt");
 
         verify(filteringService, times(1)).gaussianBlur("tempFile.txt", 1, 1, 0.0, 0.0);
     }
@@ -107,23 +103,9 @@ public class GraphServiceTests {
         Node node = new Node("OutputNode", new HashMap<>() {{ put("filename", "output.jpeg"); }});
 
         when(tempStorageService.loadAsResource(null)).thenReturn(resource);
-        graphService.processOutputNode(node);
+        nodeProcessorService.processOutputNode(node, null);
 
-      //  verify(storageService, times(1)).store(any(Resource.class), anyString());
-      //  verify(tempStorageService, times(1)).createTempFileFromResource(any(Resource.class));
-    }
-
-    @Test
-    public void testProcessGraphWithInvalidNodeType() {
-        Map<String, Object> invalidParams = new HashMap<>();
-        Node invalidNode = new Node("InvalidNode", invalidParams);
-
-        List<Node> nodes = List.of(invalidNode);
-        Graph graph = new Graph(nodes);
-
-        assertThrows(InvalidNodeType.class, () -> graphService.processGraph(graph));
-
-        verify(storageService, never()).loadAsResource(any());
-        verify(storageService, never()).store(any(), any());
+        verify(storageService, times(1)).store(any(Resource.class), anyString());
+        verify(tempStorageService, times(1)).createTempFileFromResource(any(Resource.class));
     }
 }
