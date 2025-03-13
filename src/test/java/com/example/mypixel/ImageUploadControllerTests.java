@@ -6,12 +6,13 @@ import java.util.stream.Stream;
 
 import com.example.mypixel.controller.ImageUploadController;
 import com.example.mypixel.exception.StorageFileNotFoundException;
-import com.example.mypixel.storage.StorageService;
+import com.example.mypixel.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -37,6 +38,7 @@ public class ImageUploadControllerTests {
     private MockMvc mockMvc;
 
     @MockitoBean
+    @Qualifier("storageService")
     private StorageService storageService;
 
     private final String baseRoute = "/v1/image/";
@@ -49,7 +51,6 @@ public class ImageUploadControllerTests {
 
     @Test
     public void shouldListAllImages() throws Exception {
-
         given(storageService.loadAll())
                 .willReturn(Stream.of(
                         Paths.get("first.jpg"),

@@ -1,4 +1,4 @@
-package com.example.mypixel.storage;
+package com.example.mypixel.config;
 
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +10,7 @@ public class StorageProperties {
     /**
      * Folder location for storing images
      */
-    @Value("${storage.temp-images}")
+    @Value("${storage.images}")
     private String location;
 
     public String getLocation() {

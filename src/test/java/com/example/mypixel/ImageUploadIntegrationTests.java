@@ -1,10 +1,11 @@
 package com.example.mypixel;
 
 
-import com.example.mypixel.storage.StorageService;
+import com.example.mypixel.service.StorageService;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -33,6 +34,7 @@ public class ImageUploadIntegrationTests {
     private TestRestTemplate restTemplate;
 
     @MockitoBean
+    @Qualifier("storageService")
     private StorageService storageService;
 
     private final String baseRoute = "/v1/image/";

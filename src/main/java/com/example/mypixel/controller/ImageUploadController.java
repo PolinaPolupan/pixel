@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.mypixel.exception.InvalidImageFormat;
-import com.example.mypixel.storage.StorageService;
+import com.example.mypixel.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,7 +29,7 @@ public class ImageUploadController {
     private final StorageService storageService;
 
     @Autowired
-    public ImageUploadController(StorageService storageService) {
+    public ImageUploadController(@Qualifier("storageService") StorageService storageService) {
         this.storageService = storageService;
     }
 

@@ -1,4 +1,4 @@
-package com.example.mypixel.storage;
+package com.example.mypixel.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,10 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.example.mypixel.config.StorageProperties;
 import com.example.mypixel.exception.StorageException;
 import com.example.mypixel.exception.StorageFileNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -18,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
+import static com.google.common.io.Files.getFileExtension;
+
+
+@Slf4j
 public class TempStorageService implements StorageService {
 
     private final Path rootLocation;
@@ -57,19 +63,28 @@ public class TempStorageService implements StorageService {
 
     @Override
     public void store(Resource file, String filename) {
+        log.debug("Attempting to store file with filename: {}", filename);
+
         try {
             Path destinationFile = this.rootLocation.resolve(
                             Paths.get(filename))
                     .normalize().toAbsolutePath();
+
+            log.debug("Destination path resolved to: {}", destinationFile);
+
             if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
                 // This is a security check
+                log.error("Security violation: Attempted to store file outside of root location. Path: {}", destinationFile);
                 throw new StorageException("Cannot store file outside current directory.");
             }
+
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile,
                         StandardCopyOption.REPLACE_EXISTING);
+                log.info("Successfully stored file: {} to location: {}", filename, destinationFile);
             }
         } catch (IOException e) {
+            log.error("Failed to store file: {}. Error: {}", filename, e.getMessage(), e);
             throw new StorageException("Failed to store file.", e);
         }
     }
@@ -108,6 +123,27 @@ public class TempStorageService implements StorageService {
     @Override
     public void deleteAll() {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
+    }
+
+    @Override
+    public String createTempFileFromResource(Resource resource) {
+        if (resource != null) {
+            String filename = resource.getFilename();
+            String extension = getFileExtension(filename);
+            String tempName = UUID.randomUUID() + "." + extension;
+            store(resource, tempName);
+
+            log.info("Temp file created: [{}], Filename: [{}], Extension: [{}]", tempName, filename, extension);
+            return tempName;
+        }
+        log.warn("Failed to create temp file: Input resource is null");
+        return null;
+    }
+
+    @Override
+    public String createTempFileFromFilename(String filename) {
+        Resource resource = loadAsResource(filename);
+        return createTempFileFromResource(resource);
     }
 
     @Override

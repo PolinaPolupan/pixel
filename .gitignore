@@ -36,3 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 /upload-image-dir/
+/temp-image-dir/

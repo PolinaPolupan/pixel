@@ -5,7 +5,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import com.example.mypixel.config.StorageProperties;
 import com.example.mypixel.exception.StorageException;
+import com.example.mypixel.service.TempStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -82,4 +84,6 @@ public class TempStorageServiceTests {
         service.store(new MockMultipartFile("foo", "bar/../foo.jpg",
                 MediaType.IMAGE_JPEG_VALUE, "Hello, World".getBytes()));
     }
+
+
 }
