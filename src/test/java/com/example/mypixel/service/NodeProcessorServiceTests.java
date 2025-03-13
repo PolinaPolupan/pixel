@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,9 +41,9 @@ public class NodeProcessorServiceTests {
     @Test
     public void testProcessInputNode() {
         Resource mockResource = mock(Resource.class);
-        Node inputNode = new Node("InputNode", new HashMap<>() {{
+        Node inputNode = new Node(0L,"InputNode", new HashMap<>() {{
             put("filename", "input.jpg");
-        }});
+        }}, new ArrayList<>());
 
         when(tempStorageService.loadAsResource("input.jpg")).thenReturn(mockResource);
         when(storageService.loadAsResource("input.jpg")).thenReturn(mockResource);
@@ -55,7 +56,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessNullInputNode() {
-        Node inputNode = new Node("InputNode", new HashMap<>() {});
+        Node inputNode = new Node(0L, "InputNode", new HashMap<>() {}, new ArrayList<>());
 
         nodeProcessorService.processInputNode(inputNode);
 
@@ -64,7 +65,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessEmptyGaussianBlurNode() {
-        Node node = new Node("GaussianBlurNode", new HashMap<>() {});
+        Node node = new Node(0L, "GaussianBlurNode", new HashMap<>() {}, new ArrayList<>());
 
         nodeProcessorService.processGaussianBlurNode(node, null);
 
@@ -78,7 +79,7 @@ public class NodeProcessorServiceTests {
         params.put("sizeY", 5);
         params.put("sigmaX", 1.0);
         params.put("sigmaY", 1.0);
-        Node node = new Node("GaussianBlurNode", params);
+        Node node = new Node(0L , "GaussianBlurNode", params, new ArrayList<>());
 
         when(tempStorageService.createTempFileFromFilename("tempFile.txt")).thenReturn("tempFile.txt");
 
@@ -89,7 +90,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessGaussianBlurNodeWithNoParameters() {
-        Node node = new Node("GaussianBlurNode", new HashMap<>() {});
+        Node node = new Node(0L, "GaussianBlurNode", new HashMap<>() {}, new ArrayList<>());
 
         when(tempStorageService.createTempFileFromFilename("tempFile.txt")).thenReturn("tempFile.txt");
 
@@ -100,7 +101,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessOutputNode() {
-        Node node = new Node("OutputNode", new HashMap<>() {{ put("filename", "output.jpeg"); }});
+        Node node = new Node(0L, "OutputNode", new HashMap<>() {{ put("filename", "output.jpeg"); }}, new ArrayList<>());
 
         when(tempStorageService.loadAsResource(null)).thenReturn(resource);
         nodeProcessorService.processOutputNode(node, null);

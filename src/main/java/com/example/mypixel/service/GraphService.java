@@ -38,7 +38,10 @@ public class GraphService {
 
         target = new LinkedList<>();
 
-        for (Node node : graph.getNodes()) {
+        Iterator<Node> bfsIterator = graph.bfsIterator(0L);
+
+        while (bfsIterator.hasNext()) {
+            Node node = bfsIterator.next();
             String nodeType = node.getType();
 
             switch (nodeType) {
@@ -47,6 +50,8 @@ public class GraphService {
                 case "OutputNode" -> processOutputNode(node);
                 default -> throw new InvalidNodeType("Invalid node type: " + nodeType);
             }
+
+            log.info("Node with id: " + node.getId() + " is processed");
         }
     }
 
