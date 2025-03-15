@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -31,28 +32,41 @@ public class GraphService {
         this.nodeProcessorService = nodeProcessorService;
     }
 
-    public void  processGraph(Graph graph) {
-        // Clean up temp images
+    public void processGraph(Graph graph) {
+        validate(graph);
+
+        // Initialize temporary storage for processing artifacts
         tempStorageService.deleteAll();
         tempStorageService.init();
 
-        target = new LinkedList<>();
+        List<Long> startingNodeIds = new ArrayList<>();
 
-        Iterator<Node> bfsIterator = graph.bfsIterator(0L);
-
-        while (bfsIterator.hasNext()) {
-            Node node = bfsIterator.next();
-            String nodeType = node.getType();
-
-            switch (nodeType) {
-                case "InputNode" -> processInputNode(node);
-                case "GaussianBlurNode" -> processGaussianBlurNode(node);
-                case "OutputNode" -> processOutputNode(node);
-                default -> throw new InvalidNodeType("Invalid node type: " + nodeType);
-            }
-
-            log.info("Node with id: " + node.getId() + " is processed");
+        // Identify all input nodes to use as starting points for graph traversal
+        for (Node node: graph.getNodes()) {
+            if (node.getType().equals("InputNode")) startingNodeIds.add(node.getId());
         }
+
+        // Process each subgraph starting from each input node
+        for (Long id: startingNodeIds) {
+            target = new LinkedList<>();
+            Iterator<Node> iterator = graph.iterator(id);
+
+            while (iterator.hasNext()) {
+                Node node = iterator.next();
+                String nodeType = node.getType();
+
+                switch (nodeType) {
+                    case "InputNode" -> processInputNode(node);
+                    case "GaussianBlurNode" -> processGaussianBlurNode(node);
+                    case "OutputNode" -> processOutputNode(node);
+                    default -> throw new InvalidNodeType("Invalid node type: " + nodeType);
+                }
+
+                log.info("Node with id: " + node.getId() + " is processed");
+            }
+        }
+        // Clean up all temporary files after processing is complete
+        tempStorageService.deleteAll();
     }
 
     public void processInputNode(Node node) {
@@ -61,12 +75,22 @@ public class GraphService {
     }
 
     public void processGaussianBlurNode(Node node) {
-        String tempName = nodeProcessorService.processGaussianBlurNode(node, target.poll());
-        target.add(tempName);
+        String tempFile = nodeProcessorService.processGaussianBlurNode(node, target.poll());
+        target.add(tempFile);
     }
 
     public void processOutputNode(Node node) {
         String tempFile = nodeProcessorService.processOutputNode(node, target.poll());
         target.add(tempFile);
+    }
+
+    private void validate(Graph graph) {
+        // Check for supported node types
+        Set<String> supportedTypes = Set.of("InputNode", "GaussianBlurNode", "OutputNode");
+        for (Node node: graph.getNodes()) {
+            if (!supportedTypes.contains(node.getType())) {
+                throw new InvalidNodeType("Invalid node type: " + node.getType());
+            }
+        }
     }
 }

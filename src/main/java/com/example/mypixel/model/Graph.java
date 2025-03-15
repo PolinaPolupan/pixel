@@ -19,18 +19,7 @@ public class Graph {
      * @param startNodeId ID of the node to start traversal from
      * @return An iterator that traverses nodes in BFS order
      */
-    public Iterator<Node> bfsIterator(Long startNodeId) {
+    public Iterator<Node> iterator(Long startNodeId) {
         return new GraphIterator(this, startNodeId);
-    }
-
-    /**
-     * Creates an iterable for BFS traversal.
-     * This allows using the Graph in a for-each loop.
-     *
-     * @param startNodeId ID of the node to start traversal from
-     * @return An iterable for BFS traversal
-     */
-    public Iterable<Node> bfsTraversal(final Long startNodeId) {
-        return () -> new GraphIterator(this, startNodeId);
     }
 }

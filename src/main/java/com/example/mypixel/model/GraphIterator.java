@@ -52,6 +52,7 @@ public class GraphIterator implements Iterator<Node> {
         Node current = queue.poll();
 
         // Add all unvisited connected nodes to the queue
+        assert current != null;
         if (current.getOutputs() != null) {
             for (Long inputId : current.getOutputs()) {
                 if (!visited.contains(inputId) && nodeMap.containsKey(inputId)) {
