@@ -13,11 +13,11 @@ import java.util.stream.Stream;
 import com.example.mypixel.config.StorageProperties;
 import com.example.mypixel.exception.StorageException;
 import com.example.mypixel.exception.StorageFileNotFoundException;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +31,7 @@ public class TempStorageService implements StorageService {
     private final Path rootLocation;
 
     @Autowired
-    public TempStorageService(StorageProperties properties) {
+    public TempStorageService(@NonNull StorageProperties properties) {
 
         if (properties.getLocation().trim().length() == 0) {
             throw new StorageException("File upload location can not be Empty.");
@@ -137,8 +137,7 @@ public class TempStorageService implements StorageService {
             log.info("Temp file created: [{}], Filename: [{}], Extension: [{}]", tempName, filename, extension);
             return tempName;
         }
-        log.warn("Failed to create temp file: Input resource is null");
-        return null;
+        throw new StorageException("Failed to create temp file: Input resource is null");
     }
 
     @Override

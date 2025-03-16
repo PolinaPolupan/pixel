@@ -13,7 +13,7 @@ public class Node {
     @NonNull
     Long id;
     @NonNull
-    String type;
+    NodeType type;
     Map<String, Object> params;
     List<Long> outputs;
 }

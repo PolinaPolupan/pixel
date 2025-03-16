@@ -2,6 +2,7 @@ package com.example.mypixel.service;
 
 
 import com.example.mypixel.model.Node;
+import com.example.mypixel.model.NodeType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class NodeProcessorServiceTests {
     @Test
     public void testProcessInputNode() {
         Resource mockResource = mock(Resource.class);
-        Node inputNode = new Node(0L,"InputNode", new HashMap<>() {{
+        Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {{
             put("filename", "input.jpg");
         }}, new ArrayList<>());
 
@@ -56,7 +57,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessNullInputNode() {
-        Node inputNode = new Node(0L, "InputNode", new HashMap<>() {}, new ArrayList<>());
+        Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {}, new ArrayList<>());
 
         nodeProcessorService.processInputNode(inputNode);
 
@@ -65,7 +66,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessEmptyGaussianBlurNode() {
-        Node node = new Node(0L, "GaussianBlurNode", new HashMap<>() {}, new ArrayList<>());
+        Node node = new Node(0L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, new ArrayList<>());
 
         nodeProcessorService.processGaussianBlurNode(node, null);
 
@@ -79,7 +80,7 @@ public class NodeProcessorServiceTests {
         params.put("sizeY", 5);
         params.put("sigmaX", 1.0);
         params.put("sigmaY", 1.0);
-        Node node = new Node(0L , "GaussianBlurNode", params, new ArrayList<>());
+        Node node = new Node(0L , NodeType.GAUSSIAN_BLUR, params, new ArrayList<>());
 
         when(tempStorageService.createTempFileFromFilename("tempFile.txt")).thenReturn("tempFile.txt");
 
@@ -90,7 +91,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessGaussianBlurNodeWithNoParameters() {
-        Node node = new Node(0L, "GaussianBlurNode", new HashMap<>() {}, new ArrayList<>());
+        Node node = new Node(0L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, new ArrayList<>());
 
         when(tempStorageService.createTempFileFromFilename("tempFile.txt")).thenReturn("tempFile.txt");
 
@@ -101,7 +102,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessOutputNode() {
-        Node node = new Node(0L, "OutputNode", new HashMap<>() {{ put("filename", "output.jpeg"); }}, new ArrayList<>());
+        Node node = new Node(0L, NodeType.OUTPUT, new HashMap<>() {{ put("filename", "output.jpeg"); }}, new ArrayList<>());
 
         when(tempStorageService.loadAsResource(null)).thenReturn(resource);
         nodeProcessorService.processOutputNode(node, null);

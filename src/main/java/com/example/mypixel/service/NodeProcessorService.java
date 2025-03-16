@@ -17,7 +17,6 @@ public class NodeProcessorService {
     private final StorageService storageService;
     private final FilteringService filteringService;
 
-
     @Autowired
     public NodeProcessorService(
             @Qualifier("storageService") StorageService storageService,
@@ -44,9 +43,7 @@ public class NodeProcessorService {
         double sigmaY = (double) params.getOrDefault("sigmaY", 0.0);
 
         String tempFile = tempStorageService.createTempFileFromFilename(inputFilename);
-        if (tempFile != null) {
-            filteringService.gaussianBlur(tempFile, sizeX, sizeY, sigmaX, sigmaY);
-        }
+        filteringService.gaussianBlur(tempFile, sizeX, sizeY, sigmaX, sigmaY);
 
         log.info("GaussianBlurNode processed");
 

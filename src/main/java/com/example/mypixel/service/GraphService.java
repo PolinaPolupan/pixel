@@ -3,13 +3,15 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeType;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Node;
+import com.example.mypixel.model.NodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
+
 
 @Service
 @Slf4j
@@ -23,6 +25,12 @@ public class GraphService {
     // Hash map to store node IDs and their corresponding output files
     private Map<Long, String> nodeOutputFiles = new HashMap<>();
     private Map<Long, List<Long>> parentListMap = new HashMap<>();
+
+    private final Map<NodeType, Consumer<Node>> processorMap = Map.of(
+            NodeType.INPUT, this::processInputNode,
+            NodeType.GAUSSIAN_BLUR, this::processGaussianBlurNode,
+            NodeType.OUTPUT, this::processOutputNode
+    );
 
     @Autowired
     public GraphService(
@@ -46,7 +54,7 @@ public class GraphService {
 
         // Identify all input nodes to use as starting points for graph traversal
         for (Node node: graph.getNodes()) {
-            if (node.getType().equals("InputNode")) startingNodeIds.add(node.getId());
+            if (node.getType().equals(NodeType.INPUT)) startingNodeIds.add(node.getId());
         }
 
         // Process each subgraph starting from each input node
@@ -56,16 +64,12 @@ public class GraphService {
 
             while (iterator.hasNext()) {
                 Node node = iterator.next();
-                String nodeType = node.getType();
+                NodeType type = node.getType();
 
-                switch (nodeType) {
-                    case "InputNode" -> processInputNode(node);
-                    case "GaussianBlurNode" -> processGaussianBlurNode(node);
-                    case "OutputNode" -> processOutputNode(node);
-                    default -> throw new InvalidNodeType("Invalid node type: " + nodeType);
-                }
+                Consumer<Node> processor = processorMap.get(type);
+                processor.accept(node);
 
-                log.info("Node with id: " + node.getId() + " is processed");
+                log.info("Node with id: {} is processed", node.getId());
             }
         }
         // Clean up all temporary files after processing is complete
@@ -79,7 +83,7 @@ public class GraphService {
 
     public void processGaussianBlurNode(Node node) {
         for (Long parentId: parentListMap.get(node.getId())) {
-            if (nodeOutputFiles.containsKey(parentId)) {
+            if (nodeOutputFiles.get(parentId) != null) {
                 String tempFile = nodeProcessorService.processGaussianBlurNode(node, nodeOutputFiles.get(parentId));
                 nodeOutputFiles.put(node.getId(), tempFile);
             }
@@ -88,7 +92,7 @@ public class GraphService {
 
     public void processOutputNode(Node node) {
         for (Long parentId: parentListMap.get(node.getId())) {
-            if (nodeOutputFiles.containsKey(parentId)) {
+            if (nodeOutputFiles.get(parentId) != null) {
                 String tempFile = nodeProcessorService.processOutputNode(node, nodeOutputFiles.get(parentId));
                 nodeOutputFiles.put(node.getId(), tempFile);
             }
@@ -97,7 +101,7 @@ public class GraphService {
 
     private void validate(Graph graph) {
         // Check for supported node types
-        Set<String> supportedTypes = Set.of("InputNode", "GaussianBlurNode", "OutputNode");
+        Set<NodeType> supportedTypes = Set.of(NodeType.INPUT, NodeType.GAUSSIAN_BLUR, NodeType.OUTPUT);
         for (Node node: graph.getNodes()) {
             if (!supportedTypes.contains(node.getType())) {
                 throw new InvalidNodeType("Invalid node type: " + node.getType());

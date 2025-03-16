@@ -3,6 +3,7 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeType;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Node;
+import com.example.mypixel.model.NodeType;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class GraphServiceTests {
 
     @Test
     void shouldProcessGraphWithSingleInputNode() {
-        Node inputNode = new Node(0L,"InputNode", new HashMap<>() {{
+        Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {{
             put("filename", "input1.jpg");
         }}, new ArrayList<>());
 
@@ -53,11 +54,11 @@ public class GraphServiceTests {
 
     @Test
     void shouldProcessGraphWithMultipleInputNodes() {
-        Node inputNode1 = new Node(0L,"InputNode", new HashMap<>() {{
+        Node inputNode1 = new Node(0L,NodeType.INPUT, new HashMap<>() {{
             put("filename", "input1.jpg");
         }}, new ArrayList<>());
 
-        Node inputNode2 = new Node(1L,"InputNode", new HashMap<>() {{
+        Node inputNode2 = new Node(1L,NodeType.INPUT, new HashMap<>() {{
             put("filename", "input2.jpg");
         }}, new ArrayList<>());
 
@@ -72,11 +73,11 @@ public class GraphServiceTests {
 
     @Test
     void shouldThrowExceptionForInvalidNodeType() {
-        Node inputNode1 = new Node(0L,"InvalidNode", new HashMap<>() {{
+        Node inputNode1 = new Node(0L, NodeType.INPUT, new HashMap<>() {{
             put("filename", "input1.jpg");
         }}, new ArrayList<>());
 
-        Node inputNode2 = new Node(1L,"InvalidNode", new HashMap<>() {{
+        Node inputNode2 = new Node(1L,NodeType.UNKNOWN, new HashMap<>() {{
             put("filename", "input2.jpg");
         }}, new ArrayList<>());
 
@@ -88,22 +89,22 @@ public class GraphServiceTests {
 
     @Test
     public void shouldProcessMultipleNodes() {
-        Node inputNode = new Node(0L,"InputNode", new HashMap<>() {{
+        Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {{
             put("filename", "input1.jpg");
         }}, List.of(1L, 2L, 7L));
 
-        Node blurNode1 = new Node(1L,"GaussianBlurNode", new HashMap<>() {}, List.of(3L));
-        Node blurNode2 = new Node(2L,"GaussianBlurNode", new HashMap<>() {}, List.of(3L));
+        Node blurNode1 = new Node(1L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(3L));
+        Node blurNode2 = new Node(2L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(3L));
 
-        Node inputNode2 = new Node(6L,"InputNode", new HashMap<>() {{
+        Node inputNode2 = new Node(6L, NodeType.INPUT, new HashMap<>() {{
             put("filename", "input1.jpg");
         }}, List.of(3L));
 
-        Node blurNode3 = new Node(3L,"GaussianBlurNode", new HashMap<>() {}, List.of(4L, 5L));
+        Node blurNode3 = new Node(3L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(4L, 5L));
 
-        Node outputNode1 = new Node(4L,"OutputNode", new HashMap<>() {}, List.of());
-        Node outputNode2 = new Node(5L,"OutputNode", new HashMap<>() {}, List.of());
-        Node outputNode3 = new Node(7L,"OutputNode", new HashMap<>() {}, List.of());
+        Node outputNode1 = new Node(4L, NodeType.OUTPUT, new HashMap<>() {}, List.of());
+        Node outputNode2 = new Node(5L, NodeType.OUTPUT, new HashMap<>() {}, List.of());
+        Node outputNode3 = new Node(7L, NodeType.OUTPUT, new HashMap<>() {}, List.of());
 
         Graph graph = new Graph();
         graph.setNodes(Arrays.asList(inputNode, blurNode1, blurNode2, blurNode3, outputNode1, outputNode2, inputNode2, outputNode3));
