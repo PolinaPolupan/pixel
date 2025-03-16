@@ -36,14 +36,14 @@ public class NodeProcessorService {
         return tempFile;
     }
 
-    public String processGaussianBlurNode(Node node, String filename) {
+    public String processGaussianBlurNode(Node node, String inputFilename) {
         Map<String, Object> params = node.getParams();
         int sizeX = (int) params.getOrDefault("sizeX", 1);
         int sizeY = (int) params.getOrDefault("sizeY", 1);
         double sigmaX = (double) params.getOrDefault("sigmaX", 0.0);
         double sigmaY = (double) params.getOrDefault("sigmaY", 0.0);
 
-        String tempFile = tempStorageService.createTempFileFromFilename(filename);
+        String tempFile = tempStorageService.createTempFileFromFilename(inputFilename);
         if (tempFile != null) {
             filteringService.gaussianBlur(tempFile, sizeX, sizeY, sigmaX, sigmaY);
         }
@@ -53,8 +53,8 @@ public class NodeProcessorService {
         return tempFile;
     }
 
-    public String processOutputNode(Node node, String filename) {
-        Resource outputImage = tempStorageService.loadAsResource(filename);
+    public String processOutputNode(Node node, String inputFilename) {
+        Resource outputImage = tempStorageService.loadAsResource(inputFilename);
 
         storageService.store(outputImage, (String) node.getParams().get("filename"));
         String tempFile = tempStorageService.createTempFileFromResource(outputImage);

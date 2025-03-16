@@ -20,7 +20,9 @@ public class GraphService {
 
     private final NodeProcessorService nodeProcessorService;
 
-    private Queue<String> target = new LinkedList<>();
+    // Hash map to store node IDs and their corresponding output files
+    private Map<Long, String> nodeOutputFiles = new HashMap<>();
+    private Map<Long, List<Long>> parentListMap = new HashMap<>();
 
     @Autowired
     public GraphService(
@@ -34,6 +36,7 @@ public class GraphService {
 
     public void processGraph(Graph graph) {
         validate(graph);
+        parentListMap = graph.buildParentListMap();
 
         // Initialize temporary storage for processing artifacts
         tempStorageService.deleteAll();
@@ -48,7 +51,7 @@ public class GraphService {
 
         // Process each subgraph starting from each input node
         for (Long id: startingNodeIds) {
-            target = new LinkedList<>();
+            nodeOutputFiles = new HashMap<>();
             Iterator<Node> iterator = graph.iterator(id);
 
             while (iterator.hasNext()) {
@@ -71,17 +74,25 @@ public class GraphService {
 
     public void processInputNode(Node node) {
         String tempFile = nodeProcessorService.processInputNode(node);
-        target.add(tempFile);
+        nodeOutputFiles.put(node.getId(), tempFile);
     }
 
     public void processGaussianBlurNode(Node node) {
-        String tempFile = nodeProcessorService.processGaussianBlurNode(node, target.poll());
-        target.add(tempFile);
+        for (Long parentId: parentListMap.get(node.getId())) {
+            if (nodeOutputFiles.containsKey(parentId)) {
+                String tempFile = nodeProcessorService.processGaussianBlurNode(node, nodeOutputFiles.get(parentId));
+                nodeOutputFiles.put(node.getId(), tempFile);
+            }
+        }
     }
 
     public void processOutputNode(Node node) {
-        String tempFile = nodeProcessorService.processOutputNode(node, target.poll());
-        target.add(tempFile);
+        for (Long parentId: parentListMap.get(node.getId())) {
+            if (nodeOutputFiles.containsKey(parentId)) {
+                String tempFile = nodeProcessorService.processOutputNode(node, nodeOutputFiles.get(parentId));
+                nodeOutputFiles.put(node.getId(), tempFile);
+            }
+        }
     }
 
     private void validate(Graph graph) {

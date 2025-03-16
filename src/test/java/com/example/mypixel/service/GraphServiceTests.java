@@ -110,15 +110,31 @@ public class GraphServiceTests {
 
         when(nodeProcessorService.processInputNode(inputNode)).thenReturn("file1.jpeg");
         when(nodeProcessorService.processGaussianBlurNode(blurNode1, "file1.jpeg")).thenReturn("file2.jpeg");
-        when(nodeProcessorService.processGaussianBlurNode(blurNode2, "file2.jpeg")).thenReturn("file3.jpeg");
+        when(nodeProcessorService.processGaussianBlurNode(blurNode2, "file1.jpeg")).thenReturn("file3.jpeg");
+        when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file2.jpeg")).thenReturn("file4.jpeg");
+        when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file3.jpeg")).thenReturn("file4.jpeg");
+
+        when(nodeProcessorService.processInputNode(inputNode2)).thenReturn("file5.jpeg");
+        when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file5.jpeg")).thenReturn("file6.jpeg");
 
         graphService.processGraph(graph);
 
         InOrder inOrder = inOrder(nodeProcessorService);
+
+        // First subgraph
         inOrder.verify(nodeProcessorService).processInputNode(inputNode);
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode1, "file1.jpeg");
-        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode2, "file2.jpeg");
-      //  inOrder.verify(nodeProcessorService).processOutputNode(outputNode3, null);
-       // inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, null);
+        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode2, "file1.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode3, "file1.jpeg");
+        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file2.jpeg");
+        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file3.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file4.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file4.jpeg");
+
+        // Second subgraph
+        inOrder.verify(nodeProcessorService).processInputNode(inputNode2);
+        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file5.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file6.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file6.jpeg");
     }
 }

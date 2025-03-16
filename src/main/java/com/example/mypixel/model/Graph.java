@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -21,5 +20,28 @@ public class Graph {
      */
     public Iterator<Node> iterator(Long startNodeId) {
         return new GraphIterator(this, startNodeId);
+    }
+
+    /**
+     * Returns a map where the key is a node's ID, and the value is a list of
+     * all parent IDs for that node.
+     */
+    public Map<Long, List<Long>> buildParentListMap() {
+        Map<Long, List<Long>> parentListMap = new HashMap<>();
+        if (nodes == null) {
+            return parentListMap;
+        }
+
+        for (Node n : nodes) {
+            if (n.getOutputs() != null) {
+                for (Long childId : n.getOutputs()) {
+                    parentListMap
+                            .computeIfAbsent(childId, k -> new ArrayList<>())
+                            .add(n.getId());
+                }
+            }
+        }
+
+        return parentListMap;
     }
 }
