@@ -1,10 +1,9 @@
-package com.example.mypixel;
+package com.example.mypixel.controller;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import com.example.mypixel.controller.ImageUploadController;
 import com.example.mypixel.exception.StorageFileNotFoundException;
 import com.example.mypixel.service.StorageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -117,7 +117,6 @@ public class ImageUploadControllerTests {
 
         mockMvc.perform(multipart(baseRoute).file(file))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof IllegalArgumentException));
+                .andExpect(result -> assertInstanceOf(IllegalArgumentException.class, result.getResolvedException()));
     }
 }
