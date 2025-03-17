@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +51,7 @@ public class ImageUploadController {
         if (file == null)
             return ResponseEntity.notFound().build();
 
-        String contentType = null;
+        String contentType;
         try {
             contentType = Files.probeContentType(Paths.get(file.getFile().getAbsolutePath()));
         } catch (IOException e) {
@@ -67,22 +69,33 @@ public class ImageUploadController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Void> handleFileUpload(@ModelAttribute MultipartFile file) {
-        String contentType = file.getContentType();
-        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-            throw new InvalidImageFormat("Only JPEG or PNG images are allowed");
+    public ResponseEntity<Void> handleFileUpload(@RequestParam("file") List<MultipartFile> files) {
+        List<URI> fileLocations = new ArrayList<>();
+
+        for (MultipartFile file: files) {
+            String contentType = file.getContentType();
+            if (contentType == null || (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))) {
+                throw new InvalidImageFormat("Only JPEG or PNG images are allowed");
+            }
+
+            storageService.store(file);
+
+            String filename = file.getOriginalFilename();
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/images/{filename}")
+                    .buildAndExpand(filename)
+                    .toUri();
+
+            fileLocations.add(location);
         }
 
-        storageService.store(file);
+        HttpHeaders headers = new HttpHeaders();
 
-        String filename = file.getOriginalFilename();
+        for (int i = 0; i < fileLocations.size(); i++) {
+            headers.add("X-File-Location-" + (i+1), fileLocations.get(i).toString());
+        }
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/images/{filename}")
-                .buildAndExpand(filename)
-                .toUri();
-
-        return ResponseEntity.created(location).build();
+        return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 }

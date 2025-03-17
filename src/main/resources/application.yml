@@ -1,8 +1,8 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 8MB
-      max-request-size: 8MB
+      max-file-size: 800MB
+      max-request-size: 800MB
 
 storage:
   images: upload-image-dir
