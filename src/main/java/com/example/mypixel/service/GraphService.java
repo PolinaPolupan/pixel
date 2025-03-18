@@ -23,8 +23,10 @@ public class GraphService {
     private final NodeProcessorService nodeProcessorService;
 
     // Hash map to store node IDs and their corresponding output files
-    private Map<Long, String> nodeOutputFiles = new HashMap<>();
+    private final Map<Long, String> nodeOutputFiles = new HashMap<>();
     private Map<Long, List<Long>> parentListMap = new HashMap<>();
+    // Hash map to store temp files names and their corresponding input files
+    private final HashMap<String, String> tempToOriginalFilenameMap = new HashMap<>();
 
     private final Map<NodeType, Consumer<Node>> processorMap = Map.of(
             NodeType.INPUT, this::processInputNode,
@@ -59,7 +61,8 @@ public class GraphService {
 
         // Process each subgraph starting from each input node
         for (Long id: startingNodeIds) {
-            nodeOutputFiles = new HashMap<>();
+            nodeOutputFiles.clear();
+            tempToOriginalFilenameMap.clear();
             Iterator<Node> iterator = graph.iterator(id);
 
             while (iterator.hasNext()) {
@@ -77,8 +80,10 @@ public class GraphService {
     }
 
     public void processInputNode(Node node) {
+        String filename = (String) node.getParams().get("filename");
         String tempFile = nodeProcessorService.processInputNode(node);
         nodeOutputFiles.put(node.getId(), tempFile);
+        tempToOriginalFilenameMap.put(tempFile, filename);
     }
 
     public void processGaussianBlurNode(Node node) {
@@ -86,6 +91,7 @@ public class GraphService {
             if (nodeOutputFiles.get(parentId) != null) {
                 String tempFile = nodeProcessorService.processGaussianBlurNode(node, nodeOutputFiles.get(parentId));
                 nodeOutputFiles.put(node.getId(), tempFile);
+                tempToOriginalFilenameMap.put(tempFile, tempToOriginalFilenameMap.get(nodeOutputFiles.get(parentId)));
             }
         }
     }
@@ -93,8 +99,12 @@ public class GraphService {
     public void processOutputNode(Node node) {
         for (Long parentId: parentListMap.get(node.getId())) {
             if (nodeOutputFiles.get(parentId) != null) {
-                String tempFile = nodeProcessorService.processOutputNode(node, nodeOutputFiles.get(parentId));
+                String tempFile = nodeProcessorService.processOutputNode(
+                        node,
+                        nodeOutputFiles.get(parentId),
+                        tempToOriginalFilenameMap.get(nodeOutputFiles.get(parentId)));
                 nodeOutputFiles.put(node.getId(), tempFile);
+                tempToOriginalFilenameMap.put(tempFile, tempToOriginalFilenameMap.get(nodeOutputFiles.get(parentId)));
             }
         }
     }

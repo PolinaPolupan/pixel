@@ -13,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -102,12 +103,23 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessOutputNode() {
-        Node node = new Node(0L, NodeType.OUTPUT, new HashMap<>() {{ put("filename", "output.jpeg"); }}, new ArrayList<>());
+        Node node = new Node(0L, NodeType.OUTPUT, Map.of("prefix", "output"), List.of());
 
-        when(tempStorageService.loadAsResource(null)).thenReturn(resource);
-        nodeProcessorService.processOutputNode(node, null);
+        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
+        nodeProcessorService.processOutputNode(node, "input.jpeg", "file.jpeg");
 
-        verify(storageService, times(1)).store(any(Resource.class), anyString());
-        verify(tempStorageService, times(1)).createTempFileFromResource(any(Resource.class));
+        verify(storageService, times(1)).store(eq(resource), eq("output_file.jpeg"));
+        verify(tempStorageService, times(1)).createTempFileFromResource(resource);
+    }
+
+    @Test
+    public void testProcessOutputNodeWithoutPrefix() {
+        Node node = new Node(0L, NodeType.OUTPUT, Map.of(), List.of());
+
+        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
+        nodeProcessorService.processOutputNode(node, "input.jpeg", "file.jpeg");
+
+        verify(storageService, times(1)).store(eq(resource), eq("file.jpeg"));
+        verify(tempStorageService, times(1)).createTempFileFromResource(resource);
     }
 }

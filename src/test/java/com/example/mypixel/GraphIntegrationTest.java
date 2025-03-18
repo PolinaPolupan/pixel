@@ -5,7 +5,6 @@ import com.example.mypixel.model.Node;
 import com.example.mypixel.model.NodeType;
 import com.example.mypixel.service.NodeProcessorService;
 import com.example.mypixel.service.StorageService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +32,6 @@ public class GraphIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private StorageService storageService;
-
     @MockitoBean
     private StorageService tempStorageService;
 
@@ -56,13 +49,13 @@ public class GraphIntegrationTest {
     public void testProcessGraph_Success() {
         Node inputNode = new Node(1L, NodeType.INPUT, Map.of("filename", "test.jpg"), List.of(2L));
         Node blurNode = new Node(2L, NodeType.GAUSSIAN_BLUR, Map.of("radius", 5), List.of(3L));
-        Node outputNode = new Node(3L, NodeType.OUTPUT, Map.of("filename", "output.jpg"), List.of());
+        Node outputNode = new Node(3L, NodeType.OUTPUT, Map.of("prefix", "output"), List.of());
 
         Graph graph = new Graph(List.of(inputNode, blurNode, outputNode));
 
         when(nodeProcessorService.processInputNode(any())).thenReturn("temp_input.jpg");
         when(nodeProcessorService.processGaussianBlurNode(any(), any())).thenReturn("temp_blur.jpg");
-        when(nodeProcessorService.processOutputNode(any(), any())).thenReturn("final_output.jpg");
+        when(nodeProcessorService.processOutputNode(any(), any(), eq("test.jpg"))).thenReturn("final_output.jpg");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -77,7 +70,7 @@ public class GraphIntegrationTest {
         verify(tempStorageService, times(2)).deleteAll();
         verify(nodeProcessorService).processInputNode(any());
         verify(nodeProcessorService).processGaussianBlurNode(any(), eq("temp_input.jpg"));
-        verify(nodeProcessorService).processOutputNode(any(), eq("temp_blur.jpg"));
+        verify(nodeProcessorService).processOutputNode(any(), eq("temp_blur.jpg"), eq("test.jpg"));
     }
 
     @Test
@@ -85,13 +78,13 @@ public class GraphIntegrationTest {
         Node inputNode = new Node(1L, NodeType.INPUT, Map.of("filename", "test.jpg"), List.of(2L, 3L));
         Node blurNode1 = new Node(2L, NodeType.GAUSSIAN_BLUR, Map.of(), List.of(4L));
         Node blurNode2 = new Node(3L, NodeType.GAUSSIAN_BLUR, Map.of(), List.of(4L));
-        Node outputNode = new Node(4L, NodeType.OUTPUT, Map.of("filename", "output.jpg"), List.of());
+        Node outputNode = new Node(4L, NodeType.OUTPUT, Map.of("prefix", "output"), List.of());
 
         Graph graph = new Graph(List.of(inputNode, blurNode1, blurNode2, outputNode));
 
         when(nodeProcessorService.processInputNode(any())).thenReturn("temp_input.jpg");
         when(nodeProcessorService.processGaussianBlurNode(any(), any())).thenReturn("temp_blur.jpg");
-        when(nodeProcessorService.processOutputNode(any(), any())).thenReturn("output.jpg");
+        when(nodeProcessorService.processOutputNode(any(), any(), eq("temp_input.jpg"))).thenReturn("output.jpg");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -105,7 +98,7 @@ public class GraphIntegrationTest {
         verify(nodeProcessorService).processInputNode(any());
         verify(nodeProcessorService).processGaussianBlurNode(eq(blurNode1), any());
         verify(nodeProcessorService).processGaussianBlurNode(eq(blurNode2), any());
-        verify(nodeProcessorService, times(2)).processOutputNode(any(), any());
+        verify(nodeProcessorService, times(2)).processOutputNode(any(), any(), eq("test.jpg"));
     }
 
     @Test

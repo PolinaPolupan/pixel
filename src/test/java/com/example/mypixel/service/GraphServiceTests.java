@@ -20,10 +20,6 @@ import static org.mockito.Mockito.*;
 public class GraphServiceTests {
 
     @MockitoBean
-    @Qualifier("storageService")
-    private StorageService storageService;
-
-    @MockitoBean
     @Qualifier("tempStorageService")
     private StorageService tempStorageService;
 
@@ -90,14 +86,14 @@ public class GraphServiceTests {
     @Test
     public void shouldProcessMultipleNodes() {
         Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input1.jpg");
+            put("filename", "input1.jpeg");
         }}, List.of(1L, 2L, 7L));
 
         Node blurNode1 = new Node(1L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(3L));
         Node blurNode2 = new Node(2L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(3L));
 
         Node inputNode2 = new Node(6L, NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input1.jpg");
+            put("filename", "input2.jpeg");
         }}, List.of(3L));
 
         Node blurNode3 = new Node(3L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(4L, 5L));
@@ -126,16 +122,16 @@ public class GraphServiceTests {
         inOrder.verify(nodeProcessorService).processInputNode(inputNode);
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode1, "file1.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode2, "file1.jpeg");
-        inOrder.verify(nodeProcessorService).processOutputNode(outputNode3, "file1.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode3, "file1.jpeg", "input1.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file2.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file3.jpeg");
-        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file4.jpeg");
-        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file4.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file4.jpeg", "input1.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file4.jpeg", "input1.jpeg");
 
         // Second subgraph
         inOrder.verify(nodeProcessorService).processInputNode(inputNode2);
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file5.jpeg");
-        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file6.jpeg");
-        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file6.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file6.jpeg", "input2.jpeg");
+        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file6.jpeg", "input2.jpeg");
     }
 }

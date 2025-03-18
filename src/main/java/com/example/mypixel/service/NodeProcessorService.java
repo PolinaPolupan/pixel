@@ -50,10 +50,15 @@ public class NodeProcessorService {
         return tempFile;
     }
 
-    public String processOutputNode(Node node, String inputFilename) {
+    public String processOutputNode(Node node, String inputFilename, String outputFilename) {
         Resource outputImage = tempStorageService.loadAsResource(inputFilename);
 
-        storageService.store(outputImage, (String) node.getParams().get("filename"));
+        String filename = outputFilename;
+        if (node.getParams().get("prefix") != null) {
+            filename = node.getParams().get("prefix") + "_" + outputFilename;
+        }
+
+        storageService.store(outputImage, filename);
         String tempFile = tempStorageService.createTempFileFromResource(outputImage);
 
         log.info("OutputNode processed");
