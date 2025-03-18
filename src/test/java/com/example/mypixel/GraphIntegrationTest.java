@@ -47,13 +47,13 @@ public class GraphIntegrationTest {
 
     @Test
     public void testProcessGraph_Success() {
-        Node inputNode = new Node(1L, NodeType.INPUT, Map.of("filename", "test.jpg"), List.of(2L));
+        Node inputNode = new Node(1L, NodeType.INPUT, Map.of("files", List.of("test.jpg")), List.of(2L));
         Node blurNode = new Node(2L, NodeType.GAUSSIAN_BLUR, Map.of("radius", 5), List.of(3L));
         Node outputNode = new Node(3L, NodeType.OUTPUT, Map.of("prefix", "output"), List.of());
 
         Graph graph = new Graph(List.of(inputNode, blurNode, outputNode));
 
-        when(nodeProcessorService.processInputNode(any())).thenReturn("temp_input.jpg");
+        when(nodeProcessorService.processInputNode(any(), eq("test.jpg"))).thenReturn("temp_input.jpg");
         when(nodeProcessorService.processGaussianBlurNode(any(), any())).thenReturn("temp_blur.jpg");
         when(nodeProcessorService.processOutputNode(any(), any(), eq("test.jpg"))).thenReturn("final_output.jpg");
 
@@ -68,21 +68,21 @@ public class GraphIntegrationTest {
 
         verify(tempStorageService).init();
         verify(tempStorageService, times(2)).deleteAll();
-        verify(nodeProcessorService).processInputNode(any());
+        verify(nodeProcessorService).processInputNode(any(), eq("test.jpg"));
         verify(nodeProcessorService).processGaussianBlurNode(any(), eq("temp_input.jpg"));
         verify(nodeProcessorService).processOutputNode(any(), eq("temp_blur.jpg"), eq("test.jpg"));
     }
 
     @Test
     public void testProcessGraph_ComplexGraph() {
-        Node inputNode = new Node(1L, NodeType.INPUT, Map.of("filename", "test.jpg"), List.of(2L, 3L));
+        Node inputNode = new Node(1L, NodeType.INPUT, Map.of("files", List.of("test.jpg")), List.of(2L, 3L));
         Node blurNode1 = new Node(2L, NodeType.GAUSSIAN_BLUR, Map.of(), List.of(4L));
         Node blurNode2 = new Node(3L, NodeType.GAUSSIAN_BLUR, Map.of(), List.of(4L));
         Node outputNode = new Node(4L, NodeType.OUTPUT, Map.of("prefix", "output"), List.of());
 
         Graph graph = new Graph(List.of(inputNode, blurNode1, blurNode2, outputNode));
 
-        when(nodeProcessorService.processInputNode(any())).thenReturn("temp_input.jpg");
+        when(nodeProcessorService.processInputNode(any(), eq("test.jpg"))).thenReturn("temp_input.jpg");
         when(nodeProcessorService.processGaussianBlurNode(any(), any())).thenReturn("temp_blur.jpg");
         when(nodeProcessorService.processOutputNode(any(), any(), eq("temp_input.jpg"))).thenReturn("output.jpg");
 
@@ -95,7 +95,7 @@ public class GraphIntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        verify(nodeProcessorService).processInputNode(any());
+        verify(nodeProcessorService).processInputNode(any(), eq("test.jpg"));
         verify(nodeProcessorService).processGaussianBlurNode(eq(blurNode1), any());
         verify(nodeProcessorService).processGaussianBlurNode(eq(blurNode2), any());
         verify(nodeProcessorService, times(2)).processOutputNode(any(), any(), eq("test.jpg"));

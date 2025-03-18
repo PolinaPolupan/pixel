@@ -1,5 +1,6 @@
 package com.example.mypixel.service;
 
+import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,10 @@ public class NodeProcessorService {
         this.filteringService = filteringService;
     }
 
-    public String processInputNode(Node node) {
-        String filename = (String) node.getParams().get("filename");
+    public String processInputNode(Node node, String filename) {
+        if (filename == null) {
+            throw new InvalidNodeParameter("Invalid node parameter: file cannot be null");
+        }
         String tempFile = tempStorageService.createTempFileFromResource(storageService.loadAsResource(filename));
         log.info("InputNode processed");
 

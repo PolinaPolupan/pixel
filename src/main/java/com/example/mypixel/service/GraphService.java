@@ -23,7 +23,7 @@ public class GraphService {
     private final NodeProcessorService nodeProcessorService;
 
     // Hash map to store node IDs and their corresponding output files
-    private final Map<Long, String> nodeOutputFiles = new HashMap<>();
+    private final Map<Long, List<String>> nodeOutputFiles = new HashMap<>();
     private Map<Long, List<Long>> parentListMap = new HashMap<>();
     // Hash map to store temp files names and their corresponding input files
     private final HashMap<String, String> tempToOriginalFilenameMap = new HashMap<>();
@@ -80,31 +80,49 @@ public class GraphService {
     }
 
     public void processInputNode(Node node) {
-        String filename = (String) node.getParams().get("filename");
-        String tempFile = nodeProcessorService.processInputNode(node);
-        nodeOutputFiles.put(node.getId(), tempFile);
-        tempToOriginalFilenameMap.put(tempFile, filename);
+        List<String> files = (List<String>) node.getParams().get("files");
+
+        nodeOutputFiles.computeIfAbsent(node.getId(), k -> new ArrayList<>());
+
+        for (String filename: files) {
+            String tempFile = nodeProcessorService.processInputNode(node, filename);
+            nodeOutputFiles.get(node.getId()).add(tempFile);
+            tempToOriginalFilenameMap.put(tempFile, filename);
+        }
     }
 
     public void processGaussianBlurNode(Node node) {
+        nodeOutputFiles.computeIfAbsent(node.getId(), k -> new ArrayList<>());
+
         for (Long parentId: parentListMap.get(node.getId())) {
-            if (nodeOutputFiles.get(parentId) != null) {
-                String tempFile = nodeProcessorService.processGaussianBlurNode(node, nodeOutputFiles.get(parentId));
-                nodeOutputFiles.put(node.getId(), tempFile);
-                tempToOriginalFilenameMap.put(tempFile, tempToOriginalFilenameMap.get(nodeOutputFiles.get(parentId)));
+            List<String> parentTempFiles = nodeOutputFiles.get(parentId);
+
+            if (parentTempFiles != null && !parentTempFiles.isEmpty()) {
+                for (String parentTempFile : parentTempFiles) {
+                    String tempFile = nodeProcessorService.processGaussianBlurNode(node, parentTempFile);
+                    nodeOutputFiles.get(node.getId()).add(tempFile);
+                    tempToOriginalFilenameMap.put(tempFile, tempToOriginalFilenameMap.get(parentTempFile));
+                }
             }
         }
     }
 
     public void processOutputNode(Node node) {
+        nodeOutputFiles.computeIfAbsent(node.getId(), k -> new ArrayList<>());
+
         for (Long parentId: parentListMap.get(node.getId())) {
-            if (nodeOutputFiles.get(parentId) != null) {
-                String tempFile = nodeProcessorService.processOutputNode(
-                        node,
-                        nodeOutputFiles.get(parentId),
-                        tempToOriginalFilenameMap.get(nodeOutputFiles.get(parentId)));
-                nodeOutputFiles.put(node.getId(), tempFile);
-                tempToOriginalFilenameMap.put(tempFile, tempToOriginalFilenameMap.get(nodeOutputFiles.get(parentId)));
+            List<String> parentTempFiles = nodeOutputFiles.get(parentId);
+
+            if (parentTempFiles != null && !parentTempFiles.isEmpty()) {
+                for (String parentTempFile : parentTempFiles) {
+                    String originalFilename = tempToOriginalFilenameMap.get(parentTempFile);
+                    String tempFile = nodeProcessorService.processOutputNode(
+                            node,
+                            parentTempFile,
+                            originalFilename);
+                    nodeOutputFiles.get(node.getId()).add(tempFile);
+                    tempToOriginalFilenameMap.put(tempFile, originalFilename);
+                }
             }
         }
     }

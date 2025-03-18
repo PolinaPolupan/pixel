@@ -1,6 +1,7 @@
 package com.example.mypixel.service;
 
 
+import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Node;
 import com.example.mypixel.model.NodeType;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -43,15 +44,13 @@ public class NodeProcessorServiceTests {
     @Test
     public void testProcessInputNode() {
         Resource mockResource = mock(Resource.class);
-        Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input.jpg");
-        }}, new ArrayList<>());
+        Node inputNode = new Node(0L, NodeType.INPUT, Map.of("files", List.of("input.jpg")), new ArrayList<>());
 
         when(tempStorageService.loadAsResource("input.jpg")).thenReturn(mockResource);
         when(storageService.loadAsResource("input.jpg")).thenReturn(mockResource);
         when(mockResource.getFilename()).thenReturn("input.jpg");
 
-        nodeProcessorService.processInputNode(inputNode);
+        nodeProcessorService.processInputNode(inputNode, "input.jpg");
 
         verify(tempStorageService, times(1)).createTempFileFromResource(eq(mockResource));
     }
@@ -60,9 +59,7 @@ public class NodeProcessorServiceTests {
     public void testProcessNullInputNode() {
         Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {}, new ArrayList<>());
 
-        nodeProcessorService.processInputNode(inputNode);
-
-        verify(tempStorageService, never()).createTempFileFromResource(any(Resource.class));
+        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processInputNode(inputNode, null));
     }
 
     @Test

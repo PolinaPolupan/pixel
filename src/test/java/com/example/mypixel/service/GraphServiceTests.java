@@ -34,9 +34,7 @@ public class GraphServiceTests {
 
     @Test
     void shouldProcessGraphWithSingleInputNode() {
-        Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input1.jpg");
-        }}, new ArrayList<>());
+        Node inputNode = new Node(0L, NodeType.INPUT, Map.of("files", List.of("input1.jpg")), new ArrayList<>());
 
         Graph graph = new Graph();
         graph.setNodes(List.of(inputNode));
@@ -44,27 +42,22 @@ public class GraphServiceTests {
         graphService.processGraph(graph);
 
         verify(tempStorageService).init();
-        verify(nodeProcessorService).processInputNode(inputNode);
+        verify(nodeProcessorService).processInputNode(inputNode, "input1.jpg");
         verify(tempStorageService, times(2)).deleteAll();
     }
 
     @Test
     void shouldProcessGraphWithMultipleInputNodes() {
-        Node inputNode1 = new Node(0L,NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input1.jpg");
-        }}, new ArrayList<>());
-
-        Node inputNode2 = new Node(1L,NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input2.jpg");
-        }}, new ArrayList<>());
+        Node inputNode1 = new Node(0L,NodeType.INPUT, Map.of("files", List.of("input1.jpg")), new ArrayList<>());
+        Node inputNode2 = new Node(1L,NodeType.INPUT, Map.of("files", List.of("input2.jpg")), new ArrayList<>());
 
         Graph graph = new Graph();
         graph.setNodes(Arrays.asList(inputNode1, inputNode2));
 
         graphService.processGraph(graph);
 
-        verify(nodeProcessorService).processInputNode(inputNode1);
-        verify(nodeProcessorService).processInputNode(inputNode2);
+        verify(nodeProcessorService).processInputNode(inputNode1,"input1.jpg");
+        verify(nodeProcessorService).processInputNode(inputNode2, "input2.jpg");
     }
 
     @Test
@@ -85,16 +78,12 @@ public class GraphServiceTests {
 
     @Test
     public void shouldProcessMultipleNodes() {
-        Node inputNode = new Node(0L, NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input1.jpeg");
-        }}, List.of(1L, 2L, 7L));
+        Node inputNode = new Node(0L, NodeType.INPUT, Map.of("files", List.of("input1.jpeg")), List.of(1L, 2L, 7L));
 
         Node blurNode1 = new Node(1L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(3L));
         Node blurNode2 = new Node(2L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(3L));
 
-        Node inputNode2 = new Node(6L, NodeType.INPUT, new HashMap<>() {{
-            put("filename", "input2.jpeg");
-        }}, List.of(3L));
+        Node inputNode2 = new Node(6L, NodeType.INPUT, Map.of("files", List.of("input2.jpeg")), List.of(3L));
 
         Node blurNode3 = new Node(3L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(4L, 5L));
 
@@ -105,13 +94,13 @@ public class GraphServiceTests {
         Graph graph = new Graph();
         graph.setNodes(Arrays.asList(inputNode, blurNode1, blurNode2, blurNode3, outputNode1, outputNode2, inputNode2, outputNode3));
 
-        when(nodeProcessorService.processInputNode(inputNode)).thenReturn("file1.jpeg");
+        when(nodeProcessorService.processInputNode(inputNode, "input1.jpeg")).thenReturn("file1.jpeg");
         when(nodeProcessorService.processGaussianBlurNode(blurNode1, "file1.jpeg")).thenReturn("file2.jpeg");
         when(nodeProcessorService.processGaussianBlurNode(blurNode2, "file1.jpeg")).thenReturn("file3.jpeg");
         when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file2.jpeg")).thenReturn("file4.jpeg");
         when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file3.jpeg")).thenReturn("file4.jpeg");
 
-        when(nodeProcessorService.processInputNode(inputNode2)).thenReturn("file5.jpeg");
+        when(nodeProcessorService.processInputNode(inputNode2, "input2.jpeg")).thenReturn("file5.jpeg");
         when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file5.jpeg")).thenReturn("file6.jpeg");
 
         graphService.processGraph(graph);
@@ -119,17 +108,17 @@ public class GraphServiceTests {
         InOrder inOrder = inOrder(nodeProcessorService);
 
         // First subgraph
-        inOrder.verify(nodeProcessorService).processInputNode(inputNode);
+        inOrder.verify(nodeProcessorService).processInputNode(inputNode, "input1.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode1, "file1.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode2, "file1.jpeg");
         inOrder.verify(nodeProcessorService).processOutputNode(outputNode3, "file1.jpeg", "input1.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file2.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file3.jpeg");
-        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file4.jpeg", "input1.jpeg");
-        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file4.jpeg", "input1.jpeg");
+        inOrder.verify(nodeProcessorService, times(2)).processOutputNode(outputNode1, "file4.jpeg", "input1.jpeg");
+        inOrder.verify(nodeProcessorService, times(2)).processOutputNode(outputNode2, "file4.jpeg", "input1.jpeg");
 
         // Second subgraph
-        inOrder.verify(nodeProcessorService).processInputNode(inputNode2);
+        inOrder.verify(nodeProcessorService).processInputNode(inputNode2, "input2.jpeg");
         inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file5.jpeg");
         inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file6.jpeg", "input2.jpeg");
         inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file6.jpeg", "input2.jpeg");
