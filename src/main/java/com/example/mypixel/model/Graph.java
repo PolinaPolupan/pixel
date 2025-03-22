@@ -32,16 +32,27 @@ public class Graph {
             return parentListMap;
         }
 
-        for (Node n : nodes) {
-            if (n.getOutputs() != null) {
-                for (Long childId : n.getOutputs()) {
-                    parentListMap
-                            .computeIfAbsent(childId, k -> new ArrayList<>())
-                            .add(n.getId());
-                }
+        for (Node n: nodes) {
+            for (Long childId: getNodeOutputs(n)) {
+                parentListMap
+                    .computeIfAbsent(childId, k -> new ArrayList<>())
+                    .add(n.getId());
             }
         }
 
         return parentListMap;
+    }
+
+    public List<Long> getNodeOutputs(Node node) {
+        List<Long> outputs = new ArrayList<>();
+
+        for (Node n: nodes) {
+            for (Object param: n.getParams().values()) {
+                if (param instanceof NodeReference) {
+                    if (((NodeReference) param).getNodeId().equals(node.getId())) outputs.add(n.getId());
+                }
+            }
+        }
+        return outputs;
     }
 }

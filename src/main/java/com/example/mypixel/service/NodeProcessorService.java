@@ -32,10 +32,9 @@ public class NodeProcessorService {
         if (filename == null) {
             throw new InvalidNodeParameter("Invalid node parameter: file cannot be null");
         }
-        String tempFile = tempStorageService.createTempFileFromResource(storageService.loadAsResource(filename));
         log.info("InputNode processed");
 
-        return tempFile;
+        return filename;
     }
 
     public String processGaussianBlurNode(Node node, String inputFilename) {
@@ -45,27 +44,23 @@ public class NodeProcessorService {
         double sigmaX = (double) params.getOrDefault("sigmaX", 0.0);
         double sigmaY = (double) params.getOrDefault("sigmaY", 0.0);
 
-        String tempFile = tempStorageService.createTempFileFromFilename(inputFilename);
-        filteringService.gaussianBlur(tempFile, sizeX, sizeY, sigmaX, sigmaY);
+        filteringService.gaussianBlur(inputFilename, sizeX, sizeY, sigmaX, sigmaY);
 
         log.info("GaussianBlurNode processed");
 
-        return tempFile;
+        return inputFilename;
     }
 
     public String processOutputNode(Node node, String inputFilename, String outputFilename) {
-        Resource outputImage = tempStorageService.loadAsResource(inputFilename);
-
         String filename = outputFilename;
         if (node.getParams().get("prefix") != null) {
             filename = node.getParams().get("prefix") + "_" + outputFilename;
         }
 
-        storageService.store(outputImage, filename);
-        String tempFile = tempStorageService.createTempFileFromResource(outputImage);
+        storageService.store(tempStorageService.loadAsResource(inputFilename), filename);
 
         log.info("OutputNode processed");
 
-        return tempFile;
+        return filename;
     }
 }

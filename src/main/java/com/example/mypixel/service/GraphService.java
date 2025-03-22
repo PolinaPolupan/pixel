@@ -3,13 +3,16 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeType;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Node;
+import com.example.mypixel.model.NodeReference;
 import com.example.mypixel.model.NodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
@@ -28,7 +31,7 @@ public class GraphService {
     // Hash map to store temp files names and their corresponding input files
     private final HashMap<String, String> tempToOriginalFilenameMap = new HashMap<>();
 
-    private final Map<NodeType, Consumer<Node>> processorMap = Map.of(
+    private final Map<NodeType, BiConsumer<Node, String>> processorMap = Map.of(
             NodeType.INPUT, this::processInputNode,
             NodeType.GAUSSIAN_BLUR, this::processGaussianBlurNode,
             NodeType.OUTPUT, this::processOutputNode
@@ -67,10 +70,7 @@ public class GraphService {
 
             while (iterator.hasNext()) {
                 Node node = iterator.next();
-                NodeType type = node.getType();
-
-                Consumer<Node> processor = processorMap.get(type);
-                processor.accept(node);
+                processNode(node, getInputs(node));
 
                 log.info("Node with id: {} is processed", node.getId());
             }
@@ -79,52 +79,39 @@ public class GraphService {
         tempStorageService.deleteAll();
     }
 
-    public void processInputNode(Node node) {
-        List<String> files = (List<String>) node.getParams().get("files");
-
+    public void processNode(Node node, List<String> inputFiles) {
         nodeOutputFiles.computeIfAbsent(node.getId(), k -> new ArrayList<>());
 
-        for (String filename: files) {
-            String tempFile = nodeProcessorService.processInputNode(node, filename);
-            nodeOutputFiles.get(node.getId()).add(tempFile);
-            tempToOriginalFilenameMap.put(tempFile, filename);
+        for (Object param : node.getParams().values()) {
+            if (param instanceof NodeReference) {
+                log.info(((NodeReference) param).getNodeId().toString());
+            }
+        }
+
+        for (String file: inputFiles) {
+            String tempFile;
+            if (node.getType().equals(NodeType.INPUT)) tempFile = loadToTempFile(node, storageService.loadAsResource(file));
+            else tempFile = loadToTempFile(node, tempStorageService.loadAsResource(file));
+
+            NodeType type = node.getType();
+
+            BiConsumer<Node, String> processor = processorMap.get(type);
+            processor.accept(node, tempFile);
+            node.getOutputs().add(tempFile);
         }
     }
 
-    public void processGaussianBlurNode(Node node) {
-        nodeOutputFiles.computeIfAbsent(node.getId(), k -> new ArrayList<>());
-
-        for (Long parentId: parentListMap.get(node.getId())) {
-            List<String> parentTempFiles = nodeOutputFiles.get(parentId);
-
-            if (parentTempFiles != null && !parentTempFiles.isEmpty()) {
-                for (String parentTempFile : parentTempFiles) {
-                    String tempFile = nodeProcessorService.processGaussianBlurNode(node, parentTempFile);
-                    nodeOutputFiles.get(node.getId()).add(tempFile);
-                    tempToOriginalFilenameMap.put(tempFile, tempToOriginalFilenameMap.get(parentTempFile));
-                }
-            }
-        }
+    public void processInputNode(Node node, String inputFile) {
+        nodeProcessorService.processInputNode(node, inputFile);
     }
 
-    public void processOutputNode(Node node) {
-        nodeOutputFiles.computeIfAbsent(node.getId(), k -> new ArrayList<>());
+    public void processGaussianBlurNode(Node node, String inputFile) {
+        nodeProcessorService.processGaussianBlurNode(node, inputFile);
+    }
 
-        for (Long parentId: parentListMap.get(node.getId())) {
-            List<String> parentTempFiles = nodeOutputFiles.get(parentId);
-
-            if (parentTempFiles != null && !parentTempFiles.isEmpty()) {
-                for (String parentTempFile : parentTempFiles) {
-                    String originalFilename = tempToOriginalFilenameMap.get(parentTempFile);
-                    String tempFile = nodeProcessorService.processOutputNode(
-                            node,
-                            parentTempFile,
-                            originalFilename);
-                    nodeOutputFiles.get(node.getId()).add(tempFile);
-                    tempToOriginalFilenameMap.put(tempFile, originalFilename);
-                }
-            }
-        }
+    public void processOutputNode(Node node, String inputFile) {
+        String originalFilename = tempToOriginalFilenameMap.get(inputFile);
+        nodeProcessorService.processOutputNode(node, inputFile, originalFilename);
     }
 
     private void validate(Graph graph) {
@@ -135,5 +122,27 @@ public class GraphService {
                 throw new InvalidNodeType("Invalid node type: " + node.getType());
             }
         }
+    }
+
+    private String loadToTempFile(Node node, Resource file) {
+        String tempFile = tempStorageService.createTempFileFromResource(file);
+        nodeOutputFiles.get(node.getId()).add(tempFile);
+        if (tempToOriginalFilenameMap.get(file.getFilename()) == null) { // no ancestors
+            tempToOriginalFilenameMap.put(tempFile, file.getFilename());
+        } else {
+            tempToOriginalFilenameMap.put(tempFile, tempToOriginalFilenameMap.get(file.getFilename()));
+        }
+
+        return tempFile;
+    }
+
+    private List<String> getInputs(Node node) {
+        if (node.getType().equals(NodeType.INPUT)) return (List<String>) node.getParams().get("files");
+        List<String> files = List.of();
+        for (Long parentId: parentListMap.get(node.getId())) {
+            files = nodeOutputFiles.get(parentId);
+        }
+
+        return files;
     }
 }

@@ -9,6 +9,7 @@ public class GraphIterator implements Iterator<Node> {
     private final Queue<Node> queue;
     private final Set<Long> visited;
     private final Map<Long, Node> nodeMap;
+    private final Graph graph;
 
     /**
      * Creates a new BFS iterator starting from the specified node.
@@ -17,6 +18,7 @@ public class GraphIterator implements Iterator<Node> {
      * @param startNodeId The ID of the node to start traversal from
      */
     public GraphIterator(Graph graph, Long startNodeId) {
+        this.graph = graph;
         this.queue = new LinkedList<>();
         this.visited = new HashSet<>();
         this.nodeMap = new HashMap<>();
@@ -53,13 +55,12 @@ public class GraphIterator implements Iterator<Node> {
 
         // Add all unvisited connected nodes to the queue
         assert current != null;
-        if (current.getOutputs() != null) {
-            for (Long inputId : current.getOutputs()) {
-                if (!visited.contains(inputId) && nodeMap.containsKey(inputId)) {
-                    Node inputNode = nodeMap.get(inputId);
-                    queue.add(inputNode);
-                    visited.add(inputId);
-                }
+
+        for (Long inputId : graph.getNodeOutputs(current)) {
+            if (!visited.contains(inputId) && nodeMap.containsKey(inputId)) {
+                Node inputNode = nodeMap.get(inputId);
+                queue.add(inputNode);
+                visited.add(inputId);
             }
         }
 
