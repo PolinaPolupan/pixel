@@ -1,6 +1,5 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Node;
 import com.example.mypixel.model.NodeReference;
 import lombok.extern.slf4j.Slf4j;
@@ -111,5 +110,11 @@ public class NodeProcessorService {
         log.info(inputs.toString());
         nodeOutputs.get(node.getId()).addAll(outputs);
         log.info(nodeOutputs.toString());
+    }
+
+    public void clear() {
+        nodeOutputs.clear();
+        tempStorageService.deleteAll();
+        tempStorageService.init();
     }
 }
