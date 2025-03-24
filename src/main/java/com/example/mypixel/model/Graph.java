@@ -22,32 +22,11 @@ public class Graph {
         return new GraphIterator(this, startNodeId);
     }
 
-    /**
-     * Returns a map where the key is a node's ID, and the value is a list of
-     * all parent IDs for that node.
-     */
-    public Map<Long, List<Long>> buildParentListMap() {
-        Map<Long, List<Long>> parentListMap = new HashMap<>();
-        if (nodes == null) {
-            return parentListMap;
-        }
-
-        for (Node n: nodes) {
-            for (Long childId: getNodeOutputs(n)) {
-                parentListMap
-                    .computeIfAbsent(childId, k -> new ArrayList<>())
-                    .add(n.getId());
-            }
-        }
-
-        return parentListMap;
-    }
-
     public List<Long> getNodeOutputs(Node node) {
         List<Long> outputs = new ArrayList<>();
 
         for (Node n: nodes) {
-            for (Object param: n.getParams().values()) {
+            for (Object param: n.getInputs().values()) {
                 if (param instanceof NodeReference) {
                     if (((NodeReference) param).getNodeId().equals(node.getId())) outputs.add(n.getId());
                 }

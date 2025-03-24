@@ -2,18 +2,23 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Node;
+import com.example.mypixel.model.NodeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
 @Slf4j
 public class NodeProcessorService {
 
+    // Hash map to store node IDs and their corresponding outputs
+    private final Map<Long, List<Map<String, Object>>> nodeOutputs = new HashMap<>();
     private final StorageService tempStorageService;
     private final StorageService storageService;
     private final FilteringService filteringService;
@@ -28,39 +33,83 @@ public class NodeProcessorService {
         this.filteringService = filteringService;
     }
 
-    public String processInputNode(Node node, String filename) {
-        if (filename == null) {
-            throw new InvalidNodeParameter("Invalid node parameter: file cannot be null");
-        }
-        log.info("InputNode processed");
+    public void processInputNode(Node node) {
+        nodeOutputs.computeIfAbsent(node.getId(), k -> new ArrayList<>());
+        List<Map<String, Object>> outputs = new ArrayList<>();
+        List<String> inputs = (List<String>) node.getInputs().get("files");
 
-        return filename;
+        for (String input: inputs) {
+            String temp = tempStorageService.createTempFileFromResource(storageService.loadAsResource(input));
+            outputs.add(Map.of("file", temp));
+        }
+        nodeOutputs.get(node.getId()).addAll(outputs);
+        log.info(nodeOutputs.toString());
     }
 
-    public String processGaussianBlurNode(Node node, String inputFilename) {
-        Map<String, Object> params = node.getParams();
-        int sizeX = (int) params.getOrDefault("sizeX", 1);
-        int sizeY = (int) params.getOrDefault("sizeY", 1);
-        double sigmaX = (double) params.getOrDefault("sigmaX", 0.0);
-        double sigmaY = (double) params.getOrDefault("sigmaY", 0.0);
+    public void processGaussianBlurNode(Node node) {
+        nodeOutputs.computeIfAbsent(node.getId(), k -> new ArrayList<>());
+        List<Map<String, Object>> outputs = new ArrayList<>();
+        List<Map<String, Object>> inputs = new ArrayList<>();
 
-        filteringService.gaussianBlur(inputFilename, sizeX, sizeY, sigmaX, sigmaY);
+        if (node.getInputs().get("file") instanceof NodeReference) {
+            for (Map<String, Object> values: nodeOutputs.get(((NodeReference) node.getInputs().get("file")).getNodeId())) {
+                int sizeX = (int) node.getInputs().getOrDefault("sizeX", 1);
+                int sizeY = (int) node.getInputs().getOrDefault("sizeY", 1);
+                double sigmaX = (double) node.getInputs().getOrDefault("sigmaX", 0.0);
+                double sigmaY = (double) node.getInputs().getOrDefault("sigmaY", 0.0);
 
-        log.info("GaussianBlurNode processed");
-
-        return inputFilename;
-    }
-
-    public String processOutputNode(Node node, String inputFilename, String outputFilename) {
-        String filename = outputFilename;
-        if (node.getParams().get("prefix") != null) {
-            filename = node.getParams().get("prefix") + "_" + outputFilename;
+                inputs.add(Map.of(
+                        "file", values.get("file"),
+                        "sizeX", sizeX,
+                        "sizeY", sizeY,
+                        "sigmaX", sigmaX,
+                        "sigmaY", sigmaY
+                ));
+            }
         }
 
-        storageService.store(tempStorageService.loadAsResource(inputFilename), filename);
+        for (Map<String, Object> input: inputs) {
+            String temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource((String) input.get("file")));
+            filteringService.gaussianBlur(
+                    temp,
+                    (int) input.get("sizeX"),
+                    (int) input.get("sizeY"),
+                    (double) input.get("sigmaX"),
+                    (double) input.get("sigmaY"));
+            outputs.add(Map.of("file", temp));
+        }
 
-        log.info("OutputNode processed");
+        nodeOutputs.get(node.getId()).addAll(outputs);
+        log.info(inputs.toString());
+        log.info(nodeOutputs.toString());
+    }
 
-        return filename;
+    public void processOutputNode(Node node) {
+        nodeOutputs.computeIfAbsent(node.getId(), k -> new ArrayList<>());
+        List<Map<String, Object>> outputs = new ArrayList<>();
+        List<Map<String, Object>> inputs = new ArrayList<>();
+
+        if (node.getInputs().get("file") instanceof NodeReference) {
+            for (Map<String, Object> values: nodeOutputs.get(((NodeReference) node.getInputs().get("file")).getNodeId())) {
+                String prefix = (String) node.getInputs().getOrDefault("prefix", "");
+
+                inputs.add(Map.of("file", values.get("file"), "prefix", prefix));
+            }
+        }
+
+        for (Map<String, Object> input: inputs) {
+            String temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource((String) input.get("file")));
+            String filename = tempStorageService.removeExistingPrefix(temp);
+            if (node.getInputs().get("prefix") != null) {
+                filename = node.getInputs().get("prefix") + "_" + filename;
+            }
+
+            storageService.store(tempStorageService.loadAsResource(temp), filename);
+            outputs.add(Map.of("file", temp));
+        }
+
+        log.info(inputs.toString());
+        nodeOutputs.get(node.getId()).addAll(outputs);
+        log.info(nodeOutputs.toString());
     }
 }

@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.example.mypixel.config.StorageProperties;
@@ -126,12 +128,40 @@ public class TempStorageService implements StorageService {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
     }
 
+    private final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");
+    private final Pattern prefixPattern = Pattern.compile("^[^_]+_(.*?)(\\.[^.]*$|$)");
+
+    private String addPrefixToFilename(String filename, String prefix) {
+        // Remove any existing prefix
+        filename = removeExistingPrefix(filename);
+
+        // Add new prefix
+        Matcher matcher = filenamePattern.matcher(filename);
+        if (matcher.find()) {
+            String baseName = matcher.group(1);
+            String extension = matcher.group(2);
+            return prefix + "_" + baseName + extension;
+        }
+        return filename;
+    }
+
+    @Override
+    public String removeExistingPrefix(String filename) {
+        Matcher matcher = prefixPattern.matcher(filename);
+        if (matcher.find()) {
+            String baseName = matcher.group(1);
+            String extension = matcher.group(2);
+            return baseName + extension;
+        }
+        return filename;
+    }
+
     @Override
     public String createTempFileFromResource(Resource resource) {
         if (resource != null) {
             String filename = resource.getFilename();
             String extension = getFileExtension(filename);
-            String tempName = UUID.randomUUID() + "." + extension;
+            String tempName = addPrefixToFilename(filename, UUID.randomUUID().toString());
             store(resource, tempName);
 
             log.info("Temp file created: [{}], Filename: [{}], Extension: [{}]", tempName, filename, extension);

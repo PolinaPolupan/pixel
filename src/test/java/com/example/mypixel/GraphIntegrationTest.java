@@ -117,7 +117,7 @@ public class GraphIntegrationTest {
 
     @Test
     public void testProcessGraph_InvalidNodeType() {
-        String invalidGraphJson = "{\"nodes\":[{\"id\":1,\"type\":\"UnsupportedType\",\"params\":{},\"outputs\":[]}]}";
+        String invalidGraphJson = "{\"nodes\":[{\"id\":1,\"type\":\"UnsupportedType\",\"inputs\":{},\"outputs\":[]}]}";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
