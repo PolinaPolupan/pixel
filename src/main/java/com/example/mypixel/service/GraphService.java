@@ -2,7 +2,6 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Node;
-import com.example.mypixel.model.NodeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,17 +29,7 @@ public class GraphService {
         while (iterator.hasNext()) {
             Node node = iterator.next();
 
-            NodeType type = node.getType();
-
-            if (type.equals(NodeType.INPUT)) {
-                nodeProcessorService.processInputNode(node);
-            }
-            if (type.equals(NodeType.GAUSSIAN_BLUR)) {
-                nodeProcessorService.processGaussianBlurNode(node);
-            }
-            if (type.equals(NodeType.OUTPUT)) {
-                nodeProcessorService.processOutputNode(node);
-            }
+            nodeProcessorService.processNode(node);
 
             log.info("Node with id: {} is processed", node.getId());
         }
