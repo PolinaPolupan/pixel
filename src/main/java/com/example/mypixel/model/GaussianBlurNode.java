@@ -18,6 +18,17 @@ public class GaussianBlurNode extends Node {
     }
 
     @Override
+    public Map<String, InputTypes> getInputTypes() {
+        return Map.of(
+                "files", InputTypes.STRING_ARRAY,
+                "sizeX", InputTypes.INT,
+                "sizeY", InputTypes.INT,
+                "sigmaX", InputTypes.DOUBLE,
+                "sigmaY", InputTypes.DOUBLE
+        );
+    }
+
+    @Override
     public Map<String, Object> exec(Map<String, Object> inputs) {
         List<String> files = (List<String>) inputs.get("files");
         Map<String, Object> outputs;

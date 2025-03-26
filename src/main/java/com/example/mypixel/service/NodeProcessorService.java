@@ -36,33 +36,33 @@ public class NodeProcessorService {
     public void processNode(Node node) {
         beanFactory.autowireBean(node);
         nodeOutputs.computeIfAbsent(node.getId(), k -> new HashMap<>());
-        nodeOutputs.put(node.getId(), node.exec(resolveInputs(node.getInputs())));
+        nodeOutputs.put(node.getId(), node.exec(resolveInputs(node)));
         log.info(nodeOutputs.toString());
     }
 
-    private List<String> getInputFiles(Map<String, Object> inputs) {
-        List<String> files = new ArrayList<>();
-
-        if (inputs.get("files") instanceof NodeReference reference) {
+    private Object resolveReference(NodeReference reference) {
+        if (reference.getOutputName().equals("files")) {
+            List<String> files = new ArrayList<>();
             for (String value : (List<String>) nodeOutputs.get(reference.getNodeId()).get("files")) {
                 String temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource(value));
                 files.add(temp);
             }
-        } else {
-            return (List<String>) inputs.get("files");
+            return files;
         }
-
-        return files;
+        return nodeOutputs.get(reference.getNodeId()).get(reference.getOutputName());
     }
 
-    private Map<String, Object> resolveInputs(Map<String, Object> inputs) {
+    private Map<String, Object> resolveInputs(Node node) {
         Map<String, Object> processedInputs = new HashMap<>();
 
-        for (String key: inputs.keySet()) {
-            if (key.equals("files")) {
-                processedInputs.put("files", getInputFiles(inputs));
-            } else {
-                processedInputs.put(key, inputs.get(key));
+        for (String key: node.getInputTypes().keySet()) {
+            if (node.getInputs().containsKey(key)) {
+                Object input = node.getInputs().get(key);
+                if (input instanceof NodeReference) {
+                    processedInputs.put(key, resolveReference((NodeReference) input));
+                } else {
+                    processedInputs.put(key, input);
+                }
             }
         }
         return processedInputs;

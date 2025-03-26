@@ -30,6 +30,11 @@ public class InputNode extends Node {
     }
 
     @Override
+    public Map<String, InputTypes> getInputTypes() {
+        return Map.of("files", InputTypes.STRING_ARRAY);
+    }
+
+    @Override
     public Map<String, Object> exec(Map<String, Object> inputs) {
         List<String> files = (List<String>) inputs.get("files");
         List<String> temp = new ArrayList<>();

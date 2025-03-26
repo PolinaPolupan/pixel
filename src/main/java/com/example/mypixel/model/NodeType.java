@@ -10,6 +10,7 @@ public enum NodeType {
     INPUT("Input"),
     GAUSSIAN_BLUR("GaussianBlur"),
     OUTPUT("Output"),
+    FLOOR("Floor"),
     UNKNOWN("Unknown");
 
     private final String jsonValue;
