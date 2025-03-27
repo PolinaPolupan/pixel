@@ -1,17 +1,13 @@
 package com.example.mypixel.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.Getter;
 import java.util.*;
 
-@Data
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
 public class Graph {
     List<Node> nodes;
-
 
     public Iterator<Node> iterator() {
         return new GraphIterator(this);

@@ -1,9 +1,10 @@
 package com.example.mypixel.model;
 
-public enum InputTypes {
+public enum ParameterTypes {
     FLOAT,
     INT,
     DOUBLE,
     STRING,
-    STRING_ARRAY
+    STRING_ARRAY,
+    FILENAMES_ARRAY
 }

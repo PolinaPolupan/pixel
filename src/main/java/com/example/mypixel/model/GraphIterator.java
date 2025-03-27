@@ -25,7 +25,6 @@ public class GraphIterator implements Iterator<Node> {
             return;
         }
 
-        // Perform topological sort and populate topologicalOrder
         performTopologicalSort();
     }
 

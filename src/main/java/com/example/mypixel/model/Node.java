@@ -26,9 +26,13 @@ public class Node {
     @JsonDeserialize(contentUsing = InputDeserializer.class)
     Map<String, Object> inputs;
 
-    public Map<String, InputTypes> getInputTypes() {
+    public Map<String, ParameterTypes> getInputTypes() {
         return null;
-    };
+    }
+
+    public Map<String, ParameterTypes> getOutputTypes() {
+        return null;
+    }
 
     public void validateInputs() {}
 

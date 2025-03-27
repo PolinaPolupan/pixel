@@ -30,8 +30,13 @@ public class InputNode extends Node {
     }
 
     @Override
-    public Map<String, InputTypes> getInputTypes() {
-        return Map.of("files", InputTypes.STRING_ARRAY);
+    public Map<String, ParameterTypes> getInputTypes() {
+        return Map.of("files", ParameterTypes.FILENAMES_ARRAY);
+    }
+
+    @Override
+    public Map<String, ParameterTypes> getOutputTypes() {
+        return Map.of("files", ParameterTypes.FILENAMES_ARRAY);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.mypixel.service;
 
+import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,9 @@ import java.util.Map;
 public class NodeProcessorService {
 
     private final AutowireCapableBeanFactory beanFactory;
-    // Hash map to store node IDs and their corresponding outputs
+    // Hash map to store nodes and their corresponding outputs
     private final Map<Long, Map<String, Object>> nodeOutputs = new HashMap<>();
+    private final Map<Long, Node> nodeMap = new HashMap<>();
     private final StorageService tempStorageService;
     private final StorageService storageService;
 
@@ -35,21 +37,37 @@ public class NodeProcessorService {
 
     public void processNode(Node node) {
         beanFactory.autowireBean(node);
+        nodeMap.put(node.getId(), node);
         nodeOutputs.computeIfAbsent(node.getId(), k -> new HashMap<>());
         nodeOutputs.put(node.getId(), node.exec(resolveInputs(node)));
         log.info(nodeOutputs.toString());
     }
 
     private Object resolveReference(NodeReference reference) {
-        if (reference.getOutputName().equals("files")) {
+        Long id = reference.getNodeId();
+        String output = reference.getOutputName();
+
+        if (!nodeMap.containsKey(id)) {
+            throw new InvalidNodeParameter("Invalid node reference: Node with id " +
+                    id + " is not found. Please ensure the node id is correct.");
+        }
+
+        if (!nodeMap.get(id).getOutputTypes().containsKey(output)) {
+            throw new InvalidNodeParameter("Invalid node reference: Node with id "
+                    + id + " does not contain output '" + output
+                    + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
+        }
+
+        if (nodeMap.get(id).getOutputTypes().get(output).equals(ParameterTypes.FILENAMES_ARRAY)) {
             List<String> files = new ArrayList<>();
-            for (String value : (List<String>) nodeOutputs.get(reference.getNodeId()).get("files")) {
+            for (String value : (List<String>) nodeOutputs.get(id).get(output)) {
                 String temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource(value));
                 files.add(temp);
             }
             return files;
         }
-        return nodeOutputs.get(reference.getNodeId()).get(reference.getOutputName());
+
+        return nodeOutputs.get(id).get(output);
     }
 
     private Map<String, Object> resolveInputs(Node node) {

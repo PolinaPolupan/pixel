@@ -27,11 +27,16 @@ public class OutputNode extends Node {
     }
 
     @Override
-    public Map<String, InputTypes> getInputTypes() {
+    public Map<String, ParameterTypes> getInputTypes() {
         return Map.of(
-                "files", InputTypes.STRING_ARRAY,
-                "prefix", InputTypes.STRING
+                "files", ParameterTypes.FILENAMES_ARRAY,
+                "prefix", ParameterTypes.STRING
         );
+    }
+
+    @Override
+    public Map<String, ParameterTypes> getOutputTypes() {
+        return Map.of();
     }
 
     @Override
