@@ -1,6 +1,7 @@
 package com.example.mypixel.model;
 
 import com.example.mypixel.exception.InvalidGraph;
+import com.example.mypixel.model.node.Node;
 
 import java.util.*;
 

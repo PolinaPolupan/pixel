@@ -1,5 +1,7 @@
-package com.example.mypixel.model;
+package com.example.mypixel.model.node;
 
+import com.example.mypixel.model.NodeType;
+import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,13 +31,13 @@ public class InputNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterTypes> getInputTypes() {
-        return Map.of("files", ParameterTypes.FILENAMES_ARRAY);
+    public Map<String, ParameterType> getInputTypes() {
+        return Map.of("files", ParameterType.FILENAMES_ARRAY);
     }
 
     @Override
-    public Map<String, ParameterTypes> getOutputTypes() {
-        return Map.of("files", ParameterTypes.FILENAMES_ARRAY);
+    public Map<String, ParameterType> getOutputTypes() {
+        return Map.of("files", ParameterType.FILENAMES_ARRAY);
     }
 
     @Override

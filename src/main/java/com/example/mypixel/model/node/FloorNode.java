@@ -1,12 +1,12 @@
-package com.example.mypixel.model;
+package com.example.mypixel.model.node;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.mypixel.model.NodeType;
+import com.example.mypixel.model.ParameterType;
 
 import java.util.Map;
 
 public class FloorNode extends Node {
 
-    @Autowired
     public FloorNode(
             Long id,
             NodeType type,
@@ -16,13 +16,13 @@ public class FloorNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterTypes> getInputTypes() {
-        return Map.of("number", ParameterTypes.DOUBLE);
+    public Map<String, ParameterType> getInputTypes() {
+        return Map.of("number", ParameterType.DOUBLE);
     }
 
     @Override
-    public Map<String, ParameterTypes> getOutputTypes() {
-        return Map.of("number", ParameterTypes.DOUBLE);
+    public Map<String, ParameterType> getOutputTypes() {
+        return Map.of("number", ParameterType.DOUBLE);
     }
 
     @Override

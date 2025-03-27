@@ -1,7 +1,7 @@
 package com.example.mypixel;
 
 import com.example.mypixel.model.Graph;
-import com.example.mypixel.model.Node;
+import com.example.mypixel.model.node.Node;
 import com.example.mypixel.model.NodeType;
 import com.example.mypixel.service.NodeProcessorService;
 import com.example.mypixel.service.StorageService;

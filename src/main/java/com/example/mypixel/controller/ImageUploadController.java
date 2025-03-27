@@ -2,11 +2,9 @@ package com.example.mypixel.controller;
 
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping(path = "/v1/image")
@@ -70,7 +67,6 @@ public class ImageUploadController {
 
     @PostMapping("/")
     public ResponseEntity<Void> handleFileUpload(@RequestParam("file") List<MultipartFile> files) {
-        List<URI> fileLocations = new ArrayList<>();
 
         for (MultipartFile file: files) {
             String contentType = file.getContentType();
@@ -79,23 +75,8 @@ public class ImageUploadController {
             }
 
             storageService.store(file);
-
-            String filename = file.getOriginalFilename();
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/images/{filename}")
-                    .buildAndExpand(filename)
-                    .toUri();
-
-            fileLocations.add(location);
         }
 
-        HttpHeaders headers = new HttpHeaders();
-
-        for (int i = 0; i < fileLocations.size(); i++) {
-            headers.add("X-File-Location-" + (i+1), fileLocations.get(i).toString());
-        }
-
-        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

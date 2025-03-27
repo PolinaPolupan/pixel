@@ -2,7 +2,7 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.exception.InvalidGraph;
 import com.example.mypixel.model.Graph;
-import com.example.mypixel.model.Node;
+import com.example.mypixel.model.node.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

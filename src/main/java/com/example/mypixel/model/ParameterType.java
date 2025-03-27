@@ -1,6 +1,6 @@
 package com.example.mypixel.model;
 
-public enum ParameterTypes {
+public enum ParameterType {
     FLOAT,
     INT,
     DOUBLE,

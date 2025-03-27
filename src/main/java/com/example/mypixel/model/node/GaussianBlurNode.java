@@ -1,5 +1,7 @@
-package com.example.mypixel.model;
+package com.example.mypixel.model.node;
 
+import com.example.mypixel.model.NodeType;
+import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.FilteringService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,19 +19,19 @@ public class GaussianBlurNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterTypes> getInputTypes() {
+    public Map<String, ParameterType> getInputTypes() {
         return Map.of(
-                "files", ParameterTypes.FILENAMES_ARRAY,
-                "sizeX", ParameterTypes.INT,
-                "sizeY", ParameterTypes.INT,
-                "sigmaX", ParameterTypes.DOUBLE,
-                "sigmaY", ParameterTypes.DOUBLE
+                "files", ParameterType.FILENAMES_ARRAY,
+                "sizeX", ParameterType.INT,
+                "sizeY", ParameterType.INT,
+                "sigmaX", ParameterType.DOUBLE,
+                "sigmaY", ParameterType.DOUBLE
         );
     }
 
     @Override
-    public Map<String, ParameterTypes> getOutputTypes() {
-        return Map.of("files", ParameterTypes.FILENAMES_ARRAY);
+    public Map<String, ParameterType> getOutputTypes() {
+        return Map.of("files", ParameterType.FILENAMES_ARRAY);
     }
 
     @Override

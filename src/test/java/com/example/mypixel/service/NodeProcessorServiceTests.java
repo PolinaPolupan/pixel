@@ -2,7 +2,7 @@ package com.example.mypixel.service;
 
 
 import com.example.mypixel.exception.InvalidNodeParameter;
-import com.example.mypixel.model.Node;
+import com.example.mypixel.model.node.Node;
 import com.example.mypixel.model.NodeType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

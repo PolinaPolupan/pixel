@@ -1,5 +1,6 @@
 package com.example.mypixel.model;
 
+import com.example.mypixel.model.node.Node;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.util.*;

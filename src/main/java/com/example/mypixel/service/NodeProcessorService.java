@@ -2,6 +2,7 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.*;
+import com.example.mypixel.model.node.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,7 +60,7 @@ public class NodeProcessorService {
                     + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
         }
 
-        if (nodeMap.get(id).getOutputTypes().get(output).equals(ParameterTypes.FILENAMES_ARRAY)) {
+        if (nodeMap.get(id).getOutputTypes().get(output).equals(ParameterType.FILENAMES_ARRAY)) {
             List<String> files = new ArrayList<>();
             for (String value : (List<String>) nodeOutputs.get(id).get(output)) {
                 String temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource(value));
@@ -71,7 +72,7 @@ public class NodeProcessorService {
         return nodeOutputs.get(id).get(output);
     }
 
-    private Object castTypes(Object value, ParameterTypes requiredType) {
+    private Object castTypes(Object value, ParameterType requiredType) {
         return switch (requiredType) {
             case FLOAT -> value instanceof Number ? ((Number) value).floatValue() : (float) value;
             case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
@@ -91,7 +92,7 @@ public class NodeProcessorService {
             }
 
             Object input = node.getInputs().get(key);
-            ParameterTypes requiredType = node.getInputTypes().get(key);
+            ParameterType requiredType = node.getInputTypes().get(key);
 
             if (input instanceof NodeReference) {
                 input = resolveReference((NodeReference) input);
