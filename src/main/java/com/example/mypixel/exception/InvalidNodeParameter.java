@@ -1,6 +1,6 @@
 package com.example.mypixel.exception;
 
-public class InvalidNodeParameter extends IllegalArgumentException {
+public class InvalidNodeParameter extends InvalidNode {
 
     public InvalidNodeParameter(String message) {
         super(message);

@@ -1,5 +1,7 @@
 package com.example.mypixel.model;
 
+import com.example.mypixel.exception.InvalidGraph;
+
 import java.util.*;
 
 
@@ -69,7 +71,7 @@ public class GraphIterator implements Iterator<Node> {
 
         // Check for cycles (if not all nodes are processed)
         if (topologicalOrder.size() != graph.getNodes().size()) {
-            throw new IllegalArgumentException("Graph contains a cycle");
+            throw new InvalidGraph("Graph contains a cycle");
         }
     }
 

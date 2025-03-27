@@ -26,15 +26,11 @@ public class FloorNode extends Node {
     }
 
     @Override
-    public Map<String, Object> exec(Map<String, Object> inputs) {
+    public Map<String, Object> exec() {
         Map<String, Object> outputs;
         double number = (double) inputs.get("number");
         outputs = Map.of("number", Math.floor(number));
         return outputs;
-    }
-
-    @Override
-    public void validateInputs() {
     }
 }
 

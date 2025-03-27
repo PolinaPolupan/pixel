@@ -1,6 +1,5 @@
 package com.example.mypixel.model;
 
-import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.service.FilteringService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,7 +33,7 @@ public class GaussianBlurNode extends Node {
     }
 
     @Override
-    public Map<String, Object> exec(Map<String, Object> inputs) {
+    public Map<String, Object> exec() {
         List<String> files = (List<String>) inputs.get("files");
         Map<String, Object> outputs;
 
@@ -50,13 +49,5 @@ public class GaussianBlurNode extends Node {
         outputs = Map.of("files", files);
 
         return outputs;
-    }
-
-    @Override
-    public void validateInputs() {
-        String filename = (String) getInputs().get("filename");
-        if (filename == null) {
-            throw new InvalidNodeParameter("Invalid node parameter: file cannot be null");
-        }
     }
 }

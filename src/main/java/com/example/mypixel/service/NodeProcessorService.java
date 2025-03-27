@@ -39,7 +39,8 @@ public class NodeProcessorService {
         beanFactory.autowireBean(node);
         nodeMap.put(node.getId(), node);
         nodeOutputs.computeIfAbsent(node.getId(), k -> new HashMap<>());
-        nodeOutputs.put(node.getId(), node.exec(resolveInputs(node)));
+        resolveInputs(node);
+        nodeOutputs.put(node.getId(), node.exec());
         log.info(nodeOutputs.toString());
     }
 
@@ -70,24 +71,52 @@ public class NodeProcessorService {
         return nodeOutputs.get(id).get(output);
     }
 
-    private Map<String, Object> resolveInputs(Node node) {
-        Map<String, Object> processedInputs = new HashMap<>();
+    private Object castTypes(Object value, ParameterTypes requiredType) {
+        return switch (requiredType) {
+            case FLOAT -> value instanceof Number ? ((Number) value).floatValue() : (float) value;
+            case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
+            case DOUBLE -> value instanceof Number ? ((Number) value).doubleValue() : (double) value;
+            case STRING -> (String) value;
+            case STRING_ARRAY, FILENAMES_ARRAY -> (List<String>) value;
+        };
+    }
 
-        for (String key: node.getInputTypes().keySet()) {
-            if (node.getInputs().containsKey(key)) {
-                Object input = node.getInputs().get(key);
-                if (input instanceof NodeReference) {
-                    processedInputs.put(key, resolveReference((NodeReference) input));
-                } else {
-                    processedInputs.put(key, input);
-                }
+    private void resolveInputs(Node node) {
+        Map<String, Object> resolvedInputs = new HashMap<>();
+
+        for (String key : node.getInputTypes().keySet()) {
+            if (!node.getInputs().containsKey(key)) {
+                throw new InvalidNodeParameter("Required input " + key
+                        + " is not provided for the node with id " + node.getId());
             }
+
+            Object input = node.getInputs().get(key);
+            ParameterTypes requiredType = node.getInputTypes().get(key);
+
+            if (input instanceof NodeReference) {
+                input = resolveReference((NodeReference) input);
+            }
+
+            // Cast to required type
+            try {
+                input = castTypes(input, requiredType);
+            } catch (ClassCastException e) {
+                throw new InvalidNodeParameter(
+                        "Invalid input parameter '" + key + "' to the node with id " +
+                                node.getId() + ": cannot cast " + input.getClass().getSimpleName() +
+                                " to " + requiredType + " type"
+                );
+            }
+
+            resolvedInputs.put(key, input);
         }
-        return processedInputs;
+
+        node.setInputs(resolvedInputs);
     }
 
     public void clear() {
         nodeOutputs.clear();
+        nodeMap.clear();
         tempStorageService.deleteAll();
         tempStorageService.init();
     }

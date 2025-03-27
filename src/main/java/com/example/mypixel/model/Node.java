@@ -3,13 +3,12 @@ package com.example.mypixel.model;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.lang.NonNull;
 
 import java.util.Map;
 
-@Getter
+@Data
 @AllArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
 @JsonSubTypes({
@@ -20,8 +19,10 @@ import java.util.Map;
 })
 public class Node {
     @NonNull
+    @Setter(AccessLevel.NONE)
     Long id;
     @NonNull
+    @Setter(AccessLevel.NONE)
     NodeType type;
     @JsonDeserialize(contentUsing = InputDeserializer.class)
     Map<String, Object> inputs;
@@ -34,9 +35,7 @@ public class Node {
         return null;
     }
 
-    public void validateInputs() {}
-
-    public Map<String, Object> exec(Map<String, Object> inputs) {
+    public Map<String, Object> exec() {
         return null;
     }
 }
