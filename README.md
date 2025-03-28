@@ -3,9 +3,57 @@ A high-performance, scalable image processing system designed to leverage distri
 
 > ⚠️ **IMPORTANT**: This project is currently in early development phase. Repository structure and core functionality is not yet implemented.
 
-## Vision
-
-This engine will provide a flexible node-based processing pipeline that allows complex image transformations to be composed visually and executed at scale. Perfect for content delivery networks, e-commerce platforms, and media processing services that need to handle millions of images daily.
+## Example workflow
+```
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "Input",
+      "inputs": {
+        "files" : [
+          "Picture1.png",
+          "Picture3.png"
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "type": "Floor",
+      "inputs": {
+        "number": 5.6
+      }
+    },
+    {
+      "id": 1,
+      "type": "GaussianBlur",
+      "inputs": {
+        "files": "@node:0:files",
+        "sizeX": 33,
+        "sizeY": 33,
+        "sigmaX": "@node:4:number",
+        "sigmaY": "@node:4:number"
+      }
+    },
+    {
+      "id": 2,
+      "type": "Output",
+      "inputs": {
+        "files": "@node:1:files",
+        "prefix": "output1"
+      }
+    },
+    {
+      "id": 3,
+      "type": "Output",
+      "inputs": {
+        "files": "@node:1:files",
+        "prefix": "output"
+      }
+    }
+  ]
+}
+```
 
 ## Planned Core Features
 
