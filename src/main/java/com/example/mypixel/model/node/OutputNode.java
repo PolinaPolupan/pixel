@@ -46,12 +46,11 @@ public class OutputNode extends Node {
         Map<String, Object> outputs = Map.of();
 
         for (String file: files) {
-            String tempFile = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource(file));
-            String filename = tempStorageService.removeExistingPrefix(tempFile);
+            String filename = tempStorageService.removeExistingPrefix(file);
             if (inputs.get("prefix") != null) {
                 filename = inputs.get("prefix") + "_" + filename;
             }
-            storageService.store(tempStorageService.loadAsResource(tempFile), filename);
+            storageService.store(tempStorageService.loadAsResource(file), filename);
         }
 
         return outputs;

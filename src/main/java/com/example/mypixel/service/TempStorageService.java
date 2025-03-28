@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import static com.google.common.io.Files.getFileExtension;
 
 
-
 @Slf4j
 public class TempStorageService implements StorageService {
 
@@ -171,9 +170,14 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
-    public String createTempFileFromFilename(String filename) {
-        Resource resource = loadAsResource(filename);
-        return createTempFileFromResource(resource);
+    public boolean fileExists(String filename) {
+        try {
+            Path file = load(filename);
+            Resource resource = new UrlResource(file.toUri());
+            return resource.exists();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

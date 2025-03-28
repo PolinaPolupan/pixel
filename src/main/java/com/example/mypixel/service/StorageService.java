@@ -24,7 +24,7 @@ public interface StorageService {
 
     String createTempFileFromResource(Resource resource);
 
-    String createTempFileFromFilename(String filename);
+    boolean fileExists(String filename);
 
     String removeExistingPrefix(String filename);
 }

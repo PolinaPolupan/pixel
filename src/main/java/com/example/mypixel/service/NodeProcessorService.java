@@ -60,15 +60,6 @@ public class NodeProcessorService {
                     + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
         }
 
-        if (nodeMap.get(id).getOutputTypes().get(output).equals(ParameterType.FILENAMES_ARRAY)) {
-            List<String> files = new ArrayList<>();
-            for (String value : (List<String>) nodeOutputs.get(id).get(output)) {
-                String temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource(value));
-                files.add(temp);
-            }
-            return files;
-        }
-
         return nodeOutputs.get(id).get(output);
     }
 
@@ -78,7 +69,20 @@ public class NodeProcessorService {
             case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
             case DOUBLE -> value instanceof Number ? ((Number) value).doubleValue() : (double) value;
             case STRING -> (String) value;
-            case STRING_ARRAY, FILENAMES_ARRAY -> (List<String>) value;
+            case FILENAMES_ARRAY -> {
+                List<String> files = new ArrayList<>();
+                for (String file: (List<String>) value) {
+                    String temp;
+                    if (storageService.fileExists(file)) { // Find in the main storage
+                        temp = tempStorageService.createTempFileFromResource(storageService.loadAsResource(file));
+                    } else { // Find in the cache
+                        temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource(file));
+                    }
+                    files.add(temp);
+                }
+                yield files;
+            }
+            case STRING_ARRAY -> (List<String>) value;
         };
     }
 
