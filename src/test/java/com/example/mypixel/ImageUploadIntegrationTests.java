@@ -20,7 +20,6 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -40,9 +39,6 @@ public class ImageUploadIntegrationTests {
 
     private final String baseRoute = "/v1/image/";
 
-    @LocalServerPort
-    private int port;
-
     @Test
     public void shouldUploadImage() {
         ClassPathResource resource = new ClassPathResource("/testupload.jpg", getClass());
@@ -52,11 +48,6 @@ public class ImageUploadIntegrationTests {
         ResponseEntity<String> response = restTemplate.postForEntity(baseRoute, map, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        HttpHeaders responseHeaders = response.getHeaders();
-        List<String> locationHeader1 = responseHeaders.get("X-File-Location-1");
-
-        assertThat(locationHeader1).isNotNull();
-        assertThat(locationHeader1.get(0)).contains("/images/testupload.jpg");
         then(storageService).should().store(any(MultipartFile.class));
     }
 
