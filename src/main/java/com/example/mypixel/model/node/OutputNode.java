@@ -35,8 +35,8 @@ public class OutputNode extends Node {
     @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
-                "files", ParameterType.FILENAMES_ARRAY,
-                "prefix", ParameterType.STRING
+                "files", ParameterType.FILENAMES_ARRAY.required(),
+                "prefix", ParameterType.STRING.optional()
         );
     }
 

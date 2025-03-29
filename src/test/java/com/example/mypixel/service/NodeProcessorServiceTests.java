@@ -96,16 +96,18 @@ public class NodeProcessorServiceTests {
                 .gaussianBlur("input.jpeg", 5, 5, 5.0, 5.0);
     }
 
-    // Fix processing optional parameters
     @Test
     public void testProcessGaussianBlurNodeWithNoParameters() {
-//        Node node = new Node(0L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, new ArrayList<>());
-//
-//        when(tempStorageService.createTempFileFromFilename("tempFile.txt")).thenReturn("tempFile.txt");
-//
-//        nodeProcessorService.processGaussianBlurNode(node, "tempFile.txt");
-//
-//        verify(filteringService, times(1)).gaussianBlur("tempFile.txt", 1, 1, 0.0, 0.0);
+        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR, Map.of(
+                "files", List.of("input.jpeg"), "sizeX", 5));
+
+        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
+        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpeg");
+
+        nodeProcessorService.processNode(node);
+
+        verify(filteringService, times(1))
+                .gaussianBlur("input.jpeg", 5, 5, 0.0, 0.0);
     }
 
     @Test
@@ -123,16 +125,15 @@ public class NodeProcessorServiceTests {
         verify(storageService, times(1)).store(eq(resource), eq("output_input.jpeg"));
     }
 
-    // Fix
     @Test
     public void testProcessOutputNodeWithoutPrefix() {
-        Node node = new OutputNode(0L, NodeType.OUTPUT, Map.of("files", List.of("input.jpeg"), "prefix", ""));
+        Node node = new OutputNode(0L, NodeType.OUTPUT, Map.of("files", List.of("input.jpeg")));
 
         when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
         when(tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource("input.jpeg"))).thenReturn("input.jpeg");
         when(tempStorageService.removeExistingPrefix("input.jpeg")).thenReturn("input.jpeg");
         nodeProcessorService.processNode(node);
 
-        verify(storageService, times(1)).store(eq(resource), eq("_input.jpeg"));
+        verify(storageService, times(1)).store(eq(resource), eq("input.jpeg"));
     }
 }

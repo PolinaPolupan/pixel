@@ -21,7 +21,7 @@ public class FloorNode extends Node {
 
     @Override
     public Map<String, ParameterType> getInputTypes() {
-        return Map.of("number", ParameterType.DOUBLE);
+        return Map.of("number", ParameterType.DOUBLE.required());
     }
 
     @Override

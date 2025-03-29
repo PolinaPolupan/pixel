@@ -1,5 +1,6 @@
 package com.example.mypixel.service;
 
+import com.example.mypixel.exception.InvalidNodeType;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.NodeType;
 import com.example.mypixel.model.node.InputNode;
@@ -14,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -78,7 +80,7 @@ public class GraphServiceTests {
 
         Graph graph = new Graph(List.of(inputNode1, inputNode2));
 
-       // assertThrows(InvalidNodeType.class, () -> graphService.processGraph(graph));
+      //  assertThrows(InvalidNodeType.class, () -> graphService.processGraph(graph));
     }
 
     @Test

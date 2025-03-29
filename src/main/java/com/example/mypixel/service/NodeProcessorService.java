@@ -89,10 +89,17 @@ public class NodeProcessorService {
     private void resolveInputs(Node node) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
-        for (String key : node.getInputTypes().keySet()) {
+        for (String key: node.getInputTypes().keySet()) {
+            // If the user's inputs don't contain one of the parameters
             if (!node.getInputs().containsKey(key)) {
-                throw new InvalidNodeParameter("Required input " + key
-                        + " is not provided for the node with id " + node.getId());
+                // If it is required - throw an exception
+                if (node.getInputTypes().get(key).isRequired()) {
+                    throw new InvalidNodeParameter("Required input " + key
+                            + " is not provided for the node with id " + node.getId());
+                } else { // Omit, continue on processing other inputs
+                    continue;
+                }
+
             }
 
             Object input = node.getInputs().get(key);
