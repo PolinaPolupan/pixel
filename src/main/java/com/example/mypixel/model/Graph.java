@@ -1,14 +1,20 @@
 package com.example.mypixel.model;
 
 import com.example.mypixel.model.node.Node;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+
 import java.util.*;
 
 @Getter
-@AllArgsConstructor
 public class Graph {
     List<Node> nodes;
+
+    @JsonCreator
+    public Graph(@JsonProperty("nodes") List<Node> nodes) {
+        this.nodes = nodes;
+    }
 
     public Iterator<Node> iterator() {
         return new GraphIterator(this);

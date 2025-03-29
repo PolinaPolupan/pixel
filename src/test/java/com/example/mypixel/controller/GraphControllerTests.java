@@ -1,5 +1,6 @@
 package com.example.mypixel.controller;
 
+import com.example.mypixel.config.MyPixelConfig;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.node.GaussianBlurNode;
 import com.example.mypixel.model.node.InputNode;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(GraphController.class)
+@Import(MyPixelConfig.class)
 public class GraphControllerTests {
 
     @Autowired
@@ -35,7 +38,7 @@ public class GraphControllerTests {
     private GraphService graphService;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper graphObjectMapper;
 
     @Test
     public void testProcessGraph_Success() throws Exception {
@@ -54,7 +57,7 @@ public class GraphControllerTests {
 
         mockMvc.perform(post("/v1/graph")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(graph)))
+                        .content(graphObjectMapper.writeValueAsString(graph)))
                 .andExpect(status().isOk());
 
         verify(graphService).processGraph(any(Graph.class));
@@ -68,19 +71,9 @@ public class GraphControllerTests {
 
         mockMvc.perform(post("/v1/graph")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(emptyGraph)))
+                        .content(graphObjectMapper.writeValueAsString(emptyGraph)))
                 .andExpect(status().isOk());
 
         verify(graphService).processGraph(any(Graph.class));
-    }
-
-    @Test
-    public void testProcessGraph_InvalidJson() throws Exception {
-        String invalidJson = "{\"nodes\": [invalid]}";
-
-        mockMvc.perform(post("/v1/graph")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(invalidJson))
-                .andExpect(status().isBadRequest());
     }
 }

@@ -3,7 +3,8 @@ package com.example.mypixel.model.node;
 import com.example.mypixel.model.InputDeserializer;
 import com.example.mypixel.model.NodeType;
 import com.example.mypixel.model.ParameterType;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
@@ -12,23 +13,29 @@ import org.springframework.lang.NonNull;
 import java.util.Map;
 
 @Data
-@AllArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = InputNode.class, name = "Input"),
-        @JsonSubTypes.Type(value = GaussianBlurNode.class, name = "GaussianBlur"),
-        @JsonSubTypes.Type(value = OutputNode.class, name = "Output"),
-        @JsonSubTypes.Type(value = FloorNode.class, name = "Floor")
-})
 public class Node {
+
     @NonNull
     @Setter(AccessLevel.NONE)
     Long id;
+
     @NonNull
     @Setter(AccessLevel.NONE)
     NodeType type;
+
     @JsonDeserialize(contentUsing = InputDeserializer.class)
     Map<String, Object> inputs;
+
+    @JsonCreator
+    public Node(
+            @JsonProperty("id") @NonNull Long id,
+            @JsonProperty("type") @NonNull NodeType type,
+            @JsonProperty("inputs") Map<String, Object> inputs) {
+        this.id = id;
+        this.type = type;
+        this.inputs = inputs;
+    }
 
     public Map<String, ParameterType> getInputTypes() {
         return null;

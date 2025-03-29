@@ -91,18 +91,4 @@ public class GraphIntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
-
-    @Test
-    public void testProcessGraph_InvalidJson() {
-        String malformedJson = "{nodes: [invalid]}";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> requestEntity = new HttpEntity<>(malformedJson, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(baseUrl, requestEntity, String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
 }

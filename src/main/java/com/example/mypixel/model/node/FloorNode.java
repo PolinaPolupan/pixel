@@ -2,16 +2,20 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.NodeType;
 import com.example.mypixel.model.ParameterType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.lang.NonNull;
 
 import java.util.Map;
 
+@MyPixelNode("Floor")
 public class FloorNode extends Node {
 
+    @JsonCreator
     public FloorNode(
-            Long id,
-            NodeType type,
-            Map<String, Object> inputs
-    ) {
+            @JsonProperty("id") @NonNull Long id,
+            @JsonProperty("type") @NonNull NodeType type,
+            @JsonProperty("inputs") Map<String, Object> inputs) {
         super(id, type, inputs);
     }
 

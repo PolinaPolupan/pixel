@@ -81,16 +81,19 @@ public class NodeProcessorServiceTests {
     @Test
     public void testProcessGaussianBlurNode() {
         Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR, Map.of(
-                "files", List.of("input.jpg"),
+                "files", List.of("input.jpeg"),
                 "sizeX", 5,
                 "sizeY", 5,
                 "sigmaX", 5.0,
                 "sigmaY", 5.0));
 
+        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
+        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpeg");
+
         nodeProcessorService.processNode(node);
 
-    //    verify(filteringService, times(1))
-          //      .gaussianBlur("input.jpg", 5, 5, 5.0, 5.0);
+        verify(filteringService, times(1))
+                .gaussianBlur("input.jpeg", 5, 5, 5.0, 5.0);
     }
 
     // Fix processing optional parameters

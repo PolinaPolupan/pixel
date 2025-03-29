@@ -3,13 +3,17 @@ package com.example.mypixel.model.node;
 import com.example.mypixel.model.NodeType;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.StorageService;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Map;
 
 
+@MyPixelNode("Output")
 public class OutputNode extends Node {
 
     @Autowired
@@ -20,10 +24,11 @@ public class OutputNode extends Node {
     @Qualifier("tempStorageService")
     private StorageService tempStorageService;
 
-    public OutputNode(Long id,
-                      NodeType type,
-                      Map<String, Object> inputs
-    ) {
+    @JsonCreator
+    public OutputNode(
+            @JsonProperty("id") @NonNull Long id,
+            @JsonProperty("type") @NonNull NodeType type,
+            @JsonProperty("inputs") Map<String, Object> inputs) {
         super(id, type, inputs);
     }
 
