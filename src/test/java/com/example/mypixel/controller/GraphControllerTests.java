@@ -76,4 +76,14 @@ public class GraphControllerTests {
 
         verify(graphService).processGraph(any(Graph.class));
     }
+
+    @Test
+    public void testProcessGraph_InvalidJson() throws Exception {
+        String invalidJson = "{\"nodes\": [invalid]}";
+
+        mockMvc.perform(post("/v1/graph")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest());
+    }
 }
