@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @ControllerAdvice
 public class ErrorController {
@@ -65,6 +68,30 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(JsonParseException.class)
     public ResponseEntity<?> handleJsonException(JsonParseException ex, HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(S3Exception.class)
+    public ResponseEntity<?> handleS3Exception(S3Exception ex, HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorInfo);
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoSuchBucketException.class)
+    public ResponseEntity<?> handleNoBucketException(NoSuchBucketException ex, HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorInfo);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(SdkClientException.class)
+    public ResponseEntity<?> handleSdkClientException(SdkClientException ex, HttpServletRequest request) {
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);

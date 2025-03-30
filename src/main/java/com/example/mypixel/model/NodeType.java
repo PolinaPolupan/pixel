@@ -11,6 +11,7 @@ public enum NodeType {
     GAUSSIAN_BLUR("GaussianBlur"),
     OUTPUT("Output"),
     FLOOR("Floor"),
+    S3OUTPUT("S3Output"),
     UNKNOWN("Unknown");
 
     private final String jsonValue;
