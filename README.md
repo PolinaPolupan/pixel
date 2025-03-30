@@ -1,7 +1,7 @@
 # MyPixel
-A high-performance, scalable image processing system designed to leverage distributed computing to handle massive image processing workloads efficiently
+An image processing system designed to proccess images using node-based workflow
 
-> ⚠️ **IMPORTANT**: This project is currently in early development phase. Repository structure and core functionality is not yet implemented.
+> ⚠️ **IMPORTANT**: This project is currently in early development phase
 
 ## Example workflow
 ```
@@ -21,7 +21,7 @@ A high-performance, scalable image processing system designed to leverage distri
       "id": 4,
       "type": "Floor",
       "inputs": {
-        "number": 5.6
+        "number": 56
       }
     },
     {
@@ -30,9 +30,7 @@ A high-performance, scalable image processing system designed to leverage distri
       "inputs": {
         "files": "@node:0:files",
         "sizeX": 33,
-        "sizeY": 33,
-        "sigmaX": "@node:4:number",
-        "sigmaY": "@node:4:number"
+        "sigmaX": "@node:4:number"
       }
     },
     {
@@ -40,28 +38,29 @@ A high-performance, scalable image processing system designed to leverage distri
       "type": "Output",
       "inputs": {
         "files": "@node:1:files",
-        "prefix": "output1"
+        "prefix": "output"
       }
     },
     {
       "id": 3,
-      "type": "Output",
+      "type": "S3Output",
       "inputs": {
         "files": "@node:1:files",
-        "prefix": "output"
+        "access_key_id": "ACCESS_KEY",
+        "secret_access_key": "SECRET",
+        "region": "REGION",
+        "bucket": "BUCKET_NAME"
       }
     }
   ]
 }
 ```
 
-## Planned Core Features
+## Core Features
 
-- [ ] Distributed processing with horizontal scaling
-- [ ] Node-based visual workflow editor
+- [x] Node-based workflow editor
 - [x] OpenCV integration for high-performance image operations
-- [ ] Spring Batch for reliable job execution
-- [x] REST API for programmatic access
+- [x] Integration with cloud storage providers
 - [x] Basic filters (blur, sharpen, edge detection, etc.)
 
 ## Future Roadmap
@@ -74,12 +73,11 @@ A high-performance, scalable image processing system designed to leverage distri
 - [ ] Batch optimization for similar operations
 - [ ] Comprehensive image metadata preservation
 - [ ] OAuth2 authentication and fine-grained permissions
-- [ ] Integration with different cloud storage providers
 
 ## Planned Tech Stack
 
 - Java 17
-- Spring Boot 3.x
+- Spring Boot 3.4.3
 - Apache Kafka
 - OpenCV
 - PostgreSQL
