@@ -43,52 +43,73 @@ public class TempStorageService implements StorageService {
 
     @Override
     public void store(MultipartFile file) {
-        try {
-            if (file.isEmpty()) {
-                throw new StorageException("Failed to store empty file.");
-            }
-            Path destinationFile = this.rootLocation.resolve(
-                            Paths.get(file.getOriginalFilename()))
-                    .normalize().toAbsolutePath();
-            if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
-                // This is a security check
-                throw new StorageException("Cannot store file outside current directory.");
-            }
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, destinationFile,
-                        StandardCopyOption.REPLACE_EXISTING);
-            }
+        if (file.isEmpty()) {
+            throw new StorageException("Failed to store empty file.");
+        }
+
+        try (InputStream inputStream = file.getInputStream()) {
+            store(inputStream, file.getOriginalFilename());
         } catch (IOException e) {
-            throw new StorageException("Failed to store file.", e);
+            throw new StorageException("Failed to access file content.", e);
         }
     }
 
     @Override
     public void store(Resource file, String filename) {
-        log.debug("Attempting to store file with filename: {}", filename);
+        log.debug("Storing resource as file: {}", filename);
+
+        try (InputStream inputStream = file.getInputStream()) {
+            store(inputStream, filename);
+        } catch (IOException e) {
+            log.error("Failed to access resource content: {}", e.getMessage(), e);
+            throw new StorageException("Failed to access resource content.", e);
+        }
+    }
+
+    /**
+     * Stores a file from an input stream.
+     * Note: This method does NOT close the input stream - the caller is responsible for that.
+     */
+    @Override
+    public void store(InputStream inputStream, String filename) {
+        log.debug("Storing file with filename: {}", filename);
+
+        if (inputStream == null) {
+            throw new StorageException("InputStream cannot be null");
+        }
+
+        if (filename == null || filename.isEmpty()) {
+            throw new StorageException("Filename cannot be empty");
+        }
 
         try {
-            Path destinationFile = this.rootLocation.resolve(
-                            Paths.get(filename))
-                    .normalize().toAbsolutePath();
-
-            log.debug("Destination path resolved to: {}", destinationFile);
-
-            if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
-                // This is a security check
-                log.error("Security violation: Attempted to store file outside of root location. Path: {}", destinationFile);
-                throw new StorageException("Cannot store file outside current directory.");
-            }
-
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, destinationFile,
-                        StandardCopyOption.REPLACE_EXISTING);
-                log.info("Successfully stored file: {} to location: {}", filename, destinationFile);
-            }
+            Path destinationFile = resolveAndValidatePath(filename);
+            copyToDestination(inputStream, destinationFile, filename);
         } catch (IOException e) {
             log.error("Failed to store file: {}. Error: {}", filename, e.getMessage(), e);
             throw new StorageException("Failed to store file.", e);
         }
+    }
+
+    private Path resolveAndValidatePath(String filename) {
+        Path destinationFile = this.rootLocation.resolve(
+                        Paths.get(filename))
+                .normalize().toAbsolutePath();
+
+        log.debug("Destination path resolved to: {}", destinationFile);
+
+        if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
+            // This is a security check against path traversal attacks
+            log.error("Security violation: Attempted to store file outside of root location. Path: {}", destinationFile);
+            throw new StorageException("Cannot store file outside current directory.");
+        }
+
+        return destinationFile;
+    }
+
+    private void copyToDestination(InputStream inputStream, Path destinationFile, String filename) throws IOException {
+        Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+        log.info("Successfully stored file: {} to location: {}", filename, destinationFile);
     }
 
     @Override

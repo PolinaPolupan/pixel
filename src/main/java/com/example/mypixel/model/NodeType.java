@@ -12,6 +12,7 @@ public enum NodeType {
     OUTPUT("Output"),
     FLOOR("Floor"),
     S3OUTPUT("S3Output"),
+    S3INPUT("S3Input"),
     UNKNOWN("Unknown");
 
     private final String jsonValue;
