@@ -1,8 +1,7 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.exception.InvalidNodeType;
 import com.example.mypixel.model.Graph;
-import com.example.mypixel.model.NodeType;
+import com.example.mypixel.NodeType;
 import com.example.mypixel.model.node.InputNode;
 import com.example.mypixel.model.node.Node;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ public class GraphServiceTests {
     @Test
     void shouldProcessGraphWithSingleInputNode() {
         Resource mockResource = mock(Resource.class);
-        Node inputNode = new InputNode(0L, NodeType.INPUT, Map.of("files", List.of("input1.jpg")));
+        Node inputNode = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input1.jpg")));
 
         Graph graph = new Graph(List.of(inputNode));
 
@@ -56,8 +55,8 @@ public class GraphServiceTests {
     @Test
     void shouldProcessGraphWithMultipleInputNodes() {
         Resource mockResource = mock(Resource.class);
-        Node inputNode1 = new InputNode(0L, NodeType.INPUT, Map.of("files", List.of("input1.jpg")));
-        Node inputNode2 = new InputNode(1L, NodeType.INPUT, Map.of("files", List.of("input2.jpg")));
+        Node inputNode1 = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input1.jpg")));
+        Node inputNode2 = new InputNode(1L, NodeType.INPUT.getName(), Map.of("files", List.of("input2.jpg")));
 
         Graph graph = new Graph(List.of(inputNode1, inputNode2));
 
@@ -75,8 +74,8 @@ public class GraphServiceTests {
     // Fix
     @Test
     void shouldThrowExceptionForInvalidNodeType() {
-        Node inputNode1 = new InputNode(0L, NodeType.INPUT, Map.of("files", List.of("input1.jpg")));
-        Node inputNode2 = new Node(1L, NodeType.UNKNOWN, Map.of("files", List.of("input2.jpg")));
+        Node inputNode1 = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input1.jpg")));
+        Node inputNode2 = new Node(1L, NodeType.UNKNOWN.getName(), Map.of("files", List.of("input2.jpg")));
 
         Graph graph = new Graph(List.of(inputNode1, inputNode2));
 

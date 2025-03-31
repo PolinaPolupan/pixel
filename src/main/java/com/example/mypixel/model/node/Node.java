@@ -1,13 +1,14 @@
 package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.InputDeserializer;
-import com.example.mypixel.model.NodeType;
 import com.example.mypixel.model.ParameterType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import java.util.Map;
@@ -22,7 +23,7 @@ public class Node {
 
     @NonNull
     @Setter(AccessLevel.NONE)
-    NodeType type;
+    String type;
 
     @JsonDeserialize(contentUsing = InputDeserializer.class)
     Map<String, Object> inputs;
@@ -30,7 +31,7 @@ public class Node {
     @JsonCreator
     public Node(
             @JsonProperty("id") @NonNull Long id,
-            @JsonProperty("type") @NonNull NodeType type,
+            @JsonProperty("type") @NonNull String type,
             @JsonProperty("inputs") Map<String, Object> inputs) {
         this.id = id;
         this.type = type;

@@ -1,6 +1,5 @@
 package com.example.mypixel.model.node;
 
-import com.example.mypixel.model.NodeType;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.StorageService;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -35,7 +34,7 @@ public class S3InputNode extends Node {
     @JsonCreator
     public S3InputNode(
             @JsonProperty("id") @NonNull Long id,
-            @JsonProperty("type") @NonNull NodeType type,
+            @JsonProperty("type") @NonNull String type,
             @JsonProperty("inputs") Map<String, Object> inputs) {
         super(id, type, inputs);
     }

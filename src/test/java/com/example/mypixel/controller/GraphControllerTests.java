@@ -5,7 +5,7 @@ import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.node.GaussianBlurNode;
 import com.example.mypixel.model.node.InputNode;
 import com.example.mypixel.model.node.Node;
-import com.example.mypixel.model.NodeType;
+import com.example.mypixel.NodeType;
 import com.example.mypixel.model.node.OutputNode;
 import com.example.mypixel.service.GraphService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,14 +42,14 @@ public class GraphControllerTests {
 
     @Test
     public void testProcessGraph_Success() throws Exception {
-        Node inputNode = new InputNode(1L, NodeType.INPUT, Map.of("files", List.of("test.jpg")));
-        Node blurNode = new GaussianBlurNode(2L, NodeType.GAUSSIAN_BLUR, Map.of(
+        Node inputNode = new InputNode(1L, NodeType.INPUT.getName(), Map.of("files", List.of("test.jpg")));
+        Node blurNode = new GaussianBlurNode(2L, NodeType.GAUSSIAN_BLUR.getName(), Map.of(
                 "files", "@node:1:files",
                 "sizeX", 5,
                 "sizeY", 5,
                 "sigmaX", 5,
                 "sigmaY", 5));
-        Node outputNode = new OutputNode(3L, NodeType.OUTPUT, Map.of("files", "@node:2:files"));
+        Node outputNode = new OutputNode(3L, NodeType.OUTPUT.getName(), Map.of("files", "@node:2:files"));
 
         Graph graph = new Graph(List.of(inputNode, blurNode, outputNode));
 

@@ -5,7 +5,7 @@ import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.node.GaussianBlurNode;
 import com.example.mypixel.model.node.InputNode;
 import com.example.mypixel.model.node.Node;
-import com.example.mypixel.model.NodeType;
+import com.example.mypixel.NodeType;
 import com.example.mypixel.model.node.OutputNode;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -46,7 +46,7 @@ public class NodeProcessorServiceTests {
     @Test
     public void testProcessInputNode() {
         Resource mockResource = mock(Resource.class);
-        Node inputNode = new InputNode(0L, NodeType.INPUT, Map.of("files", List.of("input.jpg")));
+        Node inputNode = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input.jpg")));
 
         when(tempStorageService.loadAsResource("input.jpg")).thenReturn(mockResource);
         when(storageService.loadAsResource("input.jpg")).thenReturn(mockResource);
@@ -59,14 +59,14 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessNullInputNode() {
-        Node inputNode = new InputNode(0L, NodeType.INPUT, new HashMap<>() {});
+        Node inputNode = new InputNode(0L, NodeType.INPUT.getName(), new HashMap<>() {});
 
         assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(inputNode));
     }
 
     @Test
     public void testProcessEmptyGaussianBlurNode() {
-        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR, Map.of(
+        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), Map.of(
                 "files", List.of(),
                 "sizeX", 5,
                 "sizeY", 5,
@@ -80,7 +80,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessGaussianBlurNode() {
-        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR, Map.of(
+        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), Map.of(
                 "files", List.of("input.jpeg"),
                 "sizeX", 5,
                 "sizeY", 5,
@@ -98,7 +98,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessGaussianBlurNodeWithNoParameters() {
-        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR, Map.of(
+        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), Map.of(
                 "files", List.of("input.jpeg"), "sizeX", 5));
 
         when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
@@ -112,7 +112,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessOutputNode() {
-        Node node = new OutputNode(0L, NodeType.OUTPUT, Map.of(
+        Node node = new OutputNode(0L, NodeType.OUTPUT.getName(), Map.of(
                 "files", List.of("input.jpeg"),
                 "prefix", "output"
         ));
@@ -127,7 +127,7 @@ public class NodeProcessorServiceTests {
 
     @Test
     public void testProcessOutputNodeWithoutPrefix() {
-        Node node = new OutputNode(0L, NodeType.OUTPUT, Map.of("files", List.of("input.jpeg")));
+        Node node = new OutputNode(0L, NodeType.OUTPUT.getName(), Map.of("files", List.of("input.jpeg")));
 
         when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
         when(tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource("input.jpeg"))).thenReturn("input.jpeg");
