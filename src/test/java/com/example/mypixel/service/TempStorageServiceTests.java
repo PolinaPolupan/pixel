@@ -5,7 +5,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import com.example.mypixel.config.StorageProperties;
 import com.example.mypixel.exception.StorageException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class TempStorageServiceTests {
-
-    private final StorageProperties properties = new StorageProperties();
     private TempStorageService service;
 
     @TempDir
@@ -31,16 +28,14 @@ public class TempStorageServiceTests {
 
     @BeforeEach
     public void init() {
-        properties.setLocation(tempDir.getAbsolutePath());
-        service = new TempStorageService(properties);
+        service = new TempStorageService(tempDir.getAbsolutePath());
         service.init();
     }
 
     @Test
     public void emptyUploadLocation() {
         service = null;
-        properties.setLocation("");
-        assertThrows(StorageException.class, () -> service = new TempStorageService(properties));
+        assertThrows(StorageException.class, () -> service = new TempStorageService(""));
     }
 
     @Test
@@ -75,7 +70,7 @@ public class TempStorageServiceTests {
         service.store(new MockMultipartFile(fileName, fileName,
                 MediaType.IMAGE_JPEG_VALUE, "Hello, World".getBytes()));
         assertTrue(Files.exists(
-                Paths.get(properties.getLocation()).resolve(Paths.get(fileName))));
+                Paths.get(tempDir.getAbsolutePath()).resolve(Paths.get(fileName))));
     }
 
     @Test

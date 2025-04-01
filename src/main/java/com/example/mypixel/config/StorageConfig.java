@@ -14,17 +14,18 @@ public class StorageConfig {
     private Environment env;
 
     @Bean
-    public StorageService storageService(StorageProperties properties) {
-        StorageService service = new TempStorageService(properties);
+    public StorageService storageService() {
+        String location = env.getProperty("storage.images");
+        StorageService service = new TempStorageService(location);
         service.deleteAll();
         service.init();
         return service;
     }
 
     @Bean
-    public StorageService tempStorageService(StorageProperties tempProperties) {
-        tempProperties.setLocation(env.getProperty("storage.temp-images"));
-        StorageService service = new TempStorageService(tempProperties);
+    public StorageService tempStorageService() {
+        String location = env.getProperty("storage.temp-images");
+        StorageService service = new TempStorageService(location);
         service.deleteAll();
         service.init();
         return service;

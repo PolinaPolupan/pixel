@@ -12,12 +12,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.example.mypixel.config.StorageProperties;
 import com.example.mypixel.exception.StorageException;
 import com.example.mypixel.exception.StorageFileNotFoundException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.util.FileSystemUtils;
@@ -31,14 +29,12 @@ public class TempStorageService implements StorageService {
 
     private final Path rootLocation;
 
-    @Autowired
-    public TempStorageService(@NonNull StorageProperties properties) {
-
-        if (properties.getLocation().trim().length() == 0) {
+    public TempStorageService(@NonNull String location) {
+        if (location.trim().isEmpty()) {
             throw new StorageException("File upload location can not be Empty.");
         }
 
-        this.rootLocation = Paths.get(properties.getLocation());
+        this.rootLocation = Paths.get(location);
     }
 
     @Override
