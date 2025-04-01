@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
-public class Node {
+public abstract class Node {
 
     @NonNull
     @Setter(AccessLevel.NONE)
@@ -38,15 +38,9 @@ public class Node {
         this.inputs = inputs;
     }
 
-    public Map<String, ParameterType> getInputTypes() {
-        return null;
-    }
+    public abstract Map<String, ParameterType> getInputTypes();
 
-    public Map<String, ParameterType> getOutputTypes() {
-        return null;
-    }
+    public abstract Map<String, ParameterType> getOutputTypes();
 
-    public Map<String, Object> exec() {
-        return null;
-    }
+    public abstract Map<String, Object> exec();
 }
