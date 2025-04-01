@@ -1,10 +1,11 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.model.Graph;
 import com.example.mypixel.NodeType;
-import com.example.mypixel.model.node.InputNode;
-import com.example.mypixel.model.node.Node;
+import com.example.mypixel.model.Graph;
+import com.example.mypixel.model.NodeReference;
+import com.example.mypixel.model.node.*;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +15,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -23,9 +23,6 @@ public class GraphServiceTests {
     @MockitoBean
     @Qualifier("tempStorageService")
     private StorageService tempStorageService;
-
-    @MockitoBean
-    private FilteringService filteringService;
 
     @MockitoBean
     private NodeProcessorService nodeProcessorService;
@@ -71,72 +68,90 @@ public class GraphServiceTests {
         verify(nodeProcessorService).processNode(inputNode2);
     }
 
-    // Fix
-    @Test
-    void shouldThrowExceptionForInvalidNodeType() {
-        Node inputNode1 = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input1.jpg")));
-        Node inputNode2 = new Node(1L, NodeType.UNKNOWN.getName(), Map.of("files", List.of("input2.jpg")));
-
-        Graph graph = new Graph(List.of(inputNode1, inputNode2));
-
-      //  assertThrows(InvalidNodeType.class, () -> graphService.processGraph(graph));
-    }
-
     @Test
     public void shouldProcessMultipleNodes() {
-//        Node inputNode = new Node(0L, NodeType.INPUT, Map.of("files", List.of("input1.jpeg")), List.of(1L, 2L, 7L));
-//
-//        Node blurNode1 = new GaussianBlurNode(1L, NodeType.GAUSSIAN_BLUR, Map.of(
-//                "files", "@node:0:files",
-//                "sizeX", 5,
-//                "sizeY", 5,
-//                "sigmaX", 5,
-//                "sigmaY", 5));
-//        Node blurNode2 = new GaussianBlurNode(2L, NodeType.GAUSSIAN_BLUR, Map.of(
-//                "files", "@node:0:files",
-//                "sizeX", 5,
-//                "sizeY", 5,
-//                "sigmaX", 5,
-//                "sigmaY", 5));
-//
-//        Node inputNode2 = new InputNode(6L, NodeType.INPUT, Map.of("files", List.of("input2.jpeg")), List.of(3L));
-//
-//        Node blurNode3 = new Node(3L, NodeType.GAUSSIAN_BLUR, new HashMap<>() {}, List.of(4L, 5L));
-//
-//        Node outputNode1 = new Node(4L, NodeType.OUTPUT, new HashMap<>() {}, List.of());
-//        Node outputNode2 = new Node(5L, NodeType.OUTPUT, new HashMap<>() {}, List.of());
-//        Node outputNode3 = new Node(7L, NodeType.OUTPUT, new HashMap<>() {}, List.of());
-//
-//        Graph graph = new Graph();
-//        graph.setNodes(Arrays.asList(inputNode, blurNode1, blurNode2, blurNode3, outputNode1, outputNode2, inputNode2, outputNode3));
-//
-//        when(nodeProcessorService.processInputNode(inputNode, "input1.jpeg")).thenReturn("file1.jpeg");
-//        when(nodeProcessorService.processGaussianBlurNode(blurNode1, "file1.jpeg")).thenReturn("file2.jpeg");
-//        when(nodeProcessorService.processGaussianBlurNode(blurNode2, "file1.jpeg")).thenReturn("file3.jpeg");
-//        when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file2.jpeg")).thenReturn("file4.jpeg");
-//        when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file3.jpeg")).thenReturn("file4.jpeg");
-//
-//        when(nodeProcessorService.processInputNode(inputNode2, "input2.jpeg")).thenReturn("file5.jpeg");
-//        when(nodeProcessorService.processGaussianBlurNode(blurNode3, "file5.jpeg")).thenReturn("file6.jpeg");
-//
-//        graphService.processGraph(graph);
-//
-//        InOrder inOrder = inOrder(nodeProcessorService);
-//
-//        // First subgraph
-//        inOrder.verify(nodeProcessorService).processInputNode(inputNode, "input1.jpeg");
-//        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode1, "file1.jpeg");
-//        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode2, "file1.jpeg");
-//        inOrder.verify(nodeProcessorService).processOutputNode(outputNode3, "file1.jpeg", "input1.jpeg");
-//        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file2.jpeg");
-//        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file3.jpeg");
-//        inOrder.verify(nodeProcessorService, times(2)).processOutputNode(outputNode1, "file4.jpeg", "input1.jpeg");
-//        inOrder.verify(nodeProcessorService, times(2)).processOutputNode(outputNode2, "file4.jpeg", "input1.jpeg");
-//
-//        // Second subgraph
-//        inOrder.verify(nodeProcessorService).processInputNode(inputNode2, "input2.jpeg");
-//        inOrder.verify(nodeProcessorService).processGaussianBlurNode(blurNode3, "file5.jpeg");
-//        inOrder.verify(nodeProcessorService).processOutputNode(outputNode1, "file6.jpeg", "input2.jpeg");
-//        inOrder.verify(nodeProcessorService).processOutputNode(outputNode2, "file6.jpeg", "input2.jpeg");
+        Node inputNode = new InputNode(
+                0L,
+                NodeType.INPUT.getName(),
+                Map.of("files", List.of("input1.jpeg")));
+
+        Node blurNode1 = new GaussianBlurNode(
+                1L,
+                NodeType.GAUSSIAN_BLUR.getName(),
+                Map.of(
+                "files", new NodeReference("@node:0:files"),
+                "sizeX", 5,
+                "sizeY", 5,
+                "sigmaX", 5,
+                "sigmaY", 5)
+        );
+
+        Node blurNode2 = new GaussianBlurNode(
+                2L,
+                NodeType.GAUSSIAN_BLUR.getName(),
+                Map.of(
+                "files", new NodeReference("@node:0:files"),
+                "sizeX", 5,
+                "sizeY", 5,
+                "sigmaX", 5,
+                "sigmaY", 5)
+        );
+
+        Node inputNode2 = new InputNode(
+                6L,
+                NodeType.INPUT.getName(),
+                Map.of("files", List.of("input2.jpeg"))
+        );
+
+        Node combine = new CombineNode(
+                8L,
+                "Combine",
+                Map.of(
+                "files_0", new NodeReference("@node:1:files"),
+                "files_1", new NodeReference("@node:2:files"),
+                "files_2", new NodeReference("@node:6:files"))
+        );
+
+        Node blurNode3 = new GaussianBlurNode(
+                3L,
+                NodeType.GAUSSIAN_BLUR.getName(),
+                Map.of(
+                "files", new NodeReference("@node:8:files"),
+                "sizeX", 5,
+                "sizeY", 5,
+                "sigmaX", 5,
+                "sigmaY", 5)
+        );
+
+        Node outputNode1 = new OutputNode(
+                4L,
+                NodeType.OUTPUT.getName(),
+                Map.of("files", new NodeReference("@node:3:files")));
+
+        Node outputNode2 = new OutputNode(
+                5L,
+                NodeType.OUTPUT.getName(),
+                Map.of("files", new NodeReference("@node:3:files")));
+
+        Node outputNode3 = new OutputNode(
+                7L,
+                NodeType.OUTPUT.getName(),
+                Map.of("files", new NodeReference("@node:6:files")));
+
+        Graph graph = new Graph(List.of(inputNode, combine, blurNode1, blurNode2, blurNode3, outputNode1, outputNode2, inputNode2, outputNode3));
+
+        graphService.processGraph(graph);
+
+        InOrder inOrder = inOrder(nodeProcessorService);
+
+        inOrder.verify(nodeProcessorService).processNode(inputNode);
+        inOrder.verify(nodeProcessorService).processNode(inputNode2);
+        inOrder.verify(nodeProcessorService).processNode(blurNode1);
+        inOrder.verify(nodeProcessorService).processNode(blurNode2);
+        inOrder.verify(nodeProcessorService).processNode(outputNode3);
+        inOrder.verify(nodeProcessorService).processNode(combine);
+        inOrder.verify(nodeProcessorService).processNode(blurNode3);
+        inOrder.verify(nodeProcessorService).processNode(outputNode1);
+        inOrder.verify(nodeProcessorService).processNode(outputNode2);
     }
 }
