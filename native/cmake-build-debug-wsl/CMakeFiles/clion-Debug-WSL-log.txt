@@ -1,0 +1,4 @@
+/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -S /home/polina/dev/java/mypixel/native -B /home/polina/dev/java/mypixel/native/cmake-build-debug-wsl
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/polina/dev/java/mypixel/native/cmake-build-debug-wsl
