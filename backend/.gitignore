@@ -37,3 +37,4 @@ out/
 .vscode/
 /upload-image-dir/
 /temp-image-dir/
+/native/cmake-build-debug/
