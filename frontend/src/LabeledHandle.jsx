@@ -1,34 +1,37 @@
-// LabeledHandle.jsx
-import { Handle, Position } from '@xyflow/react';
+import React from 'react';
+import { Handle, Position, useNodeConnections } from '@xyflow/react';
 import { memo } from 'react';
+import { getParameterColor } from './parameterColors';
 
+const LabeledHandle = (props) => {
+  const {
+    label,
+    type = 'source',
+    position = Position.Right,
+    id,
+    style = {},
+    labelStyle = {},
+    containerStyle = {},
+    color = 'rgba(0, 0, 0, 0.5)',
+    fontSize = '8px',
+    connectionCount = 1,
+    parameterType, // New prop for parameter type
+    ...rest
+  } = props;
 
-function LabeledHandle({
-  label,
-  type = 'source',
-  position = Position.Right,
-  id,
-  style = {},
-  labelStyle = {},
-  containerStyle = {},
-  color = 'rgba(0, 0, 0, 0.9)',
-  fontSize = '10px'
-}) {
-  // Determine the default label position based on handle position
   const defaultLabelStyle = {
     position: 'absolute',
     fontSize: fontSize,
-    lineHeight: '1',
     top: '50%',
     transform: 'translateY(-50%)',
-    color: color
+    color: color,
+    fontWeight: 'bold',
   };
-  
-  // Adjust label position based on handle position
+
   if (position === Position.Right) {
-    defaultLabelStyle.right = '12px';
+    defaultLabelStyle.right = '8px';
   } else if (position === Position.Left) {
-    defaultLabelStyle.left = '12px';
+    defaultLabelStyle.left = '8px';
   } else if (position === Position.Top) {
     defaultLabelStyle.top = 'auto';
     defaultLabelStyle.bottom = '15px';
@@ -42,28 +45,34 @@ function LabeledHandle({
 
   const defaultContainerStyle = {
     position: 'relative',
-    height: '20px',
-    marginTop: '5px'
+    height: '15px',
   };
 
+  const connections = useNodeConnections({
+    handleId: id,
+    handleType: type,
+  });
+
+  // Default handle style with parameter type color
   const defaultHandleStyle = {
-    top: '50%',
-    transform: 'translateY(-50%)'
+    width: '10px',
+    height: '10px',
+    background: parameterType ? getParameterColor(parameterType) : '#cccccc',
   };
 
   return (
     <div style={{ ...defaultContainerStyle, ...containerStyle }}>
-      <div style={{ ...defaultLabelStyle, ...labelStyle }}>
-        {label}
-      </div>
+      <div style={{ ...defaultLabelStyle, ...labelStyle }}>{label}</div>
       <Handle
         type={type}
         position={position}
         id={id}
-        style={{ ...defaultHandleStyle, ...style }}
+        style={{ ...defaultHandleStyle, ...style }} // Merge default with custom styles
+        isConnectable={connections.length < connectionCount}
+        {...rest}
       />
     </div>
   );
-}
+};
 
 export default memo(LabeledHandle);

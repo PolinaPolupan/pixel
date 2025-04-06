@@ -20,12 +20,14 @@ function FloorNode({ id, data }) {
         title="Floor"
         handleId="number"
         handleLabel="Number"
+        parameterType="DOUBLE"
       />
       <LabeledHandle 
         label="Number"
         type="source"
         position="right" 
         id="number"
+        parameterType="DOUBLE"
       />
     </div>
   );

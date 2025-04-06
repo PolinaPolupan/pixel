@@ -6,7 +6,7 @@ import {
   Background,
   useNodesState,
   useEdgesState,
-  addEdge,
+  addEdge
 } from '@xyflow/react';
  
 import '@xyflow/react/dist/style.css';
@@ -14,6 +14,9 @@ import FloorNode from './FloorNode';
 import InputNode from './InputNode';
 import CombineNode from './CombineNode';
 import OutputNode from './OutputNode';
+import DebugPanel from './Debug';
+import GraphDataTransformer from './GraphDataTransformer';
+import { getHandleParameterType } from './parameterTypes';
 
 const nodeTypes = {
   FloorNode, 
@@ -25,28 +28,36 @@ const nodeTypes = {
  
 const initialNodes = [
   {
+  id: '1',
     type: 'FloorNode',
-    id: '1',
-    data: { label: 'Floor' },
-    position: { x: 0, y: 0 },
+    position: { x: 165.19, y: 253.32 },
+    data: { number: 56 }, // Example input
   },
   {
-    type: 'InputNode',
     id: '2',
-    data: { label: 'Floor' },
-    position: { x: 10, y: 0 },
+    type: 'InputNode',
+    position: { x: -53.93, y: 210.68 },
+    data: { files: ['Picture1.png', 'Picture3.png'] }, // Example input
   },
   {
-    type: 'CombineNode',
     id: '3',
-    data: { label: 'Floor' },
-    position: { x: 20, y: 0 }
+    type: 'CombineNode',
+    position: { x: 122.73, y: 117.14 },
+    data: { 
+      files_0: null,
+      files_1: null,
+      files_2: null,
+      files_3: null,
+      files_4: null,
+      files_5: null
+
+     }, // Placeholder for connected input
   },
   {
-    type: 'OutputNode',
     id: '4',
-    data: { label: 'Floor' },
+    type: 'OutputNode',
     position: { x: 100, y: 0 },
+    data: { files: null, prefix: 'output1' }, // Placeholder for connected input
   },
 ];
 
@@ -55,50 +66,29 @@ const initialEdges = [];
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
- 
-  const onConnect = (params) => {
-    setEdges((eds) => [...eds, { ...params, id: `${params.source}-${params.target}` }]);
-    
-    // Update the target node's data to reflect it's connected
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === params.target) {
-          return {
-            ...node,
-            data: { ...node.data, isConnected: true, text: node.data.text }, // Keep existing value or fetch from source
-          };
-        }
-        return node;
-      })
-    );
+
+  const isValidConnection = (connection) => {
+    const sourceNode = nodes.find(node => node.id === connection.source);
+    const targetNode = nodes.find(node => node.id === connection.target);
+
+    // Get parameter types based on node type and handle ID
+    const sourceType = getHandleParameterType(sourceNode?.type, connection.sourceHandle, 'source');
+    const targetType = getHandleParameterType(targetNode?.type, connection.targetHandle, 'target');
+
+    // Allow connection if types match (or handle edge cases like null)
+    if (!sourceType || !targetType) {
+      console.warn('Unknown handle type:', { sourceType, targetType });
+      return false;
+    }
+
+    return sourceType === targetType;
   };
 
-  const onNodesDelete = useCallback(
-    (deleted) => {
-      setEdges(
-        deleted.reduce((acc, node) => {
-          const incomers = getIncomers(node, nodes, edges);
-          const outgoers = getOutgoers(node, nodes, edges);
-          const connectedEdges = getConnectedEdges([node], edges);
- 
-          const remainingEdges = acc.filter(
-            (edge) => !connectedEdges.includes(edge),
-          );
- 
-          const createdEdges = incomers.flatMap(({ id: source }) =>
-            outgoers.map(({ id: target }) => ({
-              id: `${source}->${target}`,
-              source,
-              target,
-            })),
-          );
- 
-          return [...remainingEdges, ...createdEdges];
-        }, edges),
-      );
-    },
-    [nodes, edges],
+  const onConnect = useCallback(
+    (params) => setEdges((els) => addEdge(params, els)),
+    [],
   );
+
  
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
@@ -107,12 +97,14 @@ export default function App() {
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
-        onNodesDelete={onNodesDelete}
-        onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        isValidConnection={isValidConnection}
+        onEdgesChange={onEdgesChange}
         fitView
       >
         <Background variant="dots" gap={12} size={1} />
+        <DebugPanel />
+        <GraphDataTransformer />
       </ReactFlow>
     </div>
   );

@@ -39,7 +39,8 @@ function CombineNode({ data }) {
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '14px',
-            padding: 0
+            padding: 0,
+            margin: '5px'
           }}
         >
           +
@@ -53,6 +54,7 @@ function CombineNode({ data }) {
                 type="target"
                 position="left" 
                 id={`files_${index}`}
+                parameterType="FILENAMES_ARRAY"
             />
             </div>
         ))}
@@ -61,6 +63,7 @@ function CombineNode({ data }) {
           type="source"
           position="right" 
           id="files"
+          parameterType="FILENAMES_ARRAY"
         />
     </div>
   );

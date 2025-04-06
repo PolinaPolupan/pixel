@@ -13,10 +13,11 @@ import {
       <div>
         <NodeHeader title={"Output"}/>
         <LabeledHandle 
-            label={`Files`}
+            label="Files"
             type="target"
             position="left" 
-            id={`out_files`}
+            id="files"
+            parameterType="FILENAMES_ARRAY"
         />
         <InputHandle 
             id={id}
@@ -25,6 +26,7 @@ import {
             handleId="prefix"
             handleLabel="Prefix"
             type = "text"
+            parameterType="STRING"
         /> 
       </div>
     );

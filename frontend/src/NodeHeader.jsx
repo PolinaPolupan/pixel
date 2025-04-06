@@ -6,7 +6,8 @@ const NodeHeader = ({ title, ...props }) => {
     fontWeight: 'bold',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    margin: '5px'
   };
 
   return (
