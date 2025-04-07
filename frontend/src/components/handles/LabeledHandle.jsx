@@ -1,7 +1,7 @@
 import React from 'react';
 import { Handle, Position, useNodeConnections } from '@xyflow/react';
 import { memo } from 'react';
-import { getParameterColor } from './parameterColors';
+import { getParameterColor } from '../../utils/parameterColors';
 
 const LabeledHandle = (props) => {
   const {
@@ -12,10 +12,10 @@ const LabeledHandle = (props) => {
     style = {},
     labelStyle = {},
     containerStyle = {},
-    color = 'rgba(0, 0, 0, 0.5)',
+    color = 'rgba(255, 255, 255, 0.6)',
     fontSize = '8px',
     connectionCount = 1,
-    parameterType, // New prop for parameter type
+    parameterType,
     ...rest
   } = props;
 
@@ -24,8 +24,8 @@ const LabeledHandle = (props) => {
     fontSize: fontSize,
     top: '50%',
     transform: 'translateY(-50%)',
-    color: color,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: color
   };
 
   if (position === Position.Right) {

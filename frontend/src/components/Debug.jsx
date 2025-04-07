@@ -1,5 +1,6 @@
 import React from 'react';
 import { useReactFlow } from '@xyflow/react';
+import GraphDataTransformer from './GraphDataTransformer';
 
 const DebugPanel = () => {
   const { getNodes, getEdges } = useReactFlow();
@@ -28,6 +29,7 @@ const DebugPanel = () => {
       }}
     >
       <h3>Debug Panel</h3>
+      <GraphDataTransformer />
       
       <section>
         <h4>Nodes ({nodes.length})</h4>

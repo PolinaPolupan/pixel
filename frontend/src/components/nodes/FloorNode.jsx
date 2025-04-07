@@ -2,9 +2,9 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 
-import LabeledHandle from './LabeledHandle';
-import NodeHeader from './NodeHeader';
-import InputHandle from './InputHandle';
+import LabeledHandle from '../handles/LabeledHandle';
+import NodeHeader from '../NodeHeader';
+import InputHandle from '../handles/InputHandle';
  
 function FloorNode({ id, data }) {
   const { updateNodeData } = useReactFlow();
@@ -17,7 +17,6 @@ function FloorNode({ id, data }) {
       <InputHandle 
         id={id}
         data={data}
-        title="Floor"
         handleId="number"
         handleLabel="Number"
         parameterType="DOUBLE"
@@ -27,6 +26,7 @@ function FloorNode({ id, data }) {
         type="source"
         position="right" 
         id="number"
+        connectionCount="10"
         parameterType="DOUBLE"
       />
     </div>

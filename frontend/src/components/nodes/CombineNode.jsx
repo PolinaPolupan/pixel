@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
-import LabeledHandle from './LabeledHandle';
-import NodeHeader from './NodeHeader';
+import LabeledHandle from '../handles/LabeledHandle';
+import NodeHeader from '../NodeHeader';
 
 function CombineNode({ data }) {
-  // Start with 1 input (files_0)
   const [inputCount, setInputCount] = useState(data?.inputs ? Object.keys(data.inputs).length : 1);
   
-  // Simple function to add one more handle
   const addHandle = () => {
     if (inputCount < 10) {
       setInputCount(inputCount + 1);
@@ -32,19 +29,16 @@ function CombineNode({ data }) {
             width: '20px', 
             height: '20px', 
             borderRadius: '50%', 
-            border: '1px solid #ccc',
-            background: '#f5f5f5',
+            background: 'rgba(0, 0, 0, 0)', 
+            color: 'rgb(255, 255, 255)', 
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '14px',
-            padding: 0,
             margin: '5px'
           }}
-        >
-          +
-        </button>
+        >+</button>
       </div>
       
         {Array.from({ length: inputCount }).map((_, index) => (

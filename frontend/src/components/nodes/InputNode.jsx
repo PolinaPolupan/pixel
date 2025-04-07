@@ -2,9 +2,9 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 
-import LabeledHandle from './LabeledHandle';
-import ImageUpload from './ImageUpload';
-import NodeHeader from './NodeHeader';
+import LabeledHandle from '../handles/LabeledHandle';
+import ImageUpload from '../ImageUpload';
+import NodeHeader from '../NodeHeader';
  
 function InputNode({ id, data }) {
   const { updateNodeData } = useReactFlow();

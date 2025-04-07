@@ -1,8 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ReactFlow,
-  MiniMap,
-  Controls,
   Background,
   useNodesState,
   useEdgesState,
@@ -10,34 +8,36 @@ import {
 } from '@xyflow/react';
  
 import '@xyflow/react/dist/style.css';
-import FloorNode from './FloorNode';
-import InputNode from './InputNode';
-import CombineNode from './CombineNode';
-import OutputNode from './OutputNode';
-import DebugPanel from './Debug';
-import GraphDataTransformer from './GraphDataTransformer';
-import { getHandleParameterType } from './parameterTypes';
+import FloorNode from './components/nodes/FloorNode';
+import InputNode from './components/nodes/InputNode';
+import CombineNode from './components/nodes/CombineNode';
+import OutputNode from './components/nodes/OutputNode';
+import GaussianBlurNode from './components/nodes/GaussianBlurNode';
+import S3InputNode from './components/nodes/S3InputNode';
+import DebugPanel from './components/Debug';
+import { getHandleParameterType } from './utils/parameterTypes';
 
 const nodeTypes = {
   FloorNode, 
   InputNode,
   CombineNode,
-  OutputNode
+  OutputNode,
+  GaussianBlurNode,
+  S3InputNode
 };
- 
- 
+
 const initialNodes = [
   {
   id: '1',
     type: 'FloorNode',
     position: { x: 165.19, y: 253.32 },
-    data: { number: 56 }, // Example input
+    data: { number: 56 }, 
   },
   {
     id: '2',
     type: 'InputNode',
     position: { x: -53.93, y: 210.68 },
-    data: { files: ['Picture1.png', 'Picture3.png'] }, // Example input
+    data: { files: ['Picture1.png', 'Picture3.png'] },
   },
   {
     id: '3',
@@ -51,13 +51,25 @@ const initialNodes = [
       files_4: null,
       files_5: null
 
-     }, // Placeholder for connected input
+     }, 
   },
   {
     id: '4',
     type: 'OutputNode',
     position: { x: 100, y: 0 },
     data: { files: null, prefix: 'output1' }, // Placeholder for connected input
+  },
+  {
+    id: '5',
+    type: 'GaussianBlurNode',
+    position: { x: 200, y: 0 },
+    data: { files: null, sigmaX: 0, sigmaY: 0, sizeX: 1, sizeY: 1 }, // Placeholder for connected input
+  },
+  {
+    id: '6',
+    type: 'S3InputNode',
+    position: { x: 300, y: 0 },
+    data: { files: null }
   },
 ];
 
@@ -89,7 +101,12 @@ export default function App() {
     [],
   );
 
- 
+  const [colorMode, setColorMode] = useState('dark');
+
+  const onChange = (evt) => {
+    setColorMode(evt.target.value);
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <ReactFlow
@@ -100,11 +117,11 @@ export default function App() {
         onConnect={onConnect}
         isValidConnection={isValidConnection}
         onEdgesChange={onEdgesChange}
+        colorMode={colorMode}
         fitView
       >
         <Background variant="dots" gap={12} size={1} />
         <DebugPanel />
-        <GraphDataTransformer />
       </ReactFlow>
     </div>
   );
