@@ -6,7 +6,7 @@ import {
   import NodeHeader from '../NodeHeader';
   import InputHandle from '../handles/InputHandle';
    
-  function S3InputNode({ id, data }) {
+  export default function S3Input({ id, data }) {
     const { updateNodeData } = useReactFlow();
    
     return (
@@ -55,5 +55,3 @@ import {
       </div>
     );
   }
-  
-  export default S3InputNode;

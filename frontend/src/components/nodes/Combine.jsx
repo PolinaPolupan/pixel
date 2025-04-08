@@ -2,7 +2,7 @@ import { useState } from 'react';
 import LabeledHandle from '../handles/LabeledHandle';
 import NodeHeader from '../NodeHeader';
 
-function CombineNode({ data }) {
+export default function Combine({ data }) {
   const [inputCount, setInputCount] = useState(data?.inputs ? Object.keys(data.inputs).length : 1);
   
   const addHandle = () => {
@@ -59,5 +59,3 @@ function CombineNode({ data }) {
     </div>
   );
 }
-
-export default CombineNode;

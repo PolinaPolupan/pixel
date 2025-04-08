@@ -6,7 +6,7 @@ import {
   import NodeHeader from '../NodeHeader';
   import InputHandle from '../handles/InputHandle';
    
-  function OutputNode({ id, data }) {
+  export default function Output({ id, data }) {
     const { updateNodeData } = useReactFlow();
    
     return (
@@ -30,5 +30,3 @@ import {
       </div>
     );
   }
-  
-  export default OutputNode;

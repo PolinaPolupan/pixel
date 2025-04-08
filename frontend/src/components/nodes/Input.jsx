@@ -6,7 +6,7 @@ import LabeledHandle from '../handles/LabeledHandle';
 import ImageUpload from '../ImageUpload';
 import NodeHeader from '../NodeHeader';
  
-function InputNode({ id, data }) {
+export default function Input({ id, data }) {
   const { updateNodeData } = useReactFlow();
 
   const handleImagesSelected = (fileUrls) => {
@@ -30,5 +30,3 @@ function InputNode({ id, data }) {
     </div>
   );
 }
-
-export default InputNode;

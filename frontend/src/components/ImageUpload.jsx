@@ -9,28 +9,45 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
     const files = Array.from(event.target.files);
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
+    if (imageFiles.length === 0) {
+      setIsUploading(false);
+      return; // No images to upload
+    }
+
     setIsUploading(true);
     try {
       const processPromises = imageFiles.map(file => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = async () => {
-            // Mock server upload (replace with real fetch when ready)
-            // const formData = new FormData();
-            // formData.append('file', file);
-            // const response = await fetch('/api/upload', { method: 'POST', body: formData });
-            // if (!response.ok) throw new Error('Upload failed');
-            // const result = await response.json();
-            const result = { name: file.name, url: `https://server.com/uploads/${file.name}` }; // Mock response
+            try {
+              const formData = new FormData();
+              formData.append('file', file);
+              const response = await fetch('http://localhost:8080/v1/image/', {
+                method: 'POST',
+                body: formData,
+              });
 
-            resolve({
-              id: Date.now() + Math.random().toString(36).substr(2, 9),
-              name: result.name || file.name,
-              url: reader.result, // Local data URL for preview
-              serverUrl: result.url || file.name, // Server URL or filename for data.files
-              file,
-            });
+              if (!response.ok) {
+                throw new Error(`Upload failed for ${file.name}: ${response.statusText}`);
+              }
+
+              console.log(`Uploaded ${file.name} successfully with status ${response.status}`);
+
+              const serverUrl = `${file.name}`;
+
+              resolve({
+                id: Date.now() + Math.random().toString(36).substr(2, 9),
+                name: file.name,
+                url: reader.result, // Local data URL for preview
+                serverUrl,          // Assumed server URL
+                file,
+              });
+            } catch (error) {
+              reject(error); // Reject inner promise on fetch error
+            }
           };
+          reader.onerror = () => reject(new Error(`Failed to read file ${file.name}`));
           reader.readAsDataURL(file);
         });
       });
@@ -41,9 +58,10 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
       updateParent(updatedImages);
     } catch (error) {
       console.error('Failed to upload images:', error);
-      alert('Error uploading images');
+      alert(`Error uploading images: ${error.message}`);
     } finally {
-      setIsUploading(false);
+      console.log('Finished uploading, resetting isUploading');
+      setIsUploading(false); // Ensure this runs regardless of success or failure
     }
   };
 
@@ -53,7 +71,7 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
     updateParent([]);
   };
 
-  // Update parent with server URLs (or filenames) for 'files' input
+  // Update parent with server URLs for 'files' input
   const updateParent = (imageList) => {
     if (onImagesSelected) {
       const fileUrls = imageList.map(image => image.serverUrl);
@@ -74,7 +92,7 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
       fontSize: '12px',
       padding: '8px',
       borderRadius: '4px',
-      background: 'rgba(0, 0, 0, 0)', // Fully transparent background
+      background: 'rgba(0, 0, 0, 0)',
       maxWidth: '250px',
     }}>
       {/* Header with count and clear button */}
@@ -85,17 +103,15 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
           alignItems: 'center',
           marginBottom: '6px',
         }}>
-          <span style={{
-            fontWeight: 500, // No color, inherits from parent
-          }}>{getImageLabel()}</span>
+          <span style={{ fontWeight: 500 }}>{getImageLabel()}</span>
           <button 
             onClick={clearImages}
             disabled={isUploading}
             style={{
               padding: '2px 6px',
               fontSize: '10px',
-              background: 'rgba(0, 0, 0, 0)', // Transparent background
-              color: isUploading ? 'rgba(255, 255, 255, 0.3)' : '#d9534f', // Red for enabled, faded for disabled
+              background: 'rgba(0, 0, 0, 0)',
+              color: isUploading ? 'rgba(255, 255, 255, 0.3)' : '#d9534f',
               border: `1px solid ${isUploading ? 'rgba(255, 255, 255, 0.2)' : 'rgba(217, 83, 79, 0.5)'}`,
               borderRadius: '2px',
               cursor: isUploading ? 'not-allowed' : 'pointer',
@@ -129,7 +145,7 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  border: '1px solid rgba(255, 255, 255, 0.2)', // Transparent white border
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '2px',
                 }}
               />
@@ -139,7 +155,7 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
             <div style={{
               width: '36px',
               height: '36px',
-              background: 'rgba(255, 255, 255, 0.05)', // Very subtle background
+              background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '2px',
               display: 'flex',
@@ -161,7 +177,7 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
         <label style={{
           display: 'inline-block',
           padding: '4px 8px',
-          background: 'rgba(0, 0, 0, 0)', // Transparent background
+          background: 'rgba(0, 0, 0, 0)',
           border: `1px solid ${isUploading ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.3)'}`,
           borderRadius: '2px',
           cursor: isUploading ? 'not-allowed' : 'pointer',

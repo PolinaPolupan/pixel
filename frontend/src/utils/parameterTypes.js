@@ -9,13 +9,13 @@ const typeCastingRules = {
 
 export const getHandleParameterType = (nodeType, handleId, handleType) => {
     const typeMap = {
-      FloorNode: {
+      Floor: {
         number: { source: 'DOUBLE', target: 'DOUBLE' },
       },
-      InputNode: {
+      Input: {
         files: { source: 'FILENAMES_ARRAY', target: 'FILENAMES_ARRAY' },
       },
-      CombineNode: {
+      Combine: {
         files_0: { target: 'FILENAMES_ARRAY' },
         files_1: { target: 'FILENAMES_ARRAY' },
         files_2: { target: 'FILENAMES_ARRAY' },
@@ -23,24 +23,24 @@ export const getHandleParameterType = (nodeType, handleId, handleType) => {
         files_4: { target: 'FILENAMES_ARRAY' },
         files: { source: 'FILENAMES_ARRAY' },
       },
-      OutputNode: {
+      Output: {
         files: { target: 'FILENAMES_ARRAY' },
       },
-      GaussianBlurNode: {
+      GaussianBlur: {
         files: { target: 'FILENAMES_ARRAY', source: 'FILENAMES_ARRAY' },
         sizeX: { target: 'INT'},
         sizeY: { target: 'INT'},
         sigmaX: { target: 'DOUBLE'},
         sigmaY: { target: 'DOUBLE'}
       },
-      S3InputNode: {
+      S3Input: {
         files: { source: 'FILENAMES_ARRAY' },
         access_key_id: { target: 'STRING'},
         secret_access_key: { target: 'STRING'},
         region: { target: 'STRING'},
         bucket: { target: 'STRING'},
       },
-      S3OutputNode: {
+      S3Output: {
         files: { target: 'FILENAMES_ARRAY' },
         access_key_id: { target: 'STRING'},
         secret_access_key: { target: 'STRING'},

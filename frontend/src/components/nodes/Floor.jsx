@@ -6,7 +6,7 @@ import LabeledHandle from '../handles/LabeledHandle';
 import NodeHeader from '../NodeHeader';
 import InputHandle from '../handles/InputHandle';
  
-function FloorNode({ id, data }) {
+export default function Floor({ id, data }) {
   const { updateNodeData } = useReactFlow();
  
   return (
@@ -32,5 +32,3 @@ function FloorNode({ id, data }) {
     </div>
   );
 }
-
-export default FloorNode;

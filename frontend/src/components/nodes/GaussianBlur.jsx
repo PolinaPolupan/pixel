@@ -6,7 +6,7 @@ import {
   import NodeHeader from '../NodeHeader';
   import InputHandle from '../handles/InputHandle';
    
-  function GaussianBlurNode({ id, data }) {
+  export default function GaussianBlur({ id, data }) {
     const { updateNodeData } = useReactFlow();
    
     return (
@@ -56,10 +56,10 @@ import {
           type="source"
           position="right" 
           id="files"
+          connectionCount="10"
           parameterType="FILENAMES_ARRAY"
         />
       </div>
     );
   }
   
-  export default GaussianBlurNode;
