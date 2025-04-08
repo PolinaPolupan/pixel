@@ -41,6 +41,7 @@ import {
           handleId="sigmaX"
           handleLabel="SigmaX"
           parameterType="DOUBLE"
+          type = "number"
         />
         <InputHandle 
           id={id}
@@ -48,6 +49,7 @@ import {
           handleId="sigmaY"
           handleLabel="SigmaY"
           parameterType="DOUBLE"
+          type = "number"
         />
         <LabeledHandle 
           label="Files"

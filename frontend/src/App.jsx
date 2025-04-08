@@ -14,8 +14,9 @@ import CombineNode from './components/nodes/CombineNode';
 import OutputNode from './components/nodes/OutputNode';
 import GaussianBlurNode from './components/nodes/GaussianBlurNode';
 import S3InputNode from './components/nodes/S3InputNode';
+import S3OutputNode from './components/nodes/S3OutputNode';
 import DebugPanel from './components/Debug';
-import { getHandleParameterType } from './utils/parameterTypes';
+import { getHandleParameterType, canCastType } from './utils/parameterTypes';
 
 const nodeTypes = {
   FloorNode, 
@@ -23,7 +24,8 @@ const nodeTypes = {
   CombineNode,
   OutputNode,
   GaussianBlurNode,
-  S3InputNode
+  S3InputNode,
+  S3OutputNode
 };
 
 const initialNodes = [
@@ -57,13 +59,13 @@ const initialNodes = [
     id: '4',
     type: 'OutputNode',
     position: { x: 100, y: 0 },
-    data: { files: null, prefix: 'output1' }, // Placeholder for connected input
+    data: { files: null, prefix: 'output1' },
   },
   {
     id: '5',
     type: 'GaussianBlurNode',
     position: { x: 200, y: 0 },
-    data: { files: null, sigmaX: 0, sigmaY: 0, sizeX: 1, sizeY: 1 }, // Placeholder for connected input
+    data: { files: null, sizeX: 1, sizeY: 1, sigmaX: 0, sigmaY: 0 }, 
   },
   {
     id: '6',
@@ -71,6 +73,12 @@ const initialNodes = [
     position: { x: 300, y: 0 },
     data: { files: null }
   },
+  {
+    id: '7',
+    type: 'S3OutputNode',
+    position: { x: 300, y: 0 },
+    data: { files: null }
+  }
 ];
 
 const initialEdges = [];
@@ -83,17 +91,15 @@ export default function App() {
     const sourceNode = nodes.find(node => node.id === connection.source);
     const targetNode = nodes.find(node => node.id === connection.target);
 
-    // Get parameter types based on node type and handle ID
     const sourceType = getHandleParameterType(sourceNode?.type, connection.sourceHandle, 'source');
     const targetType = getHandleParameterType(targetNode?.type, connection.targetHandle, 'target');
 
-    // Allow connection if types match (or handle edge cases like null)
     if (!sourceType || !targetType) {
       console.warn('Unknown handle type:', { sourceType, targetType });
       return false;
     }
 
-    return sourceType === targetType;
+    return canCastType(sourceType, targetType);
   };
 
   const onConnect = useCallback(

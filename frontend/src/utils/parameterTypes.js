@@ -1,3 +1,11 @@
+const typeCastingRules = {
+  'INT': ['FLOAT', 'DOUBLE'],     
+  'FLOAT': ['DOUBLE', 'INT'],          
+  'DOUBLE': ['FLOAT', 'INT'],         
+  'STRING': [],                       
+  'FILENAMES_ARRAY': [],              
+  'STRING_ARRAY': []
+};
 
 export const getHandleParameterType = (nodeType, handleId, handleType) => {
     const typeMap = {
@@ -7,7 +15,6 @@ export const getHandleParameterType = (nodeType, handleId, handleType) => {
       InputNode: {
         files: { source: 'FILENAMES_ARRAY', target: 'FILENAMES_ARRAY' },
       },
-      // Add other node types as needed
       CombineNode: {
         files_0: { target: 'FILENAMES_ARRAY' },
         files_1: { target: 'FILENAMES_ARRAY' },
@@ -32,8 +39,29 @@ export const getHandleParameterType = (nodeType, handleId, handleType) => {
         secret_access_key: { target: 'STRING'},
         region: { target: 'STRING'},
         bucket: { target: 'STRING'},
+      },
+      S3OutputNode: {
+        files: { target: 'FILENAMES_ARRAY' },
+        access_key_id: { target: 'STRING'},
+        secret_access_key: { target: 'STRING'},
+        region: { target: 'STRING'},
+        bucket: { target: 'STRING'},
       }
     };
   
     return typeMap[nodeType]?.[handleId]?.[handleType] || null;
   };
+
+export const canCastType = (sourceType, targetType) => {
+
+  if (sourceType === targetType) return true;
+
+  const allowedTargets = typeCastingRules[sourceType] || [];
+  const canCast = allowedTargets.includes(targetType);
+
+  if (!canCast && sourceType && targetType) {
+    console.log(`Cannot cast ${sourceType} to ${targetType}`);
+  }
+
+  return canCast;
+};

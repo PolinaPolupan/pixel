@@ -17,7 +17,6 @@ function CombineNode({ data }) {
     }}>
       <div style={{ 
         fontWeight: 'bold', 
-        marginBottom: '10px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -26,9 +25,6 @@ function CombineNode({ data }) {
         <button 
           onClick={addHandle}
           style={{ 
-            width: '20px', 
-            height: '20px', 
-            borderRadius: '50%', 
             background: 'rgba(0, 0, 0, 0)', 
             color: 'rgb(255, 255, 255)', 
             cursor: 'pointer',
@@ -36,7 +32,8 @@ function CombineNode({ data }) {
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '14px',
-            margin: '5px'
+            marginRight: '5px',
+            border: 'none'
           }}
         >+</button>
       </div>

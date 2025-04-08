@@ -9,7 +9,7 @@ const InputHandle = ({
   handleId, 
   handleLabel, 
   type = 'number', 
-  parameterType = 'FLOAT',
+  parameterType,
 }) => {
   const { updateNodeData } = useReactFlow();
 
@@ -61,7 +61,7 @@ const InputHandle = ({
       <input
         type={type}
         onChange={handleInputChange}
-        value={data[handleId] || ''}
+        value={data[handleId] ?? ''}
         disabled={isConnected}
         className={inputClass}
         style={inputStyle}
