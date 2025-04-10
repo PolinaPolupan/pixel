@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -7,11 +7,14 @@ import {
   addEdge,
   Panel,
   ReactFlowProvider,
+  useReactFlow
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import DebugPanel from './components/Debug';
 import { NotificationPanel, NotificationKeyframes } from './components/NotificationPanel';
+import NodeTypesPanel from './components/NodeTypesPanel';
+import ContextMenu from './components/ContextMenu';
 import { PlayButton } from './components/PlayButton';
 import Floor from './components/nodes/Floor';
 import Input from './components/nodes/Input';
@@ -22,11 +25,10 @@ import S3Input from './components/nodes/S3Input';
 import S3Output from './components/nodes/S3Output';
 import { getHandleParameterType, canCastType } from './utils/parameterTypes';
 
-// Import custom hooks
 import { useNotification } from './utils/useNotification';
 import { useGraphTransformation } from './utils/useGraphTransformation';
 
-// API configuration
+
 const API_URL = 'http://localhost:8080/v1/graph';
 
 const nodeTypes = {
@@ -53,10 +55,12 @@ const initialEdges = [];
 
 function AppContent() {
   // Flow states
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [colorMode, setColorMode] = useState('dark');
+  const [contextMenu, setContextMenu] = useState(null);
+  const reactFlowWrapper = useRef(null);
   
   // Custom hooks
   const { error, success, setError, setSuccess, clearError, clearSuccess } = useNotification();
@@ -113,8 +117,68 @@ function AppContent() {
     }
   };
 
+  const { screenToFlowPosition, getNodes, addNodes } = useReactFlow();
+
+  const createNode = useCallback((type, position) => {
+    // Get highest node ID to ensure unique IDs
+    const nodeIds = getNodes().map(node => parseInt(node.id));
+    const newId = (Math.max(...nodeIds, 0) + 1).toString();
+    
+    // Default data for each node type
+    const defaultData = {
+      Input: { files: [] },
+      Output: { files: [], prefix: 'output' },
+      GaussianBlur: { files: [], sizeX: 3, sizeY: 3, sigmaX: 1, sigmaY: 1 },
+      Combine: { files_0: [], files_1: [], files_2: [], files_3: [], files_4: [], files_5: [] },
+      Floor: { number: 0 },
+      S3Input: { access_key_id: "", secret_access_key: "", region: "", bucket: "" },
+      S3Output: { files: [], access_key_id: "", secret_access_key: "", region: "", bucket: "" }
+    };
+    
+    // Create new node
+    const newNode = {
+      id: newId,
+      type,
+      position,
+      data: defaultData[type] || {}
+    };
+    
+    addNodes(newNode);
+  }, [getNodes, addNodes]);
+
+  // Handle right-click to open context menu
+  const onContextMenu = useCallback(
+    (event) => {
+      event.preventDefault();
+      
+      const boundingRect = reactFlowWrapper.current.getBoundingClientRect();
+      const position = {
+        x: event.clientX - boundingRect.left,
+        y: event.clientY - boundingRect.top,
+      };
+      
+      setContextMenu({
+        position,
+        flowPosition: screenToFlowPosition({
+          x: event.clientX - boundingRect.left,
+          y: event.clientY - boundingRect.top,
+        }),
+      });
+    },
+    [screenToFlowPosition]
+  );
+
+  // Close context menu
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
+
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div 
+      style={{ width: '100vw', height: '100vh' }}
+      ref={reactFlowWrapper}
+      onContextMenu={onContextMenu}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -127,7 +191,8 @@ function AppContent() {
         fitView
       >
         <Background variant="dots" gap={12} size={1} />
-        <DebugPanel />
+        {/* <DebugPanel /> */}
+        <NodeTypesPanel />
         
         {/* Play button panel */}
         <Panel position="bottom-center">
@@ -149,6 +214,14 @@ function AppContent() {
         
         <NotificationKeyframes />
       </ReactFlow>
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          position={contextMenu.position}
+          onClose={closeContextMenu}
+          createNode={(type) => createNode(type, contextMenu.flowPosition)}
+        />
+      )}
     </div>
   );
 }

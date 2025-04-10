@@ -54,6 +54,7 @@ export default function Combine({ data }) {
           type="source"
           position="right" 
           id="files"
+          connectionCount="10"
           parameterType="FILENAMES_ARRAY"
         />
     </div>
