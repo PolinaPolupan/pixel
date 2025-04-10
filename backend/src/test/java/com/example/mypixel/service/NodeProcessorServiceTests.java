@@ -2,6 +2,7 @@ package com.example.mypixel.service;
 
 
 import com.example.mypixel.exception.InvalidNodeParameter;
+import com.example.mypixel.model.NodeReference;
 import com.example.mypixel.model.node.GaussianBlurNode;
 import com.example.mypixel.model.node.InputNode;
 import com.example.mypixel.model.node.Node;
@@ -135,5 +136,82 @@ public class NodeProcessorServiceTests {
         nodeProcessorService.processNode(node);
 
         verify(storageService, times(1)).store(eq(resource), eq("input.jpeg"));
+    }
+
+    @Test
+    public void testProcessNodeWithInvalidNodeReference() {
+        Map<String, Object> inputs = new HashMap<>();
+        inputs.put("files", new NodeReference("@node:999:files"));
+        inputs.put("sizeX", 5);
+        inputs.put("sizeY", 5);
+        inputs.put("sigmaX", 5.0);
+        inputs.put("sigmaY", 5.0);
+
+        Node node = new GaussianBlurNode(1L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
+
+        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
+    }
+
+    @Test
+    public void testProcessNodeWithInvalidOutputReference() {
+        Node inputNode = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input.jpg")));
+        when(storageService.loadAsResource("input.jpg")).thenReturn(resource);
+        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpg");
+        nodeProcessorService.processNode(inputNode);
+
+        Map<String, Object> inputs = new HashMap<>();
+        inputs.put("files", new NodeReference("@node:0:nonexistentOutput"));
+        inputs.put("sizeX", 5);
+        inputs.put("sizeY", 5);
+        inputs.put("sigmaX", 5.0);
+        inputs.put("sigmaY", 5.0);
+
+        Node blurNode = new GaussianBlurNode(1L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
+
+        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(blurNode));
+    }
+
+    @Test
+    public void testProcessNodeWithInvalidInputType() {
+        Map<String, Object> inputs = new HashMap<>();
+        inputs.put("files", List.of("input.jpg"));
+        inputs.put("sizeX", "not-a-number");
+        inputs.put("sizeY", 5);
+        inputs.put("sigmaX", 5.0);
+        inputs.put("sigmaY", 5.0);
+
+        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
+        when(tempStorageService.loadAsResource("input.jpg")).thenReturn(resource);
+        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpg");
+
+        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
+    }
+
+    @Test
+    public void testProcessNodeWithMissingRequiredInput() {
+        Map<String, Object> inputs = new HashMap<>();
+
+        inputs.put("sizeX", 5);
+        inputs.put("sizeY", 5);
+
+        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
+
+        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
+    }
+
+    @Test
+    public void testProcessNodeWithNullInputType() {
+        Map<String, Object> inputs = new HashMap<>();
+        inputs.put("files", null);
+        inputs.put("sizeX", 5);
+        inputs.put("sizeY", 5);
+        inputs.put("sigmaX", 5.0);
+        inputs.put("sigmaY", 5.0);
+
+        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
+        when(tempStorageService.loadAsResource("input.jpg")).thenReturn(resource);
+        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpg");
+
+        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
     }
 }

@@ -64,6 +64,9 @@ public class NodeProcessorService {
     }
 
     private Object castTypes(Object value, ParameterType requiredType) {
+        if (value == null) {
+            throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
+        }
         return switch (requiredType) {
             case FLOAT -> value instanceof Number ? ((Number) value).floatValue() : (float) value;
             case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
