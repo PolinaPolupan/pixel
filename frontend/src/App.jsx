@@ -6,10 +6,13 @@ import {
   useEdgesState,
   addEdge,
   Panel,
-  useReactFlow,
-  ReactFlowProvider, // Add this
+  ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+
+import DebugPanel from './components/Debug';
+import { NotificationPanel, NotificationKeyframes } from './components/NotificationPanel';
+import { PlayButton } from './components/PlayButton';
 import Floor from './components/nodes/Floor';
 import Input from './components/nodes/Input';
 import Combine from './components/nodes/Combine';
@@ -17,8 +20,14 @@ import Output from './components/nodes/Output';
 import GaussianBlur from './components/nodes/GaussianBlur';
 import S3Input from './components/nodes/S3Input';
 import S3Output from './components/nodes/S3Output';
-import DebugPanel from './components/Debug';
 import { getHandleParameterType, canCastType } from './utils/parameterTypes';
+
+// Import custom hooks
+import { useNotification } from './utils/useNotification';
+import { useGraphTransformation } from './utils/useGraphTransformation';
+
+// API configuration
+const API_URL = 'http://localhost:8080/v1/graph';
 
 const nodeTypes = {
   Floor,
@@ -32,24 +41,29 @@ const nodeTypes = {
 
 const initialNodes = [
   { id: '1', type: 'Floor', position: { x: 165.19, y: 253.32 }, data: { number: 56 } },
-  { id: '2', type: 'Input', position: { x: -53.93, y: 210.68 }, data: { files: ['Picture1.png', 'Picture3.png'] } },
-  { id: '3', type: 'Combine', position: { x: 122.73, y: 117.14 }, data: { files_0: null, files_1: null, files_2: null, files_3: null, files_4: null, files_5: null } },
-  { id: '4', type: 'Output', position: { x: 100, y: 0 }, data: { files: null, prefix: 'output1' } },
-  { id: '5', type: 'GaussianBlur', position: { x: 200, y: 0 }, data: { files: null, sizeX: 1, sizeY: 1, sigmaX: 0, sigmaY: 0 } },
-  { id: '6', type: 'S3Input', position: { x: 300, y: 0 }, data: { access_key_id: null, secret_access_key: null, region: null, bucket: null } },
-  { id: '7', type: 'S3Output', position: { x: 300, y: 0 }, data: { files: null, access_key_id: null, secret_access_key: null, region: null, bucket: null } },
+  { id: '2', type: 'Input', position: { x: -53.93, y: 210.68 }, data: { files: [] } },
+  { id: '3', type: 'Combine', position: { x: 122.73, y: 117.14 }, data: { files_0: [], files_1: [], files_2: [], files_3: [], files_4: [], files_5: [] } },
+  { id: '4', type: 'Output', position: { x: 100, y: 0 }, data: { files: [], prefix: 'output1' } },
+  { id: '5', type: 'GaussianBlur', position: { x: 200, y: 0 }, data: { files: [], sizeX: 1, sizeY: 1, sigmaX: 0, sigmaY: 0 } },
+  { id: '6', type: 'S3Input', position: { x: 300, y: 0 }, data: { access_key_id: "", secret_access_key: "", region: "", bucket: "" } },
+  { id: '7', type: 'S3Output', position: { x: 300, y: 0 }, data: { files: [], access_key_id: "", secret_access_key: "", region: "", bucket: "" } },
 ];
 
 const initialEdges = [];
 
 function AppContent() {
+  // Flow states
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState(null);
-  const { getNodes, getEdges } = useReactFlow();
+  const [colorMode, setColorMode] = useState('dark');
+  
+  // Custom hooks
+  const { error, success, setError, setSuccess, clearError, clearSuccess } = useNotification();
+  const transformGraphData = useGraphTransformation();
 
-  const isValidConnection = (connection) => {
+  // Connection validation
+  const isValidConnection = useCallback((connection) => {
     const sourceNode = nodes.find(node => node.id === connection.source);
     const targetNode = nodes.find(node => node.id === connection.target);
 
@@ -57,89 +71,43 @@ function AppContent() {
     const targetType = getHandleParameterType(targetNode?.type, connection.targetHandle, 'target');
 
     if (!sourceType || !targetType) {
-      console.warn('Unknown handle type:', { sourceType, targetType });
       return false;
     }
 
     return canCastType(sourceType, targetType);
-  };
+  }, [nodes]);
 
+  // Edge connection handler
   const onConnect = useCallback((params) => setEdges((els) => addEdge(params, els)), []);
 
-  const [colorMode, setColorMode] = useState('dark');
-
-  const onChange = (evt) => {
-    setColorMode(evt.target.value);
-  };
-
-  const transformGraphData = () => {
-    const nodes = getNodes();
-    const edges = getEdges();
-
-    const edgeMap = {};
-    edges.forEach(edge => {
-      if (!edgeMap[edge.source]) {
-        edgeMap[edge.source] = [];
-      }
-      edgeMap[edge.source].push({
-        target: edge.target,
-        targetHandle: edge.targetHandle,
-        sourceHandle: edge.sourceHandle,
-      });
-    });
-
-    const transformedNodes = nodes.map(node => {
-      const inputs = { ...node.data };
-      Object.keys(inputs).forEach(inputKey => {
-        const incomingEdges = edges.filter(
-          edge => edge.target === node.id && edge.targetHandle === inputKey
-        );
-        if (incomingEdges.length > 0) {
-          const sourceNodeId = incomingEdges[0].source;
-          const sourceHandle = incomingEdges[0].sourceHandle || 'output';
-          inputs[inputKey] = `@node:${sourceNodeId}:${sourceHandle}`;
-        }
-      });
-
-      return {
-        id: parseInt(node.id, 10),
-        type: node.type,
-        inputs,
-      };
-    });
-
-    return { nodes: transformedNodes };
-  };
-
+  // Process graph handler
   const handlePlay = async () => {
-    console.log('Play button clicked');
     setIsProcessing(true);
     setError(null);
 
     try {
       const graphData = transformGraphData();
-      console.log('Sending graph data to server:', graphData);
-
-      const response = await fetch('http://localhost:8080/v1/graph', { // Use service name for Docker
+      const response = await fetch(API_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(graphData),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Server responded with ${response.status}: ${errorText}`);
+        let errorMessage = `Server error (${response.status})`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.ex || errorText;
+        } catch (e) {
+          // Fallback to default error message
+        }
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
-      console.log('Server response:', result);
-      alert('Graph processing started successfully!');
+      setSuccess('Graph processing started successfully!');
     } catch (error) {
-      console.error('Error sending graph data:', error);
       setError(error.message);
-      alert(`Error: ${error.message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -160,51 +128,26 @@ function AppContent() {
       >
         <Background variant="dots" gap={12} size={1} />
         <DebugPanel />
+        
+        {/* Play button panel */}
         <Panel position="bottom-center">
-          <button
-            onClick={handlePlay}
-            disabled={isProcessing}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              background: isProcessing ? 'rgb(100, 100, 100)' : 'rgb(0, 110, 0)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: 'rgb(194, 255, 212)',
-              cursor: isProcessing ? 'wait' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '18px',
-              padding: 0,
-              lineHeight: 1,
-              boxSizing: 'border-box',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-              transition: 'background 0.2s, border-color 0.2s, transform 0.1s',
-            }}
-            onMouseOver={(e) => {
-              if (!isProcessing) {
-                e.target.style.background = 'rgb(0, 200, 0)';
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                e.target.style.transform = 'scale(1.05)';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!isProcessing) {
-                e.target.style.background = 'rgb(0, 110, 0)';
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                e.target.style.transform = 'scale(1)';
-              }
-            }}
-          >
-            {isProcessing ? '⏳' : '▶'}
-          </button>
+          <PlayButton onClick={handlePlay} isProcessing={isProcessing} />
         </Panel>
+        
+        {/* Notification panels */}
         {error && (
-          <Panel position="top-center" style={{ color: 'red', background: 'rgba(0,0,0,0.7)', padding: '10px', borderRadius: '5px' }}>
-            Error: {error}
+          <Panel position="top-center">
+            <NotificationPanel type="error" message={error} onDismiss={clearError} />
           </Panel>
         )}
+        
+        {success && (
+          <Panel position="top-center">
+            <NotificationPanel type="success" message={success} onDismiss={clearSuccess} />
+          </Panel>
+        )}
+        
+        <NotificationKeyframes />
       </ReactFlow>
     </div>
   );
