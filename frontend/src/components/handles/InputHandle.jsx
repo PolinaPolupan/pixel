@@ -22,7 +22,17 @@ const InputHandle = ({
 
   const handleInputChange = (evt) => {
     if (!isConnected) {
-      const value = type === 'number' ? evt.target.valueAsNumber || evt.target.value : evt.target.value;
+      // Fix for the "00" issue - properly handling number inputs
+      let value;
+      
+      if (type === 'number') {
+        // Check if the input is valid and not NaN before using valueAsNumber
+        const isValidNumber = !isNaN(evt.target.valueAsNumber);
+        value = isValidNumber ? evt.target.valueAsNumber : evt.target.value;
+      } else {
+        value = evt.target.value;
+      }
+      
       updateNodeData(id, { [handleId]: value });
     }
   };
