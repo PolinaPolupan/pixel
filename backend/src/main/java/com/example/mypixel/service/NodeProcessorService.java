@@ -41,6 +41,7 @@ public class NodeProcessorService {
         nodeMap.put(node.getId(), node);
         nodeOutputs.computeIfAbsent(node.getId(), k -> new HashMap<>());
         resolveInputs(node);
+        node.validate();
         nodeOutputs.put(node.getId(), node.exec());
         log.info(nodeOutputs.toString());
     }

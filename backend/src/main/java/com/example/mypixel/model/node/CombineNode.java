@@ -57,4 +57,9 @@ public class CombineNode extends Node {
 
         return outputs;
     }
+
+    @Override
+    public void validate() {
+
+    }
 }

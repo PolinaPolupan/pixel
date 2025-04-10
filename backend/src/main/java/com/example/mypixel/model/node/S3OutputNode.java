@@ -1,5 +1,6 @@
 package com.example.mypixel.model.node;
 
+import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.StorageService;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -80,5 +81,21 @@ public class S3OutputNode extends Node {
         }
 
         return outputs;
+    }
+
+    @Override
+    public void validate() {
+        if (inputs.get("access_key_id").toString().isEmpty()) {
+            throw new InvalidNodeParameter("Access key ID cannot be blank.");
+        }
+        if (inputs.get("secret_access_key").toString().isEmpty()) {
+            throw new InvalidNodeParameter("Secret cannot be blank.");
+        }
+        if (inputs.get("region").toString().isEmpty()) {
+            throw new InvalidNodeParameter("Region cannot be blank.");
+        }
+        if (inputs.get("bucket").toString().isEmpty()) {
+            throw new InvalidNodeParameter("Bucket cannot be blank.");
+        }
     }
 }

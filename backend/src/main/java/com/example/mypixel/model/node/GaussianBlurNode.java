@@ -1,5 +1,6 @@
 package com.example.mypixel.model.node;
 
+import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -58,5 +59,26 @@ public class GaussianBlurNode extends Node {
         outputs = Map.of("files", files);
 
         return outputs;
+    }
+
+    @Override
+    public void validate() {
+        int sizeX = (int) inputs.get("sizeX");
+        int sizeY = (int) inputs.getOrDefault("sizeY", sizeX);
+        double sigmaX = (double) inputs.getOrDefault("sigmaX", 0.0);
+        double sigmaY = (double) inputs.getOrDefault("sigmaY", 0.0);
+
+        if (sizeX < 0 || sizeX % 2 == 0) {
+            throw new InvalidNodeParameter("SizeX must be positive and odd");
+        }
+        if (sizeY < 0 || sizeY % 2 == 0) {
+            throw new InvalidNodeParameter("SizeY must be positive and odd");
+        }
+        if (sigmaX < 0) {
+            throw new InvalidNodeParameter("SigmaX must be positive");
+        }
+        if (sigmaY < 0) {
+            throw new InvalidNodeParameter("SigmaY must be positive");
+        }
     }
 }

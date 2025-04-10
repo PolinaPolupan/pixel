@@ -35,5 +35,10 @@ public class FloorNode extends Node {
         outputs = Map.of("number", Math.floor(number));
         return outputs;
     }
+
+    @Override
+    public void validate() {
+
+    }
 }
 

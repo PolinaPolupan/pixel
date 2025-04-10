@@ -59,4 +59,9 @@ public class OutputNode extends Node {
 
         return outputs;
     }
+
+    @Override
+    public void validate() {
+
+    }
 }

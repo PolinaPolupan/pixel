@@ -43,4 +43,6 @@ public abstract class Node {
     public abstract Map<String, ParameterType> getOutputTypes();
 
     public abstract Map<String, Object> exec();
+
+    public abstract void validate();
 }

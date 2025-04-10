@@ -37,4 +37,9 @@ public class InputNode extends Node {
 
         return outputs;
     }
+
+    @Override
+    public void validate() {
+
+    }
 }

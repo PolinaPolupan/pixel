@@ -3,11 +3,8 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.NodeReference;
-import com.example.mypixel.model.node.GaussianBlurNode;
-import com.example.mypixel.model.node.InputNode;
-import com.example.mypixel.model.node.Node;
+import com.example.mypixel.model.node.*;
 import com.example.mypixel.NodeType;
-import com.example.mypixel.model.node.OutputNode;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,5 +210,61 @@ public class NodeProcessorServiceTests {
         when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpg");
 
         assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
+    }
+
+    @Test
+    public void testS3InputNodeValidation() {
+        // Test with all required fields
+        Map<String, Object> validInputs = Map.of(
+                "access_key_id", "AKIAIOSFODNN7EXAMPLE",
+                "secret_access_key", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+                "region", "us-west-2",
+                "bucket", "my-sample-bucket",
+                "key", "sample-file.jpg"
+        );
+
+        Node s3InputNode = new S3InputNode(0L, "S3Input", validInputs);
+        // Should not throw an exception
+        s3InputNode.validate();
+
+        // Test with blank access key ID
+        Map<String, Object> blankAccessKeyInputs = new HashMap<>(validInputs);
+        blankAccessKeyInputs.put("access_key_id", "");
+
+        Node s3InputNodeBlankAccessKey = new S3InputNode(1L, "S3Input", blankAccessKeyInputs);
+        assertThrows(
+                InvalidNodeParameter.class,
+                s3InputNodeBlankAccessKey::validate
+        );
+
+        // Test with blank secret access key
+        Map<String, Object> blankSecretInputs = new HashMap<>(validInputs);
+        blankSecretInputs.put("secret_access_key", "");
+
+        Node s3InputNodeBlankSecret = new S3InputNode(2L, "S3Input", blankSecretInputs);
+        assertThrows(
+                InvalidNodeParameter.class,
+                s3InputNodeBlankSecret::validate
+        );
+
+        // Test with blank region
+        Map<String, Object> blankRegionInputs = new HashMap<>(validInputs);
+        blankRegionInputs.put("region", "");
+
+        Node s3InputNodeBlankRegion = new S3InputNode(3L, "S3Input", blankRegionInputs);
+        assertThrows(
+                InvalidNodeParameter.class,
+                s3InputNodeBlankRegion::validate
+        );
+
+        // Test with blank bucket name
+        Map<String, Object> blankBucketInputs = new HashMap<>(validInputs);
+        blankBucketInputs.put("bucket", "");
+
+        Node s3InputNodeBlankBucket = new S3InputNode(4L, "S3Input", blankBucketInputs);
+        assertThrows(
+                InvalidNodeParameter.class,
+                s3InputNodeBlankBucket::validate
+        );
     }
 }
