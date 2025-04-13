@@ -2,11 +2,10 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.service.StorageService;
+import com.example.mypixel.service.FileManager;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
@@ -29,8 +28,7 @@ import java.util.Map;
 public class S3InputNode extends Node {
 
     @Autowired
-    @Qualifier("tempStorageService")
-    private StorageService tempStorageService;
+    private FileManager fileManager;
 
     @JsonCreator
     public S3InputNode(
@@ -81,11 +79,13 @@ public class S3InputNode extends Node {
 
             List<S3Object> contents = listObjectsV2Response.contents();
 
+            String sceneId = (String) inputs.get("sceneId");
+
             for (S3Object file: contents) {
                 String filename = file.key();
                 InputStream in = s3Client.getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
 
-                tempStorageService.store(in, filename);
+                fileManager.store(in, sceneId, filename);
                 files.add(filename);
                 in.close();
             }

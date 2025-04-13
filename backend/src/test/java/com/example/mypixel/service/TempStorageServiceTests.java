@@ -78,6 +78,4 @@ public class TempStorageServiceTests {
         service.store(new MockMultipartFile("foo", "bar/../foo.jpg",
                 MediaType.IMAGE_JPEG_VALUE, "Hello, World".getBytes()));
     }
-
-
 }

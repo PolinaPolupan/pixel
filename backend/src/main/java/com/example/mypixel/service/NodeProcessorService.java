@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -20,51 +17,53 @@ public class NodeProcessorService {
 
     private final AutowireCapableBeanFactory beanFactory;
     // Hash map to store nodes and their corresponding outputs
-    private final Map<Long, Map<String, Object>> nodeOutputs = new HashMap<>();
-    private final Map<Long, Node> nodeMap = new HashMap<>();
-    private final StorageService tempStorageService;
-    private final StorageService storageService;
+    private final Map<String, Map<Long, Map<String, Object>>> nodeOutputs = new HashMap<>();
+    private final Map<String, Map<Long, Node>> nodeMap = new HashMap<>();
+    private final FileManager fileManager;
 
     @Autowired
     public NodeProcessorService(
             AutowireCapableBeanFactory beanFactory,
-            @Qualifier("storageService") StorageService storageService,
-            @Qualifier("tempStorageService") StorageService tempStorageService
+            FileManager fileManager
     ) {
         this.beanFactory = beanFactory;
-        this.tempStorageService = tempStorageService;
-        this.storageService = storageService;
+        this.fileManager = fileManager;
     }
 
     public void processNode(Node node) {
         beanFactory.autowireBean(node);
-        nodeMap.put(node.getId(), node);
-        nodeOutputs.computeIfAbsent(node.getId(), k -> new HashMap<>());
+
+        String uuid = (String) node.getInputs().get("sceneId");
+
+        nodeOutputs.computeIfAbsent(uuid, k -> new HashMap<>());
+        nodeMap.computeIfAbsent(uuid, k -> new HashMap<>());
+
+        nodeMap.get(uuid).put(node.getId(), node);
         resolveInputs(node);
         node.validate();
-        nodeOutputs.put(node.getId(), node.exec());
+        nodeOutputs.get(uuid).put(node.getId(), node.exec());
         log.info(nodeOutputs.toString());
     }
 
-    private Object resolveReference(NodeReference reference) {
+    private Object resolveReference(NodeReference reference, String sceneId) {
         Long id = reference.getNodeId();
         String output = reference.getOutputName();
 
-        if (!nodeMap.containsKey(id)) {
+        if (!nodeMap.get(sceneId).containsKey(id)) {
             throw new InvalidNodeParameter("Invalid node reference: Node with id " +
                     id + " is not found. Please ensure the node id is correct.");
         }
 
-        if (!nodeMap.get(id).getOutputTypes().containsKey(output)) {
+        if (!nodeMap.get(sceneId).get(id).getOutputTypes().containsKey(output)) {
             throw new InvalidNodeParameter("Invalid node reference: Node with id "
                     + id + " does not contain output '" + output
-                    + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
+                    + "'. Available outputs are: " + nodeMap.get(sceneId).get(id).getOutputTypes().keySet());
         }
 
-        return nodeOutputs.get(id).get(output);
+        return nodeOutputs.get(sceneId).get(id).get(output);
     }
 
-    private Object castTypes(Object value, ParameterType requiredType) {
+    private Object castTypes(String sceneId, Object value, ParameterType requiredType) {
         if (value == null) {
             throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
         }
@@ -76,12 +75,7 @@ public class NodeProcessorService {
             case FILENAMES_ARRAY -> {
                 List<String> files = new ArrayList<>();
                 for (String file: (List<String>) value) {
-                    String temp;
-                    if (storageService.fileExists(file)) { // Find in the main storage
-                        temp = tempStorageService.createTempFileFromResource(storageService.loadAsResource(file));
-                    } else { // Find in the cache
-                        temp = tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource(file));
-                    }
+                    String temp = fileManager.createDump(file, sceneId);
                     files.add(temp);
                 }
                 yield files;
@@ -109,13 +103,15 @@ public class NodeProcessorService {
             Object input = node.getInputs().get(key);
             ParameterType requiredType = node.getInputTypes().get(key);
 
+            String sceneId = (String) node.getInputs().get("sceneId");
+
             if (input instanceof NodeReference) {
-                input = resolveReference((NodeReference) input);
+                input = resolveReference((NodeReference) input, sceneId);
             }
 
             // Cast to required type
             try {
-                input = castTypes(input, requiredType);
+                input = castTypes(sceneId, input, requiredType);
             } catch (ClassCastException e) {
                 throw new InvalidNodeParameter(
                         "Invalid input parameter '" + key + "' to the node with id " +
@@ -127,13 +123,19 @@ public class NodeProcessorService {
             resolvedInputs.put(key, input);
         }
 
+        resolvedInputs.put("sceneId", node.getInputs().get("sceneId"));
+
         node.setInputs(resolvedInputs);
     }
 
-    public void clear() {
+    public void clear(String uuid) {
+        if (nodeOutputs.containsKey(uuid)) {
+            nodeOutputs.get(uuid).clear();
+        }
+        if (nodeMap.containsKey(uuid)) {
+            nodeMap.get(uuid).clear();
+        }
         nodeOutputs.clear();
         nodeMap.clear();
-        tempStorageService.deleteAll();
-        tempStorageService.init();
     }
 }

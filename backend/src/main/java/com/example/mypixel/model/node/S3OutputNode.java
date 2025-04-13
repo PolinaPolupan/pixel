@@ -2,11 +2,10 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.service.StorageService;
+import com.example.mypixel.service.FileManager;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
@@ -22,8 +21,7 @@ import java.util.Map;
 public class S3OutputNode extends Node {
 
     @Autowired
-    @Qualifier("tempStorageService")
-    private StorageService tempStorageService;
+    private FileManager fileManager;
 
     @JsonCreator
     public S3OutputNode(
@@ -61,6 +59,8 @@ public class S3OutputNode extends Node {
 
         AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
+        String sceneId = (String) inputs.get("sceneId");
+
         try (S3Client s3Client = S3Client
                 .builder()
                 .region(Region.of(regionName))
@@ -68,7 +68,7 @@ public class S3OutputNode extends Node {
                 .build()) {
 
             for (String file : files) {
-                String filename = tempStorageService.removeExistingPrefix(file);
+                String filename = fileManager.removeExistingPrefix(file);
                 Map<String, String> metadata = new HashMap<>();
 
                 s3Client.putObject(request ->
@@ -76,7 +76,7 @@ public class S3OutputNode extends Node {
                                         .bucket(bucket)
                                         .key(filename)
                                         .metadata(metadata),
-                        tempStorageService.load(file));
+                        fileManager.load(filename, sceneId));
             }
         }
 

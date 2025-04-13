@@ -1,14 +1,16 @@
 package com.example.mypixel;
 
 
+import com.example.mypixel.service.FileManager;
 import com.example.mypixel.service.StorageService;
+import com.example.mypixel.service.TempStorageService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,11 +36,19 @@ public class ImageUploadIntegrationTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private FileManager fileManager;
+
+    private final String sceneId = "scene123";
+    private final String baseRoute = "/v1/scene/" + sceneId + "/image/";
+
     @MockitoBean
-    @Qualifier("storageService")
     private StorageService storageService;
 
-    private final String baseRoute = "/v1/image/";
+    @BeforeEach
+    public void init() {
+        fileManager.createScene(sceneId);
+    }
 
     @Test
     public void shouldUploadImage() {
@@ -48,13 +59,14 @@ public class ImageUploadIntegrationTests {
         ResponseEntity<String> response = restTemplate.postForEntity(baseRoute, map, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        then(storageService).should().store(any(MultipartFile.class));
+        then(storageService).should().store(any(MultipartFile.class), any(String.class));
     }
 
     @Test
     public void shouldDownloadImage() throws IOException {
         ClassPathResource resource = new ClassPathResource("/testupload.jpg", getClass());
-        given(storageService.loadAsResource("testupload.jpg")).willReturn(resource);
+
+        given(storageService.loadAsResource(sceneId+"/testupload.jpg")).willReturn(resource);
         byte[] expectedImageContent = StreamUtils.copyToByteArray(resource.getInputStream());
 
         ResponseEntity<byte[]> response = restTemplate

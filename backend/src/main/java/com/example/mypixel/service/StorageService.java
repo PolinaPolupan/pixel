@@ -11,7 +11,13 @@ public interface StorageService {
 
     void init();
 
+    void createFolder(String name);
+
+    boolean folderExists(String name);
+
     void store(MultipartFile file);
+
+    void store(MultipartFile file, String filename);
 
     void store(Resource file, String filename);
 
@@ -19,15 +25,11 @@ public interface StorageService {
 
     Stream<Path> loadAll();
 
+    Stream<Path> loadAll(String relativePath);
+
     Path load(String filename);
 
     Resource loadAsResource(String filename);
 
     void deleteAll();
-
-    String createTempFileFromResource(Resource resource);
-
-    boolean fileExists(String filename);
-
-    String removeExistingPrefix(String filename);
 }

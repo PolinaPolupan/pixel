@@ -95,6 +95,7 @@ function AppContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(graphData),
+        credentials: 'include'
       });
 
       if (!response.ok) {

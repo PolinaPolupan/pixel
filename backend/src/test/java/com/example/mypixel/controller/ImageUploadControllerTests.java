@@ -4,14 +4,14 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import com.example.mypixel.exception.StorageFileNotFoundException;
-import com.example.mypixel.service.StorageService;
+import com.example.mypixel.exception.InvalidImageFormat;
+import com.example.mypixel.service.FileManager;
+import com.example.mypixel.service.TempStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -23,12 +23,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @WebMvcTest(ImageUploadController.class)
 public class ImageUploadControllerTests {
@@ -37,20 +35,26 @@ public class ImageUploadControllerTests {
     private MockMvc mockMvc;
 
     @MockitoBean
-    @Qualifier("storageService")
-    private StorageService storageService;
+    private FileManager fileManager;
 
-    private final String baseRoute = "/v1/image/";
+    private final String sceneId = "scene123";
+    private final String baseRoute = "/v1/scene/" + sceneId + "/image/";
+
+    private TempStorageService service;
+
+    @TempDir
+    File tempDir;
 
     @BeforeEach
-    public void setup() {
-        storageService.deleteAll();
-        storageService.init();
+    public void init() {
+        service = new TempStorageService(tempDir.getAbsolutePath());
+        service.init();
+        service.createFolder(sceneId);
     }
 
     @Test
     public void shouldListAllImages() throws Exception {
-        given(storageService.loadAll())
+        given(fileManager.loadAll(sceneId))
                 .willReturn(Stream.of(
                         Paths.get("first.jpg"),
                         Paths.get("second.jpg")
@@ -73,7 +77,7 @@ public class ImageUploadControllerTests {
         given(mockResource.exists()).willReturn(true);
         given(mockResource.isReadable()).willReturn(true);
 
-        given(storageService.loadAsResource(filename)).willReturn(mockResource);
+        given(fileManager.loadAsResource(filename, sceneId)).willReturn(mockResource);
 
         mockMvc.perform(get(baseRoute + "{filename}", filename))
                 .andExpect(status().isOk())
@@ -85,25 +89,32 @@ public class ImageUploadControllerTests {
     @Test
     public void shouldHandleFileNotFoundException() throws Exception {
         String filename = "missing.jpg";
-        given(storageService.loadAsResource(filename))
-                .willThrow(new StorageFileNotFoundException("File not found: " + filename));
+        given(fileManager.loadAsResource(filename, sceneId))
+                .willReturn(null);
 
         mockMvc.perform(get(baseRoute + "{filename}", filename))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    public void shouldUploadImage() throws Exception {
-        MockMultipartFile file = new MockMultipartFile(
+    public void shouldUploadImages() throws Exception {
+        MockMultipartFile file1 = new MockMultipartFile(
                 "file",
-                "test.jpg",
+                "test1.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
-                "test image content".getBytes());
+                "test image content 1".getBytes());
 
-        mockMvc.perform(multipart(baseRoute).file(file))
+        MockMultipartFile file2 = new MockMultipartFile(
+                "file",
+                "test2.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "test image content 2".getBytes());
+
+        mockMvc.perform(multipart(baseRoute).file(file1).file(file2))
                 .andExpect(status().isCreated());
 
-        verify(storageService).store(file);
+        verify(fileManager).store(file1, sceneId);
+        verify(fileManager).store(file2, sceneId);
     }
 
     @Test
@@ -116,6 +127,20 @@ public class ImageUploadControllerTests {
 
         mockMvc.perform(multipart(baseRoute).file(file))
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> assertInstanceOf(IllegalArgumentException.class, result.getResolvedException()));
+                .andExpect(result -> assertInstanceOf(InvalidImageFormat.class, result.getResolvedException()));
+    }
+
+    @Test
+    public void shouldAcceptPngImage() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "test png content".getBytes());
+
+        mockMvc.perform(multipart(baseRoute).file(file))
+                .andExpect(status().isCreated());
+
+        verify(fileManager).store(file, sceneId);
     }
 }

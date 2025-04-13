@@ -21,9 +21,9 @@ public class GraphService {
         this.nodeProcessorService = nodeProcessorService;
     }
 
-    public void processGraph(Graph graph) {
+    public void processGraph(Graph graph, String sceneId) {
         // Initialize temporary storage for processing artifacts
-        nodeProcessorService.clear();
+        log.info("Processing scene {}", sceneId);
 
         validateGraph(graph);
 
@@ -32,12 +32,16 @@ public class GraphService {
         while (iterator.hasNext()) {
             Node node = iterator.next();
 
+            Map<String, Object> mutableInputs = new HashMap<>(node.getInputs() != null ?
+                    node.getInputs() :
+                    new HashMap<>());
+            mutableInputs.put("sceneId", sceneId);
+            node.setInputs(mutableInputs);
+
             nodeProcessorService.processNode(node);
 
             log.info("Node with id: {} is processed", node.getId());
         }
-
-        nodeProcessorService.clear();
     }
 
     public void validateGraph(Graph graph) {

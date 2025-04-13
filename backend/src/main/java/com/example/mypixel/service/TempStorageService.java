@@ -7,9 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.example.mypixel.exception.StorageException;
@@ -20,9 +17,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.google.common.io.Files.getFileExtension;
-
 
 @Slf4j
 public class TempStorageService implements StorageService {
@@ -39,12 +33,17 @@ public class TempStorageService implements StorageService {
 
     @Override
     public void store(MultipartFile file) {
+        store(file, file.getOriginalFilename());
+    }
+
+    @Override
+    public void store(MultipartFile file, String filename) {
         if (file.isEmpty()) {
             throw new StorageException("Failed to store empty file.");
         }
 
         try (InputStream inputStream = file.getInputStream()) {
-            store(inputStream, file.getOriginalFilename());
+            store(inputStream, filename);
         } catch (IOException e) {
             throw new StorageException("Failed to access file content.", e);
         }
@@ -94,10 +93,15 @@ public class TempStorageService implements StorageService {
 
         log.debug("Destination path resolved to: {}", destinationFile);
 
-        if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
-            // This is a security check against path traversal attacks
+        if (!destinationFile.startsWith(this.rootLocation.toAbsolutePath())) {
             log.error("Security violation: Attempted to store file outside of root location. Path: {}", destinationFile);
-            throw new StorageException("Cannot store file outside current directory.");
+            throw new StorageException("Cannot store file outside root directory.");
+        }
+
+        // Ensure parent directory exists
+        Path parentDir = destinationFile.getParent();
+        if (parentDir != null && !Files.exists(parentDir)) {
+            throw new StorageException("Failed to resolve directory: " + parentDir);
         }
 
         return destinationFile;
@@ -116,6 +120,22 @@ public class TempStorageService implements StorageService {
                     .map(this.rootLocation::relativize);
         } catch (IOException e) {
             throw new StorageException("Failed to read stored files", e);
+        }
+    }
+
+    @Override
+    public Stream<Path> loadAll(String relativePath) {
+        try {
+            Path targetDir = this.rootLocation.resolve(relativePath);
+            if (!Files.exists(targetDir) || !Files.isDirectory(targetDir)) {
+                return Stream.empty();
+            }
+
+            return Files.walk(targetDir, 1)
+                    .filter(path -> !path.equals(targetDir))
+                    .map(targetDir::relativize);
+        } catch (IOException e) {
+            throw new StorageException("Failed to read stored files in path: " + relativePath, e);
         }
     }
 
@@ -144,59 +164,6 @@ public class TempStorageService implements StorageService {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
     }
 
-    private final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");
-    private final Pattern prefixPattern = Pattern.compile("^[^_]+_(.*?)(\\.[^.]*$|$)");
-
-    private String addPrefixToFilename(String filename, String prefix) {
-        // Remove any existing prefix
-        filename = removeExistingPrefix(filename);
-
-        // Add new prefix
-        Matcher matcher = filenamePattern.matcher(filename);
-        if (matcher.find()) {
-            String baseName = matcher.group(1);
-            String extension = matcher.group(2);
-            return prefix + "_" + baseName + extension;
-        }
-        return filename;
-    }
-
-    @Override
-    public String removeExistingPrefix(String filename) {
-        Matcher matcher = prefixPattern.matcher(filename);
-        if (matcher.find()) {
-            String baseName = matcher.group(1);
-            String extension = matcher.group(2);
-            return baseName + extension;
-        }
-        return filename;
-    }
-
-    @Override
-    public String createTempFileFromResource(Resource resource) {
-        if (resource != null) {
-            String filename = resource.getFilename();
-            String extension = getFileExtension(filename);
-            String tempName = addPrefixToFilename(filename, UUID.randomUUID().toString());
-            store(resource, tempName);
-
-            log.info("Temp file created: [{}], Filename: [{}], Extension: [{}]", tempName, filename, extension);
-            return tempName;
-        }
-        throw new StorageException("Failed to create temp file: Input resource is null");
-    }
-
-    @Override
-    public boolean fileExists(String filename) {
-        try {
-            Path file = load(filename);
-            Resource resource = new UrlResource(file.toUri());
-            return resource.exists();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     @Override
     public void init() {
         try {
@@ -204,5 +171,24 @@ public class TempStorageService implements StorageService {
         } catch (IOException e) {
             throw new StorageException("Could not initialize storage", e);
         }
+    }
+
+    @Override
+    public void createFolder(String name) {
+        try {
+            Path folderPath = rootLocation.resolve(name);
+
+            Files.createDirectories(folderPath);
+
+            log.info("Created directory: {}", folderPath);
+        } catch (IOException e) {
+            throw new StorageException("Could not create folder: " + name, e);
+        }
+    }
+
+    @Override
+    public boolean folderExists(String name) {
+        Path scenePath = Paths.get(String.valueOf(rootLocation), name);
+        return Files.exists(scenePath) && Files.isDirectory(scenePath);
     }
 }

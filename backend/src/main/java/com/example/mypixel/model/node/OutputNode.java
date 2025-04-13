@@ -1,11 +1,10 @@
 package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.service.StorageService;
+import com.example.mypixel.service.FileManager;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -16,12 +15,7 @@ import java.util.Map;
 public class OutputNode extends Node {
 
     @Autowired
-    @Qualifier("storageService")
-    private StorageService storageService;
-
-    @Autowired
-    @Qualifier("tempStorageService")
-    private StorageService tempStorageService;
+    private FileManager fileManager;
 
     @JsonCreator
     public OutputNode(
@@ -49,12 +43,13 @@ public class OutputNode extends Node {
         List<String> files = (List<String>) inputs.get("files");
         Map<String, Object> outputs = Map.of();
 
+        String sceneId = (String) inputs.get("sceneId");
         for (String file: files) {
-            String filename = tempStorageService.removeExistingPrefix(file);
+            String filename = fileManager.removeExistingPrefix(file);
             if (inputs.get("prefix") != null) {
                 filename = inputs.get("prefix") + "_" + filename;
             }
-            storageService.store(tempStorageService.loadAsResource(file), filename);
+            fileManager.store(fileManager.loadAsResource(file, sceneId), sceneId, filename);
         }
 
         return outputs;

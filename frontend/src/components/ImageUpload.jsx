@@ -16,52 +16,58 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
 
     setIsUploading(true);
     try {
-      const processPromises = imageFiles.map(file => {
+      // Create a single FormData for all files
+      const formData = new FormData();
+      
+      // Create an array to store file preview data
+      const filePreviewPromises = imageFiles.map(file => {
+        // Add each file to the FormData with unique keys
+        formData.append('file', file);
+        
+        // Return a promise that resolves with the preview data
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = async () => {
-            try {
-              const formData = new FormData();
-              formData.append('file', file);
-              const response = await fetch('http://localhost:8080/v1/image/', {
-                method: 'POST',
-                body: formData,
-              });
-
-              if (!response.ok) {
-                throw new Error(`Upload failed for ${file.name}: ${response.statusText}`);
-              }
-
-              console.log(`Uploaded ${file.name} successfully with status ${response.status}`);
-
-              const serverUrl = `${file.name}`;
-
-              resolve({
-                id: Date.now() + Math.random().toString(36).substr(2, 9),
-                name: file.name,
-                url: reader.result, // Local data URL for preview
-                serverUrl,          // Assumed server URL
-                file,
-              });
-            } catch (error) {
-              reject(error); // Reject inner promise on fetch error
-            }
+          reader.onload = () => {
+            resolve({
+              id: Date.now() + Math.random().toString(36).substr(2, 9),
+              name: file.name,
+              url: reader.result, // Local data URL for preview
+              serverUrl: `${file.name}`, // Assumed server URL
+              file,
+            });
           };
           reader.onerror = () => reject(new Error(`Failed to read file ${file.name}`));
           reader.readAsDataURL(file);
         });
       });
 
-      const newImageObjects = await Promise.all(processPromises);
-      const updatedImages = [...images, ...newImageObjects].slice(0, maxImages);
+      // Wait for all file previews to be generated
+      const filePreviewsData = await Promise.all(filePreviewPromises);
+      
+      // Make a single request to upload all files at once
+      const response = await fetch('http://localhost:8080/v1/image/', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      console.log(`Uploaded ${imageFiles.length} files successfully with status ${response.status}`);
+      
+      // Update the state with the new images
+      const updatedImages = [...images, ...filePreviewsData].slice(0, maxImages);
       setImages(updatedImages);
       updateParent(updatedImages);
+      
     } catch (error) {
       console.error('Failed to upload images:', error);
       alert(`Error uploading images: ${error.message}`);
     } finally {
       console.log('Finished uploading, resetting isUploading');
-      setIsUploading(false); // Ensure this runs regardless of success or failure
+      setIsUploading(false);
     }
   };
 
