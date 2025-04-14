@@ -23,9 +23,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import software.amazon.awssdk.annotations.NotNull;
 
 @RestController
-@RequestMapping("/v1/scene/{sceneId}/input")
+@RequestMapping("/v1/scene/{sceneId}")
 public class ImageUploadController {
 
     private final StorageService storageService;
@@ -35,7 +36,7 @@ public class ImageUploadController {
         this.storageService = storageService;
     }
 
-    @GetMapping("/")
+    @GetMapping("/input")
     public List<String> listUploadedFiles(@PathVariable String sceneId) {
         return storageService.loadAll(sceneId + "/input/").map(
                         path -> MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
@@ -43,11 +44,32 @@ public class ImageUploadController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{filename:.+}")
+    @GetMapping("/output")
+    public List<String> listOutputFiles(@PathVariable String sceneId) {
+        return storageService.loadAll(sceneId + "/output/").map(
+                        path -> MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
+                                "serveOutputFile", sceneId, path.getFileName().toString()).build().toUri().toString())
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/input/{filename:.+}")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @PathVariable String filename) {
         Resource file = storageService.loadAsResource(sceneId + "/input/" + filename);
 
+        return getResourceResponseEntity(file);
+    }
+
+    @GetMapping("/output/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveOutputFile(@PathVariable String sceneId, @PathVariable String filename) {
+        Resource file = storageService.loadAsResource(sceneId + "/output/" + filename);
+
+        return getResourceResponseEntity(file);
+    }
+
+    @NotNull
+    private ResponseEntity<Resource> getResourceResponseEntity(Resource file) {
         if (file == null)
             return ResponseEntity.notFound().build();
 
@@ -65,10 +87,10 @@ public class ImageUploadController {
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+                        "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
-    @PostMapping("/")
+    @PostMapping("/input")
     public ResponseEntity<List<Map<String, String>>> handleFileUpload(@PathVariable String sceneId,
                                                  @RequestParam("file") List<MultipartFile> files) {
 
