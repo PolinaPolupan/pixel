@@ -5,7 +5,6 @@ import com.example.mypixel.model.*;
 import com.example.mypixel.model.node.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +33,7 @@ public class NodeProcessorService {
         beanFactory.autowireBean(node);
 
         String uuid = (String) node.getInputs().get("sceneId");
+        log.info("Started node: {}", node.getId());
 
         nodeOutputs.computeIfAbsent(uuid, k -> new HashMap<>());
         nodeMap.computeIfAbsent(uuid, k -> new HashMap<>());
@@ -63,7 +63,7 @@ public class NodeProcessorService {
         return nodeOutputs.get(sceneId).get(id).get(output);
     }
 
-    private Object castTypes(String sceneId, Object value, ParameterType requiredType) {
+    private Object castTypes(Node node, Object value, ParameterType requiredType) {
         if (value == null) {
             throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
         }
@@ -74,8 +74,9 @@ public class NodeProcessorService {
             case STRING -> (String) value;
             case FILENAMES_ARRAY -> {
                 List<String> files = new ArrayList<>();
+
                 for (String file: (List<String>) value) {
-                    String temp = fileManager.createDump(file, sceneId);
+                    String temp = fileManager.createDump(node, file);
                     files.add(temp);
                 }
                 yield files;
@@ -111,7 +112,7 @@ public class NodeProcessorService {
 
             // Cast to required type
             try {
-                input = castTypes(sceneId, input, requiredType);
+                input = castTypes(node, input, requiredType);
             } catch (ClassCastException e) {
                 throw new InvalidNodeParameter(
                         "Invalid input parameter '" + key + "' to the node with id " +
@@ -126,16 +127,5 @@ public class NodeProcessorService {
         resolvedInputs.put("sceneId", node.getInputs().get("sceneId"));
 
         node.setInputs(resolvedInputs);
-    }
-
-    public void clear(String uuid) {
-        if (nodeOutputs.containsKey(uuid)) {
-            nodeOutputs.get(uuid).clear();
-        }
-        if (nodeMap.containsKey(uuid)) {
-            nodeMap.get(uuid).clear();
-        }
-        nodeOutputs.clear();
-        nodeMap.clear();
     }
 }

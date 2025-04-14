@@ -5,6 +5,7 @@ import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.FileManager;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 
 @MyPixelNode("S3Input")
+@Slf4j
 public class S3InputNode extends Node {
 
     @Autowired
@@ -83,10 +85,15 @@ public class S3InputNode extends Node {
 
             for (S3Object file: contents) {
                 String filename = file.key();
+                filename = fileManager.extractFilename(filename);
                 InputStream in = s3Client.getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
 
-                fileManager.store(in, sceneId, filename);
-                files.add(filename);
+                log.info("Loading file: {}", filename);
+                if (!fileManager.folderExists(sceneId + "/temp/" + id)) fileManager.createFolder(sceneId + "/temp/" + id);
+                fileManager.store(in, sceneId + "/temp/" + id + "/" + filename);
+
+                String fullPath = sceneId + "/temp/" + id + "/" + filename;
+                files.add(fullPath);
                 in.close();
             }
         } catch (IOException e) {

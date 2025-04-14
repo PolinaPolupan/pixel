@@ -38,7 +38,8 @@ public class S3OutputNode extends Node {
                 "access_key_id", ParameterType.STRING.required(),
                 "secret_access_key", ParameterType.STRING.required(),
                 "region", ParameterType.STRING.required(),
-                "bucket", ParameterType.STRING.required()
+                "bucket", ParameterType.STRING.required(),
+                "folder", ParameterType.STRING.optional()
         );
     }
 
@@ -56,10 +57,9 @@ public class S3OutputNode extends Node {
         String secretKey = (String) inputs.get("secret_access_key");
         String regionName = (String) inputs.get("region");
         String bucket = (String) inputs.get("bucket");
+        String folder = (String) inputs.getOrDefault("folder", "");
 
         AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-
-        String sceneId = (String) inputs.get("sceneId");
 
         try (S3Client s3Client = S3Client
                 .builder()
@@ -68,15 +68,15 @@ public class S3OutputNode extends Node {
                 .build()) {
 
             for (String file : files) {
-                String filename = fileManager.removeExistingPrefix(file);
+                String filename = fileManager.extractFilename(file);
                 Map<String, String> metadata = new HashMap<>();
 
                 s3Client.putObject(request ->
                                 request
                                         .bucket(bucket)
-                                        .key(filename)
+                                        .key(folder + "/" + filename)
                                         .metadata(metadata),
-                        fileManager.load(filename, sceneId));
+                        fileManager.getFullPath(file));
             }
         }
 

@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.mypixel.exception.InvalidImageFormat;
@@ -19,9 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping("/v1/scene/{sceneId}/image")
+@RequestMapping("/v1/scene/{sceneId}/input")
 public class ImageUploadController {
 
     private final FileManager fileManager;
@@ -33,7 +37,7 @@ public class ImageUploadController {
 
     @GetMapping("/")
     public List<String> listUploadedFiles(@PathVariable String sceneId) {
-        return fileManager.loadAll(sceneId).map(
+        return fileManager.loadAll(sceneId + "/input/").map(
                         path -> MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
                                 "serveFile", sceneId, path.getFileName().toString()).build().toUri().toString())
                 .collect(Collectors.toList());
@@ -42,7 +46,7 @@ public class ImageUploadController {
     @GetMapping("/{filename:.+}")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @PathVariable String filename) {
-        Resource file = fileManager.loadAsResource(filename, sceneId);
+        Resource file = fileManager.loadAsResource(sceneId + "/input/" + filename);
 
         if (file == null)
             return ResponseEntity.notFound().build();
@@ -65,8 +69,10 @@ public class ImageUploadController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Void> handleFileUpload(@PathVariable String sceneId,
+    public ResponseEntity<List<Map<String, String>>> handleFileUpload(@PathVariable String sceneId,
                                                  @RequestParam("file") List<MultipartFile> files) {
+
+        List<Map<String, String>> responses = new ArrayList<>();
 
         for (MultipartFile file: files) {
             String contentType = file.getContentType();
@@ -74,9 +80,21 @@ public class ImageUploadController {
                 throw new InvalidImageFormat("Only JPEG or PNG images are allowed");
             }
 
-            fileManager.store(file, sceneId);
+            fileManager.store(file, sceneId + "/input/" + file.getOriginalFilename());
+
+            String fileUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/scenes/")
+                    .path(sceneId)
+                    .path("/input/")
+                    .path(file.getOriginalFilename())
+                    .toUriString();
+
+            Map<String, String> response = new HashMap<>();
+            response.put("fileName", file.getOriginalFilename());
+            response.put("fileLocation", fileUri);
+            responses.add(response);
         }
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(responses, HttpStatus.CREATED);
     }
 }

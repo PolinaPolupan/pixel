@@ -2,6 +2,7 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.service.FileManager;
 import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,6 +18,9 @@ public class GaussianBlurNode extends Node {
 
     @Autowired
     private FilteringService filteringService;
+
+    @Autowired
+    private FileManager fileManager;
 
     @JsonCreator
     public GaussianBlurNode(
@@ -53,7 +57,7 @@ public class GaussianBlurNode extends Node {
         double sigmaY = (double) inputs.getOrDefault("sigmaY", 0.0);
 
         for (String file: files) {
-            filteringService.gaussianBlur(file, sizeX, sizeY, sigmaX, sigmaY);
+            filteringService.gaussianBlur(fileManager.getFullPath(file).toString(), sizeX, sizeY, sigmaX, sigmaY);
         }
 
         outputs = Map.of("files", files);

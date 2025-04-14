@@ -45,11 +45,11 @@ public class OutputNode extends Node {
 
         String sceneId = (String) inputs.get("sceneId");
         for (String file: files) {
-            String filename = fileManager.removeExistingPrefix(file);
+            String filename = fileManager.extractFilename(file);
             if (inputs.get("prefix") != null) {
-                filename = inputs.get("prefix") + "_" + filename;
+                filename = fileManager.addPrefixToFilename(file, (String) inputs.get("prefix"));
             }
-            fileManager.store(fileManager.loadAsResource(file, sceneId), sceneId, filename);
+            fileManager.store(fileManager.loadAsResource(file), sceneId + "/output/" + filename);
         }
 
         return outputs;
