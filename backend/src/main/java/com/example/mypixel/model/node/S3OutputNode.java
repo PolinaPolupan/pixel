@@ -2,10 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.service.FileManager;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
@@ -13,15 +11,13 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @MyPixelNode("S3Output")
 public class S3OutputNode extends Node {
-
-    @Autowired
-    private FileManager fileManager;
 
     @JsonCreator
     public S3OutputNode(
@@ -34,7 +30,7 @@ public class S3OutputNode extends Node {
     @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
-                "files", ParameterType.FILENAMES_ARRAY.required(),
+                "files", ParameterType.FILEPATH_ARRAY.required(),
                 "access_key_id", ParameterType.STRING.required(),
                 "secret_access_key", ParameterType.STRING.required(),
                 "region", ParameterType.STRING.required(),
@@ -67,8 +63,8 @@ public class S3OutputNode extends Node {
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build()) {
 
-            for (String file : files) {
-                String filename = fileManager.extractFilename(file);
+            for (String filepath: files) {
+                String filename = fileHelper.extractFilename(filepath);
                 Map<String, String> metadata = new HashMap<>();
 
                 s3Client.putObject(request ->
@@ -76,7 +72,7 @@ public class S3OutputNode extends Node {
                                         .bucket(bucket)
                                         .key(folder + "/" + filename)
                                         .metadata(metadata),
-                        fileManager.getFullPath(file));
+                                        Path.of(filepath));
             }
         }
 

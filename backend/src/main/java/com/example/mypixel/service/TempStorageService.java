@@ -32,6 +32,11 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
+    public Path getRootLocation() {
+        return rootLocation;
+    }
+
+    @Override
     public void store(MultipartFile file) {
         store(file, file.getOriginalFilename());
     }
@@ -110,17 +115,6 @@ public class TempStorageService implements StorageService {
     private void copyToDestination(InputStream inputStream, Path destinationFile, String filename) throws IOException {
         Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
         log.info("Successfully stored file: {} to location: {}", filename, destinationFile);
-    }
-
-    @Override
-    public Stream<Path> loadAll() {
-        try {
-            return Files.walk(this.rootLocation, 1)
-                    .filter(path -> !path.equals(this.rootLocation))
-                    .map(this.rootLocation::relativize);
-        } catch (IOException e) {
-            throw new StorageException("Failed to read stored files", e);
-        }
     }
 
     @Override

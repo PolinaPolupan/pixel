@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import com.example.mypixel.exception.InvalidImageFormat;
-import com.example.mypixel.service.FileManager;
 import com.example.mypixel.service.TempStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

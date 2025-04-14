@@ -31,12 +31,7 @@ public class GraphService {
 
         while (iterator.hasNext()) {
             Node node = iterator.next();
-
-            Map<String, Object> mutableInputs = new HashMap<>(node.getInputs() != null ?
-                    node.getInputs() :
-                    new HashMap<>());
-            mutableInputs.put("sceneId", sceneId);
-            node.setInputs(mutableInputs);
+            node.setSceneId(sceneId);
 
             nodeProcessorService.processNode(node);
 

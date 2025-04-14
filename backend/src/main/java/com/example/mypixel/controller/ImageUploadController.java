@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.mypixel.exception.InvalidImageFormat;
-import com.example.mypixel.service.FileManager;
+import com.example.mypixel.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -28,16 +28,16 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/v1/scene/{sceneId}/input")
 public class ImageUploadController {
 
-    private final FileManager fileManager;
+    private final StorageService storageService;
 
     @Autowired
-    public ImageUploadController(FileManager fileManager) {
-        this.fileManager = fileManager;
+    public ImageUploadController(StorageService storageService) {
+        this.storageService = storageService;
     }
 
     @GetMapping("/")
     public List<String> listUploadedFiles(@PathVariable String sceneId) {
-        return fileManager.loadAll(sceneId + "/input/").map(
+        return storageService.loadAll(sceneId + "/input/").map(
                         path -> MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
                                 "serveFile", sceneId, path.getFileName().toString()).build().toUri().toString())
                 .collect(Collectors.toList());
@@ -46,7 +46,7 @@ public class ImageUploadController {
     @GetMapping("/{filename:.+}")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @PathVariable String filename) {
-        Resource file = fileManager.loadAsResource(sceneId + "/input/" + filename);
+        Resource file = storageService.loadAsResource(sceneId + "/input/" + filename);
 
         if (file == null)
             return ResponseEntity.notFound().build();
@@ -80,7 +80,7 @@ public class ImageUploadController {
                 throw new InvalidImageFormat("Only JPEG or PNG images are allowed");
             }
 
-            fileManager.store(file, sceneId + "/input/" + file.getOriginalFilename());
+            storageService.store(file, sceneId + "/input/" + file.getOriginalFilename());
 
             String fileUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/scenes/")

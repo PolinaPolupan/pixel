@@ -23,22 +23,22 @@ public class CombineNode extends Node {
     @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
-                "files_0", ParameterType.FILENAMES_ARRAY.required(),
-                "files_1", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_2", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_3", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_4", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_5", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_6", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_7", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_8", ParameterType.FILENAMES_ARRAY.optional(),
-                "files_9", ParameterType.FILENAMES_ARRAY.optional()
+                "files_0", ParameterType.FILEPATH_ARRAY.required(),
+                "files_1", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_2", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_3", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_4", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_5", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_6", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_7", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_8", ParameterType.FILEPATH_ARRAY.optional(),
+                "files_9", ParameterType.FILEPATH_ARRAY.optional()
         );
     }
 
     @Override
     public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILENAMES_ARRAY);
+        return Map.of("files", ParameterType.FILEPATH_ARRAY);
     }
 
     @Override

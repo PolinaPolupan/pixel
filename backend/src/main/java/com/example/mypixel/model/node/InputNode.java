@@ -21,12 +21,12 @@ public class InputNode extends Node {
 
     @Override
     public Map<String, ParameterType> getInputTypes() {
-        return Map.of("files", ParameterType.FILENAMES_ARRAY.required());
+        return Map.of("files", ParameterType.FILEPATH_ARRAY.required());
     }
 
     @Override
     public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILENAMES_ARRAY);
+        return Map.of("files", ParameterType.FILEPATH_ARRAY);
     }
 
     @Override

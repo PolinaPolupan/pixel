@@ -5,7 +5,6 @@ import com.example.mypixel.model.node.GaussianBlurNode;
 import com.example.mypixel.model.node.InputNode;
 import com.example.mypixel.model.node.Node;
 import com.example.mypixel.model.node.OutputNode;
-import com.example.mypixel.service.FileManager;
 import com.example.mypixel.service.NodeProcessorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

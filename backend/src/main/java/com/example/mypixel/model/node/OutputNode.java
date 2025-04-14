@@ -1,10 +1,8 @@
 package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.service.FileManager;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -13,9 +11,6 @@ import java.util.Map;
 
 @MyPixelNode("Output")
 public class OutputNode extends Node {
-
-    @Autowired
-    private FileManager fileManager;
 
     @JsonCreator
     public OutputNode(
@@ -28,7 +23,7 @@ public class OutputNode extends Node {
     @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
-                "files", ParameterType.FILENAMES_ARRAY.required(),
+                "files", ParameterType.FILEPATH_ARRAY.required(),
                 "prefix", ParameterType.STRING.optional()
         );
     }
@@ -41,15 +36,12 @@ public class OutputNode extends Node {
     @Override
     public Map<String, Object> exec() {
         List<String> files = (List<String>) inputs.get("files");
+        String prefix = (String) inputs.getOrDefault("prefix", null);
+
         Map<String, Object> outputs = Map.of();
 
-        String sceneId = (String) inputs.get("sceneId");
-        for (String file: files) {
-            String filename = fileManager.extractFilename(file);
-            if (inputs.get("prefix") != null) {
-                filename = fileManager.addPrefixToFilename(file, (String) inputs.get("prefix"));
-            }
-            fileManager.store(fileManager.loadAsResource(file), sceneId + "/output/" + filename);
+        for (String filepath: files) {
+            fileHelper.storeToOutput(filepath, prefix);
         }
 
         return outputs;

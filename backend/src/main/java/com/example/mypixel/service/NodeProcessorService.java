@@ -18,21 +18,22 @@ public class NodeProcessorService {
     // Hash map to store nodes and their corresponding outputs
     private final Map<String, Map<Long, Map<String, Object>>> nodeOutputs = new HashMap<>();
     private final Map<String, Map<Long, Node>> nodeMap = new HashMap<>();
-    private final FileManager fileManager;
+    private final StorageService storageService;
 
     @Autowired
     public NodeProcessorService(
-            AutowireCapableBeanFactory beanFactory,
-            FileManager fileManager
+            AutowireCapableBeanFactory beanFactory, StorageService storageService
     ) {
         this.beanFactory = beanFactory;
-        this.fileManager = fileManager;
+        this.storageService = storageService;
     }
 
     public void processNode(Node node) {
         beanFactory.autowireBean(node);
+        FileHelper fileHelper = new FileHelper(storageService, node);
+        node.setFileHelper(fileHelper);
 
-        String uuid = (String) node.getInputs().get("sceneId");
+        String uuid = node.getSceneId();
         log.info("Started node: {}", node.getId());
 
         nodeOutputs.computeIfAbsent(uuid, k -> new HashMap<>());
@@ -72,12 +73,10 @@ public class NodeProcessorService {
             case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
             case DOUBLE -> value instanceof Number ? ((Number) value).doubleValue() : (double) value;
             case STRING -> (String) value;
-            case FILENAMES_ARRAY -> {
+            case FILEPATH_ARRAY -> {
                 List<String> files = new ArrayList<>();
-
                 for (String file: (List<String>) value) {
-                    String temp = fileManager.createDump(node, file);
-                    files.add(temp);
+                    files.add(node.getFileHelper().createDump(file));
                 }
                 yield files;
             }
@@ -104,10 +103,8 @@ public class NodeProcessorService {
             Object input = node.getInputs().get(key);
             ParameterType requiredType = node.getInputTypes().get(key);
 
-            String sceneId = (String) node.getInputs().get("sceneId");
-
             if (input instanceof NodeReference) {
-                input = resolveReference((NodeReference) input, sceneId);
+                input = resolveReference((NodeReference) input, node.getSceneId());
             }
 
             // Cast to required type
@@ -123,8 +120,6 @@ public class NodeProcessorService {
 
             resolvedInputs.put(key, input);
         }
-
-        resolvedInputs.put("sceneId", node.getInputs().get("sceneId"));
 
         node.setInputs(resolvedInputs);
     }

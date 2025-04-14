@@ -2,6 +2,7 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.InputDeserializer;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -20,6 +21,10 @@ public abstract class Node {
     @NonNull
     @Setter(AccessLevel.NONE)
     Long id;
+
+    String sceneId;
+
+    FileHelper fileHelper;
 
     @NonNull
     @Setter(AccessLevel.NONE)

@@ -15,7 +15,7 @@ public enum ParameterType {
     DOUBLE,
     STRING,
     STRING_ARRAY,
-    FILENAMES_ARRAY;
+    FILEPATH_ARRAY;
 
     private boolean required = false;
 

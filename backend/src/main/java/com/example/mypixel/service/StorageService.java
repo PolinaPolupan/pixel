@@ -11,6 +11,8 @@ public interface StorageService {
 
     void init();
 
+    Path getRootLocation();
+
     void createFolder(String name);
 
     boolean folderExists(String name);
@@ -22,8 +24,6 @@ public interface StorageService {
     void store(Resource file, String filename);
 
     void store(InputStream inputStream, String filename);
-
-    Stream<Path> loadAll();
 
     Stream<Path> loadAll(String relativePath);
 

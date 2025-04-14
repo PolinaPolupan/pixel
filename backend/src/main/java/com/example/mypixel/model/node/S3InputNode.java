@@ -2,11 +2,9 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.service.FileManager;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
@@ -29,9 +27,6 @@ import java.util.Map;
 @Slf4j
 public class S3InputNode extends Node {
 
-    @Autowired
-    private FileManager fileManager;
-
     @JsonCreator
     public S3InputNode(
             @JsonProperty("id") @NonNull Long id,
@@ -52,7 +47,7 @@ public class S3InputNode extends Node {
 
     @Override
     public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILENAMES_ARRAY);
+        return Map.of("files", ParameterType.FILEPATH_ARRAY);
     }
 
     @Override
@@ -81,19 +76,14 @@ public class S3InputNode extends Node {
 
             List<S3Object> contents = listObjectsV2Response.contents();
 
-            String sceneId = (String) inputs.get("sceneId");
-
             for (S3Object file: contents) {
                 String filename = file.key();
-                filename = fileManager.extractFilename(filename);
+                filename = fileHelper.extractFilename(filename);
                 InputStream in = s3Client.getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
 
                 log.info("Loading file: {}", filename);
-                if (!fileManager.folderExists(sceneId + "/temp/" + id)) fileManager.createFolder(sceneId + "/temp/" + id);
-                fileManager.store(in, sceneId + "/temp/" + id + "/" + filename);
 
-                String fullPath = sceneId + "/temp/" + id + "/" + filename;
-                files.add(fullPath);
+                files.add(fileHelper.storeToTemp(in, filename));
                 in.close();
             }
         } catch (IOException e) {

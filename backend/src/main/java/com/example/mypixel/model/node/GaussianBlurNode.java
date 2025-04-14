@@ -2,7 +2,6 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.service.FileManager;
 import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,9 +18,6 @@ public class GaussianBlurNode extends Node {
     @Autowired
     private FilteringService filteringService;
 
-    @Autowired
-    private FileManager fileManager;
-
     @JsonCreator
     public GaussianBlurNode(
             @JsonProperty("id") @NonNull Long id,
@@ -33,7 +29,7 @@ public class GaussianBlurNode extends Node {
     @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
-                "files", ParameterType.FILENAMES_ARRAY.required(),
+                "files", ParameterType.FILEPATH_ARRAY.required(),
                 "sizeX", ParameterType.INT.required(),
                 "sizeY", ParameterType.INT.optional(),
                 "sigmaX", ParameterType.DOUBLE.optional(),
@@ -43,7 +39,7 @@ public class GaussianBlurNode extends Node {
 
     @Override
     public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILENAMES_ARRAY);
+        return Map.of("files", ParameterType.FILEPATH_ARRAY);
     }
 
     @Override
@@ -56,8 +52,8 @@ public class GaussianBlurNode extends Node {
         double sigmaX = (double) inputs.getOrDefault("sigmaX", 0.0);
         double sigmaY = (double) inputs.getOrDefault("sigmaY", 0.0);
 
-        for (String file: files) {
-            filteringService.gaussianBlur(fileManager.getFullPath(file).toString(), sizeX, sizeY, sigmaX, sigmaY);
+        for (String filepath: files) {
+            filteringService.gaussianBlur(filepath, sizeX, sizeY, sigmaX, sigmaY);
         }
 
         outputs = Map.of("files", files);
