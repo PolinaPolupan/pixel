@@ -1,8 +1,22 @@
 import { useState } from 'react';
+import { useScene } from './SceneContext';
 
 function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages = [] }) {
+  const { sceneId } = useScene();
   const [images, setImages] = useState(initialImages);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Extract filename from URL
+  const extractFilename = (url) => {
+    try {
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      return decodeURIComponent(pathname.substring(pathname.lastIndexOf('/') + 1));
+    } catch (e) {
+      const parts = url.split('/');
+      return decodeURIComponent(parts[parts.length - 1]);
+    }
+  };
 
   // Handle local file upload and send to server
   const handleFileChange = async (event) => {
@@ -16,23 +30,19 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
 
     setIsUploading(true);
     try {
-      // Create a single FormData for all files
       const formData = new FormData();
       
-      // Create an array to store file preview data
       const filePreviewPromises = imageFiles.map(file => {
-        // Add each file to the FormData with unique keys
         formData.append('file', file);
         
-        // Return a promise that resolves with the preview data
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => {
             resolve({
               id: Date.now() + Math.random().toString(36).substr(2, 9),
               name: file.name,
-              url: reader.result, // Local data URL for preview
-              serverUrl: `${file.name}`, // Assumed server URL
+              url: reader.result,
+              serverUrl: file.name, // Initially just the filename
               file,
             });
           };
@@ -41,11 +51,10 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
         });
       });
 
-      // Wait for all file previews to be generated
       const filePreviewsData = await Promise.all(filePreviewPromises);
       
-      // Make a single request to upload all files at once
-      const response = await fetch('http://localhost:8080/v1/image/', {
+      // Use the scene ID from context in the API URL
+      const response = await fetch(`http://localhost:8080/v1/scene/${sceneId}/input`, {
         method: 'POST',
         body: formData,
         credentials: 'include'
@@ -55,10 +64,22 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
         throw new Error(`Upload failed: ${response.statusText}`);
       }
 
+      // Get the actual server locations from the response
+      const serverLocations = await response.json();
+      
+      // Update file previews with actual server URLs for display, but keep filenames for data
+      const updatedFilePreviews = filePreviewsData.map((preview, index) => {
+        const serverUrl = serverLocations[index].fileLocation;
+        return {
+          ...preview,
+          fullUrl: serverUrl, // Store full URL for display/preview
+          serverUrl: extractFilename(serverUrl) // Store just the filename for node data
+        };
+      });
+      
       console.log(`Uploaded ${imageFiles.length} files successfully with status ${response.status}`);
       
-      // Update the state with the new images
-      const updatedImages = [...images, ...filePreviewsData].slice(0, maxImages);
+      const updatedImages = [...images, ...updatedFilePreviews].slice(0, maxImages);
       setImages(updatedImages);
       updateParent(updatedImages);
       
@@ -77,10 +98,10 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
     updateParent([]);
   };
 
-  // Update parent with server URLs for 'files' input
+  // Update parent with just filenames for 'files' input
   const updateParent = (imageList) => {
     if (onImagesSelected) {
-      const fileUrls = imageList.map(image => image.serverUrl);
+      const fileUrls = imageList.map(image => image.serverUrl); // Just the filename
       onImagesSelected(fileUrls);
     }
   };
@@ -131,7 +152,7 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
         </div>
       )}
 
-      {/* Image previews */}
+      {/* Image previews - use the original URL for display */}
       {images.length > 0 && (
         <div style={{
           display: 'flex',
@@ -144,7 +165,7 @@ function ImageUpload({ onImagesSelected, maxImages = 10, nodeId, initialImages =
               height: '36px',
             }}>
               <img 
-                src={image.url}
+                src={image.url} // Use the data URL or fullUrl for preview
                 alt={image.name}
                 title={image.name}
                 style={{
