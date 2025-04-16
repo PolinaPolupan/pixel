@@ -191,7 +191,7 @@ function AppContent() {
         
         <NodeTypesPanel />
 
-        <Panel position="center-right" style={{ marginRight: '16px', marginBottom: '16px' }}>
+        <Panel position="top-right" style={{ marginRight: '16px', marginBottom: '16px' }}>
           <OutputGallery />
         </Panel>
         

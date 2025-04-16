@@ -23,10 +23,16 @@ public class FileHelper {
         this.node = node;
     }
 
-    public String storeToOutput(String filepath, String prefix) {
+    public String storeToOutput(String filepath, String folder, String prefix) {
         String filename = extractFilename(filepath);
         if (prefix != null) {
             filename = addPrefixToFilename(filepath, prefix);
+        }
+        if (folder != null) {
+            if (!storageService.folderExists(sceneId + "/output/" + folder)) {
+                storageService.createFolder(sceneId + "/output/" + folder);
+            }
+            filename = folder + "/" + filename;
         }
 
         String fullInputPath = storageService.getRootLocation().relativize(Paths.get(filepath)).toString();

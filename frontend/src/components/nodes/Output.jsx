@@ -27,6 +27,14 @@ import {
             type = "text"
             parameterType="STRING"
         /> 
+        <InputHandle 
+            id={id}
+            data={data}
+            handleId="folder"
+            handleLabel="Folder"
+            type = "text"
+            parameterType="STRING"
+        /> 
       </div>
     );
   }

@@ -24,7 +24,8 @@ public class OutputNode extends Node {
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files", ParameterType.FILEPATH_ARRAY.required(),
-                "prefix", ParameterType.STRING.optional()
+                "prefix", ParameterType.STRING.optional(),
+                "folder", ParameterType.STRING.optional()
         );
     }
 
@@ -37,11 +38,12 @@ public class OutputNode extends Node {
     public Map<String, Object> exec() {
         List<String> files = (List<String>) inputs.get("files");
         String prefix = (String) inputs.getOrDefault("prefix", null);
+        String folder = (String) inputs.getOrDefault("folder", null);
 
         Map<String, Object> outputs = Map.of();
 
         for (String filepath: files) {
-            fileHelper.storeToOutput(filepath, prefix);
+            fileHelper.storeToOutput(filepath, folder, prefix);
         }
 
         return outputs;
