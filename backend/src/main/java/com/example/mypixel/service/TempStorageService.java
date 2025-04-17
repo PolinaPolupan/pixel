@@ -125,7 +125,7 @@ public class TempStorageService implements StorageService {
                 return Stream.empty();
             }
 
-            return Files.walk(targetDir, 1)
+            return Files.walk(targetDir, 10)
                     .filter(path -> !path.equals(targetDir))
                     .map(targetDir::relativize);
         } catch (IOException e) {

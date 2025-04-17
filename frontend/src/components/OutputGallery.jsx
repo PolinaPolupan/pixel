@@ -3,98 +3,122 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { useScene } from './SceneContext';
 import { IoReload } from 'react-icons/io5';
+import { IoClose } from "react-icons/io5";
 
-const OutputGallery = ({ success, setError }) => {
+const FileExplorer = ({ setError }) => {
   const { sceneId } = useScene();
   const [items, setItems] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
 
-  const fetchItems = async (baseUrl, basePath = '') => {
+  const fetchItems = async (folder = '') => {
     try {
-      const response = await fetch(baseUrl);
+      const url = `http://localhost:8080/v1/scene/${sceneId}/output/list${folder ? `?folder=${encodeURIComponent(folder)}` : ''}`;
+      const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Failed to fetch items from ${baseUrl}`);
+        throw new Error(`Failed to fetch items from ${url}`);
       }
-      const urls = await response.json();
-      const newItems = [];
-
-      for (const url of urls) {
-        const name = url.split('/').pop();
-        const path = basePath ? `${basePath}/${name}` : name;
-
-        if (url.endsWith('/')) {
-          newItems.push({
-            type: 'folder',
-            name,
-            path,
-            files: [],
-            isOpen: false,
-          });
-        } else if (/\.(png|jpeg|jpg)$/i.test(name)) {
-          newItems.push({
-            type: 'file',
-            url,
-            path,
-          });
-        }
-      }
-
-      return newItems;
+      const paths = await response.json();
+      return paths.map((path) => path.replace(/\/+$/, '')); // Normalize paths
     } catch (err) {
       setError(err.message);
       return [];
     }
   };
 
+  const buildTree = (paths) => {
+    const root = { type: 'folder', name: 'root', path: '', files: [], folders: [], isOpen: true };
+
+    paths.forEach((path) => {
+      const segments = path.split('/').filter((s) => s);
+      let current = root;
+
+      // Handle folder segments
+      segments.forEach((segment, index) => {
+        const isLast = index === segments.length - 1;
+        const currentPath = segments.slice(0, index + 1).join('/');
+
+        if (isLast && /\.(png|jpeg|jpg)$/i.test(segment)) {
+          // File
+          current.files.push({
+            type: 'file',
+            url: `http://localhost:8080/v1/scene/${sceneId}/output/file?filename=${encodeURIComponent(currentPath)}`,
+            path: currentPath,
+          });
+        } else {
+          // Folder
+          let folder = current.folders.find((f) => f.name === segment);
+          if (!folder) {
+            folder = {
+              type: 'folder',
+              name: segment,
+              path: currentPath,
+              files: [],
+              folders: [],
+              isOpen: false,
+            };
+            current.folders.push(folder);
+          }
+          current = folder;
+        }
+      });
+    });
+
+    return root.folders; // Return top-level folders
+  };
+
   const fetchAllItems = async () => {
-    const baseItems = await fetchItems(`http://localhost:8080/v1/scene/${sceneId}/output`);
-    const updatedItems = [];
-
-    for (const item of baseItems) {
-      if (item.type === 'folder') {
-        const folderFiles = await fetchItems(
-          `http://localhost:8080/v1/scene/${sceneId}/output/${item.path}`,
-          item.path
-        );
-        item.files = folderFiles.filter((f) => f.type === 'file');
-        updatedItems.push(item);
-      } else {
-        updatedItems.push(item);
-      }
-    }
-
-    setItems(updatedItems);
+    const paths = await fetchItems();
+    const tree = buildTree(paths);
+    setItems(tree);
     setIsOpen(true);
   };
 
   useEffect(() => {
-    if (success) {
-      fetchAllItems();
-    }
-  }, [success, sceneId, setError]);
+    fetchAllItems();
+  }, [sceneId, setError]);
 
-  const toggleFolder = (path) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.path === path ? { ...item, isOpen: !item.isOpen } : item
-      )
-    );
+  const toggleFolder = async (path) => {
+    setItems((prev) => {
+      const updateTree = (nodes) =>
+        nodes.map((node) => {
+          if (node.path !== path) {
+            return { ...node, folders: updateTree(node.folders) };
+          }
+          const newNode = { ...node, isOpen: !node.isOpen };
+          if (newNode.isOpen && newNode.files.length === 0 && newNode.folders.length === 0) {
+            fetchItems(path).then((subPaths) => {
+              const subTree = buildTree(subPaths.filter((p) => p.startsWith(path)));
+              setItems((current) => {
+                const mergeTree = (nodes) =>
+                  nodes.map((n) =>
+                    n.path === path
+                      ? { ...n, files: subTree.find((t) => t.path === path)?.files || [], folders: subTree.find((t) => t.path === path)?.folders || [], isOpen: true }
+                      : { ...n, folders: mergeTree(n.folders) }
+                  );
+                return mergeTree(current);
+              });
+            });
+          }
+          return newNode;
+        });
+      return updateTree(prev);
+    });
   };
 
   const downloadAsZip = async () => {
     const zip = new JSZip();
     try {
-      const addFilesToZip = async (files, folder = zip) => {
-        const promises = files.map(async (file) => {
-          if (file.type === 'file') {
-            const response = await fetch(file.url);
-            if (!response.ok) throw new Error(`Failed to fetch ${file.url}`);
+      const addFilesToZip = async (nodes, folder = zip) => {
+        const promises = nodes.map(async (node) => {
+          if (node.type === 'file') {
+            const response = await fetch(node.url);
+            if (!response.ok) throw new Error(`Failed to fetch ${node.url}`);
             const blob = await response.blob();
-            folder.file(file.path, blob);
-          } else if (file.type === 'folder') {
-            const subFolder = folder.folder(file.name);
-            await addFilesToZip(file.files, subFolder);
+            folder.file(node.path, blob);
+          } else if (node.type === 'folder') {
+            const subFolder = folder.folder(node.name);
+            await addFilesToZip(node.files.concat(node.folders), subFolder);
           }
         });
         await Promise.all(promises);
@@ -102,7 +126,7 @@ const OutputGallery = ({ success, setError }) => {
 
       await addFilesToZip(items);
       const zipBlob = await zip.generateAsync({ type: 'blob' });
-      saveAs(zipBlob, 'output_images.zip');
+      saveAs(zipBlob, 'output_files.zip');
     } catch (err) {
       setError('Failed to create ZIP: ' + err.message);
     }
@@ -112,18 +136,55 @@ const OutputGallery = ({ success, setError }) => {
     setPreviewImage(url);
   };
 
-  const handleDownload = (url) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = url.split('/').pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const closePreview = () => {
     setPreviewImage(null);
   };
+
+  const renderTree = (nodes, depth = 0) => (
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      {nodes.map((item) => (
+        <li key={item.path}>
+          {item.type === 'folder' ? (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '8px',
+                paddingLeft: `${8 + depth * 20}px`,
+                cursor: 'pointer',
+                background: item.isOpen ? 'rgba(60, 60, 60, 0.5)' : 'transparent',
+                borderRadius: '4px',
+                marginBottom: '4px',
+              }}
+              onClick={() => toggleFolder(item.path)}
+            >
+              <span style={{ marginRight: '8px' }}>{item.isOpen ? '📂' : '📁'}</span>
+              <span style={{ fontSize: '14px' }}>{item.name || 'Unnamed Folder'}</span>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '8px',
+                paddingLeft: `${8 + depth * 20}px`,
+                cursor: 'pointer',
+                borderRadius: '4px',
+                marginBottom: '4px',
+              }}
+              onClick={() => handleImageClick(item.url)}
+            >
+              <span style={{ marginRight: '8px' }}>🖼️</span>
+              <span style={{ fontSize: '14px' }}>{item.path.split('/').pop()}</span>
+            </div>
+          )}
+          {item.type === 'folder' && item.isOpen && (item.files.length > 0 || item.folders.length > 0) && (
+            <div style={{ margin: '8px 0' }}>{renderTree(item.folders.concat(item.files), depth + 1)}</div>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
     <div
@@ -145,7 +206,6 @@ const OutputGallery = ({ success, setError }) => {
           cursor: 'pointer',
           fontFamily: 'Arial, sans-serif',
           fontSize: '14px',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
           transition: 'background 0.2s, transform 0.1s',
         }}
         onMouseOver={(e) => {
@@ -157,20 +217,19 @@ const OutputGallery = ({ success, setError }) => {
           e.target.style.transform = 'scale(1)';
         }}
       >
-        {isOpen ? 'Hide Gallery' : 'Show Gallery'}
+        {isOpen ? 'Hide Explorer' : 'Show Explorer'}
       </button>
       {isOpen && (
         <div
           style={{
             marginTop: '10px',
-            width: '320px',
+            width: '300px',
             background: 'rgba(40, 40, 40, 0.95)',
             border: '1px solid rgba(255, 255, 255, 0.3)',
             borderRadius: '8px',
             padding: '16px',
-            maxHeight: '420px',
+            maxHeight: '400px',
             overflowY: 'auto',
-            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.5)',
             fontFamily: 'Arial, sans-serif',
             color: '#ffffff',
             zIndex: 20,
@@ -184,27 +243,17 @@ const OutputGallery = ({ success, setError }) => {
               marginBottom: '12px',
             }}
           >
-            <h3 style={{ margin: '0', fontSize: '16px' }}>Output Files</h3>
+            <h3 style={{ margin: '0', fontSize: '16px' }}>Files</h3>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <IoReload
                 onClick={fetchAllItems}
                 style={{
-                  width: '24px',
-                  height: '24px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#ffffff',
                   cursor: 'pointer',
                   fontSize: '16px',
                   transition: 'transform 0.2s',
                 }}
-                onMouseOver={(e) => {
-                  e.target.style.transform = 'scale(1.05)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.transform = 'scale(1)';
-                }}
+                onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
+                onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
                 title="Refresh"
               />
               {items.length > 0 && (
@@ -229,118 +278,16 @@ const OutputGallery = ({ success, setError }) => {
                     e.target.style.transform = 'scale(1)';
                   }}
                 >
-                  Download All as ZIP
+                  Download ZIP
                 </button>
               )}
             </div>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '12px',
-            }}
-          >
-            {items.length === 0 ? (
-              <p style={{ fontSize: '14px', color: '#cccccc', gridColumn: 'span 2' }}>
-                No files available
-              </p>
-            ) : (
-              items.map((item, index) =>
-                item.type === 'folder' ? (
-                  <div
-                    key={item.path}
-                    style={{ gridColumn: 'span 2', cursor: 'pointer' }}
-                    onClick={() => toggleFolder(item.path)}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '8px',
-                        background: 'rgba(60, 60, 60, 0.5)',
-                        borderRadius: '4px',
-                        marginBottom: '8px',
-                      }}
-                    >
-                      <span style={{ marginRight: '8px' }}>{item.isOpen ? '📂' : '📁'}</span>
-                      <span style={{ fontSize: '14px', color: '#ffffff' }}>{item.name}</span>
-                    </div>
-                    {item.isOpen && item.files.length > 0 && (
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
-                          gap: '12px',
-                          marginLeft: '16px',
-                        }}
-                      >
-                        {item.files.map((file, fileIndex) => (
-                          <div key={fileIndex} style={{ textAlign: 'center' }}>
-                            <img
-                              src={file.url}
-                              alt={file.path}
-                              style={{
-                                maxWidth: '100%',
-                                maxHeight: '120px',
-                                borderRadius: '4px',
-                                objectFit: 'contain',
-                                background: 'rgba(0, 0, 0, 0.2)',
-                                cursor: 'pointer',
-                                transition: 'transform 0.2s',
-                              }}
-                              onClick={() => handleImageClick(file.url)}
-                              onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
-                              onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
-                            />
-                            <p
-                              style={{
-                                margin: '4px 0 0',
-                                fontSize: '12px',
-                                color: '#cccccc',
-                                wordBreak: 'break-all',
-                              }}
-                            >
-                              {file.path.split('/').pop()}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div key={item.path} style={{ textAlign: 'center' }}>
-                    <img
-                      src={item.url}
-                      alt={item.path}
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '120px',
-                        borderRadius: '4px',
-                        objectFit: 'contain',
-                        background: 'rgba(0, 0, 0, 0.2)',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s',
-                      }}
-                      onClick={() => handleImageClick(item.url)}
-                      onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
-                      onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
-                    />
-                    <p
-                      style={{
-                        margin: '4px 0 0',
-                        fontSize: '12px',
-                        color: '#cccccc',
-                        wordBreak: 'break-all',
-                      }}
-                    >
-                      {item.path.split('/').pop()}
-                    </p>
-                  </div>
-                )
-              )
-            )}
-          </div>
+          {items.length === 0 ? (
+            <p style={{ fontSize: '14px', color: '#cccccc' }}>No files or folders available</p>
+          ) : (
+            renderTree(items)
+          )}
         </div>
       )}
       {previewImage && (
@@ -367,7 +314,6 @@ const OutputGallery = ({ success, setError }) => {
               background: 'rgba(40, 40, 40, 0.95)',
               borderRadius: '8px',
               padding: '16px',
-              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.5)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -381,60 +327,34 @@ const OutputGallery = ({ success, setError }) => {
                 borderRadius: '4px',
               }}
             />
-            <div
+            <IoClose 
+              onClick={closePreview}
               style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                background: 'rgba(80, 80, 80, 0.9)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
+                color: '#ffffff',
+                cursor: 'pointer',
+                fontSize: '14px',
                 display: 'flex',
-                justifyContent: 'space-between',
-                marginTop: '12px',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'background 0.2s, transform 0.1s',
               }}
-            >
-              <button
-                onClick={() => handleDownload(previewImage)}
-                style={{
-                  background: 'rgb(0, 110, 0)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  padding: '6px 12px',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'background 0.2s, transform 0.1s',
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.background = 'rgb(0, 200, 0)';
-                  e.target.style.transform = 'scale(1.05)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = 'rgb(0, 110, 0)';
-                  e.target.style.transform = 'scale(1)';
-                }}
-              >
-                Download
-              </button>
-              <button
-                onClick={closePreview}
-                style={{
-                  background: 'rgba(80, 80, 80, 0.9)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  padding: '6px 12px',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'background 0.2s, transform 0.1s',
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.background = 'rgba(100, 100, 100, 0.9)';
-                  e.target.style.transform = 'scale(1.05)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = 'rgba(80, 80, 80, 0.9)';
-                  e.target.style.transform = 'scale(1)';
-                }}
-              >
-                Close
-              </button>
-            </div>
+              onMouseOver={(e) => {
+                e.target.style.background = 'rgba(100, 100, 100, 0.9)';
+                e.target.style.transform = 'scale(1.05)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = 'rgba(80, 80, 80, 0.9)';
+                e.target.style.transform = 'scale(1)';
+              }}
+            />
           </div>
         </div>
       )}
@@ -442,4 +362,4 @@ const OutputGallery = ({ success, setError }) => {
   );
 };
 
-export default OutputGallery;
+export default FileExplorer;

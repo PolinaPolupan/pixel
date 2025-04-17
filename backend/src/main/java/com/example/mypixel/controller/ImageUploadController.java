@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.example.mypixel.exception.InvalidImageFormat;
 import com.example.mypixel.service.StorageService;
@@ -23,9 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import software.amazon.awssdk.annotations.NotNull;
 
 @RestController
 @RequestMapping("/v1/scene/{sceneId}")
@@ -38,92 +35,40 @@ public class ImageUploadController {
         this.storageService = storageService;
     }
 
-    @GetMapping("/input")
-    public List<String> listUploadedFiles(@PathVariable String sceneId) {
-        return storageService.loadAll(sceneId + "/input/").map(
-                        path -> MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
-                                "serveFile", sceneId, path.getFileName().toString()).build().toUri().toString())
-                .collect(Collectors.toList());
+    @GetMapping(path = "/input/list", produces = "application/json")
+    public List<String> listUploadedFiles(@PathVariable String sceneId,
+                                          @RequestParam(required = false, defaultValue = "") String folder) {
+        return storageService.loadAll(sceneId + "/input/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
-    @GetMapping("/output")
-    public List<String> listOutputItems(@PathVariable String sceneId) {
-        try {
-            // Use Files.walk to list files and directories
-            Path basePath = storageService.getRootLocation().resolve(sceneId + "/output/");
-            if (!Files.exists(basePath)) {
-                return new ArrayList<>();
-            }
-
-            try (Stream<Path> paths = Files.walk(basePath, 1)) {
-                return paths
-                        .filter(path -> !path.equals(basePath)) // Exclude base directory
-                        .map(path -> {
-                            String relativePath = basePath.relativize(path).toString();
-
-                            if (Files.isDirectory(path)) {
-                                // For directories, use the directory endpoint
-                                return MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
-                                                "listOutputDirectory", sceneId, relativePath)
-                                        .build().toUri().toString();
-                            } else {
-                                // For files, use the file endpoint
-                                return MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
-                                                "serveOutputFileWithPath", sceneId, relativePath)
-                                        .build().toUri().toString();
-                            }
-                        })
-                        .collect(Collectors.toList());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to list output items", e);
-        }
+    @GetMapping(path = "/output/list", produces = "application/json")
+    public List<String> listOutputFiles(@PathVariable String sceneId,
+                                        @RequestParam(required = false, defaultValue = "") String folder) {
+        return storageService.loadAll(sceneId + "/output/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
-    @GetMapping("/output/{*path}")
-    public List<String> listOutputDirectory(@PathVariable String sceneId, @PathVariable String path) {
-        try {
-            Path dirPath = storageService.getRootLocation().resolve(sceneId + "/output/" + path);
-            if (!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
-                return new ArrayList<>();
-            }
-
-            try (Stream<Path> paths = Files.walk(dirPath, 1)) {
-                Path finalDirPath = dirPath;
-                return paths
-                        .filter(p -> !p.equals(finalDirPath))
-                        .map(p -> {
-                            String relativePath = path + "/" + finalDirPath.relativize(p).toString();
-                            relativePath = relativePath.replace("\\", "/"); // Normalize path separators
-
-                            if (Files.isDirectory(p)) {
-                                // For directories, link to directory endpoint
-                                return MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
-                                                "listOutputDirectory", sceneId, relativePath)
-                                        .build().toUri().toString();
-                            } else {
-                                // For files, link to file endpoint
-                                return MvcUriComponentsBuilder.fromMethodName(ImageUploadController.class,
-                                                "serveOutputFileWithPath", sceneId, relativePath)
-                                        .build().toUri().toString();
-                            }
-                        })
-                        .collect(Collectors.toList());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to list directory contents", e);
-        }
-    }
-
-    @GetMapping("/input/{filename:.+}")
+    @GetMapping(path ="/input/file", produces = {
+            MediaType.IMAGE_PNG_VALUE,
+            MediaType.IMAGE_JPEG_VALUE
+    })
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @PathVariable String filename) {
+    public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filename) {
         Resource file = storageService.loadAsResource(sceneId + "/input/" + filename);
 
         return getResourceResponseEntity(file);
     }
 
-    @NotNull
+    @GetMapping(path = "/output/file", produces = {
+            MediaType.IMAGE_PNG_VALUE,
+            MediaType.IMAGE_JPEG_VALUE
+    })
+    @ResponseBody
+    public ResponseEntity<Resource> serveOutputFile(@PathVariable String sceneId, @RequestParam String filename) {
+        Resource file = storageService.loadAsResource(sceneId + "/output/" + filename);
+
+        return getResourceResponseEntity(file);
+    }
+
     private ResponseEntity<Resource> getResourceResponseEntity(Resource file) {
         if (file == null)
             return ResponseEntity.notFound().build();
@@ -147,7 +92,7 @@ public class ImageUploadController {
 
     @PostMapping("/input")
     public ResponseEntity<List<Map<String, String>>> handleFileUpload(@PathVariable String sceneId,
-                                                 @RequestParam("file") List<MultipartFile> files) {
+                                                                      @RequestParam("file") List<MultipartFile> files) {
 
         List<Map<String, String>> responses = new ArrayList<>();
 

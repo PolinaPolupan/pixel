@@ -25,6 +25,7 @@ export const getHandleParameterType = (nodeType, handleId, handleType) => {
       },
       Output: {
         files: { target: 'FILENAMES_ARRAY' },
+        folder: { target: 'STRING' }
       },
       GaussianBlur: {
         files: { target: 'FILENAMES_ARRAY', source: 'FILENAMES_ARRAY' },
