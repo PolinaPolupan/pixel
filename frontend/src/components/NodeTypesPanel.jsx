@@ -1,5 +1,5 @@
 import React from 'react';
-import { Panel, useReactFlow } from '@xyflow/react';
+import { useReactFlow } from '@xyflow/react';
 import { getParameterColor } from '../utils/parameterColors';
 
 const nodeTypeDetails = {
@@ -41,7 +41,7 @@ const nodeTypeDetails = {
 };
 
 const NodeTypesPanel = () => {
-  const { getNodes, addNodes, screenToFlowPosition } = useReactFlow();
+  const { getNodes, addNodes } = useReactFlow();
   
   const createNode = (type, position) => {
     // Get highest node ID to ensure unique IDs
@@ -71,29 +71,29 @@ const NodeTypesPanel = () => {
   };
   
   return (
-    <Panel position="top-left" style={{ 
-      background: 'rgba(35, 35, 40, 0.8)',
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: 'rgba(40, 40, 40, 0.95)',
       borderRadius: '8px',
-      padding: '10px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      maxHeight: '75vh',
-      overflowY: 'auto'
+      padding: '16px',
+      fontFamily: 'Arial, sans-serif',
+      color: '#ffffff',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
     }}>
-      <div style={{ marginBottom: '10px' }}>
-        <h3 style={{ 
-          margin: '0 0 10px 0', 
-          color: 'white', 
-          fontSize: '14px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-          paddingBottom: '5px'
-        }}>
-          Node Types
-        </h3>
-        
-        <div style={{ 
-          display: 'flex', 
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        marginBottom: '12px',
+        marginRight: '12px'
+      }}>
+        <div style={{
+          display: 'flex',
           flexDirection: 'column',
-          gap: '8px'
+          gap: '8px',
+          marginRight: '12px'
         }}>
           {Object.keys(nodeTypeDetails).map((type) => (
             <div
@@ -106,7 +106,7 @@ const NodeTypesPanel = () => {
                 padding: '8px 10px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                color: 'white',
+                color: '#ffffff',
                 fontSize: '13px',
                 display: 'flex',
                 alignItems: 'center',
@@ -133,15 +133,15 @@ const NodeTypesPanel = () => {
         </div>
       </div>
       
-      <div style={{ 
-        fontSize: '11px', 
+      <div style={{
+        fontSize: '11px',
         color: 'rgba(255, 255, 255, 0.5)',
         textAlign: 'center',
-        marginTop: '10px'
+        paddingTop: '8px'
       }}>
         Tip: Right-click anywhere to add a node at cursor position
       </div>
-    </Panel>
+    </div>
   );
 };
 

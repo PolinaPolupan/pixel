@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -12,7 +12,6 @@ import '@xyflow/react/dist/style.css';
 
 import DebugPanel from './components/Debug';
 import { NotificationPanel, NotificationKeyframes } from './components/NotificationPanel';
-import NodeTypesPanel from './components/NodeTypesPanel';
 import ContextMenu from './components/ContextMenu';
 import { PlayButton } from './components/PlayButton';
 import { getHandleParameterType, canCastType } from './utils/parameterTypes';
@@ -20,7 +19,6 @@ import { useNotification } from './utils/useNotification';
 import { useGraphTransformation } from './utils/useGraphTransformation';
 import { useScene } from './components/SceneContext';
 import { nodeTypes } from './utils/nodeTypes';
-import OutputGallery from './components/OutputGallery';
 
 function AppContent() {
   // Get scene context
@@ -37,6 +35,26 @@ function AppContent() {
   // Custom hooks
   const { error, success, setError, setSuccess, clearError, clearSuccess } = useNotification();
   const transformGraphData = useGraphTransformation();
+  const { screenToFlowPosition, getNodes, addNodes, fitView } = useReactFlow();
+
+  // Resize observer to update canvas on panel resize
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      if (reactFlowWrapper.current) {
+        fitView({ duration: 200 }); // Adjust viewport to new dimensions
+      }
+    });
+
+    if (reactFlowWrapper.current) {
+      resizeObserver.observe(reactFlowWrapper.current);
+    }
+
+    return () => {
+      if (reactFlowWrapper.current) {
+        resizeObserver.unobserve(reactFlowWrapper.current);
+      }
+    };
+  }, [fitView]);
 
   // Connection validation
   const isValidConnection = useCallback((connection) => {
@@ -91,8 +109,6 @@ function AppContent() {
       setIsProcessing(false);
     }
   };
-
-  const { screenToFlowPosition, getNodes, addNodes } = useReactFlow();
 
   const createNode = useCallback((type, position) => {
     // Get highest node ID to ensure unique IDs
@@ -150,7 +166,7 @@ function AppContent() {
 
   return (
     <div 
-      style={{ width: '100vw', height: '100vh' }}
+      style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}
       ref={reactFlowWrapper}
       onContextMenu={onContextMenu}
     >
@@ -163,6 +179,7 @@ function AppContent() {
         isValidConnection={isValidConnection}
         onEdgesChange={onEdgesChange}
         colorMode={colorMode}
+        style={{ width: '100%', height: '100%' }}
         fitView
       >
         <Background variant="dots" gap={12} size={1} />
@@ -188,16 +205,13 @@ function AppContent() {
             <span>Scene: {sceneId ? sceneId.substring(0, 8) + '...' : 'Loading...'}</span>
           </div>
         </Panel>
-        
-        <NodeTypesPanel />
-
-        <Panel position="top-right" style={{ marginRight: '16px', marginBottom: '16px' }}>
-          <OutputGallery />
-        </Panel>
+        {/* <DebugPanel /> */}
         
         {/* Play button panel */}
-        <Panel position="bottom-center">
-          <PlayButton onClick={handlePlay} isProcessing={isProcessing} />
+        <Panel position="bottom-center" style={{ margin: '16px' }}>
+          <div style={{ maxWidth: '100px', maxHeight: '40px' }}>
+            <PlayButton onClick={handlePlay} isProcessing={isProcessing} />
+          </div>
         </Panel>
         
         {/* Notification panels */}
@@ -214,7 +228,6 @@ function AppContent() {
         )}
         <NotificationKeyframes />
       </ReactFlow>
-      
       {/* Context Menu */}
       {contextMenu && (
         <ContextMenu

@@ -1,42 +1,32 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+@import url("./index.css");
+@import url("rc-dock/dist/rc-dock-dark.css");
+
+.dock-divider {
+    box-sizing: border-box;
+    flex:
+  0 0 1px;
+    background:
+  rgb(29, 29, 29);
+    z-index: 1;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.dock-tab-active, .dock-tab-active:hover {
+    color: #b7b7b7;
+    cursor: default;
   }
-  to {
-    transform: rotate(360deg);
+
+  .dock-tab {
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .dock-ink-bar {
+    position: absolute;
+    box-sizing: border-box;
+    margin-top: -3px;
+    background-color: #b7b7b7;
+    transform-origin: 0 0;
+    width: 0;
+    height: 0;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}

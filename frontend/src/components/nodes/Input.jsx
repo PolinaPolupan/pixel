@@ -3,21 +3,21 @@ import {
 } from '@xyflow/react';
 
 import LabeledHandle from '../handles/LabeledHandle';
-import ImageUpload from '../ImageUpload';
+import FileUpload from '../FileUpload'; // Updated import to FileUpload
 import NodeHeader from '../NodeHeader';
- 
+
 export default function Input({ id, data }) {
   const { updateNodeData } = useReactFlow();
 
-  const handleImagesSelected = (fileUrls) => {
-    updateNodeData(id, { files: fileUrls }); // Update with URLs
+  const handleImagesSelected = (filePaths) => {
+    updateNodeData(id, { files: filePaths }); // Update with relative paths (e.g., output/Picture.jpeg)
   };
- 
+
   return (
     <div>
-      <NodeHeader title={"Input"}/>
-      <ImageUpload
-        onImagesSelected={handleImagesSelected}
+      <NodeHeader title="Input" />
+      <FileUpload
+        onFilesSelected={handleImagesSelected}
       />
       <LabeledHandle 
         label="Files"
