@@ -47,7 +47,8 @@ export const getHandleParameterType = (nodeType, handleId, handleType) => {
         secret_access_key: { target: 'STRING'},
         region: { target: 'STRING'},
         bucket: { target: 'STRING'},
-      }
+      },
+      String: { value: { target: 'STRING', source: 'STRING' } }
     };
   
     return typeMap[nodeType]?.[handleId]?.[handleType] || null;

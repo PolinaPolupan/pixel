@@ -1,15 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { useReactFlow } from '@xyflow/react';
+import { nodeTypeDetails } from '../utils/nodeTypes';
 
-const nodeTypeDetails = {
-  Input: { icon: '📁' },
-  Output: { icon: '💾' },
-  GaussianBlur: { icon: '🔍' },
-  Combine: { icon: '🔄' },
-  Floor: { icon: '⬇️' },
-  S3Input: { icon: '☁️📥' },
-  S3Output: { icon: '☁️📤' },
-};
 
 const ContextMenu = ({ 
   onClick, 

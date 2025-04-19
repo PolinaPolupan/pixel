@@ -1,44 +1,8 @@
 import React from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { getParameterColor } from '../utils/parameterColors';
-
-const nodeTypeDetails = {
-  Input: { 
-    description: 'Load images from local storage',
-    color: '#7986CB',
-    icon: '📁'
-  },
-  Output: { 
-    description: 'Save processed images',
-    color: '#4DB6AC',
-    icon: '💾'
-  },
-  GaussianBlur: { 
-    description: 'Apply Gaussian blur filter',
-    color: '#FF8A65', 
-    icon: '🔍'
-  },
-  Combine: { 
-    description: 'Merge multiple images',
-    color: '#AED581',
-    icon: '🔄'
-  },
-  Floor: { 
-    description: 'Round down values',
-    color: '#BA68C8',
-    icon: '⬇️'
-  },
-  S3Input: { 
-    description: 'Load images from AWS S3',
-    color: '#4FC3F7',
-    icon: '☁️'
-  },
-  S3Output: { 
-    description: 'Save images to AWS S3',
-    color: '#81C784',
-    icon: '☁️'
-  },
-};
+import { nodeTypeDetails } from '../utils/nodeTypes';
+import { defaultData } from '../utils/nodeTypes';
 
 const NodeTypesPanel = () => {
   const { getNodes, addNodes } = useReactFlow();
@@ -47,17 +11,6 @@ const NodeTypesPanel = () => {
     // Get highest node ID to ensure unique IDs
     const nodeIds = getNodes().map(node => parseInt(node.id));
     const newId = (Math.max(...nodeIds, 0) + 1).toString();
-    
-    // Default data for each node type
-    const defaultData = {
-      Input: { files: [] },
-      Output: { files: [], prefix: 'output' },
-      GaussianBlur: { files: [], sizeX: 3, sizeY: 3, sigmaX: 1, sigmaY: 1 },
-      Combine: { files_0: [], files_1: [], files_2: [], files_3: [], files_4: [], files_5: [] },
-      Floor: { number: 0 },
-      S3Input: { access_key_id: "", secret_access_key: "", region: "", bucket: "" },
-      S3Output: { files: [], access_key_id: "", secret_access_key: "", region: "", bucket: "" }
-    };
     
     // Create new node
     const newNode = {
