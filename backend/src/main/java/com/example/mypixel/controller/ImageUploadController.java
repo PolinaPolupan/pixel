@@ -3,17 +3,18 @@ package com.example.mypixel.controller;
 
 import java.io.IOException;
 import java.net.URLConnection;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import com.example.mypixel.exception.InvalidImageFormat;
 import com.example.mypixel.service.StorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -22,10 +23,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/v1/scene/{sceneId}")
+@Slf4j
 public class ImageUploadController {
 
     private final StorageService storageService;
@@ -52,8 +53,8 @@ public class ImageUploadController {
             MediaType.IMAGE_JPEG_VALUE
     })
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filename) {
-        Resource file = storageService.loadAsResource(sceneId + "/input/" + filename);
+    public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filepath) {
+        Resource file = storageService.loadAsResource(sceneId + "/input/" + filepath);
 
         return getResourceResponseEntity(file);
     }
@@ -63,8 +64,8 @@ public class ImageUploadController {
             MediaType.IMAGE_JPEG_VALUE
     })
     @ResponseBody
-    public ResponseEntity<Resource> serveOutputFile(@PathVariable String sceneId, @RequestParam String filename) {
-        Resource file = storageService.loadAsResource(sceneId + "/output/" + filename);
+    public ResponseEntity<Resource> serveOutputFile(@PathVariable String sceneId, @RequestParam String filepath) {
+        Resource file = storageService.loadAsResource(sceneId + "/output/" + filepath);
 
         return getResourceResponseEntity(file);
     }
@@ -91,32 +92,53 @@ public class ImageUploadController {
     }
 
     @PostMapping("/input")
-    public ResponseEntity<List<Map<String, String>>> handleFileUpload(@PathVariable String sceneId,
-                                                                      @RequestParam("file") List<MultipartFile> files) {
+    public ResponseEntity<List<String>> handleFileUpload(@PathVariable String sceneId,
+                                                                      @RequestParam("file") List<MultipartFile> files) throws IOException {
 
-        List<Map<String, String>> responses = new ArrayList<>();
+        List<String> locations = new ArrayList<>();
 
         for (MultipartFile file: files) {
             String contentType = file.getContentType();
-            if (contentType == null || (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))) {
-                throw new InvalidImageFormat("Only JPEG or PNG images are allowed");
+            switch (Objects.requireNonNull(contentType)) {
+                case "image/jpeg", "image/png": {
+                    storageService.store(file, sceneId + "/input/" + file.getOriginalFilename());
+                    locations.add(storageService.load(sceneId + "/input/" + file.getOriginalFilename()).toString());
+                    break;
+                }
+                case "application/zip", "application/x-zip-compressed": {
+                    ZipInputStream inputStream = new ZipInputStream(file.getInputStream());
+
+                    String zipFolderName = file.getOriginalFilename();
+                    if (zipFolderName != null && zipFolderName.toLowerCase().endsWith(".zip")) {
+                        zipFolderName = zipFolderName.substring(0, zipFolderName.length() - 4);
+                    }
+
+                    storageService.createFolder(sceneId + "/input/" + zipFolderName);
+
+                    for (ZipEntry entry; (entry = inputStream.getNextEntry()) != null; ) {
+                        Path entryPath = Path.of(entry.getName());
+                        if (entry.isDirectory()) {
+                            storageService.createFolder(sceneId + "/input/" + zipFolderName + "/" + entry.getName());
+                        } else {
+                            if (entryPath.getParent() != null) {
+                                storageService.createFolder(sceneId + "/input/" + zipFolderName + "/" + entryPath.getParent());
+                            }
+                            String extension = com.google.common.io.Files.getFileExtension(entry.getName());
+                            if (!extension.equals("png") && !extension.equals("jpeg") && !extension.equals("jpg")) {
+                                log.warn("Couldn't process file {}. Only JPEG, PNG and ZIP files are allowed", entry.getName());
+                            } else {
+                                storageService.store(inputStream, sceneId + "/input/" + zipFolderName + "/" + entry.getName());
+                                locations.add(storageService.load(sceneId + "/input/" + zipFolderName + "/" + entry.getName()).toString());
+                            }
+                        }
+                    }
+                    break;
+                }
+                default:
+                    throw new InvalidImageFormat("Only JPEG, PNG and ZIP files are allowed");
             }
-
-            storageService.store(file, sceneId + "/input/" + file.getOriginalFilename());
-
-            String fileUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/scenes/")
-                    .path(sceneId)
-                    .path("/input/")
-                    .path(file.getOriginalFilename())
-                    .toUriString();
-
-            Map<String, String> response = new HashMap<>();
-            response.put("fileName", file.getOriginalFilename());
-            response.put("fileLocation", fileUri);
-            responses.add(response);
         }
 
-        return new ResponseEntity<>(responses, HttpStatus.CREATED);
+        return new ResponseEntity<>(locations, HttpStatus.CREATED);
     }
 }

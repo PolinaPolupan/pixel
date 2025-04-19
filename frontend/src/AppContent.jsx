@@ -15,7 +15,7 @@ import { NotificationPanel, NotificationKeyframes } from './components/Notificat
 import ContextMenu from './components/ContextMenu';
 import { PlayButton } from './components/PlayButton';
 import { getHandleParameterType, canCastType } from './utils/parameterTypes';
-import { useNotification } from './utils/useNotification';
+import { useNotification } from './components/NotificationContext';
 import { useGraphTransformation } from './utils/useGraphTransformation';
 import { useScene } from './components/SceneContext';
 import { nodeTypes } from './utils/nodeTypes';

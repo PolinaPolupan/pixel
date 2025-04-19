@@ -5,6 +5,7 @@ import {
 import LabeledHandle from '../handles/LabeledHandle';
 import FileUpload from '../FileUpload'; // Updated import to FileUpload
 import NodeHeader from '../NodeHeader';
+import { useNotification } from '../../utils/useNotification';
 
 export default function Input({ id, data }) {
   const { updateNodeData } = useReactFlow();
@@ -18,6 +19,7 @@ export default function Input({ id, data }) {
       <NodeHeader title="Input" />
       <FileUpload
         onFilesSelected={handleImagesSelected}
+        setError={useNotification}
       />
       <LabeledHandle 
         label="Files"

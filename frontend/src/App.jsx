@@ -8,6 +8,8 @@ import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
 import { useScene } from './components/SceneContext';
 import NodeTypesPanel from './components/NodeTypesPanel';
+import { useNotification } from './utils/useNotification';
+import { NotificationProvider } from './components/NotificationContext';
 
 // rc-dock layout with Flow Canvas (80%) and File Explorer (20%) split
 const defaultLayout = {
@@ -36,7 +38,7 @@ const defaultLayout = {
                 id: 'fileExplorer',
                 title: 'File Explorer',
                 content: (
-                    <FileExplorer />
+                    <FileExplorer setError={useNotification}/>
                 ),
               },
             ],
@@ -127,7 +129,9 @@ export default function App() {
     <div style={{ height: '100vh', position: 'relative' }}>
       <ReactFlowProvider>
         <SceneProvider setError={setError}>
-          <AppWithSceneContext />
+          <NotificationProvider>
+            <AppWithSceneContext />
+          </NotificationProvider>
         </SceneProvider>
       </ReactFlowProvider>
     </div>

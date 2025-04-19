@@ -2,13 +2,17 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.exception.StorageException;
 import com.example.mypixel.model.node.Node;
+import com.google.common.base.Splitter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class FileHelper {
 
     StorageService storageService;
@@ -25,21 +29,25 @@ public class FileHelper {
 
     public String storeToOutput(String filepath, String folder, String prefix) {
         String filename = extractFilename(filepath);
-        if (prefix != null) {
+        String relativePath = extractPath(filepath);
+
+        if (prefix != null && !prefix.isBlank()) {
             filename = addPrefixToFilename(filepath, prefix);
         }
         if (folder != null) {
-            if (!storageService.folderExists(sceneId + "/output/" + folder)) {
-                storageService.createFolder(sceneId + "/output/" + folder);
-            }
-            filename = folder + "/" + filename;
+            relativePath = folder + "/" + relativePath;
+        }
+
+        if (!storageService.folderExists(sceneId + "/output/" + relativePath)) {
+            storageService.createFolder(sceneId + "/output/" + relativePath);
         }
 
         String fullInputPath = storageService.getRootLocation().relativize(Paths.get(filepath)).toString();
 
-        storageService.store(storageService.loadAsResource(fullInputPath), sceneId + "/output/" + filename);
+        storageService.store(storageService.loadAsResource(fullInputPath),
+                sceneId + "/output/" + relativePath + filename);
 
-        return getFullPath(sceneId + "/output/" + filename);
+        return getFullPath(sceneId + "/output/" + relativePath + filename);
     }
 
     public String storeToTemp(InputStream in, String filename) {
@@ -60,21 +68,13 @@ public class FileHelper {
 
     public String createDump(String filepath) {
         String actualFilename = extractFilename(filepath);
-        String outputPath = sceneId + "/temp/" + node.getId() + "/";
+        String outputPath = sceneId + "/temp/" + node.getId() + "/" + extractPath(filepath);
 
         if (!storageService.folderExists(outputPath)) {
             storageService.createFolder(outputPath);
         }
 
-        // Determine the correct input path based on whether filename contains path components
-        String fullInputPath;
-        if (filepath.contains("/")) {
-            // If filename already includes path components, use it directly
-            fullInputPath = storageService.getRootLocation().relativize(Paths.get(filepath)).toString();
-        } else {
-            // Otherwise, combine input path with filename
-            fullInputPath = sceneId + "/input/" + filepath;
-        }
+        String fullInputPath = storageService.getRootLocation().relativize(Paths.get(filepath)).toString();
 
         Resource resource = storageService.loadAsResource(fullInputPath);
         if (resource != null) {
@@ -96,8 +96,30 @@ public class FileHelper {
         if (lastSlashIndex >= 0 && lastSlashIndex < path.length() - 1) {
             return path.substring(lastSlashIndex + 1);
         }
+        if (lastSlashIndex == path.length() - 1) return "";
 
         return path;
+    }
+
+    public String extractPath(String filepath) {
+        List<String> pathSegments = Splitter.on("/").splitToList(filepath);
+        int index = -1;
+
+        // Example: {sceneId}/input/folder1/folder2/Picture.jpeg -> folder1/folder2/
+        if (pathSegments.contains("input")) index = pathSegments.indexOf("input");
+        // Example: {sceneId}/temp/{nodeId}/folder1/folder2/Picture.jpeg -> folder1/folder2/
+        if (pathSegments.contains("temp")) index = pathSegments.indexOf("temp") + 1;
+
+        StringBuilder insideInputPathBuilder = new StringBuilder();
+        if (index != -1 && index < pathSegments.size() - 1) {
+            for (int i = index + 1; i < pathSegments.size()  - 1; i++) {
+                insideInputPathBuilder.append(pathSegments.get(i));
+                if (i < pathSegments.size() - 1) {
+                    insideInputPathBuilder.append("/");
+                }
+            }
+        }
+        return insideInputPathBuilder.toString();
     }
 
     public String addPrefixToFilename(String filename, String prefix) {
