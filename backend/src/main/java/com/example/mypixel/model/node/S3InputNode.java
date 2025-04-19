@@ -78,10 +78,8 @@ public class S3InputNode extends Node {
 
             for (S3Object file: contents) {
                 String filename = file.key();
-                filename = fileHelper.extractFilename(filename);
+                log.info("Loading file from S3: {}", filename);
                 InputStream in = s3Client.getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
-
-                log.info("Loading file: {}", filename);
 
                 files.add(fileHelper.storeToTemp(in, filename));
                 in.close();

@@ -29,7 +29,7 @@ public class FileHelper {
 
     public String storeToOutput(String filepath, String folder, String prefix) {
         String filename = extractFilename(filepath);
-        String relativePath = extractPath(filepath);
+        String relativePath = extractRelativeWorkspacePath(filepath);
 
         if (prefix != null && !prefix.isBlank()) {
             filename = addPrefixToFilename(filepath, prefix);
@@ -50,16 +50,18 @@ public class FileHelper {
         return getFullPath(sceneId + "/output/" + relativePath + filename);
     }
 
-    public String storeToTemp(InputStream in, String filename) {
+    public String storeToTemp(InputStream in, String filepath) {
         Long id = node.getId();
 
-        if (!storageService.folderExists(sceneId + "/temp/" + id)) {
-            storageService.createFolder(sceneId + "/temp/" + id);
+        String path = sceneId + "/temp/" + id + "/" + extractPath(filepath);
+        log.info(path);
+        if (!storageService.folderExists(path)) {
+            storageService.createFolder(path);
         }
 
-        storageService.store(in, sceneId + "/temp/" + id + "/" + filename);
+        storageService.store(in, path + extractFilename(filepath));
 
-        return getFullPath(sceneId + "/temp/" + id + "/" + filename);
+        return getFullPath(path + extractFilename(filepath));
     }
 
     public String getFullPath(String filepath) {
@@ -68,7 +70,7 @@ public class FileHelper {
 
     public String createDump(String filepath) {
         String actualFilename = extractFilename(filepath);
-        String outputPath = sceneId + "/temp/" + node.getId() + "/" + extractPath(filepath);
+        String outputPath = sceneId + "/temp/" + node.getId() + "/" + extractRelativeWorkspacePath(filepath);
 
         if (!storageService.folderExists(outputPath)) {
             storageService.createFolder(outputPath);
@@ -101,7 +103,20 @@ public class FileHelper {
         return path;
     }
 
-    public String extractPath(String filepath) {
+    public String extractPath(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+
+        int lastSlashIndex = path.lastIndexOf('/');
+        if (lastSlashIndex >= 0 && lastSlashIndex < path.length() - 1) {
+            return path.substring(0, lastSlashIndex + 1);
+        }
+
+        return "";
+    }
+
+    public String extractRelativeWorkspacePath(String filepath) {
         List<String> pathSegments = Splitter.on("/").splitToList(filepath);
         int index = -1;
 

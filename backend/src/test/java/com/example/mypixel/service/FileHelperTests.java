@@ -77,39 +77,51 @@ public class FileHelperTests {
     class ExtractPathTests {
 
         @Test
+        void shouldExtractPath() {
+            String filepath = "scene123/input/pic/Picture.jpeg";
+            assertEquals("scene123/input/pic/", fileHelper.extractPath(filepath));
+        }
+
+        @Test
+        void shouldExtractEmptyPath() {
+            String filepath = "Picture.jpeg";
+            assertEquals("", fileHelper.extractPath(filepath));
+        }
+
+        @Test
         void shouldExtractPathAfterInput() {
             String filepath = "scene123/input/pic/Picture.jpeg";
-            assertEquals("pic/", fileHelper.extractPath(filepath));
+            assertEquals("pic/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldExtractPathAfterTemp() {
-            String filepath = "scene123/temp/nodeId/pic/Picture.jpeg";
-            assertEquals("pic/", fileHelper.extractPath(filepath));
+            String filepath = "scene123/temp/456/path/Picture.jpeg";
+            assertEquals("path/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleMultipleSubfoldersAfterInput() {
             String filepath = "scene123/input/folder1/folder2/Picture.jpeg";
-            assertEquals("folder1/folder2/", fileHelper.extractPath(filepath));
+            assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleMultipleSubfoldersAfterTemp() {
             String filepath = "scene123/temp/nodeId/folder1/folder2/Picture.jpeg";
-            assertEquals("folder1/folder2/", fileHelper.extractPath(filepath));
+            assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldReturnEmptyWhenNoInputInPath() {
             String filepath = "scene123/output/pic/Picture.jpeg";
-            assertEquals("", fileHelper.extractPath(filepath));
+            assertEquals("", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleInputAsLastSegment() {
             String filepath = "scene123/folder/input";
-            assertEquals("", fileHelper.extractPath(filepath));
+            assertEquals("", fileHelper.extractRelativeWorkspacePath(filepath));
         }
     }
 
@@ -197,16 +209,16 @@ public class FileHelperTests {
         @Test
         void shouldStoreFileToTemp() {
             when(node.getId()).thenReturn(NODE_ID);
-            String filename = "temp-file.jpg";
+            String filename = "path/temp-file.jpg";
             Path tempPath = Paths.get("/root/path/scene123/temp/" + NODE_ID + "/" + filename);
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
 
-            when(storageService.folderExists(SCENE_ID + "/temp/" + NODE_ID)).thenReturn(false);
+            when(storageService.folderExists(SCENE_ID + "/temp/" + NODE_ID + "/path/")).thenReturn(false);
             when(storageService.load(SCENE_ID + "/temp/" + NODE_ID + "/" + filename)).thenReturn(tempPath);
 
             String result = fileHelper.storeToTemp(inputStream, filename);
 
-            verify(storageService).createFolder(SCENE_ID + "/temp/" + NODE_ID);
+            verify(storageService).createFolder(SCENE_ID + "/temp/" + NODE_ID + "/path/");
             verify(storageService).store(inputStream, SCENE_ID + "/temp/" + NODE_ID + "/" + filename);
             assertEquals(tempPath.toString(), result);
         }
@@ -218,7 +230,7 @@ public class FileHelperTests {
             Path tempPath = Paths.get("/root/path/scene123/temp/" + NODE_ID + "/" + filename);
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
 
-            when(storageService.folderExists(SCENE_ID + "/temp/" + NODE_ID)).thenReturn(true);
+            when(storageService.folderExists(SCENE_ID + "/temp/" + NODE_ID + "/")).thenReturn(true);
             when(storageService.load(SCENE_ID + "/temp/" + NODE_ID + "/" + filename)).thenReturn(tempPath);
 
             fileHelper.storeToTemp(inputStream, filename);
@@ -248,6 +260,26 @@ public class FileHelperTests {
 
             verify(storageService).createFolder(SCENE_ID + "/temp/" + NODE_ID + "/");
             verify(storageService).store(resource, SCENE_ID + "/temp/" + NODE_ID + "/picture.jpg");
+            assertEquals(dumpPath.toString(), result);
+        }
+
+        @Test
+        void shouldCreateDumpFromTempFile() {
+            when(node.getId()).thenReturn(NODE_ID);
+            String filepath = "upload-image-dir/" + SCENE_ID + "/temp/123/output/Picture1.png";
+            Path rootPath = Paths.get("upload-image-dir/" + SCENE_ID);
+            Path relativePath = Paths.get("temp/123/output/Picture1.png");
+            Path dumpPath = Paths.get(SCENE_ID + "/temp/" + NODE_ID + "/output/Picture1.png");
+
+            when(storageService.getRootLocation()).thenReturn(rootPath);
+            when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
+            when(storageService.folderExists(SCENE_ID + "/temp/" + NODE_ID + "/output/")).thenReturn(false);
+            when(storageService.load(SCENE_ID + "/temp/" + NODE_ID + "/output/Picture1.png")).thenReturn(dumpPath);
+
+            String result = fileHelper.createDump(filepath);
+
+            verify(storageService).createFolder(SCENE_ID + "/temp/" + NODE_ID + "/output/");
+            verify(storageService).store(resource, SCENE_ID + "/temp/" + NODE_ID + "/output/Picture1.png");
             assertEquals(dumpPath.toString(), result);
         }
 
