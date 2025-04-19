@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useScene } from './SceneContext';
+import { useNotification } from './NotificationContext';
 
 function FileUpload({ onFilesSelected, maxFiles = 1000000, nodeId, initialFiles = [] }) {
   const { sceneId } = useScene();
+  const { setError } = useNotification();
   const [files, setFiles] = useState(initialFiles);
   const [isUploading, setIsUploading] = useState(false);
   const [stats, setStats] = useState({
@@ -33,13 +35,13 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, nodeId, initialFiles 
     });
 
     if (validFiles.length === 0) {
-      alert('Please select only JPEG, PNG, or ZIP files.');
+      setError('Please select only JPEG, PNG, or ZIP files.');
       setIsUploading(false);
       return;
     }
 
     if (validFiles.length < uploadedFiles.length) {
-      alert('Some files were skipped because only JPEG, PNG, and ZIP files are allowed.');
+      setError('Some files were skipped because only JPEG, PNG, and ZIP files are allowed.');
     }
 
     setIsUploading(true);
@@ -58,6 +60,7 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, nodeId, initialFiles 
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        setError(`Upload failed: ${response.statusText}`);
         throw new Error(errorData.message || `Upload failed: ${response.statusText}`);
       }
 
@@ -96,7 +99,7 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, nodeId, initialFiles 
       
     } catch (error) {
       console.error('Failed to upload files:', error);
-      alert(`Error uploading files: ${error.message}`);
+      setError(`Error uploading files: ${error.message}`);
     } finally {
       console.log('Finished uploading, resetting isUploading');
       setIsUploading(false);
