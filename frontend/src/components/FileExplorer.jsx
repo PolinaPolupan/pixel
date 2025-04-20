@@ -3,6 +3,9 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { useScene } from './SceneContext';
 import { IoReload, IoClose } from 'react-icons/io5';
+import { IoFolderOutline } from "react-icons/io5";
+import { IoFolderOpenOutline } from "react-icons/io5";
+import { IoImage } from "react-icons/io5";
 
 const FileExplorer = ({ setError }) => {
   const { sceneId } = useScene();
@@ -183,7 +186,7 @@ const FileExplorer = ({ setError }) => {
               }}
               onClick={() => toggleFolder(item.path, item.name)}
             >
-              <span style={{ marginRight: '8px' }}>{item.isOpen ? '📂' : '📁'}</span>
+              <span style={{ marginRight: '8px' }}>{item.isOpen ? <IoFolderOpenOutline size={20}/> : <IoFolderOutline size={20}/>}</span>
               <span style={{ fontSize: '14px' }}>{item.name || 'Unnamed Folder'}</span>
             </div>
           ) : (
@@ -199,7 +202,7 @@ const FileExplorer = ({ setError }) => {
               }}
               onClick={() => handleImageClick(item.url)}
             >
-              <span style={{ marginRight: '8px' }}>🖼️</span>
+              <span style={{ marginRight: '8px' }}><IoImage /></span>
               <span style={{ fontSize: '14px' }}>{item.path.split('/').pop()}</span>
             </div>
           )}
@@ -217,8 +220,6 @@ const FileExplorer = ({ setError }) => {
         style={{
           width: '100%',
           height: '100%',
-          background: 'rgba(40, 40, 40, 0.95)',
-          borderRadius: '8px',
           padding: '16px',
           fontFamily: 'Arial, sans-serif',
           color: '#ffffff',
@@ -231,10 +232,10 @@ const FileExplorer = ({ setError }) => {
         <div style={{ marginBottom: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <IoReload
+              size={20}
               onClick={fetchAllItems}
               style={{
                 cursor: 'pointer',
-                fontSize: '16px',
                 transition: 'transform 0.2s',
               }}
               onMouseOver={(e) => (e.target.style.transform = 'scale(1.05)')}
@@ -262,70 +263,19 @@ const FileExplorer = ({ setError }) => {
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '30px' }}>
             <button
               onClick={() => downloadAsZip('input')}
-              style={{
-                background: 'rgb(0, 110, 0)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '6px 10px',
-                color: '#ffffff',
-                cursor: 'pointer',
-                fontSize: '12px',
-                transition: 'background 0.2s, transform 0.1s'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgb(0, 200, 0)';
-                e.target.style.transform = 'scale(1.05)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgb(0, 110, 0)';
-                e.target.style.transform = 'scale(1)';
-              }}
+              className='button'
             >
               Download Input ZIP
             </button>
             <button
               onClick={() => downloadAsZip('output')}
-              style={{
-                background: 'rgb(0, 110, 0)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '6px 10px',
-                color: '#ffffff',
-                cursor: 'pointer',
-                fontSize: '12px',
-                transition: 'background 0.2s, transform 0.1s',
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgb(0, 200, 0)';
-                e.target.style.transform = 'scale(1.05)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgb(0, 110, 0)';
-                e.target.style.transform = 'scale(1)';
-              }}
+              className='button'
             >
               Download Output ZIP
             </button>
             <button
               onClick={() => downloadAsZip()}
-              style={{
-                background: 'rgb(0, 110, 0)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '6px 10px',
-                color: '#ffffff',
-                cursor: 'pointer',
-                fontSize: '12px',
-                transition: 'background 0.2s, transform 0.1s',
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgb(0, 200, 0)';
-                e.target.style.transform = 'scale(1.05)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgb(0, 110, 0)';
-                e.target.style.transform = 'scale(1)';
-              }}
+              className='button'
             >
               Download All ZIP
             </button>
@@ -355,9 +305,8 @@ const FileExplorer = ({ setError }) => {
               position: 'relative',
               maxWidth: '90%',
               maxHeight: '90%',
-              background: 'rgba(40, 40, 40, 0.95)',
-              borderRadius: '8px',
-              padding: '16px',
+              background: 'rgba(40, 40, 40, 0)',
+              padding: '32px',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -367,36 +316,19 @@ const FileExplorer = ({ setError }) => {
               style={{
                 maxWidth: '100%',
                 maxHeight: '70vh',
-                objectFit: 'contain',
-                borderRadius: '4px',
+                objectFit: 'contain'
               }}
             />
             <IoClose
               onClick={closePreview}
+              size={40}
               style={{
                 position: 'absolute',
-                top: '8px',
-                right: '8px',
-                background: 'rgba(80, 80, 80, 0.9)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '50%',
-                width: '24px',
-                height: '24px',
-                color: '#ffffff',
+                top: '0px',
+                right: '0px',
                 cursor: 'pointer',
                 fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'background 0.2s, transform 0.1s',
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = 'rgba(100, 100, 100, 0.9)';
-                e.target.style.transform = 'scale(1.05)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = 'rgba(80, 80, 80, 0.9)';
-                e.target.style.transform = 'scale(1)';
+                display: 'flex'
               }}
             />
           </div>
