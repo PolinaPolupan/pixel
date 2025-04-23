@@ -114,7 +114,7 @@ public class TempStorageService implements StorageService {
 
     private void copyToDestination(InputStream inputStream, Path destinationFile, String filename) throws IOException {
         Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-        log.info("Successfully stored file: {} to location: {}", filename, destinationFile);
+        log.debug("Successfully stored file: {} to location: {}", filename, destinationFile);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class TempStorageService implements StorageService {
 
             Files.createDirectories(folderPath);
 
-            log.info("Created directory: {}", folderPath);
+            log.debug("Created directory: {}", folderPath);
         } catch (IOException e) {
             throw new StorageException("Could not create folder: " + name, e);
         }

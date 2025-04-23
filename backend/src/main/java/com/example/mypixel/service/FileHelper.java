@@ -54,7 +54,7 @@ public class FileHelper {
         Long id = node.getId();
 
         String path = sceneId + "/temp/" + id + "/" + extractPath(filepath);
-        log.info(path);
+
         if (!storageService.folderExists(path)) {
             storageService.createFolder(path);
         }

@@ -6,6 +6,7 @@ import com.example.mypixel.service.GraphService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,9 +24,13 @@ public class GraphController {
     }
 
     @PostMapping
-    public void processGraph(@RequestBody String graphJson,
-                             @PathVariable String sceneId) throws JsonProcessingException {
+    public ResponseEntity<String> processGraph(@RequestBody String graphJson,
+                                               @PathVariable String sceneId) throws JsonProcessingException {
         Graph graph = graphObjectMapper.readValue(graphJson, Graph.class);
+
         graphService.processGraph(graph, sceneId);
+
+        return ResponseEntity.accepted()
+                .body("Graph processing started for scene: " + sceneId);
     }
 }

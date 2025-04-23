@@ -43,7 +43,6 @@ public class NodeProcessorService {
         resolveInputs(node);
         node.validate();
         nodeOutputs.get(uuid).put(node.getId(), node.exec());
-        log.info(nodeOutputs.toString());
     }
 
     private Object resolveReference(NodeReference reference, String sceneId) {
