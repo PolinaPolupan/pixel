@@ -4,7 +4,7 @@ An image processing system designed to proccess images using node-based workflow
 > ⚠️ **IMPORTANT**: This project is currently in early development phase
 
 ## Example workflow
-![image](https://github.com/user-attachments/assets/02e79f6c-5ff7-4058-b8fe-d2832ba3f7dd)
+![image](https://github.com/user-attachments/assets/a4c38118-e976-42d3-b599-abfa7d92621f)
 
 ```
 {
