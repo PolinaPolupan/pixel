@@ -3,7 +3,9 @@ package com.example.mypixel.config;
 import com.example.mypixel.model.InvalidNodeTypeHandler;
 import com.example.mypixel.model.node.MyPixelNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.reflections.Reflections;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +31,9 @@ public class MyPixelConfig {
             }
         }
 
-        return objectMapper.addHandler(new InvalidNodeTypeHandler());
+        return objectMapper
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .addHandler(new InvalidNodeTypeHandler());
     }
 }

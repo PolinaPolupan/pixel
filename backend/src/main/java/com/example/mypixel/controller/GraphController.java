@@ -2,6 +2,7 @@ package com.example.mypixel.controller;
 
 
 import com.example.mypixel.model.Graph;
+import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.service.GraphService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,13 +25,11 @@ public class GraphController {
     }
 
     @PostMapping
-    public ResponseEntity<String> processGraph(@RequestBody String graphJson,
-                                               @PathVariable String sceneId) throws JsonProcessingException {
+    public ResponseEntity<GraphExecutionTask> executeGraph(
+            @PathVariable String sceneId,
+            @RequestBody String graphJson) throws JsonProcessingException {
         Graph graph = graphObjectMapper.readValue(graphJson, Graph.class);
-
-        graphService.processGraph(graph, sceneId);
-
-        return ResponseEntity.accepted()
-                .body("Graph processing started for scene: " + sceneId);
+        GraphExecutionTask task = graphService.startGraphExecution(graph, sceneId);
+        return ResponseEntity.ok(task);
     }
 }
