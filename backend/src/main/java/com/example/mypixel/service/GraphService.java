@@ -6,7 +6,6 @@ import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.model.node.Node;
 import com.example.mypixel.repository.GraphExecutionTaskRepository;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -35,8 +34,7 @@ public class GraphService {
         this.taskRepository = taskRepository;
     }
 
-    @Transactional
-    public GraphExecutionTask startGraphExecution(Graph graph, String sceneId) {
+    public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId) {
         log.info("Starting execution for scene {}", sceneId);
 
         validateGraph(graph);
@@ -54,7 +52,7 @@ public class GraphService {
     }
 
     @Async("graphTaskExecutor")
-    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, String sceneId) {
+    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId) {
         GraphExecutionTask task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
 
@@ -121,7 +119,7 @@ public class GraphService {
         log.info("Graph validation passed: no duplicate node IDs found");
     }
 
-    private void sendProgressWebSocket(String sceneId, int processed, int total) {
+    private void sendProgressWebSocket(Long sceneId, int processed, int total) {
         try {
             int percent = total > 0 ? (int) Math.round((double) processed / total * 100) : 0;
 
@@ -141,7 +139,7 @@ public class GraphService {
         }
     }
 
-    private void sendCompletedWebSocket(String sceneId) {
+    private void sendCompletedWebSocket(Long sceneId) {
         try {
             Map<String, Object> payload = new HashMap<>();
             payload.put("sceneId", sceneId);
@@ -155,7 +153,7 @@ public class GraphService {
         }
     }
 
-    private void sendErrorWebSocket(String sceneId, String errorMessage) {
+    private void sendErrorWebSocket(Long sceneId, String errorMessage) {
         try {
             Map<String, Object> payload = new HashMap<>();
             payload.put("sceneId", sceneId);

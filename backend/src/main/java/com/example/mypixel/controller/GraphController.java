@@ -26,7 +26,7 @@ public class GraphController {
 
     @PostMapping
     public ResponseEntity<GraphExecutionTask> executeGraph(
-            @PathVariable String sceneId,
+            @PathVariable Long sceneId,
             @RequestBody String graphJson) throws JsonProcessingException {
         Graph graph = graphObjectMapper.readValue(graphJson, Graph.class);
         GraphExecutionTask task = graphService.startGraphExecution(graph, sceneId);

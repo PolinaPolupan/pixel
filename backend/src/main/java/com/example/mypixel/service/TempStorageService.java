@@ -159,6 +159,15 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
+    public void delete(String path) {
+        try {
+            FileSystemUtils.deleteRecursively(rootLocation.resolve(path));
+        } catch (IOException e) {
+            throw new StorageFileNotFoundException("Could not read directory: " + path);
+        }
+    }
+
+    @Override
     public void init() {
         try {
             Files.createDirectories(rootLocation);

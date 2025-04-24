@@ -22,7 +22,7 @@ public abstract class Node {
     @Setter(AccessLevel.NONE)
     Long id;
 
-    String sceneId;
+    Long sceneId;
 
     FileHelper fileHelper;
 

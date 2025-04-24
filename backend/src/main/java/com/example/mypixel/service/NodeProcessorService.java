@@ -16,8 +16,8 @@ public class NodeProcessorService {
 
     private final AutowireCapableBeanFactory beanFactory;
     // Hash map to store nodes and their corresponding outputs
-    private final Map<String, Map<Long, Map<String, Object>>> nodeOutputs = new HashMap<>();
-    private final Map<String, Map<Long, Node>> nodeMap = new HashMap<>();
+    private final Map<Long, Map<Long, Map<String, Object>>> nodeOutputs = new HashMap<>();
+    private final Map<Long, Map<Long, Node>> nodeMap = new HashMap<>();
     private final StorageService storageService;
 
     @Autowired
@@ -33,19 +33,19 @@ public class NodeProcessorService {
         FileHelper fileHelper = new FileHelper(storageService, node);
         node.setFileHelper(fileHelper);
 
-        String uuid = node.getSceneId();
+        Long sceneId = node.getSceneId();
         log.info("Started node: {}", node.getId());
 
-        nodeOutputs.computeIfAbsent(uuid, k -> new HashMap<>());
-        nodeMap.computeIfAbsent(uuid, k -> new HashMap<>());
+        nodeOutputs.computeIfAbsent(sceneId, k -> new HashMap<>());
+        nodeMap.computeIfAbsent(sceneId, k -> new HashMap<>());
 
-        nodeMap.get(uuid).put(node.getId(), node);
+        nodeMap.get(sceneId).put(node.getId(), node);
         resolveInputs(node);
         node.validate();
-        nodeOutputs.get(uuid).put(node.getId(), node.exec());
+        nodeOutputs.get(sceneId).put(node.getId(), node.exec());
     }
 
-    private Object resolveReference(NodeReference reference, String sceneId) {
+    private Object resolveReference(NodeReference reference, Long sceneId) {
         Long id = reference.getNodeId();
         String output = reference.getOutputName();
 

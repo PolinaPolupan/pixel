@@ -1,6 +1,6 @@
 CREATE TABLE graph_execution_tasks (
     id BIGSERIAL PRIMARY KEY,
-    scene_id VARCHAR(255) NOT NULL,
+    scene_id BIGSERIAL NOT NULL,
     status VARCHAR(20) NOT NULL,
     start_time TIMESTAMP,
     end_time TIMESTAMP,
@@ -8,7 +8,6 @@ CREATE TABLE graph_execution_tasks (
     processed_nodes INTEGER,
     error_message TEXT,
     version BIGINT NOT NULL DEFAULT 0
-
 );
 
 CREATE INDEX idx_graph_execution_tasks_status ON graph_execution_tasks(status);

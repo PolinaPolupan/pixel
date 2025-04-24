@@ -15,7 +15,7 @@ public class GraphExecutionTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String sceneId;
+    private Long sceneId;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;

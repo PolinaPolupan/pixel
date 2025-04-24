@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class FileHelper {
 
     StorageService storageService;
-    String sceneId;
+    Long sceneId;
     Node node;
 
     private final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");

@@ -36,7 +36,7 @@ public class FileHelperTests {
     @Mock
     private Resource resource;
 
-    private static final String SCENE_ID = "scene123";
+    private static final Long SCENE_ID = 123L;
     private static final Long NODE_ID = 456L;
 
     @BeforeEach
@@ -78,8 +78,8 @@ public class FileHelperTests {
 
         @Test
         void shouldExtractPath() {
-            String filepath = "scene123/input/pic/Picture.jpeg";
-            assertEquals("scene123/input/pic/", fileHelper.extractPath(filepath));
+            String filepath = "123/input/pic/Picture.jpeg";
+            assertEquals("123/input/pic/", fileHelper.extractPath(filepath));
         }
 
         @Test
@@ -90,37 +90,37 @@ public class FileHelperTests {
 
         @Test
         void shouldExtractPathAfterInput() {
-            String filepath = "scene123/input/pic/Picture.jpeg";
+            String filepath = "123/input/pic/Picture.jpeg";
             assertEquals("pic/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldExtractPathAfterTemp() {
-            String filepath = "scene123/temp/456/path/Picture.jpeg";
+            String filepath = "123/temp/456/path/Picture.jpeg";
             assertEquals("path/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleMultipleSubfoldersAfterInput() {
-            String filepath = "scene123/input/folder1/folder2/Picture.jpeg";
+            String filepath = "123/input/folder1/folder2/Picture.jpeg";
             assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleMultipleSubfoldersAfterTemp() {
-            String filepath = "scene123/temp/nodeId/folder1/folder2/Picture.jpeg";
+            String filepath = "123/temp/nodeId/folder1/folder2/Picture.jpeg";
             assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldReturnEmptyWhenNoInputInPath() {
-            String filepath = "scene123/output/pic/Picture.jpeg";
+            String filepath = "123/output/pic/Picture.jpeg";
             assertEquals("", fileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleInputAsLastSegment() {
-            String filepath = "scene123/folder/input";
+            String filepath = "123/folder/input";
             assertEquals("", fileHelper.extractRelativeWorkspacePath(filepath));
         }
     }
@@ -147,10 +147,10 @@ public class FileHelperTests {
 
         @Test
         void shouldStoreFileToOutputWithoutFolderOrPrefix() {
-            String filepath = "/root/path/scene123/input/picture.jpg";
+            String filepath = "/root/path/123/input/picture.jpg";
             Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scene123/input/picture.jpg");
-            Path outputPath = Paths.get("/root/path/scene123/output/picture.jpg");
+            Path relativePath = Paths.get("123/input/picture.jpg");
+            Path outputPath = Paths.get("/root/path/123/output/picture.jpg");
 
             when(storageService.getRootLocation()).thenReturn(rootPath);
             when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
@@ -164,12 +164,12 @@ public class FileHelperTests {
 
         @Test
         void shouldStoreFileToOutputWithFolderAndPrefix() {
-            String filepath = "/root/path/scene123/input/picture.jpg";
+            String filepath = "/root/path/123/input/picture.jpg";
             String folder = "processed";
             String prefix = "edited";
             Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scene123/input/picture.jpg");
-            Path outputPath = Paths.get("/root/path/scene123/output/processed/edited_picture.jpg");
+            Path relativePath = Paths.get("123/input/picture.jpg");
+            Path outputPath = Paths.get("/root/path/123/output/processed/edited_picture.jpg");
 
             when(storageService.getRootLocation()).thenReturn(rootPath);
             when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
@@ -185,11 +185,11 @@ public class FileHelperTests {
 
         @Test
         void shouldNotCreateFolderIfItAlreadyExists() {
-            String filepath = "/root/path/scene123/input/picture.jpg";
+            String filepath = "/root/path/123/input/picture.jpg";
             String folder = "processed";
             Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scene123/input/picture.jpg");
-            Path outputPath = Paths.get("/root/path/scene123/output/processed/picture.jpg");
+            Path relativePath = Paths.get("123/input/picture.jpg");
+            Path outputPath = Paths.get("/root/path/123/output/processed/picture.jpg");
 
             when(storageService.getRootLocation()).thenReturn(rootPath);
             when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
@@ -210,7 +210,7 @@ public class FileHelperTests {
         void shouldStoreFileToTemp() {
             when(node.getId()).thenReturn(NODE_ID);
             String filename = "path/temp-file.jpg";
-            Path tempPath = Paths.get("/root/path/scene123/temp/" + NODE_ID + "/" + filename);
+            Path tempPath = Paths.get("/root/path/123/temp/" + NODE_ID + "/" + filename);
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
 
             when(storageService.folderExists(SCENE_ID + "/temp/" + NODE_ID + "/path/")).thenReturn(false);
@@ -227,7 +227,7 @@ public class FileHelperTests {
         void shouldNotCreateFolderIfItAlreadyExists() {
             when(node.getId()).thenReturn(NODE_ID);
             String filename = "temp-file.jpg";
-            Path tempPath = Paths.get("/root/path/scene123/temp/" + NODE_ID + "/" + filename);
+            Path tempPath = Paths.get("/root/path/123/temp/" + NODE_ID + "/" + filename);
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
 
             when(storageService.folderExists(SCENE_ID + "/temp/" + NODE_ID + "/")).thenReturn(true);
@@ -246,10 +246,10 @@ public class FileHelperTests {
         @Test
         void shouldCreateDumpFile() {
             when(node.getId()).thenReturn(NODE_ID);
-            String filepath = "/root/path/scene123/input/picture.jpg";
+            String filepath = "/root/path/123/input/picture.jpg";
             Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scene123/input/picture.jpg");
-            Path dumpPath = Paths.get("/root/path/scene123/temp/" + NODE_ID + "/picture.jpg");
+            Path relativePath = Paths.get("123/input/picture.jpg");
+            Path dumpPath = Paths.get("/root/path/123/temp/" + NODE_ID + "/picture.jpg");
 
             when(storageService.getRootLocation()).thenReturn(rootPath);
             when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
@@ -286,9 +286,9 @@ public class FileHelperTests {
         @Test
         void shouldThrowExceptionWhenResourceIsNull() {
             when(node.getId()).thenReturn(NODE_ID);
-            String filepath = "/root/path/scene123/input/picture.jpg";
+            String filepath = "/root/path/123/input/picture.jpg";
             Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scene123/input/picture.jpg");
+            Path relativePath = Paths.get("123/input/picture.jpg");
 
             when(storageService.getRootLocation()).thenReturn(rootPath);
             when(storageService.loadAsResource(relativePath.toString())).thenReturn(null);
@@ -301,7 +301,7 @@ public class FileHelperTests {
     @Test
     void getFullPathShouldCallStorageServiceLoad() {
         String filepath = "scene123/input/picture.jpg";
-        Path fullPath = Paths.get("/root/path/scene123/input/picture.jpg");
+        Path fullPath = Paths.get("/root/path/123/input/picture.jpg");
 
         when(storageService.load(filepath)).thenReturn(fullPath);
 
