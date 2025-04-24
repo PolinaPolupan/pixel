@@ -70,7 +70,6 @@ An image processing system designed to proccess images using node-based workflow
 - [ ] GPU acceleration for compute-intensive operations
 - [ ] Machine learning-based image analysis (object detection, face recognition)
 - [ ] Advanced content-aware resizing and cropping
-- [ ] Webhook notifications for job completion
 - [ ] Pre-built templates for common transformations
 - [ ] Batch optimization for similar operations
 - [ ] Comprehensive image metadata preservation
