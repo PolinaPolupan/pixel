@@ -20,13 +20,13 @@ public class Graph {
         return new GraphIterator(this);
     }
 
-    public List<Long> getNodeOutputs(Node node) {
-        List<Long> outputs = new ArrayList<>();
+    public List<Node> getNodeOutputs(Node node) {
+        List<Node> outputs = new ArrayList<>();
 
         for (Node n: nodes) {
             for (Object param: n.getInputs().values()) {
                 if (param instanceof NodeReference) {
-                    if (((NodeReference) param).getNodeId().equals(node.getId())) outputs.add(n.getId());
+                    if (((NodeReference) param).getNodeId().equals(node.getId())) outputs.add(n);
                 }
             }
         }

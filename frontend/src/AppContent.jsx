@@ -75,10 +75,8 @@ function AppContent() {
 
     try {
       const graphData = transformGraphData();
-      const webhookUrl = "http://localhost:8080/v1/webhooks/graph-updates";
-      
-      console.log('Starting graph processing with webhook URL:', webhookUrl);
-      const response = await fetch(`http://localhost:8080/v1/scene/${sceneId}/graph?webhookUrl=${encodeURIComponent(webhookUrl)}`, {
+
+      const response = await fetch(`http://localhost:8080/v1/scene/${sceneId}/graph`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(graphData),

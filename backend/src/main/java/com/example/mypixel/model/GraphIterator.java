@@ -44,8 +44,8 @@ public class GraphIterator implements Iterator<Node> {
 
         // Calculate in-degrees
         for (Node node : graph.getNodes()) {
-            for (Long outputId : graph.getNodeOutputs(node)) {
-                inDegreeMap.put(outputId, inDegreeMap.get(outputId) + 1);
+            for (Node n : graph.getNodeOutputs(node)) {
+                inDegreeMap.put(n.getId(), inDegreeMap.get(n.getId()) + 1);
             }
         }
 
@@ -61,11 +61,11 @@ public class GraphIterator implements Iterator<Node> {
             Node current = zeroInDegreeQueue.poll();
             topologicalOrder.add(current);
 
-            for (Long outputId : graph.getNodeOutputs(current)) {
-                int inDegree = inDegreeMap.get(outputId) - 1;
-                inDegreeMap.put(outputId, inDegree);
+            for (Node node : graph.getNodeOutputs(current)) {
+                int inDegree = inDegreeMap.get(node.getId()) - 1;
+                inDegreeMap.put(node.getId(), inDegree);
                 if (inDegree == 0) {
-                    zeroInDegreeQueue.add(nodeMap.get(outputId));
+                    zeroInDegreeQueue.add(nodeMap.get(node.getId()));
                 }
             }
         }

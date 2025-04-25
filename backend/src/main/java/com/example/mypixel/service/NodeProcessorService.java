@@ -3,6 +3,8 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.*;
 import com.example.mypixel.model.node.Node;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.UnmodifiableIterator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -42,7 +44,31 @@ public class NodeProcessorService {
         nodeMap.get(sceneId).put(node.getId(), node);
         resolveInputs(node);
         node.validate();
-        nodeOutputs.get(sceneId).put(node.getId(), node.exec());
+
+        if (node.getInputs().containsKey("files")) {
+            List<String> outputFiles = new ArrayList<>();
+
+            partitionFileInput(node, 5)
+                    .forEachRemaining(batch -> {
+                        log.info("Processing batch with size: {}", batch.size());
+                        node.getInputs().put("files", batch);
+
+                        Map<String, Object> outputs = node.exec();
+
+                        Map<String, Object> mutableOutputs = new HashMap<>(outputs);
+                        nodeOutputs.get(sceneId).put(node.getId(), mutableOutputs);
+
+                        if (node.getOutputTypes().containsKey("files")) {
+                            outputFiles.addAll((List<String>) outputs.get("files"));
+                        }
+                    });
+
+            if (node.getOutputTypes().containsKey("files")) {
+                nodeOutputs.get(sceneId).get(node.getId()).put("files", outputFiles);
+            }
+        } else {
+            nodeOutputs.get(sceneId).put(node.getId(), node.exec());
+        }
     }
 
     private Object resolveReference(NodeReference reference, Long sceneId) {
@@ -63,7 +89,7 @@ public class NodeProcessorService {
         return nodeOutputs.get(sceneId).get(id).get(output);
     }
 
-    private Object castTypes(Node node, Object value, ParameterType requiredType) {
+    private Object castTypes(Node node, Object value, ParameterType requiredType, boolean createDump) {
         if (value == null) {
             throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
         }
@@ -75,7 +101,11 @@ public class NodeProcessorService {
             case FILEPATH_ARRAY -> {
                 List<String> files = new ArrayList<>();
                 for (String file: (List<String>) value) {
-                    files.add(node.getFileHelper().createDump(file));
+                    if (createDump) {
+                        files.add(node.getFileHelper().createDump(file));
+                    } else {
+                        files.add(file);
+                    }
                 }
                 yield files;
             }
@@ -96,30 +126,38 @@ public class NodeProcessorService {
                 } else { // Omit, continue on processing other inputs
                     continue;
                 }
-
             }
 
-            Object input = node.getInputs().get(key);
-            ParameterType requiredType = node.getInputTypes().get(key);
-
-            if (input instanceof NodeReference) {
-                input = resolveReference((NodeReference) input, node.getSceneId());
-            }
-
-            // Cast to required type
-            try {
-                input = castTypes(node, input, requiredType);
-            } catch (ClassCastException e) {
-                throw new InvalidNodeParameter(
-                        "Invalid input parameter '" + key + "' to the node with id " +
-                                node.getId() + ": cannot cast " + input.getClass().getSimpleName() +
-                                " to " + requiredType + " type"
-                );
-            }
-
-            resolvedInputs.put(key, input);
+            resolvedInputs.put(key, resolveInput(node, key, true));
         }
 
         node.setInputs(resolvedInputs);
+    }
+
+    private Object resolveInput(Node node, String key, boolean createDump) {
+        Object input = node.getInputs().get(key);
+        ParameterType requiredType = node.getInputTypes().get(key);
+
+        if (input instanceof NodeReference) {
+            input = resolveReference((NodeReference) input, node.getSceneId());
+        }
+
+        // Cast to required type
+        try {
+            input = castTypes(node, input, requiredType, createDump);
+        } catch (ClassCastException e) {
+            throw new InvalidNodeParameter(
+                    "Invalid input parameter '" + key + "' to the node with id " +
+                            node.getId() + ": cannot cast " + input.getClass().getSimpleName() +
+                            " to " + requiredType + " type"
+            );
+        }
+
+        return input;
+    }
+
+    public UnmodifiableIterator<List<String>> partitionFileInput(Node node, int batchSize) {
+        List<String> files = (List<String>) node.getInputs().get("files");
+        return Iterators.partition(files.iterator(), batchSize);
     }
 }

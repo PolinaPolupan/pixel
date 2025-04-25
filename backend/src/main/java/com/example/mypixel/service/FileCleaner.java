@@ -28,7 +28,7 @@ public class FileCleaner {
         this.storageService = storageService;
     }
 
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     public void cleanupDump() {
         log.info("Cleanup started at {}", LocalDate.now());
         for (var scene: sceneRepository.findAll()) {
