@@ -37,12 +37,12 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public synchronized void store(MultipartFile file) {
         store(file, file.getOriginalFilename());
     }
 
     @Override
-    public void store(MultipartFile file, String filename) {
+    public synchronized void store(MultipartFile file, String filename) {
         if (file.isEmpty()) {
             throw new StorageException("Failed to store empty file.");
         }
@@ -55,7 +55,7 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
-    public void store(Resource file, String filename) {
+    public synchronized void store(Resource file, String filename) {
         log.debug("Storing resource as file: {}", filename);
 
         try (InputStream inputStream = file.getInputStream()) {
@@ -71,7 +71,7 @@ public class TempStorageService implements StorageService {
      * Note: This method does NOT close the input stream - the caller is responsible for that.
      */
     @Override
-    public void store(InputStream inputStream, String filename) {
+    public synchronized void store(InputStream inputStream, String filename) {
         log.debug("Storing file with filename: {}", filename);
 
         if (inputStream == null) {
@@ -154,12 +154,12 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
-    public void deleteAll() {
+    public synchronized void deleteAll() {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
     }
 
     @Override
-    public void delete(String path) {
+    public synchronized void delete(String path) {
         try {
             FileSystemUtils.deleteRecursively(rootLocation.resolve(path));
         } catch (IOException e) {
@@ -168,7 +168,7 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
-    public void init() {
+    public synchronized void init() {
         try {
             Files.createDirectories(rootLocation);
         } catch (IOException e) {
@@ -177,7 +177,7 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
-    public void createFolder(String name) {
+    public synchronized void createFolder(String name) {
         try {
             Path folderPath = rootLocation.resolve(name);
 
@@ -190,7 +190,7 @@ public class TempStorageService implements StorageService {
     }
 
     @Override
-    public boolean folderExists(String name) {
+    public synchronized boolean folderExists(String name) {
         Path scenePath = Paths.get(String.valueOf(rootLocation), name);
         return Files.exists(scenePath) && Files.isDirectory(scenePath);
     }
