@@ -69,7 +69,7 @@ public class GraphService {
                 Node node = iterator.next();
                 node.setSceneId(sceneId);
 
-                nodeProcessorService.processNode(node, batchSize);
+                nodeProcessorService.processNode(node, batchSize, graph.getNodeMap());
 
                 processedNodes++;
 
@@ -98,7 +98,9 @@ public class GraphService {
 
             sendErrorWebSocket(sceneId, e.getMessage());
 
-            return CompletableFuture.completedFuture(task);
+            CompletableFuture.completedFuture(task);
+
+            throw e;
         }
     }
 

@@ -20,7 +20,6 @@ public class NodeProcessorService {
     private final AutowireCapableBeanFactory beanFactory;
     // Hash map to store nodes and their corresponding outputs
     private final Map<Long, Map<Long, Map<String, Object>>> nodeOutputs = new HashMap<>();
-    private final Map<Long, Map<Long, Node>> nodeMap = new HashMap<>();
     private final StorageService storageService;
 
     @Autowired
@@ -31,7 +30,7 @@ public class NodeProcessorService {
         this.storageService = storageService;
     }
 
-    public void processNode(Node node, int batchSize) {
+    public void processNode(Node node, int batchSize, Map<Long, Node> nodeMap) {
         beanFactory.autowireBean(node);
         FileHelper fileHelper = new FileHelper(storageService, node);
         node.setFileHelper(fileHelper);
@@ -40,10 +39,7 @@ public class NodeProcessorService {
         log.info("Started node: {}", node.getId());
 
         nodeOutputs.computeIfAbsent(sceneId, k -> new HashMap<>());
-        nodeMap.computeIfAbsent(sceneId, k -> new HashMap<>());
-
-        nodeMap.get(sceneId).put(node.getId(), node);
-        resolveInputs(node, false);
+        resolveInputs(node, nodeMap, false);
         node.validate();
 
         if (node.getInputs().containsKey("files")) {
@@ -53,10 +49,10 @@ public class NodeProcessorService {
                     .forEachRemaining(batch ->
                             futures.add(CompletableFuture.runAsync(() -> {
                                 BatchNodeWrapper wrapper = new BatchNodeWrapper(node, node.getInputs());
-                                log.info("Processing batch with size: {}", batch.size());
+                                log.debug("Processing batch with size: {}", batch.size());
                                 wrapper.getInputs().put("files", batch);
 
-                                resolveInputs(node, true);
+                                resolveInputs(node, nodeMap, true);
                                 Map<String, Object> outputs = wrapper.exec();
 
                                 Map<String, Object> mutableOutputs = new HashMap<>(outputs);
@@ -75,24 +71,24 @@ public class NodeProcessorService {
                 nodeOutputs.get(sceneId).get(node.getId()).put("files", outputFiles);
             }
         } else {
-            resolveInputs(node, true);
+            resolveInputs(node, nodeMap, true);
             nodeOutputs.get(sceneId).put(node.getId(), node.exec());
         }
     }
 
-    private Object resolveReference(NodeReference reference, Long sceneId) {
+    private Object resolveReference(NodeReference reference, Long sceneId, Map<Long, Node> nodeMap) {
         Long id = reference.getNodeId();
         String output = reference.getOutputName();
 
-        if (!nodeMap.get(sceneId).containsKey(id)) {
+        if (!nodeMap.containsKey(id)) {
             throw new InvalidNodeParameter("Invalid node reference: Node with id " +
                     id + " is not found. Please ensure the node id is correct.");
         }
 
-        if (!nodeMap.get(sceneId).get(id).getOutputTypes().containsKey(output)) {
+        if (!nodeMap.get(id).getOutputTypes().containsKey(output)) {
             throw new InvalidNodeParameter("Invalid node reference: Node with id "
                     + id + " does not contain output '" + output
-                    + "'. Available outputs are: " + nodeMap.get(sceneId).get(id).getOutputTypes().keySet());
+                    + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
         }
 
         return nodeOutputs.get(sceneId).get(id).get(output);
@@ -122,7 +118,7 @@ public class NodeProcessorService {
         };
     }
 
-    private void resolveInputs(Node node, boolean  createDump) {
+    private void resolveInputs(Node node, Map<Long, Node> nodeMap, boolean createDump) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputTypes().keySet()) {
@@ -137,18 +133,18 @@ public class NodeProcessorService {
                 }
             }
 
-            resolvedInputs.put(key, resolveInput(node, key, createDump));
+            resolvedInputs.put(key, resolveInput(node, key, nodeMap, createDump));
         }
 
         node.setInputs(resolvedInputs);
     }
 
-    private Object resolveInput(Node node, String key, boolean createDump) {
+    private Object resolveInput(Node node, String key, Map<Long, Node> nodeMap, boolean createDump) {
         Object input = node.getInputs().get(key);
         ParameterType requiredType = node.getInputTypes().get(key);
 
         if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, node.getSceneId());
+            input = resolveReference((NodeReference) input, node.getSceneId(), nodeMap);
         }
 
         // Cast to required type

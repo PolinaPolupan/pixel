@@ -10,10 +10,12 @@ import java.util.*;
 @Getter
 public class Graph {
     List<Node> nodes;
+    Map<Long, Node> nodeMap = new HashMap<>();
 
     @JsonCreator
     public Graph(@JsonProperty("nodes") List<Node> nodes) {
         this.nodes = nodes;
+        for (Node node: nodes) nodeMap.put(node.getId(), node);
     }
 
     public Iterator<Node> iterator() {
