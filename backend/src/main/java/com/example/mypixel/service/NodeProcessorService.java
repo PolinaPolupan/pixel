@@ -11,6 +11,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
@@ -30,7 +31,7 @@ public class NodeProcessorService {
         this.storageService = storageService;
     }
 
-    public void processNode(Node node) {
+    public void processNode(Node node, int batchSize) {
         beanFactory.autowireBean(node);
         FileHelper fileHelper = new FileHelper(storageService, node);
         node.setFileHelper(fileHelper);
@@ -42,31 +43,39 @@ public class NodeProcessorService {
         nodeMap.computeIfAbsent(sceneId, k -> new HashMap<>());
 
         nodeMap.get(sceneId).put(node.getId(), node);
-        resolveInputs(node);
+        resolveInputs(node, false);
         node.validate();
 
         if (node.getInputs().containsKey("files")) {
             List<String> outputFiles = new ArrayList<>();
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+            partitionFileInput(node, batchSize)
+                    .forEachRemaining(batch ->
+                            futures.add(CompletableFuture.runAsync(() -> {
+                                BatchNodeWrapper wrapper = new BatchNodeWrapper(node, node.getInputs());
+                                log.info("Processing batch with size: {}", batch.size());
+                                wrapper.getInputs().put("files", batch);
 
-            partitionFileInput(node, 5)
-                    .forEachRemaining(batch -> {
-                        log.info("Processing batch with size: {}", batch.size());
-                        node.getInputs().put("files", batch);
+                                resolveInputs(node, true);
+                                Map<String, Object> outputs = wrapper.exec();
 
-                        Map<String, Object> outputs = node.exec();
+                                Map<String, Object> mutableOutputs = new HashMap<>(outputs);
+                                nodeOutputs.get(sceneId).put(wrapper.getId(), mutableOutputs);
 
-                        Map<String, Object> mutableOutputs = new HashMap<>(outputs);
-                        nodeOutputs.get(sceneId).put(node.getId(), mutableOutputs);
+                                if (wrapper.getOutputTypes().containsKey("files")) {
+                                    outputFiles.addAll((List<String>) outputs.get("files"));
+                                }
+                            }))
+                    );
 
-                        if (node.getOutputTypes().containsKey("files")) {
-                            outputFiles.addAll((List<String>) outputs.get("files"));
-                        }
-                    });
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            allOf.join();
 
             if (node.getOutputTypes().containsKey("files")) {
                 nodeOutputs.get(sceneId).get(node.getId()).put("files", outputFiles);
             }
         } else {
+            resolveInputs(node, true);
             nodeOutputs.get(sceneId).put(node.getId(), node.exec());
         }
     }
@@ -113,7 +122,7 @@ public class NodeProcessorService {
         };
     }
 
-    private void resolveInputs(Node node) {
+    private void resolveInputs(Node node, boolean  createDump) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputTypes().keySet()) {
@@ -128,7 +137,7 @@ public class NodeProcessorService {
                 }
             }
 
-            resolvedInputs.put(key, resolveInput(node, key, true));
+            resolvedInputs.put(key, resolveInput(node, key, createDump));
         }
 
         node.setInputs(resolvedInputs);

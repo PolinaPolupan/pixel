@@ -27,9 +27,10 @@ public class GraphController {
     @PostMapping
     public ResponseEntity<GraphExecutionTask> executeGraph(
             @PathVariable Long sceneId,
-            @RequestBody String graphJson) throws JsonProcessingException {
+            @RequestBody String graphJson,
+            @RequestParam(defaultValue = "50", required = false) int batchSize) throws JsonProcessingException {
         Graph graph = graphObjectMapper.readValue(graphJson, Graph.class);
-        GraphExecutionTask task = graphService.startGraphExecution(graph, sceneId);
+        GraphExecutionTask task = graphService.startGraphExecution(graph, sceneId, batchSize);
         return ResponseEntity.ok(task);
     }
 }

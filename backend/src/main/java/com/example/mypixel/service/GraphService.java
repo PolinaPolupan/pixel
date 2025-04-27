@@ -1,7 +1,6 @@
 package com.example.mypixel.service;
 
 import com.example.mypixel.exception.InvalidGraph;
-import com.example.mypixel.model.BatchNodeWrapper;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.TaskStatus;
@@ -16,9 +15,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -38,7 +34,7 @@ public class GraphService {
         this.taskRepository = taskRepository;
     }
 
-    public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId) {
+    public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId, int batchSize) {
         log.info("Starting execution for scene {}", sceneId);
 
         validateGraph(graph);
@@ -50,13 +46,13 @@ public class GraphService {
         task.setProcessedNodes(0);
         task = taskRepository.save(task);
 
-        executeGraph(task.getId(), graph, sceneId);
+        executeGraph(task.getId(), graph, sceneId, batchSize);
 
         return task;
     }
 
     @Async("graphTaskExecutor")
-    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId) {
+    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId, int batchSize) {
         GraphExecutionTask task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
 
@@ -73,7 +69,7 @@ public class GraphService {
                 Node node = iterator.next();
                 node.setSceneId(sceneId);
 
-                nodeProcessorService.processNode(node);
+                nodeProcessorService.processNode(node, batchSize);
 
                 processedNodes++;
 
@@ -122,56 +118,6 @@ public class GraphService {
         }
 
         log.info("Graph validation passed: no duplicate node IDs found");
-    }
-
-    public CompletableFuture<Void> processNodeWithBatches(Node node) {
-        ExecutorService executor = Executors.newFixedThreadPool(
-                Math.min(10, Runtime.getRuntime().availableProcessors())
-        );
-
-        try {
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-            AtomicInteger batchCounter = new AtomicInteger(0);
-
-            List<Map<String, Object>> originalFiles = new ArrayList<>(
-                    (List<Map<String, Object>>) node.getInputs().get("files")
-            );
-
-            nodeProcessorService.partitionFileInput(node, 5)
-                    .forEachRemaining(batch -> {
-                        int batchNum = batchCounter.incrementAndGet();
-                        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                            try {
-                                Map<String, Object> batchInputs = new HashMap<>(node.getInputs());
-                                batchInputs.put("files", batch);
-
-                                BatchNodeWrapper wrapper = new BatchNodeWrapper(node, batchInputs);
-
-                                log.info("Thread {} processing batch with size: {}",
-                                        Thread.currentThread().getName(), batch.size());
-
-                                nodeProcessorService.processNode(wrapper);
-                            } catch (Exception e) {
-                                log.error("Error processing batch #{}", batchNum, e);
-                            }
-                        }, executor);
-
-                        futures.add(future);
-                    });
-
-            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                    .exceptionally(ex -> {
-                        log.error("Error in batch processing", ex);
-                        throw new RuntimeException("Batch processing failed", ex);
-                    })
-                    .thenRun(() -> {
-                        log.info("All batches completed successfully");
-                        node.getInputs().put("files", originalFiles);
-                    });
-
-        } finally {
-            executor.shutdown();
-        }
     }
 
     private void sendProgressWebSocket(Long sceneId, int processed, int total) {
