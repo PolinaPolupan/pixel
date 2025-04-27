@@ -6,6 +6,7 @@ import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.model.node.Node;
 import com.example.mypixel.repository.GraphExecutionTaskRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -34,7 +35,7 @@ public class GraphService {
         this.taskRepository = taskRepository;
     }
 
-    public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId, int batchSize) {
+    public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId, int batchSize) throws JsonProcessingException {
         log.info("Starting execution for scene {}", sceneId);
 
         validateGraph(graph);
@@ -52,7 +53,7 @@ public class GraphService {
     }
 
     @Async("graphTaskExecutor")
-    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId, int batchSize) {
+    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId, int batchSize) throws JsonProcessingException {
         GraphExecutionTask task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
 
