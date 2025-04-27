@@ -6,9 +6,8 @@ import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.model.node.Node;
 import com.example.mypixel.repository.GraphExecutionTaskRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class GraphService {
@@ -26,16 +26,7 @@ public class GraphService {
     private final SimpMessagingTemplate messagingTemplate;
     private final GraphExecutionTaskRepository taskRepository;
 
-    @Autowired
-    public GraphService(NodeProcessorService nodeProcessorService,
-                        SimpMessagingTemplate messagingTemplate,
-                        GraphExecutionTaskRepository taskRepository) {
-        this.nodeProcessorService = nodeProcessorService;
-        this.messagingTemplate = messagingTemplate;
-        this.taskRepository = taskRepository;
-    }
-
-    public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId, int batchSize) throws JsonProcessingException {
+    public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId, int batchSize) {
         log.info("Starting execution for scene {}", sceneId);
 
         validateGraph(graph);
@@ -53,7 +44,7 @@ public class GraphService {
     }
 
     @Async("graphTaskExecutor")
-    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId, int batchSize) throws JsonProcessingException {
+    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId, int batchSize) {
         GraphExecutionTask task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
 

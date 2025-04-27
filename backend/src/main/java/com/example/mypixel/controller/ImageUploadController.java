@@ -13,9 +13,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.example.mypixel.exception.InvalidImageFormat;
+import com.example.mypixel.service.SceneService;
 import com.example.mypixel.service.StorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,24 +28,23 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/v1/scene/{sceneId}")
 @Slf4j
+@RequiredArgsConstructor
 public class ImageUploadController {
 
+    private final SceneService sceneService;
     private final StorageService storageService;
-
-    @Autowired
-    public ImageUploadController(StorageService storageService) {
-        this.storageService = storageService;
-    }
 
     @GetMapping(path = "/input/list", produces = "application/json")
     public List<String> listUploadedFiles(@PathVariable String sceneId,
                                           @RequestParam(required = false, defaultValue = "") String folder) {
+        sceneService.updateLastAccessed(Long.valueOf(sceneId));
         return storageService.loadAll(sceneId + "/input/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
     @GetMapping(path = "/output/list", produces = "application/json")
     public List<String> listOutputFiles(@PathVariable String sceneId,
                                         @RequestParam(required = false, defaultValue = "") String folder) {
+        sceneService.updateLastAccessed(Long.valueOf(sceneId));
         return storageService.loadAll(sceneId + "/output/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
@@ -54,6 +54,7 @@ public class ImageUploadController {
     })
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filepath) {
+        sceneService.updateLastAccessed(Long.valueOf(sceneId));
         Resource file = storageService.loadAsResource(sceneId + "/input/" + filepath);
 
         return getResourceResponseEntity(file);
@@ -65,6 +66,7 @@ public class ImageUploadController {
     })
     @ResponseBody
     public ResponseEntity<Resource> serveOutputFile(@PathVariable String sceneId, @RequestParam String filepath) {
+        sceneService.updateLastAccessed(Long.valueOf(sceneId));
         Resource file = storageService.loadAsResource(sceneId + "/output/" + filepath);
 
         return getResourceResponseEntity(file);
