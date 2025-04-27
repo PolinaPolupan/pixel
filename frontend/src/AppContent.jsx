@@ -229,7 +229,7 @@ function AppContent() {
                       color: 'white',
                       fontSize: '12px',
                       display: 'flex',
-                      alignItems: 'left',
+                      alignItems: 'center',
                       gap: '8px'
                     }}>
                       <label htmlFor="batchSize">Batch Size:</label>

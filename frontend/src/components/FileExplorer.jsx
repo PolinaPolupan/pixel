@@ -12,6 +12,7 @@ const FileExplorer = ({ setError }) => {
   const [items, setItems] = useState([]);
   const [isOpen, setIsOpen] = useState(true); // Open by default in dock
   const [previewImage, setPreviewImage] = useState(null);
+  const [cacheBuster, setCacheBuster] = useState(Date.now());
 
   const fetchItems = async (directoryType, folder = '') => {
     try {
@@ -47,7 +48,7 @@ const FileExplorer = ({ setError }) => {
       if (segments.length === 1 && /\.(png|jpeg|jpg)$/i.test(segments[0])) {
         current.files.push({
           type: 'file',
-          url: `http://localhost:8080/v1/scene/${sceneId}/${directoryType}/file?filepath=${encodeURIComponent(path)}`,
+          url: `http://localhost:8080/v1/scene/${sceneId}/${directoryType}/file?filepath=${encodeURIComponent(path)}&_cb=${cacheBuster}`,
           path: `${directoryType}/${path}`,
         });
       } else {
@@ -58,7 +59,7 @@ const FileExplorer = ({ setError }) => {
           if (isLast && /\.(png|jpeg|jpg)$/i.test(segment)) {
             current.files.push({
               type: 'file',
-              url: `http://localhost:8080/v1/scene/${sceneId}/${directoryType}/file?filepath=${encodeURIComponent(path)}`,
+              url: `http://localhost:8080/v1/scene/${sceneId}/${directoryType}/file?filepath=${encodeURIComponent(path)}&_cb=${cacheBuster}`,
               path: currentPath,
             });
           } else {
@@ -85,6 +86,7 @@ const FileExplorer = ({ setError }) => {
   };
 
   const fetchAllItems = async () => {
+    setCacheBuster(Date.now());
     const inputPaths = await fetchItems('input');
     const outputPaths = await fetchItems('output');
     const inputTree = buildTree(inputPaths, 'input');
