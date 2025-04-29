@@ -20,8 +20,7 @@ import java.util.concurrent.Executor;
 public class NodeProcessorService {
 
     private final AutowireCapableBeanFactory beanFactory;
-    // Hash map to store nodes and their corresponding outputs
-    private final Map<String, Map<String, Object>> nodeOutputs = new HashMap<>();
+    private final NodeCacheService nodeCacheService;
     private final StorageService storageService;
     private final Executor graphTaskExecutor;
 
@@ -50,10 +49,10 @@ public class NodeProcessorService {
                                 wrapper.getInputs().put("files", batch);
 
                                 resolveInputs(node, sceneId, nodeMap, true);
-                                Map<String, Object> outputs = wrapper.exec();
 
+                                Map<String, Object> outputs = wrapper.exec();
                                 Map<String, Object> mutableOutputs = new HashMap<>(outputs);
-                                nodeOutputs.put(sceneId + ":" + wrapper.getId(), mutableOutputs);
+                                nodeCacheService.put(sceneId + ":" + wrapper.getId(), mutableOutputs);
 
                                 if (wrapper.getOutputTypes().containsKey("files")) {
                                     outputFiles.addAll((List<String>) outputs.get("files"));
@@ -65,11 +64,11 @@ public class NodeProcessorService {
             allOf.join();
 
             if (node.getOutputTypes().containsKey("files")) {
-                nodeOutputs.get(sceneId + ":" + node.getId()).put("files", outputFiles);
+                nodeCacheService.get(sceneId + ":" + node.getId()).put("files", outputFiles);
             }
         } else {
             resolveInputs(node, sceneId, nodeMap, true);
-            nodeOutputs.put(sceneId + ":" + node.getId(), node.exec());
+            nodeCacheService.put(sceneId + ":" + node.getId(), node.exec());
         }
     }
 
@@ -88,7 +87,7 @@ public class NodeProcessorService {
                     + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
         }
 
-        return nodeOutputs.get(sceneId + ":" + id).get(output);
+        return nodeCacheService.get(sceneId + ":" + id).get(output);
     }
 
     private Object castTypes(Node node, Object value, ParameterType requiredType, boolean createDump) {

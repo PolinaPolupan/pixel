@@ -26,6 +26,7 @@ public class FileCleaner {
         for (var task: taskRepository.findByStatusNotIn(List.of(TaskStatus.PENDING, TaskStatus.RUNNING))) {
             storageService.delete("tasks/" + task.getId());
             log.info("Tasks cleanup {} finished at {}", task.getId(), LocalDate.now());
+            taskRepository.delete(task);
         }
     }
 

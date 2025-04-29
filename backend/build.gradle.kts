@@ -30,6 +30,7 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("com.google.guava:guava:33.4.0-jre")
 	implementation("org.reflections:reflections:0.10.2")
 	implementation("org.flywaydb:flyway-core")
@@ -38,6 +39,7 @@ dependencies {
 	implementation(platform("software.amazon.awssdk:bom:2.31.10"))
 	implementation("software.amazon.awssdk:s3")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
+	implementation("redis.clients:jedis")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
