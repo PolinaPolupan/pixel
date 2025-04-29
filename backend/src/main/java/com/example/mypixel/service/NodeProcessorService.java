@@ -25,15 +25,18 @@ public class NodeProcessorService {
     private final StorageService storageService;
     private final Executor graphTaskExecutor;
 
-    public void processNode(Node node, int batchSize, Map<Long, Node> nodeMap) {
+    public void processNode(Node node,
+                            Long sceneId,
+                            Long taskId,
+                            int batchSize,
+                            Map<Long, Node> nodeMap) {
         beanFactory.autowireBean(node);
-        FileHelper fileHelper = new FileHelper(storageService, node);
+        FileHelper fileHelper = new FileHelper(storageService, node, sceneId, taskId);
         node.setFileHelper(fileHelper);
 
-        Long sceneId = node.getSceneId();
         log.info("Started node: {}", node.getId());
 
-        resolveInputs(node, nodeMap, false);
+        resolveInputs(node, sceneId, nodeMap, false);
         node.validate();
 
         if (node.getInputs().containsKey("files")) {
@@ -46,7 +49,7 @@ public class NodeProcessorService {
                                 log.debug("Processing batch with size: {}", batch.size());
                                 wrapper.getInputs().put("files", batch);
 
-                                resolveInputs(node, nodeMap, true);
+                                resolveInputs(node, sceneId, nodeMap, true);
                                 Map<String, Object> outputs = wrapper.exec();
 
                                 Map<String, Object> mutableOutputs = new HashMap<>(outputs);
@@ -65,7 +68,7 @@ public class NodeProcessorService {
                 nodeOutputs.get(sceneId + ":" + node.getId()).put("files", outputFiles);
             }
         } else {
-            resolveInputs(node, nodeMap, true);
+            resolveInputs(node, sceneId, nodeMap, true);
             nodeOutputs.put(sceneId + ":" + node.getId(), node.exec());
         }
     }
@@ -112,7 +115,10 @@ public class NodeProcessorService {
         };
     }
 
-    private void resolveInputs(Node node, Map<Long, Node> nodeMap, boolean createDump) {
+    private void resolveInputs(Node node,
+                               Long sceneId,
+                               Map<Long, Node> nodeMap,
+                               boolean createDump) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputTypes().keySet()) {
@@ -127,18 +133,22 @@ public class NodeProcessorService {
                 }
             }
 
-            resolvedInputs.put(key, resolveInput(node, key, nodeMap, createDump));
+            resolvedInputs.put(key, resolveInput(node, sceneId, key, nodeMap, createDump));
         }
 
         node.setInputs(resolvedInputs);
     }
 
-    private Object resolveInput(Node node, String key, Map<Long, Node> nodeMap, boolean createDump) {
+    private Object resolveInput(Node node,
+                                Long sceneId,
+                                String key,
+                                Map<Long, Node> nodeMap,
+                                boolean createDump) {
         Object input = node.getInputs().get(key);
         ParameterType requiredType = node.getInputTypes().get(key);
 
         if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, node.getSceneId(), nodeMap);
+            input = resolveReference((NodeReference) input, sceneId, nodeMap);
         }
 
         // Cast to required type

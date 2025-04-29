@@ -16,14 +16,16 @@ import java.util.regex.Pattern;
 public class FileHelper {
 
     StorageService storageService;
+    Long taskId;
     Long sceneId;
     Node node;
 
     private final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");
 
-    public FileHelper(StorageService storageService, Node node) {
+    public FileHelper(StorageService storageService, Node node, Long sceneId, Long taskId) {
         this.storageService = storageService;
-        this.sceneId = node.getSceneId();
+        this.sceneId = sceneId;
+        this.taskId = taskId;
         this.node = node;
     }
 
@@ -38,22 +40,20 @@ public class FileHelper {
             relativePath = folder + "/" + relativePath;
         }
 
-        if (!storageService.folderExists(sceneId + "/output/" + relativePath)) {
-            storageService.createFolder(sceneId + "/output/" + relativePath);
+        if (!storageService.folderExists("scenes/" + sceneId + "/output/" + relativePath)) {
+            storageService.createFolder("scenes/" + sceneId + "/output/" + relativePath);
         }
 
         String fullInputPath = storageService.getRootLocation().relativize(Paths.get(filepath)).toString();
 
         storageService.store(storageService.loadAsResource(fullInputPath),
-                sceneId + "/output/" + relativePath + filename);
+                "scenes/" + sceneId + "/output/" + relativePath + filename);
 
-        return getFullPath(sceneId + "/output/" + relativePath + filename);
+        return getFullPath("scenes/" + sceneId + "/output/" + relativePath + filename);
     }
 
     public String storeToTemp(InputStream in, String filepath) {
-        Long id = node.getId();
-
-        String path = sceneId + "/temp/" + id + "/" + extractPath(filepath);
+        String path = "tasks/" + taskId + "/" + node.getId() + "/" + extractPath(filepath);
 
         if (!storageService.folderExists(path)) {
             storageService.createFolder(path);
@@ -70,7 +70,7 @@ public class FileHelper {
 
     public String createDump(String filepath) {
         String actualFilename = extractFilename(filepath);
-        String outputPath = sceneId + "/temp/" + node.getId() + "/" + extractRelativeWorkspacePath(filepath);
+        String outputPath = "tasks/" + taskId + "/" + node.getId() + "/" + extractRelativeWorkspacePath(filepath);
 
         if (!storageService.folderExists(outputPath)) {
             storageService.createFolder(outputPath);
@@ -119,11 +119,10 @@ public class FileHelper {
     public String extractRelativeWorkspacePath(String filepath) {
         List<String> pathSegments = Splitter.on("/").splitToList(filepath);
         int index = -1;
-
-        // Example: {sceneId}/input/folder1/folder2/Picture.jpeg -> folder1/folder2/
-        if (pathSegments.contains("input")) index = pathSegments.indexOf("input");
-        // Example: {sceneId}/temp/{nodeId}/folder1/folder2/Picture.jpeg -> folder1/folder2/
-        if (pathSegments.contains("temp")) index = pathSegments.indexOf("temp") + 1;
+        // Example: scenes/{sceneId}/input/folder1/folder2/Picture.jpeg -> folder1/folder2/
+        if (pathSegments.contains("scenes")) index = pathSegments.indexOf("scenes") + 2;
+        // Example: tasks/{taskId}/{nodeId}/folder1/folder2/Picture.jpeg -> folder1/folder2/
+        if (pathSegments.contains("tasks")) index = pathSegments.indexOf("tasks") + 2;
 
         StringBuilder insideInputPathBuilder = new StringBuilder();
         if (index != -1 && index < pathSegments.size() - 1) {

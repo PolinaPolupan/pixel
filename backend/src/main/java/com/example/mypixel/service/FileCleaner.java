@@ -23,9 +23,9 @@ public class FileCleaner {
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     public void cleanupDump() {
         log.info("Dump cleanup started at {}", LocalDate.now());
-        for (var scene: taskRepository.findByStatusNotIn(List.of(TaskStatus.PENDING, TaskStatus.RUNNING))) {
-            storageService.delete(scene.getId().toString() + "/temp");
-            log.info("Dump cleanup of scene {} finished at {}", scene.getId(), LocalDate.now());
+        for (var task: taskRepository.findByStatusNotIn(List.of(TaskStatus.PENDING, TaskStatus.RUNNING))) {
+            storageService.delete("tasks/" + task.getId());
+            log.info("Tasks cleanup {} finished at {}", task.getId(), LocalDate.now());
         }
     }
 

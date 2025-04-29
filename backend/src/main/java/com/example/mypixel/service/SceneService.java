@@ -28,10 +28,8 @@ public class SceneService {
 
         String sceneId = scene.getId().toString();
 
-        storageService.createFolder(sceneId);
-        storageService.createFolder(sceneId + "/temp");
-        storageService.createFolder(sceneId + "/output");
-        storageService.createFolder(sceneId + "/input");
+        storageService.createFolder("scenes/" + sceneId + "/output");
+        storageService.createFolder("scenes/" + sceneId + "/input");
 
         return scene;
     }
@@ -48,7 +46,7 @@ public class SceneService {
     }
 
     public void deleteScene(Long sceneId) {
-        storageService.delete(sceneId.toString());
+        storageService.delete("scenes/" + sceneId.toString());
         sceneRepository.deleteById(sceneId);
     }
 }

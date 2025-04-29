@@ -38,13 +38,13 @@ public class GraphService {
         task.setProcessedNodes(0);
         task = taskRepository.save(task);
 
-        executeGraph(task.getId(), graph, sceneId, batchSize);
+        executeGraph(graph, task.getId(), sceneId, batchSize);
 
         return task;
     }
 
     @Async("graphTaskExecutor")
-    public CompletableFuture<GraphExecutionTask> executeGraph(Long taskId, Graph graph, Long sceneId, int batchSize) {
+    public CompletableFuture<GraphExecutionTask> executeGraph(Graph graph, Long taskId, Long sceneId, int batchSize) {
         GraphExecutionTask task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
 
@@ -59,9 +59,8 @@ public class GraphService {
 
             while (iterator.hasNext()) {
                 Node node = iterator.next();
-                node.setSceneId(sceneId);
 
-                nodeProcessorService.processNode(node, batchSize, graph.getNodeMap());
+                nodeProcessorService.processNode(node, sceneId, taskId, batchSize, graph.getNodeMap());
 
                 processedNodes++;
 

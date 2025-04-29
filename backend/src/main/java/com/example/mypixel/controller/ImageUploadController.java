@@ -38,14 +38,14 @@ public class ImageUploadController {
     public List<String> listUploadedFiles(@PathVariable String sceneId,
                                           @RequestParam(required = false, defaultValue = "") String folder) {
         sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        return storageService.loadAll(sceneId + "/input/" + folder).map(Path::toString).collect(Collectors.toList());
+        return storageService.loadAll("scenes/" + sceneId + "/input/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
     @GetMapping(path = "/output/list", produces = "application/json")
     public List<String> listOutputFiles(@PathVariable String sceneId,
                                         @RequestParam(required = false, defaultValue = "") String folder) {
         sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        return storageService.loadAll(sceneId + "/output/" + folder).map(Path::toString).collect(Collectors.toList());
+        return storageService.loadAll("scenes/" + sceneId + "/output/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
     @GetMapping(path ="/input/file", produces = {
@@ -55,7 +55,7 @@ public class ImageUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filepath) {
         sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        Resource file = storageService.loadAsResource(sceneId + "/input/" + filepath);
+        Resource file = storageService.loadAsResource("scenes/" +sceneId + "/input/" + filepath);
 
         return getResourceResponseEntity(file);
     }
@@ -67,7 +67,7 @@ public class ImageUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveOutputFile(@PathVariable String sceneId, @RequestParam String filepath) {
         sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        Resource file = storageService.loadAsResource(sceneId + "/output/" + filepath);
+        Resource file = storageService.loadAsResource("scenes/" +sceneId + "/output/" + filepath);
 
         return getResourceResponseEntity(file);
     }
@@ -98,13 +98,14 @@ public class ImageUploadController {
                                                                       @RequestParam("file") List<MultipartFile> files) throws IOException {
 
         List<String> locations = new ArrayList<>();
+        String basePath = "scenes/" + sceneId + "/input/";
 
         for (MultipartFile file: files) {
             String contentType = file.getContentType();
             switch (Objects.requireNonNull(contentType)) {
                 case "image/jpeg", "image/png": {
-                    storageService.store(file, sceneId + "/input/" + file.getOriginalFilename());
-                    locations.add(storageService.load(sceneId + "/input/" + file.getOriginalFilename()).toString());
+                    storageService.store(file, basePath + file.getOriginalFilename());
+                    locations.add(storageService.load(basePath + file.getOriginalFilename()).toString());
                     break;
                 }
                 case "application/zip", "application/x-zip-compressed": {
@@ -115,22 +116,22 @@ public class ImageUploadController {
                         zipFolderName = zipFolderName.substring(0, zipFolderName.length() - 4);
                     }
 
-                    storageService.createFolder(sceneId + "/input/" + zipFolderName);
+                    storageService.createFolder(basePath + zipFolderName);
 
                     for (ZipEntry entry; (entry = inputStream.getNextEntry()) != null; ) {
                         Path entryPath = Path.of(entry.getName());
                         if (entry.isDirectory()) {
-                            storageService.createFolder(sceneId + "/input/" + zipFolderName + "/" + entry.getName());
+                            storageService.createFolder( basePath+ zipFolderName + "/" + entry.getName());
                         } else {
                             if (entryPath.getParent() != null) {
-                                storageService.createFolder(sceneId + "/input/" + zipFolderName + "/" + entryPath.getParent());
+                                storageService.createFolder(basePath + zipFolderName + "/" + entryPath.getParent());
                             }
                             String extension = com.google.common.io.Files.getFileExtension(entry.getName());
                             if (!extension.equals("png") && !extension.equals("jpeg") && !extension.equals("jpg")) {
                                 log.warn("Couldn't process file {}. Only JPEG, PNG and ZIP files are allowed", entry.getName());
                             } else {
-                                storageService.store(inputStream, sceneId + "/input/" + zipFolderName + "/" + entry.getName());
-                                locations.add(storageService.load(sceneId + "/input/" + zipFolderName + "/" + entry.getName()).toString());
+                                storageService.store(inputStream, basePath + zipFolderName + "/" + entry.getName());
+                                locations.add(storageService.load(basePath + zipFolderName + "/" + entry.getName()).toString());
                             }
                         }
                     }
