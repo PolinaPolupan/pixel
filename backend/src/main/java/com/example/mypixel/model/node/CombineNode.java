@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 @MyPixelNode("Combine")
@@ -43,11 +42,11 @@ public class CombineNode extends Node {
 
     @Override
     public Map<String, Object> exec() {
-        List<String> files = new ArrayList<>();
+        HashSet<String> files = new HashSet<>();
 
         for (int i = 0; i < 10; i++) {
             if (inputs.containsKey("files_" + i) && inputs.get("files_" + i) != null) {
-                List<String> f = (List<String>) inputs.get("files_" + i);
+                HashSet<String> f = (HashSet<String>) inputs.get("files_" + i);
                 files.addAll(f);
             }
         }

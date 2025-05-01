@@ -3,6 +3,8 @@ package com.example.mypixel.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -10,15 +12,13 @@ import redis.clients.jedis.JedisPool;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class NodeCacheService {
 
     private final JedisPool jedisPool;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public NodeCacheService(JedisPool jedisPool) {
-        this.jedisPool = jedisPool;
-    }
 
     public void put(String key, Map<String, Object> outputs) {
         try (Jedis jedis = jedisPool.getResource()) {

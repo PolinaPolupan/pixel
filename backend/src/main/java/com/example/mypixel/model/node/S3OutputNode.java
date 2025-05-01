@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 @MyPixelNode("S3Output")
@@ -46,7 +46,7 @@ public class S3OutputNode extends Node {
 
     @Override
     public Map<String, Object> exec() {
-        List<String> files = (List<String>) inputs.get("files");
+        HashSet<String> files = (HashSet<String>) inputs.get("files");
         Map<String, Object> outputs = Map.of();
 
         String accessKey = (String) inputs.get("access_key_id");

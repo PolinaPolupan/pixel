@@ -35,11 +35,16 @@ public class NodeProcessorService {
 
         log.info("Started node: {}", node.getId());
 
-        resolveInputs(node, sceneId, nodeMap, false);
+        resolveInputs(node, taskId, nodeMap, false);
         node.validate();
 
+        String outputKey = taskId + ":" + node.getId() + ":output";
+        String inputKey = taskId + ":" + node.getId() + ":input";
+
+        nodeCacheService.put(inputKey, node.getInputs());
+
         if (node.getInputs().containsKey("files")) {
-            List<String> outputFiles = new ArrayList<>();
+            HashSet<String> outputFiles = new HashSet<>();
             List<CompletableFuture<Void>> futures = new ArrayList<>();
             partitionFileInput(node, batchSize)
                     .forEachRemaining(batch ->
@@ -52,10 +57,10 @@ public class NodeProcessorService {
 
                                 Map<String, Object> outputs = wrapper.exec();
                                 Map<String, Object> mutableOutputs = new HashMap<>(outputs);
-                                nodeCacheService.put(sceneId + ":" + wrapper.getId(), mutableOutputs);
+                                nodeCacheService.put(outputKey, mutableOutputs);
 
                                 if (wrapper.getOutputTypes().containsKey("files")) {
-                                    outputFiles.addAll((List<String>) outputs.get("files"));
+                                    outputFiles.addAll((HashSet<String>) outputs.get("files"));
                                 }
                             }, graphTaskExecutor))
                     );
@@ -64,15 +69,17 @@ public class NodeProcessorService {
             allOf.join();
 
             if (node.getOutputTypes().containsKey("files")) {
-                nodeCacheService.get(sceneId + ":" + node.getId()).put("files", outputFiles);
+                Map<String, Object> outputs = nodeCacheService.get(outputKey);
+                outputs.put("files", outputFiles);
+                nodeCacheService.put(outputKey, outputs);
             }
         } else {
             resolveInputs(node, sceneId, nodeMap, true);
-            nodeCacheService.put(sceneId + ":" + node.getId(), node.exec());
+            nodeCacheService.put(outputKey, node.exec());
         }
     }
 
-    private Object resolveReference(NodeReference reference, Long sceneId, Map<Long, Node> nodeMap) {
+    private Object resolveReference(NodeReference reference, Long taskId, Map<Long, Node> nodeMap) {
         Long id = reference.getNodeId();
         String output = reference.getOutputName();
 
@@ -87,7 +94,7 @@ public class NodeProcessorService {
                     + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
         }
 
-        return nodeCacheService.get(sceneId + ":" + id).get(output);
+        return nodeCacheService.get(taskId + ":" + id + ":output").get(output);
     }
 
     private Object castTypes(Node node, Object value, ParameterType requiredType, boolean createDump) {
@@ -100,12 +107,22 @@ public class NodeProcessorService {
             case DOUBLE -> value instanceof Number ? ((Number) value).doubleValue() : (double) value;
             case STRING -> (String) value;
             case FILEPATH_ARRAY -> {
-                List<String> files = new ArrayList<>();
-                for (String file: (List<String>) value) {
-                    if (createDump) {
-                        files.add(node.getFileHelper().createDump(file));
-                    } else {
-                        files.add(file);
+                HashSet<String> files = new HashSet<>();
+                // Accept any Collection<String>, not just HashSet
+                if (value instanceof Collection<?>) {
+                    for (Object item : (Collection<?>) value) {
+                        if (item instanceof String file) {
+                            if (createDump) {
+                                files.add(node.getFileHelper().createDump(file));
+                            } else {
+                                files.add(file);
+                            }
+                        } else {
+                            throw new InvalidNodeParameter(
+                                    "Invalid file path: expected String but got " +
+                                            (item != null ? item.getClass().getSimpleName() : "null")
+                            );
+                        }
                     }
                 }
                 yield files;
@@ -115,7 +132,7 @@ public class NodeProcessorService {
     }
 
     private void resolveInputs(Node node,
-                               Long sceneId,
+                               Long taskId,
                                Map<Long, Node> nodeMap,
                                boolean createDump) {
         Map<String, Object> resolvedInputs = new HashMap<>();
@@ -132,14 +149,14 @@ public class NodeProcessorService {
                 }
             }
 
-            resolvedInputs.put(key, resolveInput(node, sceneId, key, nodeMap, createDump));
+            resolvedInputs.put(key, resolveInput(node, taskId, key, nodeMap, createDump));
         }
 
         node.setInputs(resolvedInputs);
     }
 
     private Object resolveInput(Node node,
-                                Long sceneId,
+                                Long taskId,
                                 String key,
                                 Map<Long, Node> nodeMap,
                                 boolean createDump) {
@@ -147,7 +164,7 @@ public class NodeProcessorService {
         ParameterType requiredType = node.getInputTypes().get(key);
 
         if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, sceneId, nodeMap);
+            input = resolveReference((NodeReference) input, taskId, nodeMap);
         }
 
         // Cast to required type
@@ -165,7 +182,7 @@ public class NodeProcessorService {
     }
 
     public UnmodifiableIterator<List<String>> partitionFileInput(Node node, int batchSize) {
-        List<String> files = (List<String>) node.getInputs().get("files");
+        HashSet<String> files = (HashSet<String>) node.getInputs().get("files");
         return Iterators.partition(files.iterator(), batchSize);
     }
 }

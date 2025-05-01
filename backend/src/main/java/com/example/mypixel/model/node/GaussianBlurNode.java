@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 
@@ -44,7 +44,7 @@ public class GaussianBlurNode extends Node {
 
     @Override
     public Map<String, Object> exec() {
-        List<String> files = (List<String>) inputs.get("files");
+        HashSet<String> files = (HashSet<String>) inputs.get("files");
         Map<String, Object> outputs;
 
         int sizeX = (int) inputs.get("sizeX");

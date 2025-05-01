@@ -22,14 +22,16 @@ public abstract class Node {
     @Setter(AccessLevel.NONE)
     Long id;
 
-    FileHelper fileHelper;
-
     @NonNull
     @Setter(AccessLevel.NONE)
     String type;
 
     @JsonDeserialize(contentUsing = InputDeserializer.class)
     Map<String, Object> inputs;
+
+    FileHelper fileHelper;
+
+    boolean cacheable = true;
 
     @JsonCreator
     public Node(

@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +59,7 @@ public class S3InputNode extends Node {
         String regionName = (String) inputs.get("region");
         String bucket = (String) inputs.get("bucket");
 
-        List<String> files = new ArrayList<>();
+        HashSet<String> files = new HashSet<>();
 
         AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
