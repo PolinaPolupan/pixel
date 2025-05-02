@@ -15,15 +15,13 @@ import java.util.regex.Pattern;
 public class FileHelper {
 
     FileService fileService;
-    StorageService storageService;
     Long taskId;
     Long sceneId;
     Node node;
 
     private final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");
 
-    public FileHelper(StorageService storageService, FileService fileService, Node node, Long sceneId, Long taskId) {
-        this.storageService = storageService;
+    public FileHelper(FileService fileService, Node node, Long sceneId, Long taskId) {
         this.fileService = fileService;
         this.sceneId = sceneId;
         this.taskId = taskId;
@@ -35,37 +33,36 @@ public class FileHelper {
         String filename = extractFilename(file.getName());
         String relativePath = extractPath(file.getName());
 
-        if (prefix != null && !prefix.isBlank()) {
-            filename = addPrefixToFilename(filename, prefix);
-        }
-        if (folder != null) {
-            relativePath = folder + "/" + relativePath;
-        }
+        if (prefix != null && !prefix.isBlank()) filename = addPrefixToFilename(filename, prefix);
+        if (folder != null) relativePath = folder + "/" + relativePath;
 
-        if (!storageService.folderExists("scenes/" + sceneId + "/output/" + relativePath)) {
-            storageService.createFolder("scenes/" + sceneId + "/output/" + relativePath);
-        }
+        fileService.createFolder("scenes/" + sceneId + "/output/" + relativePath);
 
-        storageService.store(storageService.loadAsResource(file.getRelativeStoragePath()),
-                "scenes/" + sceneId + "/output/" + relativePath + filename);
+        FileMetadata outputFile = FileMetadata.builder()
+                .name(filename)
+                .relativeStoragePath("scenes/" + sceneId + "/output/" + relativePath + filename)
+                .storagePath(fileService.getRootLocation() + "/scenes/" + sceneId + "/output/" + relativePath + filename)
+                .build();
 
-        return getFullPath("scenes/" + sceneId + "/output/" + relativePath + filename);
+        fileService.store(fileService.loadAsResource(file.getRelativeStoragePath()), outputFile);
+
+        return outputFile.getId().toString();
     }
 
     public String storeToTemp(InputStream in, String filepath) {
         String path = "tasks/" + taskId + "/" + node.getId() + "/" + extractPath(filepath);
 
-        if (!storageService.folderExists(path)) {
-            storageService.createFolder(path);
-        }
+        fileService.createFolder(path);
 
-        storageService.store(in, path + extractFilename(filepath));
+        FileMetadata file = FileMetadata.builder()
+                .name(extractFilename(filepath))
+                .relativeStoragePath(path + extractFilename(filepath))
+                .storagePath(fileService.getRootLocation() + "/" + path + extractFilename(filepath))
+                .build();
 
-        return getFullPath(path + extractFilename(filepath));
-    }
+        fileService.store(in, file);
 
-    public String getFullPath(String filepath) {
-        return storageService.load(filepath).toString();
+        return file.getId().toString();
     }
 
     public String createDump(String id) {
@@ -75,17 +72,15 @@ public class FileHelper {
         String actualFilename = file.getName();
         String outputPath = "tasks/" + taskId + "/" + node.getId() + "/" + extractPath(actualFilename);
 
-        if (!storageService.folderExists(outputPath)) {
-            storageService.createFolder(outputPath);
-        }
+        fileService.createFolder(outputPath);
 
-        Resource resource = storageService.loadAsResource(filepath);
+        Resource resource = fileService.loadAsResource(filepath);
         if (resource != null) {
             String outputFilePath = outputPath + extractFilename(actualFilename);
             FileMetadata newFile = FileMetadata.builder()
                     .name(actualFilename)
                     .relativeStoragePath(outputFilePath)
-                    .storagePath(storageService.getRootLocation() + "/" + outputFilePath)
+                    .storagePath(fileService.getRootLocation() + "/" + outputFilePath)
                     .build();
             fileService.store(resource, newFile);
 
