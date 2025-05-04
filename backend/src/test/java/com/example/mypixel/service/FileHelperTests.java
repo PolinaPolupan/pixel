@@ -261,4 +261,17 @@ public class FileHelperTests {
             assertThrows(StorageException.class, () -> fileHelper.createDump(filepath));
         }
     }
+
+    @Test
+    void getFullPathShouldCallStorageServiceLoad() {
+        String filepath = "scene123/input/picture.jpg";
+        Path fullPath = Paths.get("/root/path/123/input/picture.jpg");
+
+        when(storageService.load(filepath)).thenReturn(fullPath);
+
+        String result = fileHelper.getFullPath(filepath);
+
+        verify(storageService).load(filepath);
+        assertEquals(fullPath.toString(), result);
+    }
 }
