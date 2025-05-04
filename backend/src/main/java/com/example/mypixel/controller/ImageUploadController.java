@@ -13,8 +13,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.example.mypixel.exception.InvalidImageFormat;
-import com.example.mypixel.model.FileMetadata;
-import com.example.mypixel.service.FileService;
 import com.example.mypixel.service.SceneService;
 import com.example.mypixel.service.StorageService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +33,6 @@ public class ImageUploadController {
 
     private final SceneService sceneService;
     private final StorageService storageService;
-    private final FileService fileService;
 
     @GetMapping(path = "/input/list", produces = "application/json")
     public List<String> listUploadedFiles(@PathVariable String sceneId,
@@ -58,7 +55,7 @@ public class ImageUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filepath) {
         sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        Resource file = storageService.loadAsResource("scenes/" + sceneId + "/input/" + filepath);
+        Resource file = storageService.loadAsResource("scenes/" +sceneId + "/input/" + filepath);
 
         return getResourceResponseEntity(file);
     }
@@ -97,24 +94,18 @@ public class ImageUploadController {
     }
 
     @PostMapping("/input")
-    public ResponseEntity<List<UUID>> handleFileUpload(
-            @PathVariable String sceneId,
-            @RequestParam("file") List<MultipartFile> files) throws IOException {
-        List<UUID> ids = new ArrayList<>();
+    public ResponseEntity<List<String>> handleFileUpload(@PathVariable String sceneId,
+                                                                      @RequestParam("file") List<MultipartFile> files) throws IOException {
+
+        List<String> locations = new ArrayList<>();
         String basePath = "scenes/" + sceneId + "/input/";
 
         for (MultipartFile file: files) {
             String contentType = file.getContentType();
             switch (Objects.requireNonNull(contentType)) {
                 case "image/jpeg", "image/png": {
-                    FileMetadata fileMetadata = FileMetadata
-                            .builder()
-                            .name(file.getOriginalFilename())
-                            .relativeStoragePath(basePath + file.getOriginalFilename())
-                            .storagePath(storageService.getRootLocation() + "/" + basePath + file.getOriginalFilename())
-                            .build();
-                    fileService.store(file, fileMetadata);
-                    ids.add(fileMetadata.getId());
+                    storageService.store(file, basePath + file.getOriginalFilename());
+                    locations.add(storageService.load(basePath + file.getOriginalFilename()).toString());
                     break;
                 }
                 case "application/zip", "application/x-zip-compressed": {
@@ -139,14 +130,8 @@ public class ImageUploadController {
                             if (!extension.equals("png") && !extension.equals("jpeg") && !extension.equals("jpg")) {
                                 log.warn("Couldn't process file {}. Only JPEG, PNG and ZIP files are allowed", entry.getName());
                             } else {
-                                FileMetadata fileMetadata = FileMetadata
-                                        .builder()
-                                        .name(entry.getName())
-                                        .relativeStoragePath(basePath + zipFolderName + "/" + entry.getName())
-                                        .storagePath(storageService.getRootLocation() + "/" + basePath + zipFolderName + "/" + entry.getName())
-                                        .build();
-                                fileService.store(inputStream, fileMetadata);
-                                ids.add(fileMetadata.getId());
+                                storageService.store(inputStream, basePath + zipFolderName + "/" + entry.getName());
+                                locations.add(storageService.load(basePath + zipFolderName + "/" + entry.getName()).toString());
                             }
                         }
                     }
@@ -157,6 +142,6 @@ public class ImageUploadController {
             }
         }
 
-        return new ResponseEntity<>(ids, HttpStatus.CREATED);
+        return new ResponseEntity<>(locations, HttpStatus.CREATED);
     }
 }
