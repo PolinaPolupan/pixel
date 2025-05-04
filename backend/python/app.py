@@ -17,7 +17,7 @@ def main():
         "processing_time": 1.25
     }
 
-    with open(args.output, 'w') as f:
+    with open(args.output, 'a') as f:
         json.dump(results, f)
 
     return 0

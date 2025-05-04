@@ -34,40 +34,18 @@ public class ImageUploadController {
     private final SceneService sceneService;
     private final StorageService storageService;
 
-    @GetMapping(path = "/input/list", produces = "application/json")
+    @GetMapping(path = "/list", produces = "application/json")
     public List<String> listUploadedFiles(@PathVariable String sceneId,
                                           @RequestParam(required = false, defaultValue = "") String folder) {
         sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        return storageService.loadAll("scenes/" + sceneId + "/input/" + folder).map(Path::toString).collect(Collectors.toList());
+        return storageService.loadAll("scenes/" + sceneId + "/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
-    @GetMapping(path = "/output/list", produces = "application/json")
-    public List<String> listOutputFiles(@PathVariable String sceneId,
-                                        @RequestParam(required = false, defaultValue = "") String folder) {
-        sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        return storageService.loadAll("scenes/" + sceneId + "/output/" + folder).map(Path::toString).collect(Collectors.toList());
-    }
-
-    @GetMapping(path ="/input/file", produces = {
-            MediaType.IMAGE_PNG_VALUE,
-            MediaType.IMAGE_JPEG_VALUE
-    })
+    @GetMapping(path ="/file")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filepath) {
         sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        Resource file = storageService.loadAsResource("scenes/" +sceneId + "/input/" + filepath);
-
-        return getResourceResponseEntity(file);
-    }
-
-    @GetMapping(path = "/output/file", produces = {
-            MediaType.IMAGE_PNG_VALUE,
-            MediaType.IMAGE_JPEG_VALUE
-    })
-    @ResponseBody
-    public ResponseEntity<Resource> serveOutputFile(@PathVariable String sceneId, @RequestParam String filepath) {
-        sceneService.updateLastAccessed(Long.valueOf(sceneId));
-        Resource file = storageService.loadAsResource("scenes/" +sceneId + "/output/" + filepath);
+        Resource file = storageService.loadAsResource("scenes/" + sceneId + "/" + filepath);
 
         return getResourceResponseEntity(file);
     }
