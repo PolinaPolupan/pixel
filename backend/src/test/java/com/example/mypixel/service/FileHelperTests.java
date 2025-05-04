@@ -87,37 +87,6 @@ public class FileHelperTests {
             String filepath = "Picture.jpeg";
             assertEquals("", fileHelper.extractPath(filepath));
         }
-
-        @Test
-        void shouldExtractPathAfterInput() {
-            String filepath = "scenes/" + SCENE_ID + "/input/pic/Picture.jpeg";
-            assertEquals("pic/", fileHelper.extractRelativeWorkspacePath(filepath));
-        }
-
-        @Test
-        void shouldExtractPathAfterId() {
-            String filepath = "tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture.jpeg";
-            assertEquals("output/", fileHelper.extractRelativeWorkspacePath(filepath));
-        }
-
-
-        @Test
-        void shouldHandleMultipleSubfoldersAfterInput() {
-            String filepath = "scenes/" + SCENE_ID + "/input/folder1/folder2/Picture.jpeg";
-            assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
-        }
-
-        @Test
-        void shouldHandleMultipleSubfoldersAfter() {
-            String filepath = "tasks/" + TASK_ID + "/" + NODE_ID + "/folder1/folder2/Picture.jpeg";
-            assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
-        }
-
-        @Test
-        void shouldHandleInputAsLastSegment() {
-            String filepath = "scenes" + SCENE_ID + "/input";
-            assertEquals("", fileHelper.extractRelativeWorkspacePath(filepath));
-        }
     }
 
     @Nested
@@ -291,18 +260,5 @@ public class FileHelperTests {
 
             assertThrows(StorageException.class, () -> fileHelper.createDump(filepath));
         }
-    }
-
-    @Test
-    void getFullPathShouldCallStorageServiceLoad() {
-        String filepath = "scene123/input/picture.jpg";
-        Path fullPath = Paths.get("/root/path/123/input/picture.jpg");
-
-        when(storageService.load(filepath)).thenReturn(fullPath);
-
-        String result = fileHelper.getFullPath(filepath);
-
-        verify(storageService).load(filepath);
-        assertEquals(fullPath.toString(), result);
     }
 }

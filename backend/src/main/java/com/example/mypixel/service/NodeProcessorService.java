@@ -21,7 +21,7 @@ public class NodeProcessorService {
 
     private final AutowireCapableBeanFactory beanFactory;
     private final NodeCacheService nodeCacheService;
-    private final StorageService storageService;
+    private final FileService fileService;
     private final Executor graphTaskExecutor;
 
     public void processNode(Node node,
@@ -30,7 +30,7 @@ public class NodeProcessorService {
                             int batchSize,
                             Map<Long, Node> nodeMap) {
         beanFactory.autowireBean(node);
-        FileHelper fileHelper = new FileHelper(storageService, node, sceneId, taskId);
+        FileHelper fileHelper = new FileHelper(fileService, node, sceneId, taskId);
         node.setFileHelper(fileHelper);
 
         log.info("Started node: {}", node.getId());
