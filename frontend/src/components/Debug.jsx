@@ -12,13 +12,12 @@ const DebugPanel = () => {
   return (
     <div
       style={{
-        position: 'fixed',
         top: 10,
         right: 10,
         width: '300px',
         maxHeight: '80vh',
         overflowY: 'auto',
-        background: '#fff',
+
         border: '1px solid #ccc',
         borderRadius: '5px',
         padding: '10px',

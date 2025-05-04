@@ -7,6 +7,8 @@ import S3Input from '../components/nodes/S3Input';
 import S3Output from '../components/nodes/S3Output';
 import String from '../components/nodes/String';
 import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline } from 'react-icons/io5';
+import Classifier from "../components/nodes/Classifier.jsx";
+import OutputFile from "../components/nodes/OutputFile.jsx";
 
 const InputIcon = ({ theme }) => (
   <div
@@ -256,6 +258,37 @@ export const nodesConfig = {
     },
     handles: {
       value: { target: 'STRING', source: 'STRING' }
+    }
+  },
+  Classifier: {
+    component: Classifier,
+    display: {
+      description: 'Classifier',
+      color: '#81C784',
+      icon: StringBadge
+    },
+    defaultData: {
+        files: []
+    },
+    handles: {
+        files: { target: 'FILENAMES_ARRAY' },
+        json: { source: 'STRING' }
+    }
+  },
+  OutputFile: {
+    component: OutputFile,
+    display: {
+        description: 'OutputFile',
+        color: '#81C784',
+        icon: StringBadge
+    },
+    defaultData: {
+        filename: "new.txt",
+        content: ""
+    },
+    handles: {
+        filename: { target: 'STRING' },
+        content: { target: 'STRING' }
     }
   }
 };

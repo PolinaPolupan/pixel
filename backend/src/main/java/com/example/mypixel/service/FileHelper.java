@@ -6,8 +6,12 @@ import com.google.common.base.Splitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +31,45 @@ public class FileHelper {
         this.sceneId = sceneId;
         this.taskId = taskId;
         this.node = node;
+    }
+
+    public void delete(File file) {
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    delete(f);
+                }
+            }
+        }
+        storageService.delete(file.getAbsolutePath());
+    }
+
+    public File createTempJson() {
+        String path = "tasks/" + taskId + "/" + node.getId();
+
+        if (!storageService.folderExists(path)) {
+            storageService.createFolder(path);
+        }
+
+        return new File(storageService.getRootLocation() + "/" + path + "/temp.json");
+    }
+
+    public void storeFile(String filepath, String content) {
+        String path = "scenes/" + sceneId + "/" + extractPath(filepath);
+
+        if (!storageService.folderExists(path)) {
+            storageService.createFolder(path);
+        }
+
+        String fullPath = storageService.getRootLocation() + "/" + path + "/" + extractFilename(filepath);
+
+        try {
+            Files.write(Paths.get(fullPath), content.getBytes(),
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            log.error("Error writing to file: {}", e.getMessage());
+        }
     }
 
     public String storeToOutput(String filepath, String folder, String prefix) {

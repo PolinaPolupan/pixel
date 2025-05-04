@@ -175,7 +175,6 @@ function AppContent() {
                 fitView
             >
                 <Background variant="dots" gap={12} size={1} />
-
                 <Panel position="top-center">
                     <div style={{
                         padding: '8px 12px',
@@ -198,6 +197,9 @@ function AppContent() {
           </span>
                     </div>
                 </Panel>
+                {/*<Panel position="top-center" style={{ margin: '16px' }}>*/}
+                {/*    <DebugPanel />*/}
+                {/*</Panel>*/}
 
                 <Panel position="bottom-center" style={{ margin: '16px' }}>
                     <div style={{
