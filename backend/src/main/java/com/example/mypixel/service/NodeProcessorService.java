@@ -3,16 +3,12 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.*;
 import com.example.mypixel.model.node.Node;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.UnmodifiableIterator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 @RequiredArgsConstructor
 @Component
@@ -22,61 +18,27 @@ public class NodeProcessorService {
     private final AutowireCapableBeanFactory beanFactory;
     private final NodeCacheService nodeCacheService;
     private final StorageService storageService;
-    private final Executor graphTaskExecutor;
+    private final BatchProcessor batchProcessor;
 
     public void processNode(Node node,
                             Long sceneId,
                             Long taskId,
-                            int batchSize,
                             Map<Long, Node> nodeMap) {
         beanFactory.autowireBean(node);
         FileHelper fileHelper = new FileHelper(storageService, node, sceneId, taskId);
         node.setFileHelper(fileHelper);
+        node.setBatchProcessor(batchProcessor);
 
         log.info("Started node: {}", node.getId());
 
-        resolveInputs(node, taskId, nodeMap, false);
+        resolveInputs(node, taskId, nodeMap);
         node.validate();
 
         String outputKey = taskId + ":" + node.getId() + ":output";
         String inputKey = taskId + ":" + node.getId() + ":input";
 
         nodeCacheService.put(inputKey, node.getInputs());
-
-        if (node.getInputs().containsKey("files")) {
-            HashSet<String> outputFiles = new HashSet<>();
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-            partitionFileInput(node, batchSize)
-                    .forEachRemaining(batch ->
-                            futures.add(CompletableFuture.runAsync(() -> {
-                                BatchNodeWrapper wrapper = new BatchNodeWrapper(node, node.getInputs());
-                                log.debug("Processing batch with size: {}", batch.size());
-                                wrapper.getInputs().put("files", batch);
-
-                                resolveInputs(node, sceneId, nodeMap, true);
-
-                                Map<String, Object> outputs = wrapper.exec();
-                                Map<String, Object> mutableOutputs = new HashMap<>(outputs);
-                                nodeCacheService.put(outputKey, mutableOutputs);
-
-                                if (wrapper.getOutputTypes().containsKey("files")) {
-                                    outputFiles.addAll((HashSet<String>) outputs.get("files"));
-                                }
-                            }, graphTaskExecutor))
-                    );
-
-            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            allOf.join();
-
-            if (node.getOutputTypes().containsKey("files")) {
-                Map<String, Object> outputs = nodeCacheService.get(outputKey);
-                outputs.put("files", outputFiles);
-                nodeCacheService.put(outputKey, outputs);
-            }
-        } else {
-            resolveInputs(node, sceneId, nodeMap, true);
-            nodeCacheService.put(outputKey, node.exec());
-        }
+        nodeCacheService.put(outputKey, node.exec());
     }
 
     private Object resolveReference(NodeReference reference, Long taskId, Map<Long, Node> nodeMap) {
@@ -97,7 +59,7 @@ public class NodeProcessorService {
         return nodeCacheService.get(taskId + ":" + id + ":output").get(output);
     }
 
-    private Object castTypes(Node node, Object value, ParameterType requiredType, boolean createDump) {
+    private Object castTypes(Node node, Object value, ParameterType requiredType) {
         if (value == null) {
             throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
         }
@@ -108,22 +70,20 @@ public class NodeProcessorService {
             case STRING -> (String) value;
             case FILEPATH_ARRAY -> {
                 HashSet<String> files = new HashSet<>();
-                // Accept any Collection<String>, not just HashSet
                 if (value instanceof Collection<?>) {
-                    for (Object item : (Collection<?>) value) {
-                        if (item instanceof String file) {
-                            if (createDump) {
-                                files.add(node.getFileHelper().createDump(file));
-                            } else {
-                                files.add(file);
+                    batchProcessor.processBatches(
+                            (Collection<?>) value,
+                            item -> {
+                                if (item instanceof String file) {
+                                    files.add(node.getFileHelper().createDump(file));
+                                } else {
+                                    throw new InvalidNodeParameter(
+                                            "Invalid file path: expected String but got " +
+                                                    (item != null ? item.getClass().getSimpleName() : "null")
+                                    );
+                                }
                             }
-                        } else {
-                            throw new InvalidNodeParameter(
-                                    "Invalid file path: expected String but got " +
-                                            (item != null ? item.getClass().getSimpleName() : "null")
-                            );
-                        }
-                    }
+                    );
                 }
                 yield files;
             }
@@ -133,8 +93,7 @@ public class NodeProcessorService {
 
     private void resolveInputs(Node node,
                                Long taskId,
-                               Map<Long, Node> nodeMap,
-                               boolean createDump) {
+                               Map<Long, Node> nodeMap) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputTypes().keySet()) {
@@ -149,7 +108,7 @@ public class NodeProcessorService {
                 }
             }
 
-            resolvedInputs.put(key, resolveInput(node, taskId, key, nodeMap, createDump));
+            resolvedInputs.put(key, resolveInput(node, taskId, key, nodeMap));
         }
 
         node.setInputs(resolvedInputs);
@@ -158,8 +117,7 @@ public class NodeProcessorService {
     private Object resolveInput(Node node,
                                 Long taskId,
                                 String key,
-                                Map<Long, Node> nodeMap,
-                                boolean createDump) {
+                                Map<Long, Node> nodeMap) {
         Object input = node.getInputs().get(key);
         ParameterType requiredType = node.getInputTypes().get(key);
 
@@ -169,7 +127,7 @@ public class NodeProcessorService {
 
         // Cast to required type
         try {
-            input = castTypes(node, input, requiredType, createDump);
+            input = castTypes(node, input, requiredType);
         } catch (ClassCastException e) {
             throw new InvalidNodeParameter(
                     "Invalid input parameter '" + key + "' to the node with id " +
@@ -179,10 +137,5 @@ public class NodeProcessorService {
         }
 
         return input;
-    }
-
-    public UnmodifiableIterator<List<String>> partitionFileInput(Node node, int batchSize) {
-        HashSet<String> files = (HashSet<String>) node.getInputs().get("files");
-        return Iterators.partition(files.iterator(), batchSize);
     }
 }

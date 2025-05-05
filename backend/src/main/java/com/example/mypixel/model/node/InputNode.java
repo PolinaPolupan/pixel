@@ -32,10 +32,7 @@ public class InputNode extends Node {
     @Override
     public Map<String, Object> exec() {
         HashSet<String> files = (HashSet<String>) inputs.get("files");
-        Map<String, Object> outputs;
-        outputs = Map.of("files", files);
-
-        return outputs;
+        return Map.of("files", files);
     }
 
     @Override

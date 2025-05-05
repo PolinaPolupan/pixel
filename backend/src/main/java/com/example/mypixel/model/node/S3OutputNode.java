@@ -63,8 +63,8 @@ public class S3OutputNode extends Node {
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build()) {
 
-            for (String filepath: files) {
-                String filename = fileHelper.extractFilename(filepath);
+            batchProcessor.processBatches(files, file -> {
+                String filename = fileHelper.extractFilename(file);
                 Map<String, String> metadata = new HashMap<>();
 
                 s3Client.putObject(request ->
@@ -72,8 +72,8 @@ public class S3OutputNode extends Node {
                                         .bucket(bucket)
                                         .key(folder + "/" + filename)
                                         .metadata(metadata),
-                                        Path.of(filepath));
-            }
+                        Path.of(file));
+            });
         }
 
         return outputs;

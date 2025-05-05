@@ -21,10 +21,9 @@ public class GraphController {
     @PostMapping
     public ResponseEntity<GraphExecutionTask> executeGraph(
             @PathVariable Long sceneId,
-            @RequestBody String graphJson,
-            @RequestParam(defaultValue = "50", required = false) int batchSize) throws JsonProcessingException {
+            @RequestBody String graphJson) throws JsonProcessingException {
         Graph graph = graphObjectMapper.readValue(graphJson, Graph.class);
-        GraphExecutionTask task = graphService.startGraphExecution(graph, sceneId, batchSize);
+        GraphExecutionTask task = graphService.startGraphExecution(graph, sceneId);
         return ResponseEntity.ok(task);
     }
 }

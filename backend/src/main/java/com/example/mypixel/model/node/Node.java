@@ -2,6 +2,7 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.InputDeserializer;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.service.BatchProcessor;
 import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,6 +31,8 @@ public abstract class Node {
     Map<String, Object> inputs;
 
     FileHelper fileHelper;
+
+    BatchProcessor batchProcessor;
 
     boolean cacheable = true;
 

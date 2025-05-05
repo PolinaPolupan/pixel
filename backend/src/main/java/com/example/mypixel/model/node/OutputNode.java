@@ -42,9 +42,8 @@ public class OutputNode extends Node {
 
         Map<String, Object> outputs = Map.of();
 
-        for (String filepath: files) {
-            fileHelper.storeToOutput(filepath, folder, prefix);
-        }
+        batchProcessor.processBatches(files,
+                filepath -> fileHelper.storeToOutput(filepath, folder, prefix));
 
         return outputs;
     }
