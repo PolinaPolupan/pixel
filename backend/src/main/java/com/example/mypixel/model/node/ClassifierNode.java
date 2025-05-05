@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -46,23 +47,26 @@ public class ClassifierNode extends Node {
 
         File outputFile = fileHelper.createTempJson();
 
-        for (String filepath : files) {
-            executeScript(filepath, outputFile, outputs);
-        }
+        batchProcessor.processBatchesList(files, file ->
+            executeScript(file, outputFile, outputs)
+        );
 
         return outputs;
     }
 
-    private void executeScript(String filepath,
+    private void executeScript(List<String> files,
                                File outputFile,
                                Map<String, Object> outputs) {
         try {
+            String filesString = String.join(",", files);
+
             ProcessBuilder pb = new ProcessBuilder(
                     PYTHON_EXECUTABLE,
                     PYTHON_SCRIPT_PATH,
-                    "--input", filepath,
+                    "--input", filesString,
                     "--output", outputFile.getAbsolutePath()
             );
+
             pb.redirectErrorStream(true);
 
             Process process = pb.start();
@@ -81,7 +85,7 @@ public class ClassifierNode extends Node {
             outputs.put("json", jsonContent);
 
         } catch (Exception e) {
-            throw new RuntimeException("Error executing Python script for " + filepath, e);
+            throw new RuntimeException("Error executing Python script ", e);
         }
     }
 
