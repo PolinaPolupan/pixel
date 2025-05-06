@@ -10,6 +10,11 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
       FLYWAY_ENABLED: true
+    volumes:
+      - ./python:/app/python
+      - ./backend/build/libs:/app/libs
+      - ./backend/native/build:/app/native-libs
+    command: java -Djava.library.path=/app/native-libs -jar /app/libs/mypixel-0.0.1-SNAPSHOT.jar
   frontend:
     build:
       context: frontend

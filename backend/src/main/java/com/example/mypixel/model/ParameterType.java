@@ -15,7 +15,8 @@ public enum ParameterType {
     DOUBLE,
     STRING,
     STRING_ARRAY,
-    FILEPATH_ARRAY;
+    FILEPATH_ARRAY,
+    VECTOR2D;
 
     private boolean required = false;
 

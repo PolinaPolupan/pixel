@@ -6,6 +6,7 @@ export const getParameterColor = (parameterType) => {
       STRING: '#96ceb4', // Greenish
       STRING_ARRAY: '#ffeead', // Yellowish
       FILENAMES_ARRAY: '#d4a5a5', // Pinkish
+      VECTOR2D: '#f7a072' // Orange
     };
     return colorMap[parameterType] || '#cccccc'; // Default gray if unknown
   };

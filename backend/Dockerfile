@@ -19,11 +19,24 @@ EXPOSE 8080
 COPY native/build/*.so /app/native-libs/
 COPY build/libs/*.jar app.jar
 
+
 RUN python3 -m venv /app/venv
 
-COPY python/requirements.txt /app/python/
-RUN /app/venv/bin/pip install --no-cache-dir -r /app/python/requirements.txt
+ENV VIRTUAL_ENV=/app/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHONPATH="$VIRTUAL_ENV/lib/python3.12/site-packages"
+
+RUN pip install --upgrade pip && \
+    pip install poetry
+
+COPY python/pyproject.toml python/poetry.lock* /app/python/
+
+WORKDIR /app/python
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --no-root
 
 COPY python/ /app/python/
+
+WORKDIR /app
 
 CMD ["java", "-Djava.library.path=/app/native-libs", "-jar", "app.jar"]

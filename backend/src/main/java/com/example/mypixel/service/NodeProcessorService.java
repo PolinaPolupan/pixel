@@ -68,6 +68,7 @@ public class NodeProcessorService {
             case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
             case DOUBLE -> value instanceof Number ? ((Number) value).doubleValue() : (double) value;
             case STRING -> (String) value;
+            case VECTOR2D -> Vector2D.fromMap((Map<String, Object>) value);
             case FILEPATH_ARRAY -> {
                 HashSet<String> files = new HashSet<>();
                 if (value instanceof Collection<?>) {

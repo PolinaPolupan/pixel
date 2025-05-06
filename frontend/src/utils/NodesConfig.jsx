@@ -9,6 +9,12 @@ import String from '../components/nodes/String';
 import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline } from 'react-icons/io5';
 import Classifier from "../components/nodes/Classifier.jsx";
 import OutputFile from "../components/nodes/OutputFile.jsx";
+import MedianBlur from "../components/nodes/MedianBlur.jsx";
+import Vector2i from "../components/nodes/Vector2D.jsx";
+import Vector2D from "../components/nodes/Vector2D.jsx";
+import Blur from "../components/nodes/Blur.jsx";
+import BoxFilter from "../components/nodes/BoxFilter.jsx";
+import BilateralFilter from "../components/nodes/BilateralFilter.jsx";
 
 const InputIcon = ({ theme }) => (
   <div
@@ -163,6 +169,93 @@ export const nodesConfig = {
       sizeY: { target: 'INT' },
       sigmaX: { target: 'DOUBLE' },
       sigmaY: { target: 'DOUBLE' }
+    }
+  },
+BilateralFilter: {
+    component: BilateralFilter,
+    display: {
+        description: 'Apply bilateral filter',
+        color: '#FF8A65',
+        icon: BlurIcon
+    },
+    defaultData: {
+        files: [],
+        d: 1,
+        sigmaColor: 1,
+        sigmaSpace: 1
+    },
+    handles: {
+        files: { target: 'FILENAMES_ARRAY', source: 'FILENAMES_ARRAY' },
+        d: { target: 'INT' },
+        sigmaColor: { target: 'DOUBLE' },
+        sigmaSpace: { target: 'DOUBLE' }
+    }
+},
+MedianBlur: {
+    component: MedianBlur,
+    display: {
+        description: 'Apply median blur filter',
+        color: '#FF8A65',
+        icon: BlurIcon
+    },
+    defaultData: {
+        files: [],
+        ksize: 3
+    },
+    handles: {
+        files: { target: 'FILENAMES_ARRAY', source: 'FILENAMES_ARRAY' },
+        ksize: { target: 'INT' }
+    }
+},
+Blur: {
+    component: Blur,
+    display: {
+        description: 'Apply blur filter',
+        color: '#FF8A65',
+        icon: BlurIcon
+    },
+    defaultData: {
+        files: [],
+        ksize: null
+    },
+    handles: {
+        files: { target: 'FILENAMES_ARRAY', source: 'FILENAMES_ARRAY' },
+        ksize: { target: 'VECTOR2D' }
+    }
+},
+BoxFilter: {
+    component: BoxFilter,
+    display: {
+        description: 'Apply box filter',
+        color: '#FF8A65',
+        icon: BlurIcon
+    },
+    defaultData: {
+        files: [],
+        ddepth: -1,
+        ksize: null
+    },
+    handles: {
+        files: { target: 'FILENAMES_ARRAY', source: 'FILENAMES_ARRAY' },
+        ddepth: { target: 'INT' },
+        ksize: { target: 'VECTOR2D' }
+    }
+},
+Vector2D: {
+    component: Vector2D,
+    display: {
+        description: 'Vector2D',
+        color: '#FF8A65',
+        icon: BlurIcon
+    },
+    defaultData: {
+        x: 0,
+        y: 0
+    },
+    handles: {
+        x: { target: 'DOUBLE'},
+        y: { target: 'DOUBLE'},
+        vector2D: { source: 'VECTOR2D' }
     }
   },
   Combine: {

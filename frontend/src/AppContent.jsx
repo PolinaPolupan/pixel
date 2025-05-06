@@ -34,29 +34,6 @@ function AppContent() {
     const transformGraphData = useGraphTransformation();
     const { screenToFlowPosition, getNodes, addNodes, fitView } = useReactFlow();
     const [isProcessing, setIsProcessing] = useState(false);
-    const [batchSize, setBatchSize] = useState(50); // Default batchSize
-    const [batchSizeInput, setBatchSizeInput] = useState('50'); // Input value as string
-
-    const handleBatchSizeChange = (e) => {
-        const inputValue = e.target.value;
-        setBatchSizeInput(inputValue);
-
-        // Only update the actual batchSize if there's a valid number
-        if (inputValue.trim() !== '') {
-            const value = parseInt(inputValue, 10);
-            if (!isNaN(value)) {
-                setBatchSize(value);
-            }
-        }
-    };
-
-    // When input field loses focus, ensure a valid value
-    const handleBatchSizeBlur = () => {
-        if (batchSizeInput.trim() === '' || isNaN(parseInt(batchSizeInput, 10))) {
-            setBatchSizeInput('50');
-            setBatchSize(50);
-        }
-    };
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(() => {
@@ -99,7 +76,7 @@ function AppContent() {
         try {
             const graphData = transformGraphData();
 
-            const response = await fetch(`http://localhost:8080/v1/scene/${sceneId}/graph?batchSize=${batchSize}`, {
+            const response = await fetch(`http://localhost:8080/v1/scene/${sceneId}/graph`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(graphData),
@@ -192,14 +169,12 @@ function AppContent() {
                             borderRadius: '50%',
                             backgroundColor: '#4caf50'
                         }} />
-                        <span>
-            Scene: {sceneId ? String(sceneId).substring(0, 8) + '...' : 'Loading...'}
-          </span>
+                        <span>Scene: {sceneId ? String(sceneId).substring(0, 8) + '...' : 'Loading...'}</span>
                     </div>
                 </Panel>
-                {/*<Panel position="top-center" style={{ margin: '16px' }}>*/}
-                {/*    <DebugPanel />*/}
-                {/*</Panel>*/}
+                <Panel position="right-center" style={{ margin: '16px' }}>
+                    <DebugPanel />
+                </Panel>
 
                 <Panel position="bottom-center" style={{ margin: '16px' }}>
                     <div style={{
@@ -223,35 +198,6 @@ function AppContent() {
                     </div>
                 </Panel>
 
-                <Panel position="bottom-right">
-                    <div style={{
-                      padding: '8px 12px',
-                      background: 'rgba(0, 0, 0, 0)',
-                      borderRadius: '4px',
-                      color: 'white',
-                      fontSize: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}>
-                      <label htmlFor="batchSize">Batch Size:</label>
-                      <div style={{ position: 'relative', display: 'inline-block' }}>
-                        <input
-                          id="batchSize"
-                          type="text"
-                          className="text-field"
-                          value={batchSizeInput}
-                          onChange={handleBatchSizeChange}
-                          onBlur={handleBatchSizeBlur}
-                          style={{
-                            width: `100px`,
-                            textAlign: 'left',
-                            minWidth: '100px'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </Panel>
                 {error && (
                     <Panel position="top-center">
                         <NotificationPanel type="error" message={error} onDismiss={clearError} />

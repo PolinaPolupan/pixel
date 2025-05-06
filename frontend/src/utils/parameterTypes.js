@@ -6,7 +6,8 @@ const typeCastingRules = {
   'DOUBLE': ['FLOAT', 'INT'],
   'STRING': [],
   'FILENAMES_ARRAY': [],
-  'STRING_ARRAY': []
+  'STRING_ARRAY': [],
+  'VECTOR2D': []
 };
 
 export const getHandleParameterType = (nodeType, handleId, handleType) => {

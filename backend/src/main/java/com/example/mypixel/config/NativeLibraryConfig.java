@@ -1,6 +1,6 @@
 package com.example.mypixel.config;
 
-import com.example.mypixel.service.FilteringService;
+import com.example.mypixel.service.FilteringServiceNative;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,7 +17,7 @@ public class NativeLibraryConfig {
     }
 
     @Bean
-    public FilteringService filteringService() {
-        return new FilteringService();
+    public FilteringServiceNative filteringServiceNative() {
+        return new FilteringServiceNative();
     }
 }
