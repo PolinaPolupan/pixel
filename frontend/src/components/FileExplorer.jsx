@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { useScene } from './SceneContext';
 import { IoReload, IoClose } from 'react-icons/io5';
@@ -126,29 +125,21 @@ const FileExplorer = ({ setError }) => {
   };
 
   const downloadAsZip = async () => {
-    const zip = new JSZip();
     try {
-      const addFilesToZip = async (nodes, folder = zip) => {
-        const promises = nodes.map(async (node) => {
-          if (node.type === 'file') {
-            const response = await fetch(node.url);
-            if (!response.ok) throw new Error(`Failed to fetch ${node.url}`);
-            const blob = await response.blob();
-            folder.file(node.path.split('/').pop(), blob);
-          } else if (node.type === 'folder') {
-            const subFolder = folder.folder(node.name);
-            await addFilesToZip(node.files.concat(node.folders), subFolder);
-          }
-        });
-        await Promise.all(promises);
-      };
+      const zipUrl = `http://localhost:8080/v1/scene/${sceneId}/zip`;
 
-      await addFilesToZip(items);
+      const response = await fetch(zipUrl);
 
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+      }
+
+      const zipBlob = await response.blob();
+
       saveAs(zipBlob, `scene_${sceneId}_files.zip`);
+
     } catch (err) {
-      setError('Failed to create ZIP: ' + err.message);
+      setError('Failed to download ZIP: ' + err.message);
     }
   };
 
