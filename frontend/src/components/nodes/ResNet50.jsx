@@ -4,16 +4,15 @@ import {
 
 import LabeledHandle from '../handles/LabeledHandle';
 import NodeHeader from '../NodeHeader';
-import InputHandle from '../handles/InputHandle';
 
-export default function Classifier({ id, data }) {
+export default function ResNet50({ id, data }) {
     const { updateNodeData } = useReactFlow();
 
     return (
         <div style={{
             minWidth: '100px'
         }}>
-            <NodeHeader title={"Classifier"}/>
+            <NodeHeader title={"ResNet50"}/>
             <LabeledHandle
                 label="Files"
                 type="target"

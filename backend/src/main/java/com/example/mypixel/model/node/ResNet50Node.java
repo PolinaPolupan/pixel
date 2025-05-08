@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@MyPixelNode("Classifier")
-public class ClassifierNode extends Node {
+@MyPixelNode("ResNet50")
+public class ResNet50Node extends Node {
 
     private static final String PYTHON_SCRIPT_PATH = "/app/python/app.py";
     private static final String PYTHON_EXECUTABLE = "python3";
 
     @JsonCreator
-    public ClassifierNode(
+    public ResNet50Node(
             @JsonProperty("id") @NonNull Long id,
             @JsonProperty("type") @NonNull String type,
             @JsonProperty("inputs") Map<String, Object> inputs) {

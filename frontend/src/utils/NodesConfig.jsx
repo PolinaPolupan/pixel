@@ -7,10 +7,9 @@ import S3Input from '../components/nodes/S3Input';
 import S3Output from '../components/nodes/S3Output';
 import String from '../components/nodes/String';
 import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline } from 'react-icons/io5';
-import Classifier from "../components/nodes/Classifier.jsx";
+import ResNet50 from "../components/nodes/ResNet50.jsx";
 import OutputFile from "../components/nodes/OutputFile.jsx";
 import MedianBlur from "../components/nodes/MedianBlur.jsx";
-import Vector2i from "../components/nodes/Vector2D.jsx";
 import Vector2D from "../components/nodes/Vector2D.jsx";
 import Blur from "../components/nodes/Blur.jsx";
 import BoxFilter from "../components/nodes/BoxFilter.jsx";
@@ -353,10 +352,10 @@ Vector2D: {
       value: { target: 'STRING', source: 'STRING' }
     }
   },
-  Classifier: {
-    component: Classifier,
+  ResNet50: {
+    component: ResNet50,
     display: {
-      description: 'Classifier',
+      description: 'ResNet50',
       color: '#81C784',
       icon: StringBadge
     },
