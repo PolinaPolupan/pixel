@@ -20,13 +20,34 @@ public class InputNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "IO";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of("files", ParameterType.FILEPATH_ARRAY.required());
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "files", new HashSet<String>()
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Input files",
+                "color", "#AED581",
+                "icon", "InputIcon"
+        );
     }
 
     @Override

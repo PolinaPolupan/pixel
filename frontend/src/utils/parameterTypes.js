@@ -1,28 +1,45 @@
-import { nodesConfig } from './NodesConfig';
+import React, { useMemo } from 'react';
+import { useNodesConfig } from './NodesConfig';
 
-const typeCastingRules = {
-  'INT': ['FLOAT', 'DOUBLE'],
-  'FLOAT': ['DOUBLE', 'INT'],
-  'DOUBLE': ['FLOAT', 'INT'],
-  'STRING': [],
-  'FILENAMES_ARRAY': [],
-  'STRING_ARRAY': [],
-  'VECTOR2D': []
-};
 
-export const getHandleParameterType = (nodeType, handleId, handleType) => {
-  return nodesConfig[nodeType]?.handles?.[handleId]?.[handleType] || null;
-};
+export function useHandleTypes() {
+  const { nodesConfig, isLoading, error } = useNodesConfig();
 
-export const canCastType = (sourceType, targetType) => {
-  if (sourceType === targetType) return true;
+  const typeCastingRules = {
+    'INT': ['FLOAT', 'DOUBLE'],
+    'FLOAT': ['DOUBLE', 'INT'],
+    'DOUBLE': ['FLOAT', 'INT'],
+    'STRING': [],
+    'FILENAMES_ARRAY': [],
+    'STRING_ARRAY': [],
+    'VECTOR2D': []
+  };
 
-  const allowedTargets = typeCastingRules[sourceType] || [];
-  const canCast = allowedTargets.includes(targetType);
+  const getHandleParameterType = useMemo(() => {
+    return (nodeType, handleId, handleType) => {
+      return nodesConfig[nodeType]?.handles?.[handleId]?.[handleType] || null;
+    };
+  }, [nodesConfig]);
 
-  if (!canCast && sourceType && targetType) {
-    console.log(`Cannot cast ${sourceType} to ${targetType}`);
-  }
+  const canCastType = useMemo(() => {
+    return (sourceType, targetType) => {
+      if (sourceType === targetType) return true;
 
-  return canCast;
-};
+      const allowedTargets = typeCastingRules[sourceType] || [];
+      const canCast = allowedTargets.includes(targetType);
+
+      if (!canCast && sourceType && targetType) {
+        console.log(`Cannot cast ${sourceType} to ${targetType}`);
+      }
+
+      return canCast;
+    };
+  }, [typeCastingRules]);
+
+  return {
+    getHandleParameterType,
+    canCastType,
+    isLoading,
+    error
+  };
+}

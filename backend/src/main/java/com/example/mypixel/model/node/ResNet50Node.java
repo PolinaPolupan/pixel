@@ -31,13 +31,34 @@ public class ResNet50Node extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "ML";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of("files", ParameterType.FILEPATH_ARRAY.required());
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "files", new HashSet<String>()
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of("json", ParameterType.STRING);
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Run ResNet50 on images",
+                "color", "#81C784",
+                "icon", "ResNet50Icon"
+        );
     }
 
     @Override

@@ -20,18 +20,29 @@ public class CombineNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "IO";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files_0", ParameterType.FILEPATH_ARRAY.required(),
                 "files_1", ParameterType.FILEPATH_ARRAY.optional(),
                 "files_2", ParameterType.FILEPATH_ARRAY.optional(),
                 "files_3", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_4", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_5", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_6", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_7", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_8", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_9", ParameterType.FILEPATH_ARRAY.optional()
+                "files_4", ParameterType.FILEPATH_ARRAY.optional()
+        );
+    }
+
+    @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "files_0", new HashSet<String>(),
+                "files_1", new HashSet<String>(),
+                "files_2", new HashSet<String>(),
+                "files_3", new HashSet<String>(),
+                "files_4", new HashSet<String>()
         );
     }
 
@@ -41,10 +52,19 @@ public class CombineNode extends Node {
     }
 
     @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Combine multiple data sources into a single source",
+                "color", "#AED581",
+                "icon", "CombineIcon"
+        );
+    }
+
+    @Override
     public Map<String, Object> exec() {
         HashSet<String> files = new HashSet<>();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             if (inputs.containsKey("files_" + i) && inputs.get("files_" + i) != null) {
                 HashSet<String> f = (HashSet<String>) inputs.get("files_" + i);
                 files.addAll(f);

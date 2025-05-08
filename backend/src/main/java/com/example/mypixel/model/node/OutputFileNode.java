@@ -19,6 +19,11 @@ public class OutputFileNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "IO";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "content", ParameterType.STRING.optional(),
@@ -27,8 +32,25 @@ public class OutputFileNode extends Node {
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "content", "",
+                "filename", "new.txt"
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of();
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Output to a file",
+                "color", "#AED581",
+                "icon", "OutputIcon"
+        );
     }
 
     @Override

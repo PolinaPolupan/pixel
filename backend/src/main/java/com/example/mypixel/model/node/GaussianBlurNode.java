@@ -27,6 +27,11 @@ public class GaussianBlurNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "Filtering";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files", ParameterType.FILEPATH_ARRAY.required(),
@@ -38,8 +43,28 @@ public class GaussianBlurNode extends Node {
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "files", new HashSet<String>(),
+                "sizeX", 3,
+                "sizeY", 3,
+                "sigmaX", 0.0,
+                "sigmaY", 0.0
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Blurs an image using a Gaussian kernel",
+                "color", "#FF8A65",
+                "icon", "BlurIcon"
+        );
     }
 
     @Override

@@ -19,6 +19,11 @@ public class Vector2DNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "Types";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "x", ParameterType.DOUBLE.required(), // Any numerical type can be used here
@@ -27,8 +32,25 @@ public class Vector2DNode extends Node {
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "x", 0.0,
+                "y", 0.0
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of("vector2D", ParameterType.VECTOR2D);
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Creates a 2D vector",
+                "color", "#FF8A65",
+                "icon", "Vector2DIcon"
+        );
     }
 
     @Override

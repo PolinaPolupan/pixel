@@ -19,13 +19,34 @@ public class FloorNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "Math";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of("number", ParameterType.DOUBLE.required());
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "number", 0.0
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of("number", ParameterType.DOUBLE);
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Returns the largest integer less than or equal to the input number.",
+                "color", "#BA68C8",
+                "icon", "FloorIcon"
+        );
     }
 
     @Override

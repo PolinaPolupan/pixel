@@ -15,13 +15,10 @@ import { NotificationPanel, NotificationKeyframes } from './components/Notificat
 import ContextMenu from './components/ContextMenu';
 import { PlayButton } from './components/PlayButton';
 import ProgressBar from './components/ProgressBar';
-import { getHandleParameterType, canCastType } from './utils/parameterTypes';
 import { useNotification } from './utils/useNotification';
 import { useGraphTransformation } from './utils/useGraphTransformation';
 import { useScene } from './components/SceneContext';
-import { nodeTypes } from './utils/nodeTypes';
-import { nodesConfig } from './utils/NodesConfig';
-
+import { useNodesApi } from './utils/useNodesApi';
 
 function AppContent() {
     const { sceneId } = useScene();
@@ -34,6 +31,24 @@ function AppContent() {
     const transformGraphData = useGraphTransformation();
     const { screenToFlowPosition, getNodes, addNodes, fitView } = useReactFlow();
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Use the unified API hook
+    const {
+        nodeTypes,
+        getHandleParameterType,
+        canCastType,
+        getDefaultData,
+        isLoading: configLoading,
+        error: configError,
+        isReady
+    } = useNodesApi();
+
+    // Set error if there's a problem loading node configurations
+    useEffect(() => {
+        if (configError) {
+            setError(`Failed to load node configurations: ${configError}`);
+        }
+    }, [configError, setError]);
 
     useEffect(() => {
         const resizeObserver = new ResizeObserver(() => {
@@ -65,7 +80,7 @@ function AppContent() {
         }
 
         return canCastType(sourceType, targetType);
-    }, [nodes]);
+    }, [nodes, getHandleParameterType, canCastType]);
 
     const onConnect = useCallback((params) => setEdges((els) => addEdge(params, els)), []);
 
@@ -95,6 +110,12 @@ function AppContent() {
     };
 
     const createNode = useCallback((type, position) => {
+        // Check if node config is available
+        if (!isReady) {
+            setError(`Cannot create node: ${configLoading ? 'Loading node configurations...' : 'Node configurations unavailable'}`);
+            return;
+        }
+
         const nodeIds = getNodes().map(node => parseInt(node.id));
         const newId = (Math.max(...nodeIds, 0) + 1).toString();
 
@@ -102,11 +123,12 @@ function AppContent() {
             id: newId,
             type,
             position,
-            data: nodesConfig[type].defaultData
+            // Use the utility function from the API
+            data: getDefaultData(type)
         };
 
         addNodes(newNode);
-    }, [getNodes, addNodes]);
+    }, [getNodes, addNodes, getDefaultData, isReady, configLoading, setError]);
 
     const onContextMenu = useCallback(
         (event) => {
@@ -167,9 +189,12 @@ function AppContent() {
                             width: '8px',
                             height: '8px',
                             borderRadius: '50%',
-                            backgroundColor: '#4caf50'
+                            backgroundColor: configLoading ? '#ffc107' : '#4caf50'
                         }} />
-                        <span>Scene: {sceneId ? String(sceneId).substring(0, 8) + '...' : 'Loading...'}</span>
+                        <span>
+                            {configLoading ? 'Loading node configurations...' :
+                                `Scene: ${sceneId ? String(sceneId).substring(0, 8) + '...' : 'Loading...'}`}
+                        </span>
                     </div>
                 </Panel>
                 <Panel position="right-center" style={{ margin: '16px' }}>
@@ -186,7 +211,11 @@ function AppContent() {
                         minHeight: '74px',
                     }}>
                         <div style={{ height: '40px', display: 'flex', alignItems: 'center' }}>
-                            <PlayButton onClick={handlePlay} isProcessing={isProcessing} />
+                            <PlayButton
+                                onClick={handlePlay}
+                                isProcessing={isProcessing}
+                                disabled={configLoading}
+                            />
                         </div>
                         <div style={{ height: '26px', width: '300px' }}>
                             <ProgressBar

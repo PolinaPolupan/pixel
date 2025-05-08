@@ -28,6 +28,11 @@ public class S3OutputNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "IO";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files", ParameterType.FILEPATH_ARRAY.required(),
@@ -40,8 +45,29 @@ public class S3OutputNode extends Node {
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "files", new HashSet<>(),
+                "access_key_id", "",
+                "secret_access_key", "",
+                "region", "",
+                "bucket", "",
+                "folder", ""
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of();
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Output files to S3",
+                "color", "#AED581",
+                "icon", "OutputIcon"
+        );
     }
 
     @Override

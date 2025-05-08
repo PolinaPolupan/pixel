@@ -26,6 +26,11 @@ public class MedianBlurNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "Filtering";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files", ParameterType.FILEPATH_ARRAY.required(),
@@ -34,8 +39,25 @@ public class MedianBlurNode extends Node {
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "files", new HashSet<String>(),
+                "ksize", 3
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Blurs an image using the specified kernel size",
+                "color", "#FF8A65",
+                "icon", "BlurIcon"
+        );
     }
 
     @Override

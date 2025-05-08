@@ -36,6 +36,11 @@ public class S3InputNode extends Node {
     }
 
     @Override
+    public String getCategory() {
+        return "IO";
+    }
+
+    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "access_key_id", ParameterType.STRING.required(),
@@ -46,8 +51,27 @@ public class S3InputNode extends Node {
     }
 
     @Override
+    public Map<String, Object> getDefaultInputs() {
+        return Map.of(
+                "access_key_id", "",
+                "secret_access_key", "",
+                "region", "",
+                "bucket", ""
+        );
+    }
+
+    @Override
     public Map<String, ParameterType> getOutputTypes() {
         return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    }
+
+    @Override
+    public Map<String, String> getDisplayInfo() {
+        return Map.of(
+                "description", "Load files from S3",
+                "color", "#AED581",
+                "icon", "S3Icon"
+        );
     }
 
     @Override
