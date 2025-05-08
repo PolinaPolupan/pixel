@@ -36,11 +36,6 @@ public class S3InputNode extends Node {
     }
 
     @Override
-    public String getCategory() {
-        return "IO";
-    }
-
-    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "access_key_id", ParameterType.STRING.required(),
@@ -68,6 +63,7 @@ public class S3InputNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "IO",
                 "description", "Load files from S3",
                 "color", "#AED581",
                 "icon", "S3Icon"

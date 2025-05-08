@@ -28,11 +28,6 @@ public class S3OutputNode extends Node {
     }
 
     @Override
-    public String getCategory() {
-        return "IO";
-    }
-
-    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files", ParameterType.FILEPATH_ARRAY.required(),
@@ -64,6 +59,7 @@ public class S3OutputNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "IO",
                 "description", "Output files to S3",
                 "color", "#AED581",
                 "icon", "OutputIcon"

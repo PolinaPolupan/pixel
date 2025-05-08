@@ -25,11 +25,6 @@ public class BilateralFilterNode extends Node {
     }
 
     @Override
-    public String getCategory() {
-        return "Filtering";
-    }
-
-    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files", ParameterType.FILEPATH_ARRAY.required(),
@@ -57,6 +52,7 @@ public class BilateralFilterNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "Filtering",
                 "description", "Applies a bilateral filter to the input image.",
                 "color", "#FF8A65",
                 "icon", "BlurIcon"

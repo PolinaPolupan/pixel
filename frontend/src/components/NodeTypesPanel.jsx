@@ -1,18 +1,49 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useReactFlow, useStoreApi } from '@xyflow/react';
 import { useNodesApi } from '../utils/useNodesApi';
 
 const NodeTypesPanel = () => {
     const { getNodes, addNodes, screenToFlowPosition } = useReactFlow();
     const store = useStoreApi();
-    // Use the new API hook
     const {
-        nodesConfig,
-        nodeTypeDetails,
+        nodesByCategory,
+        sortedCategories,
+        filterNodes,
         getDefaultData,
         isLoading,
         error
     } = useNodesApi();
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeCategory, setActiveCategory] = useState('All');
+
+    // Track expanded categories
+    const [expandedCategories, setExpandedCategories] = useState({});
+
+    // Initialize expanded state for categories
+    useEffect(() => {
+        if (sortedCategories.length > 0) {
+            const initialExpanded = {};
+            // Default all categories to collapsed
+            sortedCategories.forEach(category => {
+                initialExpanded[category] = false;
+            });
+            setExpandedCategories(initialExpanded);
+        }
+    }, [sortedCategories]);
+
+    // Toggle category expansion
+    const toggleCategory = (category) => {
+        setExpandedCategories(prev => ({
+            ...prev,
+            [category]: !prev[category]
+        }));
+    };
+
+    // Get filtered nodes based on search and active category
+    const visibleNodesByCategory = filterNodes(searchTerm, activeCategory === 'All' ? 'All' : activeCategory);
+    const visibleCategories = Object.keys(visibleNodesByCategory).sort();
+    const hasNodes = visibleCategories.length > 0;
 
     const getViewportCenterNode = useCallback((type) => {
         const { domNode } = store.getState();
@@ -29,7 +60,7 @@ const NodeTypesPanel = () => {
             y: boundingRect.y + boundingRect.height / 2,
         });
 
-        // Estimate node dimensions (based on String.jsx: 150px wide, ~60px tall)
+        // Estimate node dimensions (based on default sizes)
         const nodeDimensions = { width: 150, height: 60 };
 
         // Adjust position to center node
@@ -44,13 +75,12 @@ const NodeTypesPanel = () => {
     const createNode = (type) => {
         const nodeIds = getNodes().map(node => parseInt(node.id));
         const newId = (Math.max(...nodeIds, 0) + 1).toString();
-        const { position, width, height } = getViewportCenterNode(type);
+        const { position } = getViewportCenterNode(type);
 
         const newNode = {
             id: newId,
             type,
             position,
-            // Use the utility function from the API
             data: getDefaultData(type)
         };
 
@@ -114,65 +144,124 @@ const NodeTypesPanel = () => {
             flexDirection: 'column',
             overflow: 'hidden',
         }}>
+            {/* Search box */}
+            <div style={{ marginBottom: '12px' }}>
+                <input
+                    type="text"
+                    placeholder="Search nodes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '8px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '4px',
+                        color: 'white',
+                        fontSize: '13px',
+                        outline: 'none'
+                    }}
+                />
+            </div>
+
+            {/* Node listing with foldable categories */}
             <div style={{
                 flex: 1,
                 overflowY: 'auto',
                 marginBottom: '12px',
                 marginRight: '12px'
             }}>
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px'
-                }}>
-                    {Object.keys(nodesConfig).map((type) => {
-                        const displayInfo = nodeTypeDetails[type];
-
-                        return (
+                {hasNodes ? (
+                    visibleCategories.map(category => (
+                        <div key={category} style={{ marginBottom: '8px' }}>
                             <div
-                                key={type}
-                                onClick={() => createNode(type)}
+                                onClick={() => toggleCategory(category)}
                                 style={{
-                                    background: `linear-gradient(45deg, ${displayInfo.color}11, ${displayInfo.color}5)`,
-                                    border: `1px solid ${displayInfo.color}22`,
-                                    borderRadius: '6px',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    color: 'rgba(255, 255, 255, 0.8)',
                                     padding: '8px 10px',
+                                    borderRadius: '4px',
+                                    background: 'rgba(255, 255, 255, 0.05)',
                                     cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    color: '#ffffff',
-                                    fontSize: '13px',
                                     display: 'flex',
+                                    justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    gap: '8px',
-                                    marginRight: '12px'
-                                }}
-                                onMouseOver={(e) => {
-                                    e.currentTarget.style.border = `1px solid ${displayInfo.color}44`;
-                                    e.currentTarget.style.transform = 'translateY(-1px)';
-                                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.currentTarget.style.border = `1px solid ${displayInfo.color}22`;
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = 'none';
+                                    marginBottom: '4px',
+                                    userSelect: 'none'
                                 }}
                             >
-                                {displayInfo.icon && renderIcon(displayInfo.icon, type)}
-                                <div>
-                                    <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>{type}</div>
-                                    <div style={{ fontSize: '11px', opacity: '0.7' }}>{displayInfo.description}</div>
-                                </div>
+                                <span>{category}</span>
+                                <span style={{ fontSize: '12px', fontWeight: 'normal' }}>
+                  {expandedCategories[category] ? '▼' : '▶'}
+                </span>
                             </div>
-                        );
-                    })}
-                </div>
+
+                            {/* Show nodes only if category is expanded */}
+                            {expandedCategories[category] && (
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '8px',
+                                    padding: '0 4px'
+                                }}>
+                                    {visibleNodesByCategory[category].map(({ type, details }) => (
+                                        <div
+                                            key={type}
+                                            onClick={() => createNode(type)}
+                                            style={{
+                                                background: `linear-gradient(45deg, ${details.color}11, ${details.color}5)`,
+                                                border: `1px solid ${details.color}22`,
+                                                borderRadius: '6px',
+                                                padding: '8px 10px',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s ease',
+                                                color: '#ffffff',
+                                                fontSize: '13px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                marginRight: '12px'
+                                            }}
+                                            onMouseOver={(e) => {
+                                                e.currentTarget.style.border = `1px solid ${details.color}44`;
+                                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                                            }}
+                                            onMouseOut={(e) => {
+                                                e.currentTarget.style.border = `1px solid ${details.color}22`;
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                                e.currentTarget.style.boxShadow = 'none';
+                                            }}
+                                        >
+                                            {details.icon && renderIcon(details.icon, type)}
+                                            <div>
+                                                <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>{type}</div>
+                                                <div style={{ fontSize: '11px', opacity: '0.7' }}>{details.description}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))
+                ) : (
+                    <div style={{
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        textAlign: 'center',
+                        padding: '20px 0'
+                    }}>
+                        No nodes match your search
+                    </div>
+                )}
             </div>
 
             <div style={{
                 fontSize: '11px',
                 color: 'rgba(255, 255, 255, 0.5)',
                 textAlign: 'center',
-                paddingTop: '8px'
+                paddingTop: '8px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
             }}>
                 Tip: Right-click anywhere to add a node at cursor position
             </div>

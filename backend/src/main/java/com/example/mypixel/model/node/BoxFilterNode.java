@@ -28,11 +28,6 @@ public class BoxFilterNode extends Node {
     }
 
     @Override
-    public String getCategory() {
-        return "Filtering";
-    }
-
-    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "files", ParameterType.FILEPATH_ARRAY.required(),
@@ -58,6 +53,7 @@ public class BoxFilterNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "Filtering",
                 "description", "Blurs an image using the specified kernel size",
                 "color", "#FF8A65",
                 "icon", "BlurIcon"

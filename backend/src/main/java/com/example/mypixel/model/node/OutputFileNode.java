@@ -19,11 +19,6 @@ public class OutputFileNode extends Node {
     }
 
     @Override
-    public String getCategory() {
-        return "IO";
-    }
-
-    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of(
                 "content", ParameterType.STRING.optional(),
@@ -47,6 +42,7 @@ public class OutputFileNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "IO",
                 "description", "Output to a file",
                 "color", "#AED581",
                 "icon", "OutputIcon"

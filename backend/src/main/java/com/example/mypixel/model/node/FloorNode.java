@@ -18,10 +18,6 @@ public class FloorNode extends Node {
         super(id, type, inputs);
     }
 
-    @Override
-    public String getCategory() {
-        return "Math";
-    }
 
     @Override
     public Map<String, ParameterType> getInputTypes() {
@@ -43,6 +39,7 @@ public class FloorNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "Math",
                 "description", "Returns the largest integer less than or equal to the input number.",
                 "color", "#BA68C8",
                 "icon", "FloorIcon"

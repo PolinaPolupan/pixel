@@ -40,6 +40,28 @@ export function useNodesApi() {
         );
     }, [nodesConfig]);
 
+    // Group nodes by category
+    const nodesByCategory = useMemo(() => {
+        if (!nodeTypeDetails || Object.keys(nodeTypeDetails).length === 0) {
+            return {};
+        }
+
+        return Object.entries(nodeTypeDetails).reduce((grouped, [type, details]) => {
+            // Use specified category or "Other" as fallback
+            const category = details.category || 'Other';
+            if (!grouped[category]) {
+                grouped[category] = [];
+            }
+            grouped[category].push({ type, details });
+            return grouped;
+        }, {});
+    }, [nodeTypeDetails]);
+
+    // Get sorted categories
+    const sortedCategories = useMemo(() => {
+        return Object.keys(nodesByCategory).sort();
+    }, [nodesByCategory]);
+
     // Handle parameter type utility
     const getHandleParameterType = useMemo(() => {
         return (nodeType, handleId, handleType) => {
@@ -70,6 +92,39 @@ export function useNodesApi() {
         };
     }, [nodesConfig]);
 
+    // Filter nodes by search term and category
+    const filterNodes = useMemo(() => {
+        return (searchTerm, activeCategory = 'All') => {
+            // First apply search filter if any
+            let filteredResults = { ...nodesByCategory };
+
+            if (searchTerm && searchTerm.trim() !== '') {
+                const searchLower = searchTerm.toLowerCase();
+                filteredResults = {};
+
+                Object.entries(nodesByCategory).forEach(([category, nodes]) => {
+                    const filteredNodes = nodes.filter(({ type, details }) =>
+                        type.toLowerCase().includes(searchLower) ||
+                        details.description?.toLowerCase().includes(searchLower)
+                    );
+
+                    if (filteredNodes.length > 0) {
+                        filteredResults[category] = filteredNodes;
+                    }
+                });
+            }
+
+            // Then apply category filter if not 'All'
+            if (activeCategory !== 'All') {
+                return {
+                    [activeCategory]: filteredResults[activeCategory] || []
+                };
+            }
+
+            return filteredResults;
+        };
+    }, [nodesByCategory]);
+
     // Return a comprehensive API
     return {
         // Core data
@@ -85,6 +140,11 @@ export function useNodesApi() {
         getHandleParameterType,
         canCastType,
         getDefaultData,
+
+        // Category organization
+        nodesByCategory,
+        sortedCategories,
+        filterNodes,
 
         // Utility to check if configs are ready
         isReady: !isLoading && !error && !!nodesConfig

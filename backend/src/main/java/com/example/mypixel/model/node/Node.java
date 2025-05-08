@@ -46,8 +46,6 @@ public abstract class Node {
         this.inputs = inputs;
     }
 
-    public abstract String getCategory();
-
     public abstract Map<String, ParameterType> getInputTypes();
 
     public abstract Map<String, Object> getDefaultInputs();

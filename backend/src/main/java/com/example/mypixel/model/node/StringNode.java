@@ -19,11 +19,6 @@ public class StringNode extends Node {
     }
 
     @Override
-    public String getCategory() {
-        return "Types";
-    }
-
-    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of("value", ParameterType.STRING.required());
     }
@@ -43,6 +38,7 @@ public class StringNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "Types",
                 "description", "String",
                 "color", "#AED581",
                 "icon", "StringIcon"

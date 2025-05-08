@@ -50,6 +50,7 @@ public class NodeConfigService {
 
         Map<String, String> displayInfo = nodeInstance.getDisplayInfo();
         Map<String, Object> display = new HashMap<>();
+        display.put("category", displayInfo.getOrDefault("category", "Uncategorized"));
         display.put("description", displayInfo.getOrDefault("description", ""));
         display.put("color", displayInfo.getOrDefault("color", "#78909C"));
         display.put("icon", displayInfo.getOrDefault("icon", "DefaultIcon"));

@@ -20,11 +20,6 @@ public class InputNode extends Node {
     }
 
     @Override
-    public String getCategory() {
-        return "IO";
-    }
-
-    @Override
     public Map<String, ParameterType> getInputTypes() {
         return Map.of("files", ParameterType.FILEPATH_ARRAY.required());
     }
@@ -44,6 +39,7 @@ public class InputNode extends Node {
     @Override
     public Map<String, String> getDisplayInfo() {
         return Map.of(
+                "category", "IO",
                 "description", "Input files",
                 "color", "#AED581",
                 "icon", "InputIcon"
