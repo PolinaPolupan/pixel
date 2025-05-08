@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { useScene } from './SceneContext';
-import { IoReload, IoClose } from 'react-icons/io5';
+import {IoReload, IoClose, IoDocumentOutline} from 'react-icons/io5';
 import { IoFolderOutline } from "react-icons/io5";
 import { IoFolderOpenOutline } from "react-icons/io5";
 import { IoImage } from "react-icons/io5";
@@ -9,8 +9,9 @@ import { IoImage } from "react-icons/io5";
 const FileExplorer = ({ setError }) => {
   const { sceneId } = useScene();
   const [items, setItems] = useState([]);
-  const [isOpen, setIsOpen] = useState(true); // Open by default in dock
-  const [previewImage, setPreviewImage] = useState(null);
+  const [isOpen, setIsOpen] = useState(true);
+  const [previewItem, setPreviewItem] = useState(null);
+  const [previewContent, setPreviewContent] = useState(null);
   const [cacheBuster, setCacheBuster] = useState(Date.now());
 
   const fetchItems = async (folder = '') => {
@@ -45,8 +46,10 @@ const FileExplorer = ({ setError }) => {
       let current = root;
 
       if (segments.length === 1 && /\.(png|jpeg|jpg|txt)$/i.test(segments[0])) {
+        const fileType = /\.txt$/i.test(segments[0]) ? 'text' : 'image';
         current.files.push({
           type: 'file',
+          fileType: fileType,
           url: `http://localhost:8080/v1/scene/${sceneId}/file?filepath=${encodeURIComponent(segments[0])}&_cb=${cacheBuster}`,
           path: segments[0],
         });
@@ -56,8 +59,10 @@ const FileExplorer = ({ setError }) => {
           const currentPath = segments.slice(0, index + 1).join('/');
 
           if (isLast && /\.(png|jpeg|jpg|txt)$/i.test(segment)) {
+            const fileType = /\.txt$/i.test(segment) ? 'text' : 'image';
             current.files.push({
               type: 'file',
+              fileType: fileType,
               url: `http://localhost:8080/v1/scene/${sceneId}/file?filepath=${encodeURIComponent(currentPath)}&_cb=${cacheBuster}`,
               path: currentPath,
             });
@@ -82,6 +87,19 @@ const FileExplorer = ({ setError }) => {
 
     console.log('FileExplorer buildTree result:', { folders: root.folders, files: root.files });
     return root;
+  };
+
+  const fetchTextContent = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch text: ${response.statusText}`);
+      }
+      return await response.text();
+    } catch (err) {
+      setError(`Failed to load text file: ${err.message}`);
+      return null;
+    }
   };
 
   const fetchAllItems = async () => {
@@ -143,13 +161,20 @@ const FileExplorer = ({ setError }) => {
     }
   };
 
-  const handleImageClick = (url) => {
-    setPreviewImage(url);
+  const handleFileClick = async (item) => {
+    setPreviewItem(item);
+
+    if (item.fileType === 'text') {
+      const content = await fetchTextContent(item.url);
+      setPreviewContent(content);
+    }
   };
 
   const closePreview = () => {
-    setPreviewImage(null);
+    setPreviewItem(null);
+    setPreviewContent(null);
   };
+
 
   const renderTree = (nodes, depth = 0) => (
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -183,9 +208,11 @@ const FileExplorer = ({ setError }) => {
                         borderRadius: '4px',
                         marginBottom: '4px',
                       }}
-                      onClick={() => handleImageClick(item.url)}
+                      onClick={() => handleFileClick(item)}
                   >
-                    <span style={{ marginRight: '8px' }}><IoImage /></span>
+              <span style={{ marginRight: '8px' }}>
+                {item.fileType === 'text' ? <IoDocumentOutline /> : <IoImage />}
+              </span>
                     <span style={{ fontSize: '14px' }}>{item.path.split('/').pop()}</span>
                   </div>
               )}
@@ -255,7 +282,7 @@ const FileExplorer = ({ setError }) => {
         </div>
 
         {/* Image preview modal */}
-        {previewImage && (
+        {previewItem && (
             <div
                 style={{
                   position: 'fixed',
@@ -276,20 +303,40 @@ const FileExplorer = ({ setError }) => {
                     position: 'relative',
                     maxWidth: '90%',
                     maxHeight: '90%',
-                    background: 'rgba(40, 40, 40, 0)',
+                    background: 'rgba(40, 40, 40, 0.9)',
                     padding: '32px',
+                    borderRadius: '8px',
                   }}
                   onClick={(e) => e.stopPropagation()}
               >
-                <img
-                    src={previewImage}
-                    alt="Preview"
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: '70vh',
-                      objectFit: 'contain'
-                    }}
-                />
+                {previewItem.fileType === 'image' ? (
+                    <img
+                        src={previewItem.url}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '70vh',
+                          objectFit: 'contain'
+                        }}
+                    />
+                ) : (
+                    <div
+                        style={{
+                          backgroundColor: '#1e1e1e',
+                          padding: '20px',
+                          borderRadius: '4px',
+                          maxWidth: '800px',
+                          maxHeight: '70vh',
+                          overflowY: 'auto',
+                          fontFamily: 'monospace',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-all',
+                          color: '#f8f8f2'
+                        }}
+                    >
+                      {previewContent || 'Loading text content...'}
+                    </div>
+                )}
                 <IoClose
                     onClick={closePreview}
                     size={40}
