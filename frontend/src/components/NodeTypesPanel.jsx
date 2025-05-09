@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useReactFlow, useStoreApi } from '@xyflow/react';
 import { useNodesApi } from '../utils/useNodesApi';
+import '../App.css';
 
 const NodeTypesPanel = () => {
     const { getNodes, addNodes, screenToFlowPosition } = useReactFlow();
@@ -16,6 +17,8 @@ const NodeTypesPanel = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
+    const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [hoveredNode, setHoveredNode] = useState(null);
 
     // Track expanded categories
     const [expandedCategories, setExpandedCategories] = useState({});
@@ -50,20 +53,16 @@ const NodeTypesPanel = () => {
         const boundingRect = domNode?.getBoundingClientRect();
 
         if (!boundingRect) {
-            // Fallback position if domNode is unavailable
             return { position: { x: 100, y: 100 }, width: 150, height: 60 };
         }
 
-        // Calculate viewport center in screen coordinates
         const center = screenToFlowPosition({
             x: boundingRect.x + boundingRect.width / 2,
             y: boundingRect.y + boundingRect.height / 2,
         });
 
-        // Estimate node dimensions (based on default sizes)
         const nodeDimensions = { width: 150, height: 60 };
 
-        // Adjust position to center node
         const position = {
             x: center.x - nodeDimensions.width / 2,
             y: center.y - nodeDimensions.height / 2,
@@ -99,18 +98,21 @@ const NodeTypesPanel = () => {
         );
     };
 
+    // Generate gradient styles based on hover state
+    const getCategoryGradient = (category, color) => {
+        // Normal gradient (when not hovered)
+        const normalGradient = `linear-gradient(45deg, ${color}11, rgba(255, 255, 255, 0))`;
+
+        // Brighter gradient (when hovered)
+        const brightGradient = `linear-gradient(90deg, ${color}13, rgba(255, 255, 255, 0))`;
+
+        return category === hoveredCategory ? brightGradient : normalGradient;
+    };
+
     // Loading state
     if (isLoading) {
         return (
-            <div style={{
-                width: '100%',
-                height: '100%',
-                padding: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-            }}>
+            <div className="node-types-panel">
                 <div>Loading node types...</div>
             </div>
         );
@@ -119,119 +121,62 @@ const NodeTypesPanel = () => {
     // Error state
     if (error) {
         return (
-            <div style={{
-                width: '100%',
-                height: '100%',
-                padding: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ff6b6b',
-            }}>
-                <div>Error loading node types: {error}</div>
+            <div className="node-types-panel">
+                <div style={{ color: '#ff6b6b' }}>Error loading node types: {error}</div>
             </div>
         );
     }
 
     return (
-        <div style={{
-            width: '100%',
-            height: '100%',
-            padding: '16px',
-            fontFamily: 'Arial, sans-serif',
-            color: '#ffffff',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-        }}>
+        <div className="node-types-panel">
             {/* Search box */}
-            <div style={{ marginBottom: '12px' }}>
+            <div style={{ marginBottom: '12px', width: '100%', display: 'flex' }}>
                 <input
                     type="text"
+                    className="text-field-alternative"
                     placeholder="Search nodes..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                        width: '100%',
-                        padding: '8px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        borderRadius: '4px',
-                        color: 'white',
-                        fontSize: '13px',
-                        outline: 'none'
-                    }}
                 />
             </div>
 
             {/* Node listing with foldable categories */}
-            <div style={{
-                flex: 1,
-                overflowY: 'auto',
-                marginBottom: '12px',
-                marginRight: '12px'
-            }}>
+            <div style={{ flex: 1,  marginBottom: '12px' }}>
                 {hasNodes ? (
-                    visibleCategories.map(category => (
-                        <div key={category} style={{ marginBottom: '8px' }}>
-                            <div
-                                onClick={() => toggleCategory(category)}
-                                style={{
-                                    fontSize: '14px',
-                                    fontWeight: 'bold',
-                                    color: 'rgba(255, 255, 255, 0.8)',
-                                    padding: '8px 10px',
-                                    borderRadius: '4px',
-                                    background: 'rgba(255, 255, 255, 0.05)',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    marginBottom: '4px',
-                                    userSelect: 'none'
-                                }}
-                            >
-                                <span>{category}</span>
-                                <span style={{ fontSize: '12px', fontWeight: 'normal' }}>
-                  {expandedCategories[category] ? '▼' : '▶'}
-                </span>
-                            </div>
+                    visibleCategories.map(category => {
+                        // Get the first node's color for the category gradient
+                        const firstNodeColor = visibleNodesByCategory[category][0]?.details?.color || '#ffffff';
 
-                            {/* Show nodes only if category is expanded */}
-                            {expandedCategories[category] && (
-                                <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '8px',
-                                    padding: '0 4px'
-                                }}>
+                        return (
+                            <div key={category} style={{ marginBottom: '8px' }}>
+                                <div
+                                    onClick={() => toggleCategory(category)}
+                                    className="node-category"
+                                    onMouseEnter={() => setHoveredCategory(category)}
+                                    onMouseLeave={() => setHoveredCategory(null)}
+                                    style={{
+                                        background: getCategoryGradient(category, firstNodeColor)
+                                    }}
+                                >
+                                    <span style={{ color: "rgba(255,255,255,0.8)" }}>{category}</span>
+                                    <span
+                                        style={{ color: "rgba(255,255,255,0.5)" }}
+                                        className={`arrow-icon ${expandedCategories[category] ? 'expanded' : ''}`}>
+                                        {expandedCategories[category] ? '▼' : '▶'}
+                                    </span>
+                                </div>
+
+                                {/* Node items container with animation */}
+                                <div className={`node-items-container ${expandedCategories[category] ? 'expanded' : ''}`}>
                                     {visibleNodesByCategory[category].map(({ type, details }) => (
                                         <div
                                             key={type}
                                             onClick={() => createNode(type)}
+                                            className="node-item"
+                                            onMouseEnter={() => setHoveredNode(type)}
+                                            onMouseLeave={() => setHoveredNode(null)}
                                             style={{
-                                                background: `linear-gradient(45deg, ${details.color}11, ${details.color}5)`,
-                                                border: `1px solid ${details.color}22`,
-                                                borderRadius: '6px',
-                                                padding: '8px 10px',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s ease',
-                                                color: '#ffffff',
-                                                fontSize: '13px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '8px',
-                                                marginRight: '12px'
-                                            }}
-                                            onMouseOver={(e) => {
-                                                e.currentTarget.style.border = `1px solid ${details.color}44`;
-                                                e.currentTarget.style.transform = 'translateY(-1px)';
-                                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-                                            }}
-                                            onMouseOut={(e) => {
-                                                e.currentTarget.style.border = `1px solid ${details.color}22`;
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                                e.currentTarget.style.boxShadow = 'none';
+                                                border: `1px solid ${details.color}${type === hoveredNode ? '22' : '11'}`
                                             }}
                                         >
                                             {details.icon && renderIcon(details.icon, type)}
@@ -242,27 +187,17 @@ const NodeTypesPanel = () => {
                                         </div>
                                     ))}
                                 </div>
-                            )}
-                        </div>
-                    ))
+                            </div>
+                        );
+                    })
                 ) : (
-                    <div style={{
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        textAlign: 'center',
-                        padding: '20px 0'
-                    }}>
+                    <div className="empty-state">
                         No nodes match your search
                     </div>
                 )}
             </div>
 
-            <div style={{
-                fontSize: '11px',
-                color: 'rgba(255, 255, 255, 0.5)',
-                textAlign: 'center',
-                paddingTop: '8px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
+            <div className="panel-footer">
                 Tip: Right-click anywhere to add a node at cursor position
             </div>
         </div>

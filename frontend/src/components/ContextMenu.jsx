@@ -102,7 +102,6 @@ const ContextMenu = ({
                     left: position.x,
                     zIndex: 10,
                     background: 'rgba(35, 35, 40, 0.95)',
-                    borderRadius: '8px',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     padding: '10px',
@@ -123,29 +122,16 @@ const ContextMenu = ({
                 className="main-context-menu"
                 ref={mainMenuRef}
                 style={{
-                    background: 'rgba(35, 35, 40, 0.95)',
-                    borderRadius: '8px',
+                    background: 'rgba(35,35,40,0.49)',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '5px 0',
                     minWidth: '180px',
                     maxHeight: '70vh',
-                    overflowY: 'auto'
+                    overflowY: 'auto',
+                    padding: '5px 0',
                 }}
                 onClick={(e) => e.stopPropagation()}
                 onMouseLeave={handleMouseLeave}
             >
-                <div style={{
-                    padding: '5px 10px',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    marginBottom: '5px'
-                }}>
-                    Add Node
-                </div>
-
                 {/* Category List */}
                 {sortedCategories.map((category) => (
                     <div
@@ -154,12 +140,11 @@ const ContextMenu = ({
                         onMouseEnter={(e) => handleMouseEnter(category, e)}
                         style={{
                             padding: '6px 10px',
-                            color: 'rgba(255, 255, 255, 0.8)',
+                            color: 'rgba(255, 255, 255, 0.9)',
                             fontSize: '12px',
-                            fontWeight: 'bold',
                             backgroundColor: expandedCategory === category
-                                ? 'rgba(255, 255, 255, 0.1)'
-                                : 'rgba(255, 255, 255, 0.05)',
+                                ? 'rgba(255, 255, 255, 0.02)'
+                                : 'rgba(255, 255, 255, 0)',
                             borderTop: '1px solid rgba(255, 255, 255, 0.05)',
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -186,8 +171,7 @@ const ContextMenu = ({
                         top: Math.max(0, subMenuPosition.top - 5), // Align with hovered category
                         left: '100%', // Position to the right of main menu
                         marginLeft: '2px',
-                        background: 'rgba(45, 45, 50, 0.95)',
-                        borderRadius: '8px',
+                        background: 'rgba(35,35,40,0.49)',
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
                         border: '1px solid rgba(255, 255, 255, 0.1)',
                         padding: '5px 0',
@@ -200,17 +184,6 @@ const ContextMenu = ({
                     }}
                     onMouseLeave={handleSubMenuMouseLeave}
                 >
-                    <div style={{
-                        padding: '5px 10px',
-                        color: 'rgba(255, 255, 255, 0.9)',
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                        marginBottom: '5px'
-                    }}>
-                        {expandedCategory}
-                    </div>
-
                     {/* Nodes in Selected Category */}
                     {nodesByCategory[expandedCategory].map(({ type, details }) => (
                         <div
