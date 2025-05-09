@@ -222,7 +222,8 @@
   color: #ffffff;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
+  height: 100%
 }
 
 /* Empty state */
