@@ -11,6 +11,7 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +43,8 @@ public class S3InputNode extends Node {
                 "access_key_id", ParameterType.STRING.required(),
                 "secret_access_key", ParameterType.STRING.required(),
                 "region", ParameterType.STRING.required(),
-                "bucket", ParameterType.STRING.required()
+                "bucket", ParameterType.STRING.required(),
+                "endpoint", ParameterType.STRING.optional()
         );
     }
 
@@ -78,17 +81,22 @@ public class S3InputNode extends Node {
         String secretKey = (String) inputs.get("secret_access_key");
         String regionName = (String) inputs.get("region");
         String bucket = (String) inputs.get("bucket");
+        String endpoint = (String) inputs.get("endpoint");
 
         HashSet<String> files = new HashSet<>();
 
         AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-        try (S3Client s3Client = S3Client
-                .builder()
+        S3ClientBuilder clientBuilder = S3Client.builder()
                 .region(Region.of(regionName))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .build()) {
+                .credentialsProvider(StaticCredentialsProvider.create(credentials));
 
+        if (endpoint != null && !endpoint.isEmpty()) {
+            clientBuilder.endpointOverride(URI.create(endpoint))
+                    .forcePathStyle(true);
+        }
+
+        try (S3Client s3Client = clientBuilder.build()) {
             ListObjectsV2Request listObjectsV2Request = ListObjectsV2Request.builder()
                     .bucket(bucket)
                     .build();

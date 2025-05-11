@@ -25,6 +25,14 @@ public class ErrorController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorInfo);
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(SceneNotFoundException.class)
+    public ResponseEntity<?> handleSceneNotFound(SceneNotFoundException ex, HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorInfo);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidImageFormat.class)
     public ResponseEntity<?> handleInvalidImageFormat(InvalidImageFormat ex, HttpServletRequest request) {

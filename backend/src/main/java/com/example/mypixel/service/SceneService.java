@@ -1,5 +1,6 @@
 package com.example.mypixel.service;
 
+import com.example.mypixel.exception.SceneNotFoundException;
 import com.example.mypixel.model.Scene;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.repository.SceneRepository;
@@ -35,7 +36,9 @@ public class SceneService {
     }
 
     public void updateLastAccessed(Long sceneId) {
-        Scene scene = sceneRepository.findById(sceneId).orElseThrow();
+        Scene scene = sceneRepository.findById(sceneId).orElseThrow(() ->
+                new SceneNotFoundException("Scene with id: " + sceneId + " not found"));
+
         scene.setLastAccessed(LocalDateTime.now());
         sceneRepository.save(scene);
     }

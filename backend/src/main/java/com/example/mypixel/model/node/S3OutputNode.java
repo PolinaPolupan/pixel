@@ -10,7 +10,9 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +37,7 @@ public class S3OutputNode extends Node {
                 "secret_access_key", ParameterType.STRING.required(),
                 "region", ParameterType.STRING.required(),
                 "bucket", ParameterType.STRING.required(),
+                "endpoint", ParameterType.STRING.optional(),
                 "folder", ParameterType.STRING.optional()
         );
     }
@@ -75,16 +78,21 @@ public class S3OutputNode extends Node {
         String secretKey = (String) inputs.get("secret_access_key");
         String regionName = (String) inputs.get("region");
         String bucket = (String) inputs.get("bucket");
+        String endpoint = (String) inputs.get("endpoint");
         String folder = (String) inputs.getOrDefault("folder", "");
 
         AwsCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-        try (S3Client s3Client = S3Client
-                .builder()
+        S3ClientBuilder clientBuilder = S3Client.builder()
                 .region(Region.of(regionName))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .build()) {
+                .credentialsProvider(StaticCredentialsProvider.create(credentials));
 
+        if (endpoint != null && !endpoint.isEmpty()) {
+            clientBuilder.endpointOverride(URI.create(endpoint))
+                    .forcePathStyle(true);
+        }
+
+        try (S3Client s3Client = clientBuilder.build()) {
             batchProcessor.processBatches(files, file -> {
                 String filename = fileHelper.extractFilename(file);
                 Map<String, String> metadata = new HashMap<>();

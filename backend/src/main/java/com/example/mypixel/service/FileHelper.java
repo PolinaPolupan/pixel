@@ -33,18 +33,6 @@ public class FileHelper {
         this.node = node;
     }
 
-    public void delete(File file) {
-        if (file.isDirectory()) {
-            File[] files = file.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    delete(f);
-                }
-            }
-        }
-        storageService.delete(file.getAbsolutePath());
-    }
-
     public File createTempJson() {
         String path = "tasks/" + taskId + "/" + node.getId();
 
