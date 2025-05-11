@@ -1,5 +1,6 @@
 package com.example.mypixel.model.node;
 
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,13 +21,13 @@ public class CombineNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getInputTypes() {
+    public Map<String, Parameter> getInputTypes() {
         return Map.of(
-                "files_0", ParameterType.FILEPATH_ARRAY.required(),
-                "files_1", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_2", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_3", ParameterType.FILEPATH_ARRAY.optional(),
-                "files_4", ParameterType.FILEPATH_ARRAY.optional()
+                "files_0", Parameter.required(ParameterType.FILEPATH_ARRAY),
+                "files_1", Parameter.optional(ParameterType.FILEPATH_ARRAY),
+                "files_2", Parameter.optional(ParameterType.FILEPATH_ARRAY),
+                "files_3", Parameter.optional(ParameterType.FILEPATH_ARRAY),
+                "files_4", Parameter.optional(ParameterType.FILEPATH_ARRAY)
         );
     }
 
@@ -42,8 +43,8 @@ public class CombineNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    public Map<String, Parameter> getOutputTypes() {
+        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override

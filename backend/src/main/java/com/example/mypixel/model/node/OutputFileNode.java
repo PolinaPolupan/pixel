@@ -1,5 +1,6 @@
 package com.example.mypixel.model.node;
 
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,10 +20,10 @@ public class OutputFileNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getInputTypes() {
+    public Map<String, Parameter> getInputTypes() {
         return Map.of(
-                "content", ParameterType.STRING.optional(),
-                "filename", ParameterType.STRING.optional()
+                "content", Parameter.optional(ParameterType.STRING),
+                "filename", Parameter.optional(ParameterType.STRING)
         );
     }
 
@@ -35,7 +36,7 @@ public class OutputFileNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getOutputTypes() {
+    public Map<String, Parameter> getOutputTypes() {
         return Map.of();
     }
 

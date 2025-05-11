@@ -1,7 +1,7 @@
 package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.InputDeserializer;
-import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.service.BatchProcessor;
 import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -46,11 +46,11 @@ public abstract class Node {
         this.inputs = inputs;
     }
 
-    public abstract Map<String, ParameterType> getInputTypes();
+    public abstract Map<String, Parameter> getInputTypes();
 
     public abstract Map<String, Object> getDefaultInputs();
 
-    public abstract Map<String, ParameterType> getOutputTypes();
+    public abstract Map<String, Parameter> getOutputTypes();
 
     public abstract Map<String, String> getDisplayInfo();
 

@@ -1,6 +1,7 @@
 package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.Vector2D;
 import com.example.mypixel.service.FilteringService;
@@ -27,10 +28,10 @@ public class BlurNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getInputTypes() {
+    public Map<String, Parameter> getInputTypes() {
         return Map.of(
-                "files", ParameterType.FILEPATH_ARRAY.required(),
-                "ksize", ParameterType.VECTOR2D.required()
+                "files", Parameter.required(ParameterType.FILEPATH_ARRAY),
+                "ksize", Parameter.required(ParameterType.VECTOR2D)
         );
     }
 
@@ -43,8 +44,8 @@ public class BlurNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    public Map<String, Parameter> getOutputTypes() {
+        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override

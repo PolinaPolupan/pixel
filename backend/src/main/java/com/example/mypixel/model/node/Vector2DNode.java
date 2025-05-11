@@ -1,5 +1,6 @@
 package com.example.mypixel.model.node;
 
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.Vector2D;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -19,10 +20,10 @@ public class Vector2DNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getInputTypes() {
+    public Map<String, Parameter> getInputTypes() {
         return Map.of(
-                "x", ParameterType.DOUBLE.required(), // Any numerical type can be used here
-                "y", ParameterType.DOUBLE.required()
+                "x", Parameter.required(ParameterType.DOUBLE), // Any numerical type can be used here
+                "y", Parameter.required(ParameterType.DOUBLE)
         );
     }
 
@@ -35,8 +36,8 @@ public class Vector2DNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("vector2D", ParameterType.VECTOR2D);
+    public Map<String, Parameter> getOutputTypes() {
+        return Map.of("vector2D", Parameter.required(ParameterType.VECTOR2D));
     }
 
     @Override

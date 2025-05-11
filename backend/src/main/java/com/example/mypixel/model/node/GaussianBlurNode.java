@@ -1,6 +1,7 @@
 package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,13 +28,13 @@ public class GaussianBlurNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getInputTypes() {
+    public Map<String, Parameter> getInputTypes() {
         return Map.of(
-                "files", ParameterType.FILEPATH_ARRAY.required(),
-                "sizeX", ParameterType.INT.required(),
-                "sizeY", ParameterType.INT.optional(),
-                "sigmaX", ParameterType.DOUBLE.optional(),
-                "sigmaY", ParameterType.DOUBLE.optional()
+                "files", Parameter.required(ParameterType.FILEPATH_ARRAY),
+                "sizeX", Parameter.required(ParameterType.INT),
+                "sizeY", Parameter.optional(ParameterType.INT),
+                "sigmaX", Parameter.optional(ParameterType.DOUBLE),
+                "sigmaY", Parameter.optional(ParameterType.DOUBLE)
         );
     }
 
@@ -49,8 +50,8 @@ public class GaussianBlurNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    public Map<String, Parameter> getOutputTypes() {
+        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override

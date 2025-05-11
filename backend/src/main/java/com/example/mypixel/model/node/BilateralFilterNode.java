@@ -1,5 +1,6 @@
 package com.example.mypixel.model.node;
 
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -25,12 +26,12 @@ public class BilateralFilterNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getInputTypes() {
+    public Map<String, Parameter> getInputTypes() {
         return Map.of(
-                "files", ParameterType.FILEPATH_ARRAY.required(),
-                "d", ParameterType.INT.required(),
-                "sigmaColor", ParameterType.DOUBLE.required(),
-                "sigmaSpace", ParameterType.DOUBLE.required()
+                "files", Parameter.required(ParameterType.FILEPATH_ARRAY),
+                "d", Parameter.required(ParameterType.INT),
+                "sigmaColor", Parameter.required(ParameterType.DOUBLE),
+                "sigmaSpace", Parameter.required(ParameterType.DOUBLE)
         );
     }
 
@@ -45,8 +46,8 @@ public class BilateralFilterNode extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("files", ParameterType.FILEPATH_ARRAY);
+    public Map<String, Parameter> getOutputTypes() {
+        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override

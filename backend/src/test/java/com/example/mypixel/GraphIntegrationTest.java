@@ -46,18 +46,18 @@ public class GraphIntegrationTest {
                 "test-images/Picture3.png",
                 "upload-image-dir/{{scene_id}}/input/Picture3.png"
         );
-    }
-
-    @Test
-    void testGraphExecution() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
-                "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
         TestFileUtils.copyResourcesToDirectory(
                 "upload-image-dir/" + sceneId + "/input/",
                 "test-images/Picture1.png",
                 "test-images/Picture3.png"
         );
+    }
+
+    @Test
+    void testGraphExecution() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<GraphExecutionTask> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/graph",
@@ -122,5 +122,66 @@ public class GraphIntegrationTest {
         assertNotNull(response.getBody(), "Should return error details");
         assertTrue(response.getBody().contains("999"),
                 "Error should mention invalid node ID");
+    }
+
+    @Test
+    void testInvalidNodeType() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/invalid-node-type.json", sceneId, TestcontainersExtension.getLocalstack());
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody(), "Should return error details");
+    }
+
+    @Test
+    void testInvalidNodeProperty() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/invalid-node-property.json", sceneId, TestcontainersExtension.getLocalstack());
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody(), "Should return error details");
+    }
+
+    @Test
+    void testInvalidAwsCredentials() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/invalid-aws.json", sceneId, TestcontainersExtension.getLocalstack());
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody(), "Should return error details");
+    }
+
+    @Test
+    void testMissingRequiredInputs() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/missing-required-inputs.json", sceneId, TestcontainersExtension.getLocalstack());
+
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
+                "Graph with missing required inputs should be rejected");
     }
 }

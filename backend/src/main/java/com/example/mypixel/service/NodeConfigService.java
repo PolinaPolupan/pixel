@@ -1,5 +1,6 @@
 package com.example.mypixel.service;
 
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.node.MyPixelNode;
 import com.example.mypixel.model.node.Node;
@@ -60,20 +61,20 @@ public class NodeConfigService {
 
         Map<String, Object> handles = new HashMap<>();
 
-        Map<String, ParameterType> inputTypes = nodeInstance.getInputTypes();
-        for (Map.Entry<String, ParameterType> entry : inputTypes.entrySet()) {
+        Map<String, Parameter> inputTypes = nodeInstance.getInputTypes();
+        for (Map.Entry<String, Parameter> entry : inputTypes.entrySet()) {
             String inputName = entry.getKey();
-            ParameterType paramType = entry.getValue();
+            ParameterType paramType = entry.getValue().getType();
 
             Map<String, String> handleInfo = new HashMap<>();
             handleInfo.put("target", paramType.toString());
             handles.put(inputName, handleInfo);
         }
 
-        Map<String, ParameterType> outputTypes = nodeInstance.getOutputTypes();
-        for (Map.Entry<String, ParameterType> entry : outputTypes.entrySet()) {
+        Map<String, Parameter> outputTypes = nodeInstance.getOutputTypes();
+        for (Map.Entry<String, Parameter> entry : outputTypes.entrySet()) {
             String outputName = entry.getKey();
-            ParameterType paramType = entry.getValue();
+            ParameterType paramType = entry.getValue().getType();
 
             Map<String, String> handleInfo;
             if (handles.containsKey(outputName)) {

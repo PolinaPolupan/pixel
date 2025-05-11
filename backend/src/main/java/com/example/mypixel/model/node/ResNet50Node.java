@@ -1,5 +1,6 @@
 package com.example.mypixel.model.node;
 
+import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,8 +32,8 @@ public class ResNet50Node extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getInputTypes() {
-        return Map.of("files", ParameterType.FILEPATH_ARRAY.required());
+    public Map<String, Parameter> getInputTypes() {
+        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override
@@ -43,8 +44,8 @@ public class ResNet50Node extends Node {
     }
 
     @Override
-    public Map<String, ParameterType> getOutputTypes() {
-        return Map.of("json", ParameterType.STRING);
+    public Map<String, Parameter> getOutputTypes() {
+        return Map.of("json", Parameter.required(ParameterType.STRING));
     }
 
     @Override

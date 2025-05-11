@@ -59,11 +59,11 @@ public class NodeProcessorService {
         return nodeCacheService.get(taskId + ":" + id + ":output").get(output);
     }
 
-    private Object castTypes(Node node, Object value, ParameterType requiredType) {
+    private Object castTypes(Node node, Object value, Parameter requiredType) {
         if (value == null) {
             throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
         }
-        return switch (requiredType) {
+        return switch (requiredType.getType()) {
             case FLOAT -> value instanceof Number ? ((Number) value).floatValue() : (float) value;
             case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
             case DOUBLE -> value instanceof Number ? ((Number) value).doubleValue() : (double) value;
@@ -100,6 +100,7 @@ public class NodeProcessorService {
         for (String key: node.getInputTypes().keySet()) {
             // If the user's inputs don't contain one of the parameters
             if (!node.getInputs().containsKey(key)) {
+                log.info("not found: {} {}", key, node.getInputTypes().get(key).isRequired());
                 // If it is required - throw an exception
                 if (node.getInputTypes().get(key).isRequired()) {
                     throw new InvalidNodeParameter("Required input " + key
@@ -120,7 +121,7 @@ public class NodeProcessorService {
                                 String key,
                                 Map<Long, Node> nodeMap) {
         Object input = node.getInputs().get(key);
-        ParameterType requiredType = node.getInputTypes().get(key);
+        Parameter requiredType = node.getInputTypes().get(key);
 
         if (input instanceof NodeReference) {
             input = resolveReference((NodeReference) input, taskId, nodeMap);
