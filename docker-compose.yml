@@ -65,3 +65,5 @@ services:
 
 volumes:
   postgres_data:
+include:
+  - ./backend/monitoring/docker-compose.monitoring.yml
