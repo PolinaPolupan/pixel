@@ -49,6 +49,8 @@ dependencies {
 	testImplementation("org.testcontainers:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testAnnotationProcessor("org.projectlombok:lombok")
+	testCompileOnly("org.projectlombok:lombok")
 }
 
 tasks.jar {

@@ -5,6 +5,7 @@ import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.Scene;
 import com.example.mypixel.service.SceneService;
 import com.example.mypixel.service.StorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,10 +21,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(TestcontainersExtension.class)
 public class GraphIntegrationTest {
@@ -212,11 +214,13 @@ public class GraphIntegrationTest {
                     String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
                             "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
-                    restTemplate.postForEntity(
+                    ResponseEntity<GraphExecutionTask> response = restTemplate.postForEntity(
                             "/v1/scene/{sceneId}/graph",
                             testGraphJson,
-                            String.class,
+                            GraphExecutionTask.class,
                             sceneId);
+
+                    assertEquals(HttpStatus.OK, response.getStatusCode());
 
                     return System.currentTimeMillis() - requestStart;
                 }, executor));
@@ -235,15 +239,15 @@ public class GraphIntegrationTest {
 
         double throughput = (concurrentUsers * requestsPerUser * 1000.0) / totalTime;
 
-        System.out.println("\n=== Load Test Results ===");
-        System.out.println("Concurrent users: " + concurrentUsers);
-        System.out.println("Requests per user: " + requestsPerUser);
-        System.out.println("Total requests: " + (concurrentUsers * requestsPerUser));
-        System.out.println("Total time: " + totalTime + "ms");
-        System.out.println("Throughput: " + String.format("%.2f", throughput) + " requests/second");
-        System.out.println("Average response time: " + String.format("%.2f", stats.getAverage()) + "ms");
-        System.out.println("Min response time: " + stats.getMin() + "ms");
-        System.out.println("Max response time: " + stats.getMax() + "ms");
+        log.info("\n=== Load Test Results ===");
+        log.info("Concurrent users: {}", concurrentUsers);
+        log.info("Requests per user: {}", requestsPerUser);
+        log.info("Total requests: {}", concurrentUsers * requestsPerUser);
+        log.info("Total time: {}ms", totalTime);
+        log.info("Throughput: {} requests/second", String.format("%.2f", throughput));
+        log.info("Average response time: {}ms", String.format("%.2f", stats.getAverage()));
+        log.info("Min response time: {}ms", stats.getMin());
+        log.info("Max response time: {}ms", stats.getMax());
 
         executor.shutdown();
     }
