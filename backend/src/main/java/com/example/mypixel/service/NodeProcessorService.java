@@ -100,7 +100,6 @@ public class NodeProcessorService {
         for (String key: node.getInputTypes().keySet()) {
             // If the user's inputs don't contain one of the parameters
             if (!node.getInputs().containsKey(key)) {
-                log.info("not found: {} {}", key, node.getInputTypes().get(key).isRequired());
                 // If it is required - throw an exception
                 if (node.getInputTypes().get(key).isRequired()) {
                     throw new InvalidNodeParameter("Required input " + key

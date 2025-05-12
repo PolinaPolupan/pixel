@@ -14,6 +14,14 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -183,5 +191,60 @@ public class GraphIntegrationTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
                 "Graph with missing required inputs should be rejected");
+    }
+
+    @Test
+    void testConcurrentLoad() {
+        int concurrentUsers = 10;
+        int requestsPerUser = 5;
+
+        ExecutorService executor = Executors.newFixedThreadPool(concurrentUsers);
+
+        List<CompletableFuture<Long>> futures = new ArrayList<>();
+
+        long startTime = System.currentTimeMillis();
+
+        for (int user = 0; user < concurrentUsers; user++) {
+            for (int req = 0; req < requestsPerUser; req++) {
+                futures.add(CompletableFuture.supplyAsync(() -> {
+                    long requestStart = System.currentTimeMillis();
+
+                    String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                            "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
+
+                    restTemplate.postForEntity(
+                            "/v1/scene/{sceneId}/graph",
+                            testGraphJson,
+                            String.class,
+                            sceneId);
+
+                    return System.currentTimeMillis() - requestStart;
+                }, executor));
+            }
+        }
+
+        List<Long> executionTimes = futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+
+        long totalTime = System.currentTimeMillis() - startTime;
+
+        DoubleSummaryStatistics stats = executionTimes.stream()
+                .mapToDouble(Long::doubleValue)
+                .summaryStatistics();
+
+        double throughput = (concurrentUsers * requestsPerUser * 1000.0) / totalTime;
+
+        System.out.println("\n=== Load Test Results ===");
+        System.out.println("Concurrent users: " + concurrentUsers);
+        System.out.println("Requests per user: " + requestsPerUser);
+        System.out.println("Total requests: " + (concurrentUsers * requestsPerUser));
+        System.out.println("Total time: " + totalTime + "ms");
+        System.out.println("Throughput: " + String.format("%.2f", throughput) + " requests/second");
+        System.out.println("Average response time: " + String.format("%.2f", stats.getAverage()) + "ms");
+        System.out.println("Min response time: " + stats.getMin() + "ms");
+        System.out.println("Max response time: " + stats.getMax() + "ms");
+
+        executor.shutdown();
     }
 }

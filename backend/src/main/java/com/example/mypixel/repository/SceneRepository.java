@@ -3,6 +3,7 @@ package com.example.mypixel.repository;
 import com.example.mypixel.model.Scene;
 import com.example.mypixel.model.TaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -23,4 +24,8 @@ public interface SceneRepository extends JpaRepository<Scene, Long> {
             @Param("statuses") List<TaskStatus> statuses,
             @Param("lastAccessBefore") LocalDateTime lastAccessBefore
     );
+
+    @Modifying
+    @Query("UPDATE Scene s SET s.lastAccessed = :now WHERE s.id = :sceneId")
+    void updateLastAccessedTime(@Param("sceneId") Long sceneId, @Param("now") LocalDateTime now);
 }

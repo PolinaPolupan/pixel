@@ -6,6 +6,7 @@ import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.repository.SceneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,12 +36,13 @@ public class SceneService {
         return scene;
     }
 
+    @Transactional
     public void updateLastAccessed(Long sceneId) {
-        Scene scene = sceneRepository.findById(sceneId).orElseThrow(() ->
-                new SceneNotFoundException("Scene with id: " + sceneId + " not found"));
+        if (!sceneRepository.existsById(sceneId)) {
+            throw new SceneNotFoundException("Scene with id: " + sceneId + " not found");
+        }
 
-        scene.setLastAccessed(LocalDateTime.now());
-        sceneRepository.save(scene);
+        sceneRepository.updateLastAccessedTime(sceneId, LocalDateTime.now());
     }
 
     List<Scene> getInactiveScenes() {
