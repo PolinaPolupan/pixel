@@ -6,11 +6,14 @@ import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.model.node.Node;
 import com.example.mypixel.repository.GraphExecutionTaskRepository;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import io.micrometer.core.instrument.Timer;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,7 +28,9 @@ public class GraphService {
     private final NodeProcessorService nodeProcessorService;
     private final SimpMessagingTemplate messagingTemplate;
     private final GraphExecutionTaskRepository taskRepository;
+    private final MeterRegistry meterRegistry;
 
+    @Timed(value = "graph.execution.time", percentiles = {0.5, 0.95, 0.99})
     public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId) {
         log.info("Starting execution for scene {}", sceneId);
 
@@ -58,6 +63,8 @@ public class GraphService {
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
+                Timer.Sample nodeSample = Timer.start(meterRegistry);
+
                 Node node = iterator.next();
 
                 nodeProcessorService.processNode(node, sceneId, taskId, graph.getNodeMap());
@@ -70,6 +77,13 @@ public class GraphService {
                 sendProgressWebSocket(sceneId, processedNodes, totalNodes);
 
                 log.info("Node with id: {} is processed", node.getId());
+
+                nodeSample.stop(Timer.builder("graph.node.execution")
+                        .tag("node.type", node.getType())
+                        .tag("node.id", String.valueOf(node.getId()))
+                        .tag("scene.id", sceneId.toString())
+                        .description("Time taken to process a single node")
+                        .register(meterRegistry));
             }
 
             task.setStatus(TaskStatus.COMPLETED);

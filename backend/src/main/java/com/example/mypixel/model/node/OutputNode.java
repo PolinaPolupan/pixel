@@ -33,6 +33,7 @@ public class OutputNode extends Node {
     @Override
     public Map<String, Object> getDefaultInputs() {
         return Map.of(
+                "files", new HashSet<>(),
                 "prefix", "",
                 "folder", ""
         );

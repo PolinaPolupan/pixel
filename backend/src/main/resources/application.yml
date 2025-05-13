@@ -35,6 +35,9 @@ logging:
     org.springframework.web: DEBUG
 
 management:
+  metrics:
+    tags:
+      application: graph-processor
   endpoints:
     web:
       exposure:
