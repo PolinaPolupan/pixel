@@ -6,14 +6,12 @@ import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.model.node.Node;
 import com.example.mypixel.repository.GraphExecutionTaskRepository;
-import io.micrometer.core.annotation.Timed;
-import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import io.micrometer.core.instrument.Timer;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,11 +26,10 @@ public class GraphService {
     private final NodeProcessorService nodeProcessorService;
     private final SimpMessagingTemplate messagingTemplate;
     private final GraphExecutionTaskRepository taskRepository;
-    private final MeterRegistry meterRegistry;
+    private final PerformanceTracker performanceTracker;
 
-    @Timed(value = "graph.execution.time", percentiles = {0.5, 0.95, 0.99})
     public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId) {
-        log.info("Starting execution for scene {}", sceneId);
+        log.debug("Starting execution for scene {}", sceneId);
 
         validateGraph(graph);
 
@@ -41,7 +38,7 @@ public class GraphService {
         task.setStatus(TaskStatus.PENDING);
         task.setTotalNodes(graph.getNodes().size());
         task.setProcessedNodes(0);
-        task = taskRepository.save(task);
+        taskRepository.save(task);
 
         executeGraph(graph, task.getId(), sceneId);
 
@@ -49,7 +46,15 @@ public class GraphService {
     }
 
     @Async("graphTaskExecutor")
-    public CompletableFuture<GraphExecutionTask> executeGraph(Graph graph, Long taskId, Long sceneId) {
+    public void executeGraph(Graph graph, Long taskId, Long sceneId) {
+        performanceTracker.trackOperation(
+                "graph.execution",
+                Tags.of("scene.id", String.valueOf(sceneId)),
+                () -> executeGraphInternal(graph, taskId, sceneId)
+        );
+    }
+
+    private void executeGraphInternal(Graph graph, Long taskId, Long sceneId) {
         GraphExecutionTask task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
 
@@ -63,11 +68,20 @@ public class GraphService {
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
-                Timer.Sample nodeSample = Timer.start(meterRegistry);
-
                 Node node = iterator.next();
 
-                nodeProcessorService.processNode(node, sceneId, taskId, graph.getNodeMap());
+                Tags nodeTags = Tags.of(
+                        "node.id", String.valueOf(node.getId()),
+                        "node.type", node.getType(),
+                        "scene.id", String.valueOf(sceneId),
+                        "task.id", String.valueOf(taskId)
+                );
+
+                performanceTracker.trackOperation(
+                        "node.execution",
+                        nodeTags,
+                        () -> nodeProcessorService.processNode(node, sceneId, taskId, graph.getNodeMap())
+                );
 
                 processedNodes++;
 
@@ -76,14 +90,7 @@ public class GraphService {
 
                 sendProgressWebSocket(sceneId, processedNodes, totalNodes);
 
-                log.info("Node with id: {} is processed", node.getId());
-
-                nodeSample.stop(Timer.builder("graph.node.execution")
-                        .tag("node.type", node.getType())
-                        .tag("node.id", String.valueOf(node.getId()))
-                        .tag("scene.id", sceneId.toString())
-                        .description("Time taken to process a single node")
-                        .register(meterRegistry));
+                log.debug("Node with id: {} is processed", node.getId());
             }
 
             task.setStatus(TaskStatus.COMPLETED);
@@ -92,7 +99,7 @@ public class GraphService {
 
             sendCompletedWebSocket(sceneId);
 
-            return CompletableFuture.completedFuture(task);
+            CompletableFuture.completedFuture(task);
         } catch (Exception e) {
             log.error("Error processing graph for scene {}: {}", sceneId, e.getMessage(), e);
 

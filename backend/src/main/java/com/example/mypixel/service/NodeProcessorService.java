@@ -3,7 +3,6 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.*;
 import com.example.mypixel.model.node.Node;
-import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -21,7 +20,6 @@ public class NodeProcessorService {
     private final StorageService storageService;
     private final BatchProcessor batchProcessor;
 
-    @Timed(value = "node.process.time", percentiles = {0.5, 0.95, 0.99})
     public void processNode(Node node,
                             Long sceneId,
                             Long taskId,
