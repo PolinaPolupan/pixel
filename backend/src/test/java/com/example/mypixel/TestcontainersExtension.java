@@ -1,5 +1,6 @@
 package com.example.mypixel;
 
+import lombok.Getter;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.containers.GenericContainer;
@@ -26,14 +27,17 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 public class TestcontainersExtension implements BeforeAllCallback {
 
+    @Getter
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17.2-alpine")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test");
 
+    @Getter
     private static final GenericContainer<?> redis = new GenericContainer<>("redislabs/redismod")
             .withExposedPorts(6379);
 
+    @Getter
     private static final LocalStackContainer localstack = new LocalStackContainer(
             DockerImageName.parse("localstack/localstack:latest"))
             .withServices(S3);
@@ -99,18 +103,6 @@ public class TestcontainersExtension implements BeforeAllCallback {
                 .region(Region.of(localstack.getRegion()))
                 .forcePathStyle(true)
                 .build();
-    }
-
-    public static PostgreSQLContainer<?> getPostgres() {
-        return postgres;
-    }
-
-    public static GenericContainer<?> getRedis() {
-        return redis;
-    }
-
-    public static LocalStackContainer getLocalstack() {
-        return localstack;
     }
 
     public static String getTestBucket() {

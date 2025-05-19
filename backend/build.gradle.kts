@@ -32,6 +32,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("com.github.loki4j:loki-logback-appender:1.4.1")
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	implementation("com.google.guava:guava:33.4.0-jre")
 	implementation("org.reflections:reflections:0.10.2")
