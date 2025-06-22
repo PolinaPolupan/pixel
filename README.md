@@ -4,6 +4,8 @@ An image processing system designed to proccess images using node-based workflow
 > ⚠️ **IMPORTANT**: This project is currently in early development phase
 
 ## Example workflow
+![image](https://github.com/user-attachments/assets/a4c38118-e976-42d3-b599-abfa7d92621f)
+
 ```
 {
   "nodes": [
@@ -68,7 +70,6 @@ An image processing system designed to proccess images using node-based workflow
 - [ ] GPU acceleration for compute-intensive operations
 - [ ] Machine learning-based image analysis (object detection, face recognition)
 - [ ] Advanced content-aware resizing and cropping
-- [ ] Webhook notifications for job completion
 - [ ] Pre-built templates for common transformations
 - [ ] Batch optimization for similar operations
 - [ ] Comprehensive image metadata preservation

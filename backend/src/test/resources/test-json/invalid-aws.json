@@ -1,0 +1,72 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "S3Input",
+      "inputs": {
+        "access_key_id": "invalid",
+        "secret_access_key": "{{aws_secret}}",
+        "region": "{{aws_region}}",
+        "bucket": "{{aws_bucket}}",
+        "endpoint": "{{aws_endpoint}}"
+      }
+    },
+    {
+      "id": 10,
+      "type": "Input",
+      "inputs": {
+        "files" : [
+          "upload-image-dir/{{scene_id}}/input/Picture1.png",
+          "upload-image-dir/{{scene_id}}/input/Picture3.png"
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "type": "Combine",
+      "inputs": {
+        "files_0" : "@node:10:files",
+        "files_1" : "@node:0:files"
+      }
+    },
+    {
+      "id": 4,
+      "type": "Floor",
+      "inputs": {
+        "number": 56
+      }
+    },
+    {
+      "id": 1,
+      "type": "GaussianBlur",
+      "inputs": {
+        "files": "@node:11:files",
+        "sizeX": 33,
+        "sizeY": 33,
+        "sigmaX": "@node:4:number"
+      }
+    },
+    {
+      "id": 2,
+      "type": "Output",
+      "inputs": {
+        "files": "@node:1:files",
+        "prefix": "output1",
+        "folder": "output_1"
+      }
+    },
+    {
+      "id": 3,
+      "type": "Invalid",
+      "inputs": {
+        "files": "@node:1:files",
+        "access_key_id": "{{aws_access}}",
+        "secret_access_key": "{{aws_secret}}",
+        "region": "{{aws_region}}",
+        "bucket": "{{aws_bucket}}",
+        "endpoint": "{{aws_endpoint}}",
+        "folder": "output"
+      }
+    }
+  ]
+}

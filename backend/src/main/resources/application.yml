@@ -1,0 +1,46 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 800MB
+      max-request-size: 800MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+    datasource:
+      url: ${SPRING_DATASOURCE_URL}
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      driver-class-name: org.postgresql.Driver
+
+    flyway:
+      enabled: true
+      baseline-on-migrate: true
+      baseline-version: 0
+      locations: classpath:db/migration
+
+storage:
+  images: upload-image-dir
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+
+management:
+  metrics:
+    enable:
+      jvm: true
+    tags:
+      application: graph-processor
+  endpoints:
+    web:
+      exposure:
+        include: [ "prometheus", "health", "info"]
