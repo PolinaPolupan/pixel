@@ -40,24 +40,31 @@ public class GraphService {
         task.setProcessedNodes(0);
         taskRepository.save(task);
 
-        executeGraph(graph, task.getId(), sceneId);
+        executeGraph(graph, task, sceneId);
 
         return task;
     }
 
     @Async("graphTaskExecutor")
-    public void executeGraph(Graph graph, Long taskId, Long sceneId) {
+    public CompletableFuture<GraphExecutionTask> executeGraph(
+            Graph graph,
+            GraphExecutionTask task,
+            Long sceneId
+    ) {
         performanceTracker.trackOperation(
                 "graph.execution",
                 Tags.of("scene.id", String.valueOf(sceneId)),
-                () -> executeGraphInternal(graph, taskId, sceneId)
+                () -> executeGraphInternal(graph, task, sceneId)
         );
+
+        return CompletableFuture.completedFuture(task);
     }
 
-    private void executeGraphInternal(Graph graph, Long taskId, Long sceneId) {
-        GraphExecutionTask task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
-
+    private CompletableFuture<GraphExecutionTask> executeGraphInternal(
+            Graph graph,
+            GraphExecutionTask task,
+            Long sceneId
+    ) {
         try {
             task.setStatus(TaskStatus.RUNNING);
             task.setStartTime(LocalDateTime.now());
@@ -74,13 +81,13 @@ public class GraphService {
                         "node.id", String.valueOf(node.getId()),
                         "node.type", node.getType(),
                         "scene.id", String.valueOf(sceneId),
-                        "task.id", String.valueOf(taskId)
+                        "task.id", String.valueOf(task.getId())
                 );
 
                 performanceTracker.trackOperation(
                         "node.execution",
                         nodeTags,
-                        () -> nodeProcessorService.processNode(node, sceneId, taskId, graph.getNodeMap())
+                        () -> nodeProcessorService.processNode(node, sceneId, task.getId(), graph.getNodeMap())
                 );
 
                 processedNodes++;
@@ -99,7 +106,8 @@ public class GraphService {
 
             sendCompletedWebSocket(sceneId);
 
-            CompletableFuture.completedFuture(task);
+            return CompletableFuture.completedFuture(task);
+
         } catch (Exception e) {
             log.error("Error processing graph for scene {}: {}", sceneId, e.getMessage(), e);
 
@@ -110,9 +118,7 @@ public class GraphService {
 
             sendErrorWebSocket(sceneId, e.getMessage());
 
-            CompletableFuture.completedFuture(task);
-
-            throw e;
+            return CompletableFuture.failedFuture(e);
         }
     }
 
