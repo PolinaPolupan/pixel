@@ -1,5 +1,6 @@
 package com.example.mypixel.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,7 @@ public class Scene {
     private LocalDateTime lastAccessed;
 
     // Version for optimistic locking in distributed environments
+    @JsonIgnore
     @Version
     private Long version;
 }

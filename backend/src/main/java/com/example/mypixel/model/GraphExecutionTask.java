@@ -1,5 +1,6 @@
 package com.example.mypixel.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class GraphExecutionTask {
     private String errorMessage;
 
     // Version for optimistic locking in distributed environments
+    @JsonIgnore
     @Version
     private Long version;
 }
