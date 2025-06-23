@@ -51,13 +51,11 @@ public class GraphService {
             GraphExecutionTask task,
             Long sceneId
     ) {
-        performanceTracker.trackOperation(
+        return performanceTracker.trackOperation(
                 "graph.execution",
                 Tags.of("scene.id", String.valueOf(sceneId)),
                 () -> executeGraphInternal(graph, task, sceneId)
         );
-
-        return CompletableFuture.completedFuture(task);
     }
 
     private CompletableFuture<GraphExecutionTask> executeGraphInternal(
@@ -118,7 +116,7 @@ public class GraphService {
 
             sendErrorWebSocket(sceneId, e.getMessage());
 
-            return CompletableFuture.failedFuture(e);
+            throw e;
         }
     }
 

@@ -41,6 +41,54 @@ public class NodeProcessorService {
         nodeCacheService.put(outputKey, node.exec());
     }
 
+    private void resolveInputs(Node node,
+                               Long taskId,
+                               Map<Long, Node> nodeMap) {
+        Map<String, Object> resolvedInputs = new HashMap<>();
+
+        for (String key: node.getInputTypes().keySet()) {
+            // If the user's inputs don't contain one of the parameters
+            if (!node.getInputs().containsKey(key)) {
+                // If it is required - throw an exception
+                if (node.getInputTypes().get(key).isRequired()) {
+                    throw new InvalidNodeParameter("Required input " + key
+                            + " is not provided for the node with id " + node.getId());
+                } else { // Omit, continue on processing other inputs
+                    continue;
+                }
+            }
+
+            resolvedInputs.put(key, resolveInput(node, taskId, key, nodeMap));
+        }
+
+        node.setInputs(resolvedInputs);
+    }
+
+    private Object resolveInput(Node node,
+                                Long taskId,
+                                String key,
+                                Map<Long, Node> nodeMap) {
+        Object input = node.getInputs().get(key);
+        Parameter requiredType = node.getInputTypes().get(key);
+
+        if (input instanceof NodeReference) {
+            input = resolveReference((NodeReference) input, taskId, nodeMap);
+        }
+
+        // Cast to required type
+        try {
+            input = castTypes(node, input, requiredType);
+        } catch (ClassCastException e) {
+            throw new InvalidNodeParameter(
+                    "Invalid input parameter '" + key + "' to the node with id " +
+                            node.getId() + ": cannot cast " + input.getClass().getSimpleName() +
+                            " to " + requiredType + " type"
+            );
+        }
+
+        return input;
+    }
+
     private Object resolveReference(NodeReference reference, Long taskId, Map<Long, Node> nodeMap) {
         Long id = reference.getNodeId();
         String output = reference.getOutputName();
@@ -90,53 +138,5 @@ public class NodeProcessorService {
             }
             case STRING_ARRAY -> (List<String>) value;
         };
-    }
-
-    private void resolveInputs(Node node,
-                               Long taskId,
-                               Map<Long, Node> nodeMap) {
-        Map<String, Object> resolvedInputs = new HashMap<>();
-
-        for (String key: node.getInputTypes().keySet()) {
-            // If the user's inputs don't contain one of the parameters
-            if (!node.getInputs().containsKey(key)) {
-                // If it is required - throw an exception
-                if (node.getInputTypes().get(key).isRequired()) {
-                    throw new InvalidNodeParameter("Required input " + key
-                            + " is not provided for the node with id " + node.getId());
-                } else { // Omit, continue on processing other inputs
-                    continue;
-                }
-            }
-
-            resolvedInputs.put(key, resolveInput(node, taskId, key, nodeMap));
-        }
-
-        node.setInputs(resolvedInputs);
-    }
-
-    private Object resolveInput(Node node,
-                                Long taskId,
-                                String key,
-                                Map<Long, Node> nodeMap) {
-        Object input = node.getInputs().get(key);
-        Parameter requiredType = node.getInputTypes().get(key);
-
-        if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, taskId, nodeMap);
-        }
-
-        // Cast to required type
-        try {
-            input = castTypes(node, input, requiredType);
-        } catch (ClassCastException e) {
-            throw new InvalidNodeParameter(
-                    "Invalid input parameter '" + key + "' to the node with id " +
-                            node.getId() + ": cannot cast " + input.getClass().getSimpleName() +
-                            " to " + requiredType + " type"
-            );
-        }
-
-        return input;
     }
 }
