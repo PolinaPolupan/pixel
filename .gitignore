@@ -1,1 +1,8 @@
 /.idea/
+/native/
+/temp-image-dir/
+/upload-image-dir/
+/native/
+/native/cmake-build-debug/
+/native/cmake-build-debug-wsl/
+/build/
