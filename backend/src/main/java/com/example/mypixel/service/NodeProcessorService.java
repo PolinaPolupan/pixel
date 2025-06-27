@@ -112,11 +112,17 @@ public class NodeProcessorService {
             throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
         }
         return switch (requiredType.getType()) {
-            case FLOAT -> value instanceof Number ? ((Number) value).floatValue() : (float) value;
-            case INT -> value instanceof Number ? ((Number) value).intValue() : (int) value;
-            case DOUBLE -> value instanceof Number ? ((Number) value).doubleValue() : (double) value;
+            case INT, FLOAT, DOUBLE -> overflowCheck((Number) value, requiredType.getType());
             case STRING -> (String) value;
-            case VECTOR2D -> Vector2D.fromMap((Map<String, Object>) value);
+            case VECTOR2D -> {
+                if (value instanceof Vector2D) {
+                    yield value;
+                } else if (value instanceof Map) {
+                    yield Vector2D.fromMap((Map<String, Object>) value);
+                } else {
+                    throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to Vector2D");
+                }
+            }
             case FILEPATH_ARRAY -> {
                 HashSet<String> files = new HashSet<>();
                 if (value instanceof Collection<?>) {
@@ -138,5 +144,41 @@ public class NodeProcessorService {
             }
             case STRING_ARRAY -> (List<String>) value;
         };
+    }
+
+    private Object overflowCheck(Number value, ParameterType type) {
+        double doubleValue = value.doubleValue();
+        String originalValue = value.toString();
+
+        switch (type) {
+            case INT -> {
+                if (doubleValue > Integer.MAX_VALUE || doubleValue < Integer.MIN_VALUE) {
+                    throw new InvalidNodeParameter(
+                            String.format("Value %s exceeds integer range [%d, %d]",
+                                    originalValue, Integer.MIN_VALUE, Integer.MAX_VALUE)
+                    );
+                }
+                return (int) doubleValue;
+            }
+            case FLOAT -> {
+                if (doubleValue > Float.MAX_VALUE || doubleValue < -Float.MAX_VALUE) {
+                    throw new InvalidNodeParameter(
+                            String.format("Value %s exceeds float range [%s, %s]",
+                                    originalValue, -Float.MAX_VALUE, Float.MAX_VALUE)
+                    );
+                }
+                return (float) doubleValue;
+            }
+            case DOUBLE -> {
+                if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
+                    throw new InvalidNodeParameter(
+                            String.format("Value %s is too large or not a valid number for double representation",
+                                    originalValue)
+                    );
+                }
+                return doubleValue;
+            }
+        }
+        return value;
     }
 }

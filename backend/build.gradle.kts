@@ -45,6 +45,7 @@ dependencies {
 	implementation("redis.clients:jedis")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
+	testImplementation("com.h2database:h2:2.3.232")
 	testImplementation("org.testcontainers:localstack")
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")

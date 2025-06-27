@@ -7,6 +7,7 @@ import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.model.node.Node;
 import com.example.mypixel.repository.GraphExecutionTaskRepository;
 import io.micrometer.core.instrument.Tags;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -28,6 +29,7 @@ public class GraphService {
     private final GraphExecutionTaskRepository taskRepository;
     private final PerformanceTracker performanceTracker;
 
+    @Transactional
     public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId) {
         log.debug("Starting execution for scene {}", sceneId);
 

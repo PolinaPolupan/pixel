@@ -16,8 +16,8 @@
       "type": "Input",
       "inputs": {
         "files" : [
-          "upload-image-dir/{{scene_id}}/input/Picture1.png",
-          "upload-image-dir/{{scene_id}}/input/Picture3.png"
+          "upload-image-dir/scenes/{{scene_id}}/input/Picture1.png",
+          "upload-image-dir/scenes/{{scene_id}}/input/Picture3.png"
         ]
       }
     },

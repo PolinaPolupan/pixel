@@ -58,7 +58,7 @@ public class GraphIntegrationTest {
         );
 
         TestFileUtils.copyResourcesToDirectory(
-                "upload-image-dir/" + sceneId + "/input/",
+                "upload-image-dir/scenes/" + sceneId + "/input/",
                 "test-images/Picture1.png",
                 "test-images/Picture3.png"
         );
@@ -184,7 +184,6 @@ public class GraphIntegrationTest {
         String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
                 "test-json/missing-required-inputs.json", sceneId, TestcontainersExtension.getLocalstack());
 
-
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/graph",
                 testGraphJson,
@@ -193,6 +192,62 @@ public class GraphIntegrationTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
                 "Graph with missing required inputs should be rejected");
+    }
+
+    @Test
+    void testInvalidIdLongRange() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/invalid-id-long-range.json", sceneId, TestcontainersExtension.getLocalstack());
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testInvalidIdString() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/invalid-id-string.json", sceneId, TestcontainersExtension.getLocalstack());
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testIntegerOverflow() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/integer-overflow.json", sceneId, TestcontainersExtension.getLocalstack());
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void testDoubleOverflow() {
+        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                "test-json/double-overflow.json", sceneId, TestcontainersExtension.getLocalstack());
+
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                "/v1/scene/{sceneId}/graph",
+                testGraphJson,
+                String.class,
+                sceneId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
