@@ -1,6 +1,5 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.exception.InvalidGraph;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.TaskStatus;
@@ -32,8 +31,6 @@ public class GraphService {
     @Transactional
     public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId) {
         log.debug("Starting execution for scene {}", sceneId);
-
-        validateGraph(graph);
 
         GraphExecutionTask task = new GraphExecutionTask();
         task.setSceneId(sceneId);
@@ -87,7 +84,7 @@ public class GraphService {
                 performanceTracker.trackOperation(
                         "node.execution",
                         nodeTags,
-                        () -> nodeProcessorService.processNode(node, sceneId, task.getId(), graph.getNodeMap())
+                        () -> nodeProcessorService.processNode(node, sceneId, task.getId())
                 );
 
                 processedNodes++;
@@ -120,24 +117,6 @@ public class GraphService {
 
             throw e;
         }
-    }
-
-    public void validateGraph(Graph graph) {
-        Set<Long> seenIds = new HashSet<>();
-        List<Long> duplicateIds = new ArrayList<>();
-
-        for (Node node: graph.getNodes()) {
-            if (!seenIds.add(node.getId())) {
-                // If we couldn't add to the set, it's a duplicate
-                duplicateIds.add(node.getId());
-            }
-        }
-
-        if (!duplicateIds.isEmpty()) {
-            throw new InvalidGraph("Graph contains nodes with duplicate IDs: " + duplicateIds);
-        }
-
-        log.info("Graph validation passed: no duplicate node IDs found");
     }
 
     private void sendProgressWebSocket(Long sceneId, int processed, int total) {

@@ -22,8 +22,7 @@ public class NodeProcessorService {
 
     public void processNode(Node node,
                             Long sceneId,
-                            Long taskId,
-                            Map<Long, Node> nodeMap) {
+                            Long taskId) {
         beanFactory.autowireBean(node);
         FileHelper fileHelper = new FileHelper(storageService, node, sceneId, taskId);
         node.setFileHelper(fileHelper);
@@ -31,7 +30,7 @@ public class NodeProcessorService {
 
         log.info("Started node: {}", node.getId());
 
-        resolveInputs(node, taskId, nodeMap);
+        resolveInputs(node, taskId);
         node.validate();
 
         String outputKey = taskId + ":" + node.getId() + ":output";
@@ -41,24 +40,11 @@ public class NodeProcessorService {
         nodeCacheService.put(outputKey, node.exec());
     }
 
-    private void resolveInputs(Node node,
-                               Long taskId,
-                               Map<Long, Node> nodeMap) {
+    private void resolveInputs(Node node, Long taskId) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
-        for (String key: node.getInputTypes().keySet()) {
-            // If the user's inputs don't contain one of the parameters
-            if (!node.getInputs().containsKey(key)) {
-                // If it is required - throw an exception
-                if (node.getInputTypes().get(key).isRequired()) {
-                    throw new InvalidNodeParameter("Required input " + key
-                            + " is not provided for the node with id " + node.getId());
-                } else { // Omit, continue on processing other inputs
-                    continue;
-                }
-            }
-
-            resolvedInputs.put(key, resolveInput(node, taskId, key, nodeMap));
+        for (String key: node.getInputs().keySet()) {
+            resolvedInputs.put(key, resolveInput(node, taskId, key));
         }
 
         node.setInputs(resolvedInputs);
@@ -66,13 +52,12 @@ public class NodeProcessorService {
 
     private Object resolveInput(Node node,
                                 Long taskId,
-                                String key,
-                                Map<Long, Node> nodeMap) {
+                                String key) {
         Object input = node.getInputs().get(key);
         Parameter requiredType = node.getInputTypes().get(key);
 
         if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, taskId, nodeMap);
+            input = resolveReference((NodeReference) input, taskId);
         }
 
         // Cast to required type
@@ -89,22 +74,19 @@ public class NodeProcessorService {
         return input;
     }
 
-    private Object resolveReference(NodeReference reference, Long taskId, Map<Long, Node> nodeMap) {
-        Long id = reference.getNodeId();
-        String output = reference.getOutputName();
+    private Object resolveReference(NodeReference reference, Long taskId) {
+        try {
+            Long id = reference.getNodeId();
+            String output = reference.getOutputName();
 
-        if (!nodeMap.containsKey(id)) {
-            throw new InvalidNodeParameter("Invalid node reference: Node with id " +
-                    id + " is not found. Please ensure the node id is correct.");
+            String cacheKey = taskId + ":" + id + ":output";
+            Map<String, Object> outputMap = nodeCacheService.get(cacheKey);
+
+            return outputMap.get(output);
+        } catch (Exception e) {
+            log.error("Error resolving reference: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to resolve reference: " + e.getMessage(), e);
         }
-
-        if (!nodeMap.get(id).getOutputTypes().containsKey(output)) {
-            throw new InvalidNodeParameter("Invalid node reference: Node with id "
-                    + id + " does not contain output '" + output
-                    + "'. Available outputs are: " + nodeMap.get(id).getOutputTypes().keySet());
-        }
-
-        return nodeCacheService.get(taskId + ":" + id + ":output").get(output);
     }
 
     private Object castTypes(Node node, Object value, Parameter requiredType) {

@@ -51,30 +51,9 @@ public class GraphServiceTests {
     }
 
     @Test
-    void validation_withDuplicates_shouldThrowException() {
-        InputNode node1 = new InputNode(0L, "Input", null);
-        InputNode node2 = new InputNode(0L, "Input", null);
-
-        OutputNode node3 = new OutputNode(1L, "Output", null);
-        OutputNode node4 = new OutputNode(1L, "Output", null);
-
-        List<Long> duplicateIds = List.of(node1.getId(), node3.getId());
-
-        Graph graph = new Graph(List.of(node1, node2, node3, node4));
-
-        Exception exception = assertThrows(InvalidGraph.class,
-                () -> graphService.validateGraph(graph));
-
-        String expectedMessage = "Graph contains nodes with duplicate IDs: " + duplicateIds;
-        assertEquals(expectedMessage, exception.getMessage());
-    }
-
-    @Test
     void executeGraph_defaultCase_shouldGenerateOutputFiles() {
         graphService.startGraphExecution(getGraph(), sceneId);
 
-        assertTrue(storageService.loadAll("scenes/" +
-                        sceneId + "/output").toArray().length > 0);
         assertTrue(storageService.loadAsResource("scenes/" +
                 sceneId + "/output/processed/filtered_result_Picture1.png").exists());
         assertTrue(storageService.loadAsResource("scenes/" +
