@@ -3,6 +3,8 @@ package com.example.mypixel.model;
 import com.example.mypixel.exception.InvalidGraph;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.node.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -353,6 +355,95 @@ public class GraphTests {
         nodes.add(outputNode);
 
         return nodes;
+    }
+
+    @Nested
+    @DisplayName("Graph Overflow Tests")
+    class GraphOverflowTests {
+        @Test
+        void integerOverflow_shouldThrowInvalidNodeParameter() {
+            List<Node> nodes = new ArrayList<>();
+
+            Map<String, Object> gaussianParams = new HashMap<>();
+            gaussianParams.put("files", new ArrayList<>());
+            gaussianParams.put("sizeX", (long) Integer.MAX_VALUE + 1);
+            gaussianParams.put("sizeY", 5);
+            gaussianParams.put("sigmaX", 1.5);
+            gaussianParams.put("sigmaY", 1.5);
+            GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+            nodes.add(gaussianNode);
+
+            InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
+            assertTrue(exception.getMessage().contains("exceeds integer range"));
+        }
+
+        @Test
+        void integerUnderflow_shouldThrowInvalidNodeParameter() {
+            List<Node> nodes = new ArrayList<>();
+
+            Map<String, Object> gaussianParams = new HashMap<>();
+            gaussianParams.put("files", new ArrayList<>());
+            gaussianParams.put("sizeX", (long) Integer.MIN_VALUE - 1);
+            gaussianParams.put("sizeY", 5);
+            gaussianParams.put("sigmaX", 1.5);
+            gaussianParams.put("sigmaY", 1.5);
+            GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+            nodes.add(gaussianNode);
+
+            InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
+            assertTrue(exception.getMessage().contains("exceeds integer range"));
+        }
+
+        @Test
+        void doublePositiveInfinity_shouldThrowInvalidNodeParameter() {
+            List<Node> nodes = new ArrayList<>();
+
+            // Create a BilateralFilter node with infinite sigma color
+            Map<String, Object> bilateralParams = new HashMap<>();
+            bilateralParams.put("files", new ArrayList<>());
+            bilateralParams.put("d", 9);
+            bilateralParams.put("sigmaColor", Double.POSITIVE_INFINITY);  // Invalid double value
+            bilateralParams.put("sigmaSpace", 75.0);
+            BilateralFilterNode bilateralNode = new BilateralFilterNode(1L, "BilateralFilter", bilateralParams);
+            nodes.add(bilateralNode);
+
+            InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
+            assertTrue(exception.getMessage().contains("too large or not a valid number"));
+        }
+
+        @Test
+        void doubleNegativeInfinity_shouldThrowInvalidNodeParameter() {
+            List<Node> nodes = new ArrayList<>();
+
+            // Create a BilateralFilter node with negative infinite sigma space
+            Map<String, Object> bilateralParams = new HashMap<>();
+            bilateralParams.put("files", new ArrayList<>());
+            bilateralParams.put("d", 9);
+            bilateralParams.put("sigmaColor", 75.0);
+            bilateralParams.put("sigmaSpace", Double.NEGATIVE_INFINITY);  // Invalid double value
+            BilateralFilterNode bilateralNode = new BilateralFilterNode(1L, "BilateralFilter", bilateralParams);
+            nodes.add(bilateralNode);
+
+            InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
+            assertTrue(exception.getMessage().contains("too large or not a valid number"));
+        }
+
+        @Test
+        void doubleNaN_shouldThrowInvalidNodeParameter() {
+            List<Node> nodes = new ArrayList<>();
+
+            // Create a BilateralFilter node with NaN value
+            Map<String, Object> bilateralParams = new HashMap<>();
+            bilateralParams.put("files", new ArrayList<>());
+            bilateralParams.put("d", 9);
+            bilateralParams.put("sigmaColor", Double.NaN);  // Not a number
+            bilateralParams.put("sigmaSpace", 75.0);
+            BilateralFilterNode bilateralNode = new BilateralFilterNode(1L, "BilateralFilter", bilateralParams);
+            nodes.add(bilateralNode);
+
+            InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
+            assertTrue(exception.getMessage().contains("not a valid number"));
+        }
     }
 
     private List<Node> getTemplate2Nodes() {

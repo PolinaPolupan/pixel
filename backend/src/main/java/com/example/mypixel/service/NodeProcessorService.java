@@ -94,7 +94,9 @@ public class NodeProcessorService {
             throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
         }
         return switch (requiredType.getType()) {
-            case INT, FLOAT, DOUBLE -> overflowCheck((Number) value, requiredType.getType());
+            case FLOAT -> ((Number) value).floatValue();
+            case INT -> ((Number) value).intValue();
+            case DOUBLE -> ((Number) value).doubleValue();
             case STRING -> (String) value;
             case VECTOR2D -> {
                 if (value instanceof Vector2D) {
@@ -126,41 +128,5 @@ public class NodeProcessorService {
             }
             case STRING_ARRAY -> (List<String>) value;
         };
-    }
-
-    private Object overflowCheck(Number value, ParameterType type) {
-        double doubleValue = value.doubleValue();
-        String originalValue = value.toString();
-
-        switch (type) {
-            case INT -> {
-                if (doubleValue > Integer.MAX_VALUE || doubleValue < Integer.MIN_VALUE) {
-                    throw new InvalidNodeParameter(
-                            String.format("Value %s exceeds integer range [%d, %d]",
-                                    originalValue, Integer.MIN_VALUE, Integer.MAX_VALUE)
-                    );
-                }
-                return (int) doubleValue;
-            }
-            case FLOAT -> {
-                if (doubleValue > Float.MAX_VALUE || doubleValue < -Float.MAX_VALUE) {
-                    throw new InvalidNodeParameter(
-                            String.format("Value %s exceeds float range [%s, %s]",
-                                    originalValue, -Float.MAX_VALUE, Float.MAX_VALUE)
-                    );
-                }
-                return (float) doubleValue;
-            }
-            case DOUBLE -> {
-                if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
-                    throw new InvalidNodeParameter(
-                            String.format("Value %s is too large or not a valid number for double representation",
-                                    originalValue)
-                    );
-                }
-                return doubleValue;
-            }
-        }
-        return value;
     }
 }

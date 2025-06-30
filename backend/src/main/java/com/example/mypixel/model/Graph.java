@@ -74,9 +74,14 @@ public class Graph {
 
     private void validateParameterValue(Node node, String paramName) {
         Object paramValue = node.getInputs().get(paramName);
+        ParameterType parameterType = node.getInputTypes().get(paramName).getType();
 
         if (paramValue instanceof NodeReference) {
             validateNodeReference((NodeReference) paramValue);
+        }
+
+        if (paramValue instanceof Number) {
+            overflowCheck((Number) paramValue, parameterType);
         }
     }
 
@@ -153,6 +158,38 @@ public class Graph {
                 inDegreeMap.put(dependent.getId(), inDegree);
                 if (inDegree == 0) {
                     zeroInDegreeNodes.add(nodeMap.get(dependent.getId()));
+                }
+            }
+        }
+    }
+
+    private void overflowCheck(Number value, ParameterType type) {
+        double doubleValue = value.doubleValue();
+        String originalValue = value.toString();
+
+        switch (type) {
+            case INT -> {
+                if (doubleValue > Integer.MAX_VALUE || doubleValue < Integer.MIN_VALUE) {
+                    throw new InvalidNodeParameter(
+                            String.format("Value %s exceeds integer range [%d, %d]",
+                                    originalValue, Integer.MIN_VALUE, Integer.MAX_VALUE)
+                    );
+                }
+            }
+            case FLOAT -> {
+                if (doubleValue > Float.MAX_VALUE || doubleValue < -Float.MAX_VALUE) {
+                    throw new InvalidNodeParameter(
+                            String.format("Value %s exceeds float range [%s, %s]",
+                                    originalValue, -Float.MAX_VALUE, Float.MAX_VALUE)
+                    );
+                }
+            }
+            case DOUBLE -> {
+                if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
+                    throw new InvalidNodeParameter(
+                            String.format("Value %s is too large or not a valid number for double representation",
+                                    originalValue)
+                    );
                 }
             }
         }
