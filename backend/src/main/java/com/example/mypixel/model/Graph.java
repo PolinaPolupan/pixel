@@ -43,7 +43,7 @@ public class Graph {
         return new GraphIterator(this);
     }
 
-    public void mapOutputNodes(Node node) {
+    private void mapOutputNodes(Node node) {
         List<Node> dependentNodes = new ArrayList<>();
         for (Node potentialDependent: nodes) {
             for (Object param: potentialDependent.getInputs().values()) {
