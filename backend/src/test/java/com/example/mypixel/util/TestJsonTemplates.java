@@ -1,4 +1,4 @@
-package com.example.mypixel;
+package com.example.mypixel.util;
 
 import org.testcontainers.containers.localstack.LocalStackContainer;
 

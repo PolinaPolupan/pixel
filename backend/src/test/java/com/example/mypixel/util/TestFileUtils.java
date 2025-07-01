@@ -1,4 +1,4 @@
-package com.example.mypixel;
+package com.example.mypixel.util;
 
 
 import org.springframework.core.io.ClassPathResource;

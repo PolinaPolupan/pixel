@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface GraphExecutionTaskRepository extends JpaRepository<GraphExecutionTask, Long> {
+public interface TaskRepository extends JpaRepository<GraphExecutionTask, Long> {
     List<GraphExecutionTask> findByStatusNotIn(List<TaskStatus> statuses);
 }

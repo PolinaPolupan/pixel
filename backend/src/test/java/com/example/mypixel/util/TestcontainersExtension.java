@@ -1,4 +1,4 @@
-package com.example.mypixel;
+package com.example.mypixel.util;
 
 import lombok.Getter;
 import org.junit.jupiter.api.extension.BeforeAllCallback;

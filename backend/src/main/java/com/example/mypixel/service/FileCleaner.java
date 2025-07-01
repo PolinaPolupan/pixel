@@ -1,7 +1,7 @@
 package com.example.mypixel.service;
 
 import com.example.mypixel.model.TaskStatus;
-import com.example.mypixel.repository.GraphExecutionTaskRepository;
+import com.example.mypixel.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class FileCleaner {
 
     private final SceneService sceneService;
-    private final GraphExecutionTaskRepository taskRepository;
+    private final TaskRepository taskRepository;
     private final StorageService storageService;
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
