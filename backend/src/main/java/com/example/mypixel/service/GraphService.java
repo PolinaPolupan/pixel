@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -27,12 +27,15 @@ public class GraphService {
 
     @Transactional
     public GraphExecutionTask startGraphExecution(Graph graph, Long sceneId) {
-        log.debug("Starting execution for scene {}", sceneId);
-
         GraphExecutionTask task = taskService.createTask(graph, sceneId);
         executeGraph(graph, task, sceneId);
-
         return task;
+    }
+
+    @Transactional
+    public CompletableFuture<GraphExecutionTask> startGraphExecutionAsync(Graph graph, Long sceneId) {
+        GraphExecutionTask task = taskService.createTask(graph, sceneId);
+        return executeGraph(graph, task, sceneId);
     }
 
     @Async("graphTaskExecutor")
@@ -63,18 +66,7 @@ public class GraphService {
             while (iterator.hasNext()) {
                 Node node = iterator.next();
 
-                Tags nodeTags = Tags.of(
-                        "node.id", String.valueOf(node.getId()),
-                        "node.type", node.getType(),
-                        "scene.id", String.valueOf(sceneId),
-                        "task.id", String.valueOf(task.getId())
-                );
-
-                performanceTracker.trackOperation(
-                        "node.execution",
-                        nodeTags,
-                        () -> nodeProcessorService.processNode(node, sceneId, task.getId())
-                );
+                nodeProcessorService.processNode(node, sceneId, task.getId());
 
                 processedNodes++;
 
@@ -94,7 +86,9 @@ public class GraphService {
             taskService.markTaskFailed(task, e.getMessage());
             notificationService.sendError(sceneId, e.getMessage());
 
-            throw e;
+            CompletableFuture<GraphExecutionTask> failedFuture = new CompletableFuture<>();
+            failedFuture.completeExceptionally(e);
+            return failedFuture;
         }
     }
 }

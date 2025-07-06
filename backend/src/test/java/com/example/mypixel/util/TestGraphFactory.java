@@ -88,14 +88,12 @@ public class TestGraphFactory {
         return new Graph(nodes);
     }
 
-    public static List<Node> getMinimalGraph(Long sceneId) {
+    public static Graph getMinimalGraph() {
         List<Node> nodes = new ArrayList<>();
 
         // Create Input node (id: 10)
         Map<String, Object> inputParams = new HashMap<>();
         List<String> files = new ArrayList<>();
-        files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
-        files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
         inputParams.put("files", files);
         InputNode inputNode = new InputNode(10L, "Input", inputParams);
         nodes.add(inputNode);
@@ -124,6 +122,6 @@ public class TestGraphFactory {
         OutputNode outputNode = new OutputNode(2L, "Output", outputParams);
         nodes.add(outputNode);
 
-        return nodes;
+        return new Graph(nodes);
     }
 }

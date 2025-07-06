@@ -81,8 +81,17 @@ public class ErrorController {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidNodeParameter.class)
+    public ResponseEntity<?> handleInvalidNodeParameter(InvalidNodeParameter ex, HttpServletRequest request) {
+        recordExceptionMetric(ex, request, HttpStatus.BAD_REQUEST);
+        String requestUrl = request.getRequestURL().toString();
+        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(InvalidGraph.class)
-    public ResponseEntity<?> handleInvalidNodeParameter(InvalidGraph ex, HttpServletRequest request) {
+    public ResponseEntity<?> handleInvalidGraph(InvalidGraph ex, HttpServletRequest request) {
         recordExceptionMetric(ex, request, HttpStatus.BAD_REQUEST);
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);

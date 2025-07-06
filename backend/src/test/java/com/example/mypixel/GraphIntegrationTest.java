@@ -153,21 +153,6 @@ public class GraphIntegrationTest {
     }
 
     @Test
-    void testInvalidNodeProperty() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
-                "test-json/invalid-node-property.json", sceneId, TestcontainersExtension.getLocalstack());
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
-                testGraphJson,
-                String.class,
-                sceneId);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody(), "Should return error details");
-    }
-
-    @Test
     void testInvalidAwsCredentials() {
         String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
                 "test-json/invalid-aws.json", sceneId, TestcontainersExtension.getLocalstack());

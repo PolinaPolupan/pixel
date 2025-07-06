@@ -3,6 +3,7 @@ package com.example.mypixel.service;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.*;
 import com.example.mypixel.model.node.Node;
+import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -19,16 +20,38 @@ public class NodeProcessorService {
     private final NodeCacheService nodeCacheService;
     private final StorageService storageService;
     private final BatchProcessor batchProcessor;
+    private final PerformanceTracker performanceTracker;
 
-    public void processNode(Node node,
-                            Long sceneId,
-                            Long taskId) {
+    public void processNode(
+            Node node,
+            Long sceneId,
+            Long taskId
+    ) {
+        Tags nodeTags = Tags.of(
+                "node.id", String.valueOf(node.getId()),
+                "node.type", node.getType(),
+                "scene.id", String.valueOf(sceneId),
+                "task.id", String.valueOf(taskId)
+        );
+
+        performanceTracker.trackOperation(
+                "node.execution",
+                nodeTags,
+                () -> processNodeInternal(node, sceneId, taskId)
+        );
+    }
+
+    public void processNodeInternal(
+            Node node,
+            Long sceneId,
+            Long taskId
+    ) {
         beanFactory.autowireBean(node);
         FileHelper fileHelper = new FileHelper(storageService, node, sceneId, taskId);
         node.setFileHelper(fileHelper);
         node.setBatchProcessor(batchProcessor);
 
-        log.info("Started node: {}", node.getId());
+        log.debug("Started node: {}", node.getId());
 
         resolveInputs(node, taskId);
         node.validate();
@@ -123,6 +146,9 @@ public class NodeProcessorService {
                                 }
                             }
                     );
+                } else {
+                    throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName()
+                            + " to FILEPATH_ARRAY");
                 }
                 yield files;
             }
