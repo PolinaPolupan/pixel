@@ -1,275 +1,339 @@
-//package com.example.mypixel.service;
-//
-//
-//import com.example.mypixel.exception.InvalidNodeParameter;
-//import com.example.mypixel.model.NodeReference;
-//import com.example.mypixel.model.node.*;
-//import com.example.mypixel.NodeType;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.Mock;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Qualifier;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.core.io.Resource;
-//import org.springframework.test.context.bean.override.mockito.MockitoBean;
-//
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
-//import java.util.UUID;
-//
-//import static org.junit.jupiter.api.Assertions.assertThrows;
-//import static org.mockito.Mockito.*;
-//
-//@SpringBootTest
-//public class NodeProcessorServiceTests {
-//
-//    @MockitoBean
-//    private FilteringService filteringService;
-//
-//    @Autowired
-//    private NodeProcessorService nodeProcessorService;
-//
-//    @Autowired
-//    private FileManager fileManager;
-//
-//    @Mock
-//    private Resource resource;
-//
-//    private String sceneId;
-//
-//    @BeforeEach
-//    public void setUp() {
-//        sceneId = "test-scene-" + UUID.randomUUID();
-//
-//        fileManager.createScene(sceneId);
-//    }
-//
-//    @Test
-//    public void testProcessInputNode() {
-//        Resource mockResource = mock(Resource.class);
-//        Node inputNode = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input.jpg")));
-//
-//        when(fileManager.loadAsResource("input.jpg", sceneId)).thenReturn(mockResource);
-//        when(fileManager.loadAsResource("input.jpg", sceneId)).thenReturn(mockResource);
-//        when(mockResource.getFilename()).thenReturn("input.jpg");
-//
-//        nodeProcessorService.processNode(inputNode);
-//
-//        verify(fileManager, times(1)).createDump("input.jpg", sceneId);
-//    }
-//
-////    @Test
-////    public void testProcessNullInputNode() {
-////        Node inputNode = new InputNode(0L, NodeType.INPUT.getName(), new HashMap<>() {});
-////
-////        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(inputNode));
-////    }
-////
-////    @Test
-////    public void testProcessEmptyGaussianBlurNode() {
-////        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), Map.of(
-////                "files", List.of(),
-////                "sizeX", 5,
-////                "sizeY", 5,
-////                "sigmaX", 5,
-////                "sigmaY", 5));
-////
-////        nodeProcessorService.processNode(node);
-////
-////        verify(tempStorageService, never()).createTempFileFromResource(any());
-////    }
-////
-////    @Test
-////    public void testProcessGaussianBlurNode() {
-////        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), Map.of(
-////                "files", List.of("input.jpeg"),
-////                "sizeX", 5,
-////                "sizeY", 5,
-////                "sigmaX", 5.0,
-////                "sigmaY", 5.0));
-////
-////        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
-////        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpeg");
-////
-////        nodeProcessorService.processNode(node);
-////
-////        verify(filteringService, times(1))
-////                .gaussianBlur("input.jpeg", 5, 5, 5.0, 5.0);
-////    }
-////
-////    @Test
-////    public void testProcessGaussianBlurNodeWithNoParameters() {
-////        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), Map.of(
-////                "files", List.of("input.jpeg"), "sizeX", 5));
-////
-////        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
-////        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpeg");
-////
-////        nodeProcessorService.processNode(node);
-////
-////        verify(filteringService, times(1))
-////                .gaussianBlur("input.jpeg", 5, 5, 0.0, 0.0);
-////    }
-////
-////    @Test
-////    public void testProcessOutputNode() {
-////        Node node = new OutputNode(0L, NodeType.OUTPUT.getName(), Map.of(
-////                "files", List.of("input.jpeg"),
-////                "prefix", "output"
-////        ));
-////
-////        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
-////        when(tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource("input.jpeg"))).thenReturn("input.jpeg");
-////        when(tempStorageService.removeExistingPrefix("input.jpeg")).thenReturn("input.jpeg");
-////        nodeProcessorService.processNode(node);
-////
-////        verify(storageService, times(1)).store(eq(resource), eq("output_input.jpeg"));
-////    }
-////
-////    @Test
-////    public void testProcessOutputNodeWithoutPrefix() {
-////        Node node = new OutputNode(0L, NodeType.OUTPUT.getName(), Map.of("files", List.of("input.jpeg")));
-////
-////        when(tempStorageService.loadAsResource("input.jpeg")).thenReturn(resource);
-////        when(tempStorageService.createTempFileFromResource(tempStorageService.loadAsResource("input.jpeg"))).thenReturn("input.jpeg");
-////        when(tempStorageService.removeExistingPrefix("input.jpeg")).thenReturn("input.jpeg");
-////        nodeProcessorService.processNode(node);
-////
-////        verify(storageService, times(1)).store(eq(resource), eq("input.jpeg"));
-////    }
-////
-////    @Test
-////    public void testProcessNodeWithInvalidNodeReference() {
-////        Map<String, Object> inputs = new HashMap<>();
-////        inputs.put("files", new NodeReference("@node:999:files"));
-////        inputs.put("sizeX", 5);
-////        inputs.put("sizeY", 5);
-////        inputs.put("sigmaX", 5.0);
-////        inputs.put("sigmaY", 5.0);
-////
-////        Node node = new GaussianBlurNode(1L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
-////
-////        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
-////    }
-////
-////    @Test
-////    public void testProcessNodeWithInvalidOutputReference() {
-////        Node inputNode = new InputNode(0L, NodeType.INPUT.getName(), Map.of("files", List.of("input.jpg")));
-////        when(storageService.loadAsResource("input.jpg")).thenReturn(resource);
-////        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpg");
-////        nodeProcessorService.processNode(inputNode);
-////
-////        Map<String, Object> inputs = new HashMap<>();
-////        inputs.put("files", new NodeReference("@node:0:nonexistentOutput"));
-////        inputs.put("sizeX", 5);
-////        inputs.put("sizeY", 5);
-////        inputs.put("sigmaX", 5.0);
-////        inputs.put("sigmaY", 5.0);
-////
-////        Node blurNode = new GaussianBlurNode(1L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
-////
-////        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(blurNode));
-////    }
-////
-////    @Test
-////    public void testProcessNodeWithInvalidInputType() {
-////        Map<String, Object> inputs = new HashMap<>();
-////        inputs.put("files", List.of("input.jpg"));
-////        inputs.put("sizeX", "not-a-number");
-////        inputs.put("sizeY", 5);
-////        inputs.put("sigmaX", 5.0);
-////        inputs.put("sigmaY", 5.0);
-////
-////        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
-////        when(tempStorageService.loadAsResource("input.jpg")).thenReturn(resource);
-////        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpg");
-////
-////        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
-////    }
-////
-////    @Test
-////    public void testProcessNodeWithMissingRequiredInput() {
-////        Map<String, Object> inputs = new HashMap<>();
-////
-////        inputs.put("sizeX", 5);
-////        inputs.put("sizeY", 5);
-////
-////        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
-////
-////        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
-////    }
-////
-////    @Test
-////    public void testProcessNodeWithNullInputType() {
-////        Map<String, Object> inputs = new HashMap<>();
-////        inputs.put("files", null);
-////        inputs.put("sizeX", 5);
-////        inputs.put("sizeY", 5);
-////        inputs.put("sigmaX", 5.0);
-////        inputs.put("sigmaY", 5.0);
-////
-////        Node node = new GaussianBlurNode(0L, NodeType.GAUSSIAN_BLUR.getName(), inputs);
-////        when(tempStorageService.loadAsResource("input.jpg")).thenReturn(resource);
-////        when(tempStorageService.createTempFileFromResource(resource)).thenReturn("input.jpg");
-////
-////        assertThrows(InvalidNodeParameter.class, () -> nodeProcessorService.processNode(node));
-////    }
-////
-////    @Test
-////    public void testS3InputNodeValidation() {
-////        // Test with all required fields
-////        Map<String, Object> validInputs = Map.of(
-////                "access_key_id", "AKIAIOSFODNN7EXAMPLE",
-////                "secret_access_key", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-////                "region", "us-west-2",
-////                "bucket", "my-sample-bucket",
-////                "key", "sample-file.jpg"
-////        );
-////
-////        Node s3InputNode = new S3InputNode(0L, "S3Input", validInputs);
-////        // Should not throw an exception
-////        s3InputNode.validate();
-////
-////        // Test with blank access key ID
-////        Map<String, Object> blankAccessKeyInputs = new HashMap<>(validInputs);
-////        blankAccessKeyInputs.put("access_key_id", "");
-////
-////        Node s3InputNodeBlankAccessKey = new S3InputNode(1L, "S3Input", blankAccessKeyInputs);
-////        assertThrows(
-////                InvalidNodeParameter.class,
-////                s3InputNodeBlankAccessKey::validate
-////        );
-////
-////        // Test with blank secret access key
-////        Map<String, Object> blankSecretInputs = new HashMap<>(validInputs);
-////        blankSecretInputs.put("secret_access_key", "");
-////
-////        Node s3InputNodeBlankSecret = new S3InputNode(2L, "S3Input", blankSecretInputs);
-////        assertThrows(
-////                InvalidNodeParameter.class,
-////                s3InputNodeBlankSecret::validate
-////        );
-////
-////        // Test with blank region
-////        Map<String, Object> blankRegionInputs = new HashMap<>(validInputs);
-////        blankRegionInputs.put("region", "");
-////
-////        Node s3InputNodeBlankRegion = new S3InputNode(3L, "S3Input", blankRegionInputs);
-////        assertThrows(
-////                InvalidNodeParameter.class,
-////                s3InputNodeBlankRegion::validate
-////        );
-////
-////        // Test with blank bucket name
-////        Map<String, Object> blankBucketInputs = new HashMap<>(validInputs);
-////        blankBucketInputs.put("bucket", "");
-////
-////        Node s3InputNodeBlankBucket = new S3InputNode(4L, "S3Input", blankBucketInputs);
-////        assertThrows(
-////                InvalidNodeParameter.class,
-////                s3InputNodeBlankBucket::validate
-////        );
-//  //  }
-//}
+package com.example.mypixel.service;
+
+import com.example.mypixel.exception.InvalidNodeParameter;
+import com.example.mypixel.model.NodeReference;
+import com.example.mypixel.model.Parameter;
+import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.Vector2D;
+import com.example.mypixel.model.node.Node;
+import io.micrometer.core.instrument.Tags;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+
+import java.util.*;
+import java.util.function.Consumer;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class NodeProcessorServiceTests {
+
+    @Mock
+    private AutowireCapableBeanFactory beanFactory;
+
+    @Mock
+    private NodeCacheService nodeCacheService;
+
+    @Mock
+    private StorageService storageService;
+
+    @Mock
+    private BatchProcessor batchProcessor;
+
+    @Mock
+    private PerformanceTracker performanceTracker;
+
+    @Mock
+    private Node node;
+
+    @InjectMocks
+    private NodeProcessorService nodeProcessorService;
+
+    private final Long sceneId = 1L;
+    private final Long taskId = 100L;
+    private Map<String, Object> inputs = new HashMap<>();
+    private Map<String, Object> outputs = new HashMap<>();
+
+    @Test
+    void processNode_shouldTrackOperationWithCorrectTags() {
+        inputs = new HashMap<>();
+        outputs = new HashMap<>();
+
+        when(node.getId()).thenReturn(1L);
+        when(node.getType()).thenReturn("testNode");
+        when(node.getInputs()).thenReturn(inputs);
+        when(node.exec()).thenReturn(outputs);
+
+        doAnswer(inv -> {
+            Runnable runnable = inv.getArgument(2);
+            runnable.run();
+            return null;
+        }).when(performanceTracker).trackOperation(anyString(), any(Tags.class), any(Runnable.class));
+
+        nodeProcessorService.processNode(node, sceneId, taskId);
+
+        verify(performanceTracker).trackOperation(
+                eq("node.execution"),
+                eq(Tags.of(
+                        "node.id", "1",
+                        "node.type", "testNode",
+                        "scene.id", "1",
+                        "task.id", "100"
+                )),
+                any(Runnable.class)
+        );
+    }
+
+    @Test
+    void processNodeInternal_shouldAutowireAndSetupNode() {
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        verify(beanFactory).autowireBean(node);
+        verify(node).setFileHelper(any(FileHelper.class));
+        verify(node).setBatchProcessor(batchProcessor);
+    }
+
+    @Test
+    void processNodeInternal_shouldExecuteNodeAndCacheResults() {
+        when(node.getId()).thenReturn(1L);
+
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        verify(node).validate();
+        verify(node).exec();
+        verify(nodeCacheService).put("100:1:input", inputs);
+        verify(nodeCacheService).put("100:1:output", outputs);
+    }
+
+    @Test
+    void resolveInputs_shouldResolveAllInputs() {
+        Map<String, Object> originalInputs = new HashMap<>();
+        originalInputs.put("textInput", "Hello");
+        originalInputs.put("numInput", 42);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("textInput", Parameter.required(ParameterType.STRING));
+        inputTypes.put("numInput", Parameter.required(ParameterType.INT));
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        ArgumentCaptor<Map<String, Object>> resolvedInputCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(node).setInputs(resolvedInputCaptor.capture());
+
+        Map<String, Object> resolvedInputs = resolvedInputCaptor.getValue();
+        assertEquals("Hello", resolvedInputs.get("textInput"));
+        assertEquals(42, resolvedInputs.get("numInput"));
+    }
+
+    @Test
+    void resolveNodeReference_shouldFetchFromCache() {
+        Map<String, Object> originalInputs = new HashMap<>();
+        NodeReference reference = new NodeReference("@node:2:color");
+        originalInputs.put("colorInput", reference);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("colorInput", Parameter.required(ParameterType.STRING));
+
+        Map<String, Object> cachedOutput = new HashMap<>();
+        cachedOutput.put("color", "#FF0000");
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+        when(nodeCacheService.exists("100:2:output")).thenReturn(true);
+        when(nodeCacheService.get("100:2:output")).thenReturn(cachedOutput);
+
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        ArgumentCaptor<Map<String, Object>> resolvedInputCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(node).setInputs(resolvedInputCaptor.capture());
+
+        Map<String, Object> resolvedInputs = resolvedInputCaptor.getValue();
+        assertEquals("#FF0000", resolvedInputs.get("colorInput"));
+    }
+
+    @Test
+    void castTypes_shouldConvertToInt() {
+        Map<String, Object> originalInputs = new HashMap<>();
+        originalInputs.put("intInput", 42.5);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("intInput", Parameter.required(ParameterType.INT));
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        ArgumentCaptor<Map<String, Object>> resolvedInputCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(node).setInputs(resolvedInputCaptor.capture());
+
+        Map<String, Object> resolvedInputs = resolvedInputCaptor.getValue();
+        assertEquals(42, resolvedInputs.get("intInput"));
+        assertInstanceOf(Integer.class, resolvedInputs.get("intInput"));
+    }
+
+    @Test
+    void castTypes_shouldConvertToFloat() {
+        Map<String, Object> originalInputs = new HashMap<>();
+        originalInputs.put("floatInput", 42);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("floatInput", Parameter.required(ParameterType.FLOAT));
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        ArgumentCaptor<Map<String, Object>> resolvedInputCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(node).setInputs(resolvedInputCaptor.capture());
+
+        Map<String, Object> resolvedInputs = resolvedInputCaptor.getValue();
+        assertEquals(42.0f, resolvedInputs.get("floatInput"));
+        assertInstanceOf(Float.class, resolvedInputs.get("floatInput"));
+    }
+
+    @Test
+    void castTypes_shouldConvertToVector2D_fromMap() {
+        Map<String, Object> vectorMap = new HashMap<>();
+        vectorMap.put("x", 10.0);
+        vectorMap.put("y", 20.0);
+
+        Map<String, Object> originalInputs = new HashMap<>();
+        originalInputs.put("vectorInput", vectorMap);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("vectorInput", Parameter.required(ParameterType.VECTOR2D));
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        ArgumentCaptor<Map<String, Object>> resolvedInputCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(node).setInputs(resolvedInputCaptor.capture());
+
+        Map<String, Object> resolvedInputs = resolvedInputCaptor.getValue();
+        assertInstanceOf(Vector2D.class, resolvedInputs.get("vectorInput"));
+        Vector2D vector = (Vector2D) resolvedInputs.get("vectorInput");
+        assertEquals(10.0, vector.getX());
+        assertEquals(20.0, vector.getY());
+    }
+
+    @Test
+    void processNodeInternal_shouldThrowWhenNodeValidationFails() {
+        doThrow(new RuntimeException("Validation failed")).when(node).validate();
+
+        assertThrows(RuntimeException.class, () ->
+                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+    }
+
+    @Test
+    void resolveInput_shouldThrowOnTypeMismatch() {
+        Map<String, Object> originalInputs = new HashMap<>();
+        originalInputs.put("stringInput", 42);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("stringInput", Parameter.required(ParameterType.STRING));
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+        when(node.getId()).thenReturn(1L);
+
+        InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () ->
+                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+
+        assertTrue(exception.getMessage().contains("Invalid input parameter 'stringInput'"));
+    }
+
+    @Test
+    void resolveReference_shouldThrowOnMissingReferenceOutput() {
+        Map<String, Object> originalInputs = new HashMap<>();
+        NodeReference reference = new NodeReference("@node:2:nonExistentOutput");
+        originalInputs.put("refInput", reference);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("refInput", Parameter.required(ParameterType.STRING));
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+
+        assertTrue(exception.getMessage().contains("Failed to resolve reference"));
+    }
+
+    @Test
+    void castTypes_shouldProcessFilepathArrayWithBatchProcessor() {
+        List<String> filepaths = Arrays.asList("file1.jpg", "file2.jpg", "file3.jpg");
+
+        Map<String, Object> originalInputs = new HashMap<>();
+        originalInputs.put("files", filepaths);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+
+        FileHelper mockFileHelper = mock(FileHelper.class);
+        when(mockFileHelper.createDump(anyString())).thenAnswer(inv ->
+                "processed_" + inv.getArgument(0));
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+        when(node.getFileHelper()).thenReturn(mockFileHelper);
+
+        doAnswer(inv -> {
+            Collection<?> items = inv.getArgument(0);
+            Consumer<?> consumer = inv.getArgument(1);
+            for (Object item : items) {
+                ((Consumer<Object>) consumer).accept(item);
+            }
+            return null;
+        }).when(batchProcessor).processBatches(any(Collection.class), any(Consumer.class));
+
+        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+
+        ArgumentCaptor<Map<String, Object>> resolvedInputCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(node).setInputs(resolvedInputCaptor.capture());
+
+        Map<String, Object> resolvedInputs = resolvedInputCaptor.getValue();
+        Set<String> processedFiles = (Set<String>) resolvedInputs.get("files");
+
+        assertEquals(3, processedFiles.size());
+        assertTrue(processedFiles.contains("processed_file1.jpg"));
+        assertTrue(processedFiles.contains("processed_file2.jpg"));
+        assertTrue(processedFiles.contains("processed_file3.jpg"));
+    }
+
+    @Test
+    void castTypes_shouldThrowOnInvalidFilepathArray() {
+        List<Object> invalidFilepaths = Arrays.asList("file1.jpg", 123, "file3.jpg");
+
+        Map<String, Object> originalInputs = new HashMap<>();
+        originalInputs.put("files", invalidFilepaths);
+
+        Map<String, Parameter> inputTypes = new HashMap<>();
+        inputTypes.put("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+
+        FileHelper mockFileHelper = mock(FileHelper.class);
+        when(mockFileHelper.createDump(anyString())).thenReturn("processed_file");
+
+        when(node.getInputs()).thenReturn(originalInputs);
+        when(node.getInputTypes()).thenReturn(inputTypes);
+        when(node.getFileHelper()).thenReturn(mockFileHelper);
+
+        doAnswer(inv -> {
+            Collection<?> items = inv.getArgument(0);
+            Consumer<?> consumer = inv.getArgument(1);
+            for (Object item : items) {
+                ((Consumer<Object>) consumer).accept(item);
+            }
+            return null;
+        }).when(batchProcessor).processBatches(any(Collection.class), any(Consumer.class));
+
+        InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () ->
+                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+
+        assertTrue(exception.getMessage().contains("Invalid file path"));
+    }
+}

@@ -103,6 +103,11 @@ public class NodeProcessorService {
             String output = reference.getOutputName();
 
             String cacheKey = taskId + ":" + id + ":output";
+
+            if (!nodeCacheService.exists(cacheKey)) {
+                throw new RuntimeException("Failed to resolve reference: " + reference.getReference());
+            }
+
             Map<String, Object> outputMap = nodeCacheService.get(cacheKey);
 
             return outputMap.get(output);

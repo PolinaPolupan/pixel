@@ -45,4 +45,11 @@ public class RedisNodeCacheService implements NodeCacheService {
             throw new RuntimeException("Error deserializing node outputs", e);
         }
     }
+
+    @Override
+    public boolean exists(String key) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.exists(key);
+        }
+    }
 }

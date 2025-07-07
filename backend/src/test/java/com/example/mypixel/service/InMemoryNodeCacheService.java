@@ -30,6 +30,11 @@ public class InMemoryNodeCacheService implements NodeCacheService {
         return result;
     }
 
+    @Override
+    public boolean exists(String key) {
+        return cache.containsKey(key);
+    }
+
     public void clear() {
         cache.clear();
         log.debug("Memory cache cleared");
