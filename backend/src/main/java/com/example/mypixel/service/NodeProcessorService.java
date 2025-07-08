@@ -21,6 +21,7 @@ public class NodeProcessorService {
     private final StorageService storageService;
     private final BatchProcessor batchProcessor;
     private final PerformanceTracker performanceTracker;
+    private final TypeConverterRegistry typeConverterRegistry;
 
     public void processNode(
             Node node,
@@ -85,8 +86,8 @@ public class NodeProcessorService {
 
         // Cast to required type
         try {
-            input = castTypes(node, input, requiredType);
-        } catch (ClassCastException e) {
+            input = typeConverterRegistry.convert(input, requiredType, node.getFileHelper());
+        } catch (Exception e) {
             throw new InvalidNodeParameter(
                     "Invalid input parameter '" + key + "' to the node with id " +
                             node.getId() + ": cannot cast " + input.getClass().getSimpleName() +
@@ -110,54 +111,14 @@ public class NodeProcessorService {
 
             Map<String, Object> outputMap = nodeCacheService.get(cacheKey);
 
+            if (!outputMap.containsKey(output)) {
+                throw new RuntimeException("Failed to resolve reference: " + reference.getReference());
+            }
+
             return outputMap.get(output);
         } catch (Exception e) {
             log.error("Error resolving reference: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to resolve reference: " + e.getMessage(), e);
         }
-    }
-
-    private Object castTypes(Node node, Object value, Parameter requiredType) {
-        if (value == null) {
-            throw new InvalidNodeParameter("Cannot cast null to " + requiredType + " type");
-        }
-        return switch (requiredType.getType()) {
-            case FLOAT -> ((Number) value).floatValue();
-            case INT -> ((Number) value).intValue();
-            case DOUBLE -> ((Number) value).doubleValue();
-            case STRING -> (String) value;
-            case VECTOR2D -> {
-                if (value instanceof Vector2D) {
-                    yield value;
-                } else if (value instanceof Map) {
-                    yield Vector2D.fromMap((Map<String, Object>) value);
-                } else {
-                    throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to Vector2D");
-                }
-            }
-            case FILEPATH_ARRAY -> {
-                HashSet<String> files = new HashSet<>();
-                if (value instanceof Collection<?>) {
-                    batchProcessor.processBatches(
-                            (Collection<?>) value,
-                            item -> {
-                                if (item instanceof String file) {
-                                    files.add(node.getFileHelper().createDump(file));
-                                } else {
-                                    throw new InvalidNodeParameter(
-                                            "Invalid file path: expected String but got " +
-                                                    (item != null ? item.getClass().getSimpleName() : "null")
-                                    );
-                                }
-                            }
-                    );
-                } else {
-                    throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName()
-                            + " to FILEPATH_ARRAY");
-                }
-                yield files;
-            }
-            case STRING_ARRAY -> (List<String>) value;
-        };
     }
 }
