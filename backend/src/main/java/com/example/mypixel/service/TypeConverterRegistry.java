@@ -37,12 +37,7 @@ public class TypeConverterRegistry {
             throw new InvalidNodeParameter("No converter registered for type: " + parameter.getType());
         }
 
-        try {
-            return converter.convert(value, fileHelper);
-        } catch (ClassCastException e) {
-            throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() +
-                    " to " + parameter.getType(), e);
-        }
+        return converter.convert(value, fileHelper);
     }
 
     private Object convertToFloat(Object value, FileHelper fileHelper) {

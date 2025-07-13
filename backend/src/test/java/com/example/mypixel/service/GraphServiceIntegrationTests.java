@@ -50,6 +50,9 @@ public class GraphServiceIntegrationTests {
     @MockitoSpyBean
     private NotificationService notificationService;
 
+    @MockitoSpyBean
+    private TypeConverterRegistry typeConverterRegistry;
+
     private final Long sceneId = 1L;
 
     @BeforeEach

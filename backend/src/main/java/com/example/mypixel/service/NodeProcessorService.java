@@ -1,6 +1,5 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.*;
 import com.example.mypixel.model.node.Node;
 import io.micrometer.core.instrument.Tags;
@@ -85,15 +84,7 @@ public class NodeProcessorService {
         }
 
         // Cast to required type
-        try {
-            input = typeConverterRegistry.convert(input, requiredType, node.getFileHelper());
-        } catch (Exception e) {
-            throw new InvalidNodeParameter(
-                    "Invalid input parameter '" + key + "' to the node with id " +
-                            node.getId() + ": cannot cast " + input.getClass().getSimpleName() +
-                            " to " + requiredType + " type"
-            );
-        }
+        input = typeConverterRegistry.convert(input, requiredType, node.getFileHelper());
 
         return input;
     }

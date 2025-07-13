@@ -1,6 +1,5 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.NodeReference;
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
@@ -169,10 +168,10 @@ class NodeProcessorServiceTests {
         when(typeConverterRegistry.convert(any(), any(), any()))
                 .thenThrow(new ClassCastException("Cannot cast String to Integer"));
 
-        InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () ->
+        ClassCastException exception = assertThrows(ClassCastException.class, () ->
                 nodeProcessorService.processNodeInternal(node, sceneId, taskId));
 
-        assertTrue(exception.getMessage().contains("Invalid input parameter 'param1'"));
+        assertTrue(exception.getMessage().contains("Cannot cast String to Integer"));
     }
 
     @Test
