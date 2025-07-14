@@ -1,190 +1,189 @@
 import React, { useState, useEffect, useRef } from 'react';
-import SockJS from 'sockjs-client/dist/sockjs.min.js';
-import { Stomp } from '@stomp/stompjs';
 
-export default function ProgressBar({ sceneId, setIsProcessing, setSuccess }) {
-  const [progress, setProgress] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const stompClientRef = useRef(null);
-  const reconnectTimeoutRef = useRef(null);
-
-  // Store latest callback functions in refs to avoid closure issues
+export default function ProgressBar({setIsProcessing, setSuccess, setError}) {
+  // Refs to store the latest function references
   const setIsProcessingRef = useRef(setIsProcessing);
   const setSuccessRef = useRef(setSuccess);
+  const setErrorRef = useRef(setError);
 
-  // Keep refs updated with latest function references
+  // State for the progress bar
+  const [progressState, setProgressState] = useState({
+    visible: false,
+    current: 0,
+    total: 1,
+    percent: 0,
+    fadeOut: false
+  });
+
+  // Update refs when props change
   useEffect(() => {
     setIsProcessingRef.current = setIsProcessing;
     setSuccessRef.current = setSuccess;
-  }, [setIsProcessing, setSuccess]);
+    setErrorRef.current = setError;
+  }, [setIsProcessing, setSuccess, setError]);
 
+  // Store timeouts to clear them when unmounting
+  const timeoutsRef = useRef([]);
+
+  // Clear all timeouts on unmount
   useEffect(() => {
-    if (!sceneId) return;
-
-    let isMounted = true;
-    const timeouts = [];
-
-    const connect = () => {
-      try {
-        console.log('Connecting to WebSocket...');
-        const socket = new SockJS('http://localhost:8080/ws');
-        const client = Stomp.over(socket);
-
-        client.debug = process.env.NODE_ENV === 'development' ? console.log : () => {};
-
-        client.connect({}, frame => {
-          console.log('Connected to WebSocket:', frame);
-          if (!isMounted) return;
-          setIsConnected(true);
-
-          client.subscribe(`/topic/processing/${sceneId}`, message => {
-            try {
-              const data = JSON.parse(message.body);
-              console.log('WebSocket message received:', data);
-
-              if (data.status === 'in_progress') {
-                if (isMounted) {
-                  setProgress({
-                    current: data.processedNodes,
-                    total: data.totalNodes,
-                    percent: data.progressPercent,
-                    message: data.message
-                  });
-                }
-              } else if (data.status === 'completed') {
-                console.log('************ COMPLETION MESSAGE RECEIVED ************');
-
-                if (!isMounted) {
-                  console.log('Component unmounted, skipping completion handling');
-                  return;
-                }
-
-                setProgress({
-                  current: data.processedNodes,
-                  total: data.processedNodes,
-                  percent: 100,
-                  message: data.message
-                });
-
-                let completionMessage = data.message || 'Graph processing completed successfully';
-                if (data.timestamp && data.processedBy) {
-                  completionMessage = `${completionMessage} at ${data.timestamp} by ${data.processedBy}`;
-                }
-
-                console.log('Setting isProcessing to false');
-                setIsProcessingRef.current(false);
-                setSuccessRef.current(completionMessage);
-
-                const fadeTimeout = setTimeout(() => {
-                  if (isMounted) {
-                    setProgress(prev => (prev ? { ...prev, fadeOut: true } : null));
-                  }
-                }, 2000);
-
-                const clearTimeout = setTimeout(() => {
-                  if (isMounted) {
-                    setProgress(null);
-                  }
-                }, 3000);
-
-                timeouts.push(fadeTimeout, clearTimeout);
-              }
-            } catch (error) {
-              console.error('Error parsing WebSocket message:', error);
-            }
-          });
-        }, error => {
-          console.error('WebSocket connection error:', error);
-          if (isMounted) {
-            setIsConnected(false);
-            reconnectTimeoutRef.current = setTimeout(() => {
-              console.log('Attempting to reconnect...');
-              connect();
-            }, 5000);
-          }
-        });
-
-        stompClientRef.current = client;
-      } catch (error) {
-        console.error('Error setting up WebSocket:', error);
-      }
+    return () => {
+      timeoutsRef.current.forEach(id => clearTimeout(id));
     };
+  }, []);
 
-    connect();
+  // Initialize progress (called when Play button is clicked)
+  const initProgress = () => {
+    console.log('PROGRESS BAR: Initializing progress');
+
+    // Clear existing timeouts
+    timeoutsRef.current.forEach(id => clearTimeout(id));
+    timeoutsRef.current = [];
+
+    // Show the progress bar at 0%
+    setProgressState({
+      visible: true,
+      current: 0,
+      total: 1,
+      percent: 0,
+      fadeOut: false
+    });
+  };
+
+  // Update progress (for incremental updates)
+  const updateProgress = (data) => {
+    console.log('PROGRESS BAR: Updating progress', data);
+
+    if (!data || typeof data.current !== 'number' || typeof data.total !== 'number') {
+      console.warn('Invalid progress data received:', data);
+      return;
+    }
+
+    const total = Math.max(data.total, 1); // Ensure we don't divide by zero
+    const current = Math.min(data.current, total); // Ensure current doesn't exceed total
+    const percent = Math.round((current / total) * 100);
+
+    setProgressState({
+      visible: true,
+      current: current,
+      total: total,
+      percent: percent,
+      fadeOut: false
+    });
+  };
+
+  // Complete progress (called when task is completed)
+  const completeProgress = (data) => {
+    console.log('PROGRESS BAR: Completing progress with data', data);
+
+    // Get total from data or use 1 as fallback
+    const total = data?.totalNodes || 1;
+
+    // Show 100% completion
+    setProgressState({
+      visible: true,
+      current: total,
+      total: total,
+      percent: 100,
+      fadeOut: false
+    });
+
+    // Set success message
+    setSuccessRef.current('Graph processing completed successfully');
+
+    // Set isProcessing to false
+    setIsProcessingRef.current(false);
+
+    // Fade out after delay
+    const fadeTimeout = setTimeout(() => {
+      setProgressState(prev => ({...prev, fadeOut: true}));
+    }, 2000);
+
+    // Hide after fade
+    const hideTimeout = setTimeout(() => {
+      setProgressState(prev => ({...prev, visible: false}));
+    }, 3000);
+
+    timeoutsRef.current.push(fadeTimeout, hideTimeout);
+  };
+
+  // Handle error
+  const handleError = (errorMsg) => {
+    console.log('PROGRESS BAR: Handling error', errorMsg);
+
+    // Hide progress bar
+    setProgressState(prev => ({...prev, visible: false}));
+
+    // Show error
+    setErrorRef.current(errorMsg || 'Processing failed');
+
+    // Set isProcessing to false
+    setIsProcessingRef.current(false);
+  };
+
+  // Expose functions via window object
+  useEffect(() => {
+    window.progressFunctions = {
+      init: initProgress,
+      update: updateProgress,
+      complete: completeProgress,
+      error: handleError
+    };
 
     return () => {
-      isMounted = false;
-      timeouts.forEach(clearTimeout);
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (stompClientRef.current && stompClientRef.current.connected) {
-        stompClientRef.current.disconnect();
-      }
-      stompClientRef.current = null;
-      setIsConnected(false);
+      delete window.progressFunctions;
     };
-  }, [sceneId]);
+  }, []);
 
-  // Always render a container with fixed height
+  // Render the progress bar
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '26px', // Fixed height to match progress bar height
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {progress ? (
-        <div
+      <div
           style={{
             width: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-            borderRadius: '4px',
-            overflow: 'hidden',
-            padding: '4px',
-            opacity: progress.fadeOut ? 0 : 1,
-            transition: 'opacity 1s ease',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+            height: '26px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-        >
-          <div
-            style={{
-              height: '8px',
-              width: `${progress.percent}%`,
-              backgroundColor: '#4caf50',
-              borderRadius: '4px',
-              transition: 'width 0.3s ease',
-            }}
-          />
-          <div
-            style={{
-              fontSize: '12px',
-              color: '#333',
-              marginTop: '4px',
-              textAlign: 'center'
-            }}
-          >
-            {progress.current} / {progress.total} nodes processed ({progress.percent}%)
-          </div>
-        </div>
-      ) : isConnected ? (
-        <div
-          style={{
-            fontSize: '12px',
-            color: '#666',
-            textAlign: 'center'
-          }}
-        >
-          Waiting for processing to start...
-        </div>
-      ) : (
-        <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
-          Connecting...
-        </div>
-      )}
-    </div>
+      >
+        {progressState.visible ? (
+            <div
+                style={{
+                  width: '100%',
+                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  padding: '4px',
+                  opacity: progressState.fadeOut ? 0 : 1,
+                  transition: 'opacity 1s ease',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                }}
+            >
+              <div
+                  style={{
+                    height: '8px',
+                    width: `${progressState.percent}%`,
+                    backgroundColor: '#4caf50',
+                    borderRadius: '4px',
+                    transition: 'width 0.3s ease',
+                  }}
+              />
+              <div
+                  style={{
+                    fontSize: '12px',
+                    color: '#333',
+                    marginTop: '4px',
+                    textAlign: 'center'
+                  }}
+              >
+                {progressState.current} / {progressState.total} nodes processed ({progressState.percent}%)
+              </div>
+            </div>
+        ) : (
+            <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
+              Ready for processing
+            </div>
+        )}
+      </div>
   );
 }

@@ -19,6 +19,7 @@ import { useNotification } from './utils/useNotification';
 import { useGraphTransformation } from './utils/useGraphTransformation';
 import { useScene } from './components/SceneContext';
 import { useNodesApi } from './utils/useNodesApi';
+import {startProgressPolling} from "./utils/progressPoller.js";
 
 function AppContent() {
     const { sceneId } = useScene();
@@ -84,13 +85,22 @@ function AppContent() {
 
     const onConnect = useCallback((params) => setEdges((els) => addEdge(params, els)), []);
 
+
+// Modified handlePlay function with better error handling
     const handlePlay = async () => {
         setError(null);
         setIsProcessing(true);
+        console.log("Setting processing state to true");
+
+        // IMPORTANT: Initialize progress bar first
+        if (window.progressFunctions) {
+            window.progressFunctions.init();
+        }
 
         try {
             const graphData = transformGraphData();
 
+            console.log("Sending graph data to backend:", graphData);
             const response = await fetch(`http://localhost:8080/v1/scene/${sceneId}/graph`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -98,14 +108,43 @@ function AppContent() {
                 credentials: 'include'
             });
 
+            // Handle HTTP error responses
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Server error (${response.status}): ${errorText}`);
+                let errorMessage;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorData.errorMessage || `Server error (${response.status})`;
+                } catch (e) {
+                    const errorText = await response.text();
+                    errorMessage = errorText || `Server error (${response.status})`;
+                }
+                throw new Error(errorMessage);
+            }
+
+            const taskData = await response.json();
+            console.log("Graph processing task created:", taskData);
+
+            // Start monitoring progress, passing the initial data
+            if (taskData.id) {
+                startProgressPolling(sceneId, taskData.id, taskData);
+            } else {
+                // Fallback if no taskId is provided
+                if (window.progressFunctions) {
+                    window.progressFunctions.error('Task created but no ID was returned');
+                } else {
+                    setError('Task created but no ID was returned');
+                    setIsProcessing(false);
+                }
             }
         } catch (error) {
             console.error('Error during graph processing:', error);
-            setError(error.message);
-            setIsProcessing(false);
+
+            if (window.progressFunctions) {
+                window.progressFunctions.error(error.message);
+            } else {
+                setError(error.message);
+                setIsProcessing(false);
+            }
         }
     };
 
@@ -219,9 +258,9 @@ function AppContent() {
                         </div>
                         <div style={{ height: '26px', width: '300px' }}>
                             <ProgressBar
-                                sceneId={sceneId}
                                 setIsProcessing={setIsProcessing}
                                 setSuccess={setSuccess}
+                                setError={setError}
                             />
                         </div>
                     </div>
