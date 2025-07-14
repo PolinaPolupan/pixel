@@ -83,8 +83,7 @@ public class GraphServiceIntegrationTests {
                 sceneId + "/output/processed/filtered_result_Picture3.png").exists());
 
         verify(nodeProcessorService, times(nodeCount)).processNode(any(), eq(sceneId), eq(completedTask.getId()));
-        verify(notificationService, times(nodeCount)).sendProgress(eq(sceneId), anyInt(), eq(nodeCount));
-        verify(notificationService).sendCompleted(sceneId);
+        verify(notificationService, times(nodeCount + 1)).sendTaskStatus(any());
     }
 
     @Test
@@ -105,7 +104,7 @@ public class GraphServiceIntegrationTests {
         }
 
         verify(taskService).markTaskFailed(any(), eq(errorMessage));
-        verify(notificationService).sendError(eq(sceneId), eq(errorMessage));
+        verify(notificationService).sendTaskStatus(any());
     }
 
     @Test
@@ -118,16 +117,11 @@ public class GraphServiceIntegrationTests {
 
         verify(nodeProcessorService, times(nodeCount)).processNode(any(), eq(sceneId), any());
 
-        ArgumentCaptor<Integer> progressCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(notificationService, times(nodeCount)).sendProgress(
-                eq(sceneId), progressCaptor.capture(), eq(nodeCount));
+        ArgumentCaptor<GraphExecutionTask> progressCaptor = ArgumentCaptor.forClass(GraphExecutionTask.class);
+        verify(notificationService, times(nodeCount + 1)).sendTaskStatus(progressCaptor.capture());
 
-        List<Integer> progressUpdates = progressCaptor.getAllValues();
-        assertEquals(nodeCount, progressUpdates.size());
-
-        for (int i = 0; i < nodeCount; i++) {
-            assertEquals(i+1, progressUpdates.get(i).intValue());
-        }
+        List<GraphExecutionTask> progressUpdates = progressCaptor.getAllValues();
+        assertEquals(nodeCount + 1, progressUpdates.size());
     }
 
     @Test
@@ -189,7 +183,7 @@ public class GraphServiceIntegrationTests {
             assertTrue(e.getCause().getMessage().contains(expectedErrorMessage));
 
             verify(taskService).markTaskFailed(any(), contains(expectedErrorMessage));
-            verify(notificationService).sendError(eq(sceneId), contains(expectedErrorMessage));
+            verify(notificationService).sendTaskStatus(any());
         }
     }
 
@@ -212,7 +206,7 @@ public class GraphServiceIntegrationTests {
             assertInstanceOf(InvalidNodeParameter.class, e.getCause());
 
             verify(taskService).markTaskFailed(any(), anyString());
-            verify(notificationService).sendError(eq(sceneId), anyString());
+            verify(notificationService).sendTaskStatus(any());
         }
     }
 
@@ -236,7 +230,7 @@ public class GraphServiceIntegrationTests {
             assertInstanceOf(StorageFileNotFoundException.class, e.getCause());
 
             verify(taskService).markTaskFailed(any(), anyString());
-            verify(notificationService).sendError(eq(sceneId), anyString());
+            verify(notificationService).sendTaskStatus(any());
         }
     }
 }

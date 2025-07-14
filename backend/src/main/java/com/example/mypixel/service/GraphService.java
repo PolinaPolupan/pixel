@@ -60,7 +60,6 @@ public class GraphService {
             taskService.updateTaskStatus(task, TaskStatus.RUNNING);
 
             Iterator<Node> iterator = graph.iterator();
-            int totalNodes = graph.getNodes().size();
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
@@ -71,20 +70,20 @@ public class GraphService {
                 processedNodes++;
 
                 taskService.updateTaskProgress(task, processedNodes);
-                notificationService.sendProgress(sceneId, processedNodes, totalNodes);
+                notificationService.sendTaskStatus(task);
 
                 log.debug("Node with id: {} is processed", node.getId());
             }
 
             taskService.updateTaskStatus(task, TaskStatus.COMPLETED);
-            notificationService.sendCompleted(sceneId);
+            notificationService.sendTaskStatus(task);
 
             return CompletableFuture.completedFuture(task);
         } catch (Exception e) {
             log.error("Error processing graph for scene {}: {}", sceneId, e.getMessage(), e);
 
             taskService.markTaskFailed(task, e.getMessage());
-            notificationService.sendError(sceneId, e.getMessage());
+            notificationService.sendTaskStatus(task);
 
             CompletableFuture<GraphExecutionTask> failedFuture = new CompletableFuture<>();
             failedFuture.completeExceptionally(e);

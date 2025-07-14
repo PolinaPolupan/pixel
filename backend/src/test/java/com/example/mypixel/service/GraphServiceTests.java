@@ -62,7 +62,6 @@ public class GraphServiceTests {
         nodes.add(node1);
         nodes.add(node2);
 
-        when(graph.getNodes()).thenReturn(nodes);
         when(task.getId()).thenReturn(taskId);
 
         Iterator<Node> mockIterator = nodes.iterator();
@@ -85,7 +84,7 @@ public class GraphServiceTests {
         verify(taskService).createTask(graph, sceneId);
         verify(taskService).updateTaskStatus(task, TaskStatus.RUNNING);
         verify(taskService).updateTaskStatus(task, TaskStatus.COMPLETED);
-        verify(notificationService).sendCompleted(sceneId);
+        verify(notificationService, times(3)).sendTaskStatus(task);
         assertEquals(task, result);
     }
 
@@ -97,7 +96,7 @@ public class GraphServiceTests {
         verify(taskService).createTask(graph, sceneId);
         verify(taskService).updateTaskStatus(task, TaskStatus.RUNNING);
         verify(taskService).updateTaskStatus(task, TaskStatus.COMPLETED);
-        verify(notificationService).sendCompleted(sceneId);
+        verify(notificationService, times(3)).sendTaskStatus(task);
         assertEquals(task, result);
     }
 
@@ -112,14 +111,14 @@ public class GraphServiceTests {
 
         inOrder.verify(nodeProcessorService).processNode(node1, sceneId, taskId);
         inOrder.verify(taskService).updateTaskProgress(task, 1);
-        inOrder.verify(notificationService).sendProgress(sceneId, 1, 2);
+        inOrder.verify(notificationService).sendTaskStatus(task);
 
         inOrder.verify(nodeProcessorService).processNode(node2, sceneId, taskId);
         inOrder.verify(taskService).updateTaskProgress(task, 2);
-        inOrder.verify(notificationService).sendProgress(sceneId, 2, 2);
+        inOrder.verify(notificationService).sendTaskStatus(task);
 
         inOrder.verify(taskService).updateTaskStatus(task, TaskStatus.COMPLETED);
-        inOrder.verify(notificationService).sendCompleted(sceneId);
+        inOrder.verify(notificationService).sendTaskStatus(task);
     }
 
     @Test
@@ -136,7 +135,7 @@ public class GraphServiceTests {
         verify(taskService).updateTaskStatus(task, TaskStatus.RUNNING);
         verify(taskService, never()).updateTaskProgress(any(), anyInt());
         verify(taskService).updateTaskStatus(task, TaskStatus.COMPLETED);
-        verify(notificationService).sendCompleted(sceneId);
+        verify(notificationService).sendTaskStatus(task);
         assertEquals(task, result);
     }
 
@@ -154,7 +153,7 @@ public class GraphServiceTests {
 
         verify(taskService).updateTaskStatus(task, TaskStatus.RUNNING);
         verify(taskService).markTaskFailed(task, errorMessage);
-        verify(notificationService).sendError(sceneId, errorMessage);
+        verify(notificationService).sendTaskStatus(task);
         verify(taskService, never()).updateTaskStatus(task, TaskStatus.COMPLETED);
     }
 
@@ -165,7 +164,6 @@ public class GraphServiceTests {
             manyNodes.add(mock(Node.class));
         }
 
-        when(graph.getNodes()).thenReturn(manyNodes);
         when(graph.iterator()).thenReturn(manyNodes.iterator());
 
         CompletableFuture<GraphExecutionTask> future = graphService.startGraphExecutionAsync(graph, sceneId);
@@ -181,19 +179,11 @@ public class GraphServiceTests {
             assertEquals(i + 1, progressUpdates.get(i).intValue());
         }
 
-        ArgumentCaptor<Integer> notificationProgressCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(notificationService, times(5)).sendProgress(
-                eq(sceneId),
-                notificationProgressCaptor.capture(),
-                eq(5)
-        );
+        ArgumentCaptor<GraphExecutionTask> notificationProgressCaptor = ArgumentCaptor.forClass(GraphExecutionTask.class);
+        verify(notificationService, times(6)).sendTaskStatus(notificationProgressCaptor.capture());
 
-        List<Integer> notificationProgress = notificationProgressCaptor.getAllValues();
-        assertEquals(5, notificationProgress.size());
-
-        for (int i = 0; i < 5; i++) {
-            assertEquals(i + 1, notificationProgress.get(i).intValue());
-        }
+        List<GraphExecutionTask> notificationProgress = notificationProgressCaptor.getAllValues();
+        assertEquals(6, notificationProgress.size());
     }
 
     @Test
@@ -254,7 +244,7 @@ public class GraphServiceTests {
         assertInstanceOf(RuntimeException.class, exception.getCause());
 
         verify(taskService).markTaskFailed(eq(task), contains("Thread interrupted"));
-        verify(notificationService).sendError(eq(sceneId), contains("Thread interrupted"));
+        verify(notificationService).sendTaskStatus(task);
     }
 
     @Test
@@ -267,7 +257,7 @@ public class GraphServiceTests {
         graphService.startGraphExecutionAsync(graph, sceneId);
 
         verify(taskService).markTaskFailed(eq(task), eq(errorMessage));
-        verify(notificationService).sendError(eq(sceneId), eq(errorMessage));
+        verify(notificationService).sendTaskStatus(task);
     }
 
     @Test
@@ -283,7 +273,7 @@ public class GraphServiceTests {
         assertEquals("Status update failed", exception.getCause().getMessage());
 
         verify(taskService).markTaskFailed(eq(task), contains("Status update failed"));
-        verify(notificationService).sendError(eq(sceneId), contains("Status update failed"));
+        verify(notificationService).sendTaskStatus(task);
 
         verify(nodeProcessorService, never()).processNode(any(), anyLong(), anyLong());
     }
@@ -293,7 +283,7 @@ public class GraphServiceTests {
         doAnswer(invocation -> {
             log.error("Failed to send progress WebSocket: Notification failed");
             return null;
-        }).when(notificationService).sendProgress(anyLong(), anyInt(), anyInt());
+        }).when(notificationService).sendTaskStatus(task);
 
         CompletableFuture<GraphExecutionTask> future = graphService.startGraphExecutionAsync(graph, sceneId);
         GraphExecutionTask result = future.get();
