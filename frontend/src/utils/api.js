@@ -1,57 +1,123 @@
-// Create this file: utils/api.js
+/**
+ * Centralized API client for backend communication
+ */
 const API_BASE_URL = 'http://localhost:8080/v1';
 
 /**
- * Process a graph for a specific scene
- * @param {number} sceneId - The scene ID
- * @param {object} graphData - The graph data to process
- * @returns {Promise<object>} - The task data
+ * Make an API request with error handling
  */
-export async function processGraph(sceneId, graphData) {
-    const response = await fetch(`${API_BASE_URL}/scene/${sceneId}/graph`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(graphData),
-        credentials: 'include'
-    });
+async function apiRequest(endpoint, options = {}) {
+    try {
+        // Add credentials to all requests
+        const requestOptions = {
+            ...options,
+            credentials: 'include',
+            headers: {
+                ...options.headers,
+            },
+        };
 
-    if (!response.ok) {
-        let errorMessage;
-        try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.errorMessage || `Server error (${response.status})`;
-        } catch (e) {
-            const errorText = await response.text();
-            errorMessage = errorText || `Server error (${response.status})`;
+        // Only set Content-Type for JSON requests, not for multipart/form-data (file uploads)
+        if (!options.body || !(options.body instanceof FormData)) {
+            requestOptions.headers['Content-Type'] = 'application/json';
         }
-        throw new Error(errorMessage);
-    }
 
-    return response.json();
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, requestOptions);
+
+        // Check for error responses
+        if (!response.ok) {
+            let errorMessage;
+
+            try {
+                // Try to parse error as JSON
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.errorMessage || `Server error: ${response.status}`;
+            } catch (e) {
+                // If not JSON, use text
+                const errorText = await response.text();
+                errorMessage = errorText || `Server error: ${response.status}`;
+            }
+
+            throw new Error(errorMessage);
+        }
+
+        // For JSON responses
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        }
+
+        // For non-JSON responses
+        return await response.text();
+    } catch (error) {
+        console.error(`API Error (${endpoint}):`, error);
+        throw error;
+    }
 }
 
 /**
- * Get the status of a task
- * @param {number} sceneId - The scene ID
- * @param {number} taskId - The task ID
- * @returns {Promise<object>} - The task status data
+ * Scene API functions
  */
-export async function getTaskStatus(sceneId, taskId) {
-    const response = await fetch(`${API_BASE_URL}/scene/${sceneId}/task/${taskId}/status`, {
-        credentials: 'include'
-    });
+export const sceneApi = {
+    /**
+     * List files in a scene
+     */
+    listFiles: (sceneId) =>
+        apiRequest(`/scene/${sceneId}/list`),
 
-    if (!response.ok) {
-        let errorMessage;
-        try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorData.errorMessage || `Server error (${response.status})`;
-        } catch (e) {
-            const errorText = await response.text();
-            errorMessage = errorText || `Server error (${response.status})`;
+    /**
+     * Get file URL from a scene
+     */
+    getFileUrl: (sceneId, filePath) =>
+        `${API_BASE_URL}/scene/${sceneId}/file?filepath=${encodeURIComponent(filePath)}`,
+
+    /**
+     * Upload input file to a scene
+     */
+    uploadInput: (sceneId, files) => {
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
         }
-        throw new Error(errorMessage);
-    }
 
-    return response.json();
-}
+        return apiRequest(`/scene/${sceneId}/input`, {
+            method: 'POST',
+            body: formData
+        });
+    }
+};
+
+/**
+ * Graph processing API
+ */
+export const graphApi = {
+    /**
+     * Process a graph for a scene
+     */
+    processGraph: (sceneId, graphData) =>
+        apiRequest(`/scene/${sceneId}/graph`, {
+            method: 'POST',
+            body: JSON.stringify(graphData)
+        }),
+
+    /**
+     * Get task status
+     */
+    getTaskStatus: (sceneId, taskId) =>
+        apiRequest(`/scene/${sceneId}/task/${taskId}/status`)
+};
+
+/**
+ * Node configuration API
+ */
+export const nodeApi = {
+    /**
+     * Get all node types
+     */
+    getNodeTypes: () => apiRequest(`/nodes/types`),
+
+    /**
+     * Get node configuration
+     */
+    getNodeConfig: (nodeType) => apiRequest(`/nodes/config/${nodeType}`)
+};

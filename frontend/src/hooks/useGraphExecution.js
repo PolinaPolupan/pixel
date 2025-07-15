@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { processGraph } from '../utils/api';
-import { taskManager } from '../components/services/TaskManager';
+import { graphApi } from '../utils/api'; // Import the graphApi object, not individual functions
+import { taskManager } from '../components/services/TaskManager.jsx';
 import { useProgress } from '../components/contexts/ProgressContext';
 
 export function useGraphExecution({ sceneId, transformGraphData, setError, setSuccess }) {
@@ -19,7 +19,8 @@ export function useGraphExecution({ sceneId, transformGraphData, setError, setSu
             const graphData = transformGraphData();
 
             console.log("Sending graph data to backend:", graphData);
-            const taskData = await processGraph(sceneId, graphData);
+            // Use graphApi.processGraph instead of processGraph directly
+            const taskData = await graphApi.processGraph(sceneId, graphData);
             console.log("Graph processing task created:", taskData);
 
             // Start monitoring progress using the TaskManager

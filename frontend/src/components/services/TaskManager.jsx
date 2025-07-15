@@ -1,5 +1,4 @@
-// Create this file: services/TaskManager.js
-import { getTaskStatus } from '../../utils/api.js'
+import { graphApi } from '../../utils/api.js'
 
 /**
  * A service for managing and monitoring tasks
@@ -60,7 +59,8 @@ export class TaskManager {
 
         try {
             console.log(`Polling task status for task ${taskId}...`);
-            const taskData = await getTaskStatus(sceneId, taskId);
+            // Use graphApi.getTaskStatus instead of getTaskStatus directly
+            const taskData = await graphApi.getTaskStatus(sceneId, taskId);
 
             console.log(`Task ${taskId} status: ${taskData.status}`);
 
