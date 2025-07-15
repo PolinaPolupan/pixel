@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNodesConfig } from '../utils/NodesConfig.jsx';
 
 /**
@@ -149,17 +149,4 @@ export function useNodesApi() {
         // Utility to check if configs are ready
         isReady: !isLoading && !error && !!nodesConfig
     };
-}
-
-/**
- * For backward compatibility - these hooks use the unified API internally
- */
-export function useHandleTypes() {
-    const { getHandleParameterType, canCastType, isLoading, error } = useNodesApi();
-    return { getHandleParameterType, canCastType, isLoading, error };
-}
-
-export function useNodeTypesConfig() {
-    const { nodeTypes, nodeTypeDetails, isLoading, error } = useNodesApi();
-    return { nodeTypes, nodeTypeDetails, isLoading, error };
 }

@@ -140,72 +140,32 @@ export function useFileExplorer(setError) {
         return fileTree;
     }, [fetchItems, buildTree]);
 
-    /**
-     * Toggle folder open/closed state - fixed to prevent immediate closing
-     */
-    const toggleFolder = useCallback((path) => {
-        console.log(`Toggling folder: ${path}`);
-        setItems((prev) => {
-            const newItems = JSON.parse(JSON.stringify(prev)); // Deep clone
 
-            const toggleNode = (nodes) => {
-                for (let i = 0; i < nodes.length; i++) {
-                    const node = nodes[i];
-                    if (node.path === path && node.type === 'folder') {
-                        // Toggle the open state
-                        node.isOpen = !node.isOpen;
-
-                        // If opening a folder with no items, fetch them
-                        if (node.isOpen && node.files.length === 0 && node.folders.length === 0) {
-                            // Use setTimeout to avoid state updates during render
-                            setTimeout(() => {
-                                fetchItems(path).then((subPaths) => {
-                                    if (subPaths.length === 0) return;
-
-                                    const subTree = buildTree(subPaths);
-
-                                    setItems((current) => {
-                                        const updateTree = (nodes) => {
-                                            return nodes.map((n) => {
-                                                if (n.path === path && n.type === 'folder') {
-                                                    return {
-                                                        ...n,
-                                                        files: subTree.files || [],
-                                                        folders: subTree.folders || [],
-                                                        isOpen: true
-                                                    };
-                                                } else if (n.folders && n.folders.length > 0) {
-                                                    return {
-                                                        ...n,
-                                                        folders: updateTree(n.folders)
-                                                    };
-                                                }
-                                                return n;
-                                            });
-                                        };
-
-                                        return updateTree(current);
-                                    });
-                                });
-                            }, 0);
-                        }
-                        return true;
-                    }
-
-                    // Recursively check folders
-                    if (node.folders && node.folders.length > 0) {
-                        if (toggleNode(node.folders)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            };
-
-            toggleNode(newItems);
-            return newItems;
+    const toggleFolder = (path) => {
+        setItems(prev => {
+            return updateTreeNode(prev, path, node => ({
+                ...node,
+                isOpen: !node.isOpen
+            }));
         });
-    }, [fetchItems, buildTree]);
+    };
+
+    const updateTreeNode = (tree, path, updateFn) => {
+        return tree.map(node => {
+            if (node.path === path) {
+                return updateFn(node);
+            }
+
+            if (node.folders) {
+                return {
+                    ...node,
+                    folders: updateTreeNode(node.folders, path, updateFn)
+                };
+            }
+
+            return node;
+        });
+    };
 
     /**
      * Download all files as a ZIP
