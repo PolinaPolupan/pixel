@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Panel } from '@xyflow/react';
-import { NotificationPanel, NotificationKeyframes } from './NotificationPanel';
+import { NotificationPanel, NotificationKeyframes } from '../NotificationPanel.jsx';
 
 // Create context
 const NotificationContext = createContext();

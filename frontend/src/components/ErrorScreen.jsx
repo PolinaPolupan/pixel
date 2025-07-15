@@ -1,5 +1,5 @@
 import React from 'react';
-import { useScene } from './SceneContext';
+import { useScene } from './contexts/SceneContext.jsx';
 
 function ErrorScreen({ message = "An error occurred." }) {
   const { createNewScene } = useScene();

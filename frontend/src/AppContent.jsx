@@ -10,11 +10,11 @@ import '@xyflow/react/dist/style.css';
 
 import DebugPanel from './components/Debug';
 import { NotificationPanel, NotificationKeyframes } from './components/NotificationPanel';
-import ContextMenu from './components/ContextMenu';
-import { useNotification } from './utils/useNotification';
-import { useGraphTransformation } from './utils/useGraphTransformation';
-import { useScene } from './components/SceneContext';
-import { useNodesApi } from './utils/useNodesApi';
+import ContextMenu from './components/contexts/ContextMenu.jsx';
+import { useNotification } from './hooks/useNotification.js';
+import { useGraphTransformation } from './hooks/useGraphTransformation.js';
+import { useScene } from './components/contexts/SceneContext.jsx';
+import { useNodesApi } from './hooks/useNodesApi.js';
 import { GraphEditor } from "./components/GraphEditor.jsx";
 import { GraphControls } from "./components/GraphControls.jsx";
 import { useGraphExecution } from "./hooks/useGraphExecution.js";

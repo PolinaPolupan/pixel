@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useScene } from './SceneContext';
-import { useNotification } from './NotificationContext';
+import { useScene } from './contexts/SceneContext.jsx';
+import { useNotification } from './contexts/NotificationContext.jsx';
 
-function FileUpload({ onFilesSelected, maxFiles = 1000000, nodeId, initialFiles = [] }) {
+function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) {
   const { sceneId } = useScene();
   const { setError } = useNotification();
   const [files, setFiles] = useState(initialFiles);

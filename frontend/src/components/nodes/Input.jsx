@@ -5,7 +5,7 @@ import {
 import LabeledHandle from '../handles/LabeledHandle';
 import FileUpload from '../FileUpload'; // Updated import to FileUpload
 import NodeHeader from '../NodeHeader';
-import { useNotification } from '../../utils/useNotification';
+import { useNotification } from '../../hooks/useNotification.js';
 
 export default function Input({ id, data }) {
   const { updateNodeData } = useReactFlow();

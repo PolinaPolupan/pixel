@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useReactFlow, useStoreApi } from '@xyflow/react';
-import { useNodesApi } from '../utils/useNodesApi';
+import { useNodesApi } from '../hooks/useNodesApi.js';
 import '../App.css';
 
 const NodeTypesPanel = () => {

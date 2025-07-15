@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { useNodesApi } from '../utils/useNodesApi';
+import { useNodesApi } from '../../hooks/useNodesApi.js';
 
 const ContextMenu = ({
                          onClick,

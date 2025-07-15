@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useScene } from '../components/SceneContext';
+import { useScene } from '../components/contexts/SceneContext.jsx';
 import { saveAs } from 'file-saver';
 
 /**

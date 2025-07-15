@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import DockLayout from 'rc-dock';
-import { SceneProvider } from './components/SceneContext';
+import { SceneProvider } from './components/contexts/SceneContext.jsx';
 import AppContent from './AppContent';
 import FileExplorer from './components/FileExplorer';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
-import { useScene } from './components/SceneContext';
+import { useScene } from './components/contexts/SceneContext.jsx';
 import NodeTypesPanel from './components/NodeTypesPanel';
-import { useNotification } from './utils/useNotification';
-import { NotificationProvider } from './components/NotificationContext';
+import { useNotification } from './hooks/useNotification.js';
+import { NotificationProvider } from './components/contexts/NotificationContext.jsx';
 import {ProgressProvider} from "./components/contexts/ProgressContext.jsx";
 
 // rc-dock layout with Flow Canvas (80%) and File Explorer (20%) split
