@@ -10,6 +10,7 @@ import { useScene } from './components/SceneContext';
 import NodeTypesPanel from './components/NodeTypesPanel';
 import { useNotification } from './utils/useNotification';
 import { NotificationProvider } from './components/NotificationContext';
+import {ProgressProvider} from "./components/contexts/ProgressContext.jsx";
 
 // rc-dock layout with Flow Canvas (80%) and File Explorer (20%) split
 const defaultLayout = {
@@ -130,7 +131,9 @@ export default function App() {
       <ReactFlowProvider>
         <SceneProvider setError={setError}>
           <NotificationProvider>
-            <AppWithSceneContext />
+            <ProgressProvider>
+              <AppWithSceneContext />
+            </ProgressProvider>
           </NotificationProvider>
         </SceneProvider>
       </ReactFlowProvider>

@@ -1,7 +1,5 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import {
-    ReactFlow,
-    Background,
     useNodesState,
     useEdgesState,
     addEdge,
@@ -13,25 +11,23 @@ import '@xyflow/react/dist/style.css';
 import DebugPanel from './components/Debug';
 import { NotificationPanel, NotificationKeyframes } from './components/NotificationPanel';
 import ContextMenu from './components/ContextMenu';
-import { PlayButton } from './components/PlayButton';
-import ProgressBar from './components/ProgressBar';
 import { useNotification } from './utils/useNotification';
 import { useGraphTransformation } from './utils/useGraphTransformation';
 import { useScene } from './components/SceneContext';
 import { useNodesApi } from './utils/useNodesApi';
-import {startProgressPolling} from "./utils/progressPoller.js";
+import { GraphEditor } from "./components/GraphEditor.jsx";
+import { GraphControls } from "./components/GraphControls.jsx";
+import { useGraphExecution } from "./hooks/useGraphExecution.js";
 
 function AppContent() {
     const { sceneId } = useScene();
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-    const [colorMode, setColorMode] = useState('dark');
-    const [contextMenu, setContextMenu] = useState(null);
     const reactFlowWrapper = useRef(null);
     const { error, success, setError, setSuccess, clearError, clearSuccess } = useNotification();
     const transformGraphData = useGraphTransformation();
     const { screenToFlowPosition, getNodes, addNodes, fitView } = useReactFlow();
-    const [isProcessing, setIsProcessing] = useState(false);
+    const [contextMenu, setContextMenu] = useState(null);
 
     // Use the unified API hook
     const {
@@ -43,6 +39,14 @@ function AppContent() {
         error: configError,
         isReady
     } = useNodesApi();
+
+    // Use our custom execution hook
+    const { isProcessing, executeGraph } = useGraphExecution({
+        sceneId,
+        transformGraphData,
+        setError,
+        setSuccess
+    });
 
     // Set error if there's a problem loading node configurations
     useEffect(() => {
@@ -84,69 +88,6 @@ function AppContent() {
     }, [nodes, getHandleParameterType, canCastType]);
 
     const onConnect = useCallback((params) => setEdges((els) => addEdge(params, els)), []);
-
-
-// Modified handlePlay function with better error handling
-    const handlePlay = async () => {
-        setError(null);
-        setIsProcessing(true);
-        console.log("Setting processing state to true");
-
-        // IMPORTANT: Initialize progress bar first
-        if (window.progressFunctions) {
-            window.progressFunctions.init();
-        }
-
-        try {
-            const graphData = transformGraphData();
-
-            console.log("Sending graph data to backend:", graphData);
-            const response = await fetch(`http://localhost:8080/v1/scene/${sceneId}/graph`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(graphData),
-                credentials: 'include'
-            });
-
-            // Handle HTTP error responses
-            if (!response.ok) {
-                let errorMessage;
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.message || errorData.errorMessage || `Server error (${response.status})`;
-                } catch (e) {
-                    const errorText = await response.text();
-                    errorMessage = errorText || `Server error (${response.status})`;
-                }
-                throw new Error(errorMessage);
-            }
-
-            const taskData = await response.json();
-            console.log("Graph processing task created:", taskData);
-
-            // Start monitoring progress, passing the initial data
-            if (taskData.id) {
-                startProgressPolling(sceneId, taskData.id, taskData);
-            } else {
-                // Fallback if no taskId is provided
-                if (window.progressFunctions) {
-                    window.progressFunctions.error('Task created but no ID was returned');
-                } else {
-                    setError('Task created but no ID was returned');
-                    setIsProcessing(false);
-                }
-            }
-        } catch (error) {
-            console.error('Error during graph processing:', error);
-
-            if (window.progressFunctions) {
-                window.progressFunctions.error(error.message);
-            } else {
-                setError(error.message);
-                setIsProcessing(false);
-            }
-        }
-    };
 
     const createNode = useCallback((type, position) => {
         // Check if node config is available
@@ -200,85 +141,72 @@ function AppContent() {
             ref={reactFlowWrapper}
             onContextMenu={onContextMenu}
         >
-            <ReactFlow
+            <GraphEditor
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
                 onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 isValidConnection={isValidConnection}
-                onEdgesChange={onEdgesChange}
-                colorMode={colorMode}
-                style={{ width: '100%', height: '100%' }}
-                fitView
-            >
-                <Background variant="dots" gap={12} size={1} />
+                colorMode="dark"
+            />
+
+            {/* Scene Info Panel */}
+            <Panel position="top-center">
+                <div style={{
+                    padding: '8px 12px',
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    borderRadius: '4px',
+                    color: 'white',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: configLoading ? '#ffc107' : '#4caf50'
+                    }} />
+                    <span>
+                        {configLoading ? 'Loading node configurations...' :
+                            `Scene: ${sceneId ? String(sceneId).substring(0, 8) + '...' : 'Loading...'}`}
+                    </span>
+                </div>
+            </Panel>
+
+            {/* Debug Panel */}
+            <Panel position="right-center" style={{ margin: '16px' }}>
+                <DebugPanel />
+            </Panel>
+
+            {/* Controls Panel */}
+            <GraphControls
+                handlePlay={executeGraph}
+                isProcessing={isProcessing}
+                configLoading={configLoading}
+                setSuccess={setSuccess}
+                setError={setError}
+            />
+
+            {/* Notifications */}
+            {error && (
                 <Panel position="top-center">
-                    <div style={{
-                        padding: '8px 12px',
-                        background: 'rgba(0, 0, 0, 0.5)',
-                        borderRadius: '4px',
-                        color: 'white',
-                        fontSize: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}>
-                        <div style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: configLoading ? '#ffc107' : '#4caf50'
-                        }} />
-                        <span>
-                            {configLoading ? 'Loading node configurations...' :
-                                `Scene: ${sceneId ? String(sceneId).substring(0, 8) + '...' : 'Loading...'}`}
-                        </span>
-                    </div>
+                    <NotificationPanel type="error" message={error} onDismiss={clearError} />
                 </Panel>
-                <Panel position="right-center" style={{ margin: '16px' }}>
-                    <DebugPanel />
+            )}
+
+            {success && (
+                <Panel position="top-center">
+                    <NotificationPanel type="success" message={success} onDismiss={clearSuccess} />
                 </Panel>
+            )}
 
-                <Panel position="bottom-center" style={{ margin: '16px' }}>
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '12px',
-                        maxWidth: '400px',
-                        minHeight: '74px',
-                    }}>
-                        <div style={{ height: '40px', display: 'flex', alignItems: 'center' }}>
-                            <PlayButton
-                                onClick={handlePlay}
-                                isProcessing={isProcessing}
-                                disabled={configLoading}
-                            />
-                        </div>
-                        <div style={{ height: '26px', width: '300px' }}>
-                            <ProgressBar
-                                setIsProcessing={setIsProcessing}
-                                setSuccess={setSuccess}
-                                setError={setError}
-                            />
-                        </div>
-                    </div>
-                </Panel>
+            <NotificationKeyframes />
 
-                {error && (
-                    <Panel position="top-center">
-                        <NotificationPanel type="error" message={error} onDismiss={clearError} />
-                    </Panel>
-                )}
-
-                {success && (
-                    <Panel position="top-center">
-                        <NotificationPanel type="success" message={success} onDismiss={clearSuccess} />
-                    </Panel>
-                )}
-                <NotificationKeyframes />
-            </ReactFlow>
+            {/* Context Menu */}
             {contextMenu && (
                 <ContextMenu
                     position={contextMenu.position}
