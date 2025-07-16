@@ -19,6 +19,7 @@ import BilateralFilter from "../components/nodes/BilateralFilter";
 
 // Import icons
 import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline } from 'react-icons/io5';
+import {nodeApi} from "./api.js";
 
 // Define component mapping
 const componentMap = {
@@ -89,6 +90,7 @@ const iconComponents = {
     )
 };
 
+
 export function useNodesConfig() {
     const [nodesConfig, setNodesConfig] = useState({});
     const [isLoading, setIsLoading] = useState(true);
@@ -97,12 +99,11 @@ export function useNodesConfig() {
     useEffect(() => {
         const fetchNodesConfig = async () => {
             try {
-                const response = await fetch('http://localhost:8080/v1/node/config');
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch nodes config: ${response.statusText}`);
-                }
+                setIsLoading(true);
+                setError(null);
 
-                const data = await response.json();
+                // Use the centralized API client
+                const data = await nodeApi.getNodeConfig();
 
                 const processedConfig = {};
 
@@ -127,10 +128,10 @@ export function useNodesConfig() {
                 });
 
                 setNodesConfig(processedConfig);
-                setIsLoading(false);
             } catch (err) {
                 console.error('Error fetching node configurations:', err);
                 setError(err.message);
+            } finally {
                 setIsLoading(false);
             }
         };

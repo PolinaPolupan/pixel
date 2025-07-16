@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useScene } from '../components/contexts/SceneContext.jsx';
 import { saveAs } from 'file-saver';
+import { sceneApi } from '../utils/api.js';
 
 /**
  * Custom hook for file explorer operations
@@ -13,6 +14,9 @@ export function useFileExplorer(setError) {
     const [previewItem, setPreviewItem] = useState(null);
     const [previewContent, setPreviewContent] = useState(null);
 
+    // Use a ref to track initial mount to prevent duplicate fetching
+    const initialMountRef = useRef(true);
+
     /**
      * Fetch items from the server
      */
@@ -21,21 +25,10 @@ export function useFileExplorer(setError) {
 
         try {
             setIsLoading(true);
-            const url = `http://localhost:8080/v1/scene/${sceneId}/list${folder ? `?folder=${encodeURIComponent(folder)}` : ''}`;
-            const response = await fetch(url, {
-                credentials: 'include',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0',
-                },
-            });
 
-            if (!response.ok) {
-                throw new Error(`Failed to fetch items from ${url}: ${response.statusText}`);
-            }
+            // Use the centralized API client instead of direct fetch
+            const paths = await sceneApi.listFiles(sceneId, folder);
 
-            const paths = await response.json();
             console.log(`FileExplorer fetchItems response (folder=${folder}):`, paths);
             return paths.map((path) => path.replace(/\/+$/, '')); // Normalize paths
         } catch (err) {
@@ -51,138 +44,193 @@ export function useFileExplorer(setError) {
      * Build a tree structure from paths
      */
     const buildTree = useCallback((paths) => {
-        const root = { type: 'folder', name: 'files', path: '', files: [], folders: [], isOpen: true };
+        // Helper function to check if a path is a file
+        const isFile = path => {
+            const segments = path.split('/');
+            const lastSegment = segments[segments.length - 1];
+            return /\.(png|jpeg|jpg|gif|txt|json|md)$/i.test(lastSegment);
+        };
 
-        // First, create a set of all directory paths to avoid duplicates
-        const dirPaths = new Set();
+        // Helper function to get file type
+        const getFileType = path => {
+            if (/\.(png|jpeg|jpg|gif)$/i.test(path)) return 'image';
+            if (/\.(txt|json|md)$/i.test(path)) return 'text';
+            return 'binary';
+        };
 
-        // Process all paths to extract directories
+        // First, separate folders and root files
+        const rootFiles = [];
+        const folders = {};
+
+        // Add root folder first
+        folders[''] = {
+            type: 'folder',
+            name: 'root',
+            path: '',
+            files: [],
+            folders: [],
+            isOpen: true
+        };
+
+        // Create a record of all folders and their parent paths
         paths.forEach(path => {
-            const segments = path.split('/').filter(s => s);
-            if (segments.length > 1) {
-                // Add all parent directories to the set
-                for (let i = 1; i < segments.length; i++) {
-                    const dirPath = segments.slice(0, i).join('/');
-                    dirPaths.add(dirPath);
+            if (path.includes('/')) {
+                // This is a nested path, get all folder segments
+                const segments = path.split('/');
+                let currentPath = '';
+
+                // Process each segment to build folder hierarchy
+                for (let i = 0; i < segments.length - 1; i++) {
+                    const segment = segments[i];
+                    const parentPath = currentPath;
+
+                    // Build the current path
+                    currentPath = currentPath ? `${currentPath}/${segment}` : segment;
+
+                    // Create folder if it doesn't exist
+                    if (!folders[currentPath]) {
+                        folders[currentPath] = {
+                            type: 'folder',
+                            name: segment,
+                            path: currentPath,
+                            files: [],
+                            folders: [],
+                            isOpen: false,
+                            parentPath
+                        };
+                    }
                 }
-            }
-        });
 
-        // Now process paths to build the tree
-        paths.forEach((path) => {
-            const segments = path.split('/').filter((s) => s);
-            let current = root;
+                // If it's a file, add it to its parent folder
+                if (isFile(path)) {
+                    const lastSlash = path.lastIndexOf('/');
+                    const fileName = path.substring(lastSlash + 1);
+                    const folderPath = path.substring(0, lastSlash);
 
-            // If it's a root-level file
-            if (segments.length === 1 && !dirPaths.has(segments[0])) {
-                const fileName = segments[0];
-                if (/\.(png|jpeg|jpg|txt)$/i.test(fileName)) {
-                    const fileType = /\.txt$/i.test(fileName) ? 'text' : 'image';
-                    current.files.push({
+                    // Make sure the parent folder exists
+                    if (!folders[folderPath]) {
+                        folders[folderPath] = {
+                            type: 'folder',
+                            name: folderPath.split('/').pop(),
+                            path: folderPath,
+                            files: [],
+                            folders: [],
+                            isOpen: false
+                        };
+                    }
+
+                    // Add file to its parent folder
+                    folders[folderPath].files.push({
                         type: 'file',
-                        fileType: fileType,
-                        url: `http://localhost:8080/v1/scene/${sceneId}/file?filepath=${encodeURIComponent(fileName)}&_cb=${cacheBuster}`,
-                        path: fileName,
+                        fileType: getFileType(path),
+                        name: fileName,
+                        path: path,
+                        url: sceneApi.getFileUrl(sceneId, path, cacheBuster)
                     });
                 }
+            } else if (isFile(path)) {
+                // This is a root-level file
+                rootFiles.push({
+                    type: 'file',
+                    fileType: getFileType(path),
+                    name: path,
+                    path: path,
+                    url: sceneApi.getFileUrl(sceneId, path, cacheBuster)
+                });
             } else {
-                // Handle nested paths
-                for (let i = 0; i < segments.length; i++) {
-                    const segment = segments[i];
-                    const isLast = i === segments.length - 1;
-                    const currentPath = segments.slice(0, i + 1).join('/');
-
-                    // If this is a directory path or not the last segment
-                    if (dirPaths.has(currentPath) || !isLast) {
-                        // Find or create folder
-                        let folder = current.folders.find((f) => f.name === segment);
-                        if (!folder) {
-                            folder = {
-                                type: 'folder',
-                                name: segment,
-                                path: currentPath,
-                                files: [],
-                                folders: [],
-                                isOpen: false,
-                            };
-                            current.folders.push(folder);
-                        }
-                        current = folder;
-                    }
-                    // If it's the last segment and not a directory, it's a file
-                    else if (isLast && !dirPaths.has(currentPath)) {
-                        if (/\.(png|jpeg|jpg|txt)$/i.test(segment)) {
-                            const fileType = /\.txt$/i.test(segment) ? 'text' : 'image';
-                            current.files.push({
-                                type: 'file',
-                                fileType: fileType,
-                                url: `http://localhost:8080/v1/scene/${sceneId}/file?filepath=${encodeURIComponent(currentPath)}&_cb=${cacheBuster}`,
-                                path: currentPath,
-                            });
-                        }
-                    }
+                // This is a root-level folder
+                if (!folders[path]) {
+                    folders[path] = {
+                        type: 'folder',
+                        name: path,
+                        path: path,
+                        files: [],
+                        folders: [],
+                        isOpen: false,
+                        parentPath: ''
+                    };
                 }
             }
         });
 
-        console.log('FileExplorer buildTree result:', { folders: root.folders, files: root.files });
-        return root;
+        // Add all files to the root folder
+        folders[''].files = rootFiles;
+
+        // Now connect all folders to their parents
+        Object.values(folders).forEach(folder => {
+            if (folder.path && folder.parentPath !== undefined) {
+                const parent = folders[folder.parentPath];
+                if (parent && !parent.folders.some(f => f.path === folder.path)) {
+                    parent.folders.push(folder);
+                }
+            }
+        });
+
+        // The root of our tree is the '' folder
+        return folders[''];
     }, [sceneId, cacheBuster]);
 
     /**
      * Refresh all items
      */
     const refreshItems = useCallback(async () => {
-        setCacheBuster(Date.now());
+        const newCacheBuster = Date.now();
+        setCacheBuster(newCacheBuster);
+
         const paths = await fetchItems('');
-        const fileTree = buildTree(paths);
-        setItems([fileTree]);
-        return fileTree;
+        const root = buildTree(paths);
+
+        // Set the children of the root as our top-level items
+        setItems([...root.folders, ...root.files]);
+
+        return root;
     }, [fetchItems, buildTree]);
 
-
-    const toggleFolder = (path) => {
+    /**
+     * Toggle folder open/closed state
+     */
+    const toggleFolder = useCallback((path) => {
         setItems(prev => {
-            return updateTreeNode(prev, path, node => ({
-                ...node,
-                isOpen: !node.isOpen
-            }));
+            // Create a deep copy to avoid mutation
+            const updateNode = (nodes) => {
+                return nodes.map(node => {
+                    if (node.path === path) {
+                        return { ...node, isOpen: !node.isOpen };
+                    }
+
+                    if (node.type === 'folder') {
+                        return {
+                            ...node,
+                            folders: updateNode(node.folders),
+                            files: [...node.files]
+                        };
+                    }
+
+                    return node;
+                });
+            };
+
+            return updateNode(prev);
         });
-    };
-
-    const updateTreeNode = (tree, path, updateFn) => {
-        return tree.map(node => {
-            if (node.path === path) {
-                return updateFn(node);
-            }
-
-            if (node.folders) {
-                return {
-                    ...node,
-                    folders: updateTreeNode(node.folders, path, updateFn)
-                };
-            }
-
-            return node;
-        });
-    };
+    }, []);
 
     /**
      * Download all files as a ZIP
      */
     const downloadAsZip = useCallback(async () => {
         try {
-            const zipUrl = `http://localhost:8080/v1/scene/${sceneId}/zip`;
-            const response = await fetch(zipUrl);
+            setIsLoading(true);
 
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-            }
+            // Use the API method but with the working implementation
+            const zipBlob = await sceneApi.downloadZip(sceneId);
 
-            const zipBlob = await response.blob();
+            // Use the exact save logic from the working version
             saveAs(zipBlob, `scene_${sceneId}_files.zip`);
         } catch (err) {
+            console.error('ZIP download error:', err);
             setError?.('Failed to download ZIP: ' + err.message);
+        } finally {
+            setIsLoading(false);
         }
     }, [sceneId, setError]);
 
@@ -211,6 +259,8 @@ export function useFileExplorer(setError) {
         if (item.fileType === 'text') {
             const content = await fetchTextContent(item.url);
             setPreviewContent(content);
+        } else {
+            setPreviewContent(null);
         }
     }, [fetchTextContent]);
 
@@ -222,19 +272,25 @@ export function useFileExplorer(setError) {
         setPreviewContent(null);
     }, []);
 
-    // Initial load
+    // Initial load - using useEffect with a ref to prevent infinite loops
     useEffect(() => {
-        if (sceneId) {
+        if (sceneId && initialMountRef.current) {
+            initialMountRef.current = false;
             refreshItems();
         }
-    }, [sceneId, refreshItems]);
+    }, [sceneId]); // Remove refreshItems from dependencies
+
+    // Expose a manual refresh function that won't trigger re-renders
+    const manualRefresh = useCallback(() => {
+        refreshItems();
+    }, [refreshItems]);
 
     return {
         items,
         isLoading,
         previewItem,
         previewContent,
-        refreshItems,
+        refreshItems: manualRefresh, // Use manualRefresh instead of refreshItems
         toggleFolder,
         handleFileClick,
         closePreview,

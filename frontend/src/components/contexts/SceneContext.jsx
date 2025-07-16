@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { sceneApi } from '../../utils/api.js';
 
 const SceneContext = createContext();
 
@@ -14,7 +15,7 @@ export function SceneProvider({ children }) {
   // Check for an existing scene ID in session storage
   useEffect(() => {
     const storedSceneId = sessionStorage.getItem('mypixel_scene_id');
-    
+
     if (storedSceneId) {
       console.log('Using existing scene:', storedSceneId);
       setSceneId(storedSceneId);
@@ -30,18 +31,9 @@ export function SceneProvider({ children }) {
     setSceneError(null);
 
     try {
-      const response = await fetch('http://localhost:8080/v1/scene/', {
-        method: 'POST',
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to create scene: ${response.statusText}`);
-      }
-
-      const sceneData = await response.json();
+      const sceneData = await sceneApi.create();
       console.log('Created new scene:', sceneData.id);
-      
+
       // Store the scene ID in session storage
       sessionStorage.setItem('mypixel_scene_id', sceneData.id);
       setSceneId(sceneData.id);
@@ -61,8 +53,8 @@ export function SceneProvider({ children }) {
   };
 
   return (
-    <SceneContext.Provider value={value}>
-      {children}
-    </SceneContext.Provider>
+      <SceneContext.Provider value={value}>
+        {children}
+      </SceneContext.Provider>
   );
 }
