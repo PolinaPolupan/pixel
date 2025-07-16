@@ -6,9 +6,7 @@ import ProgressBar from './ProgressBar';
 export function GraphControls({
                                   handlePlay,
                                   isProcessing,
-                                  configLoading,
-                                  setSuccess,
-                                  setError
+                                  configLoading
                               }) {
     return (
         <Panel position="bottom-center" style={{ margin: '16px' }}>
@@ -28,10 +26,7 @@ export function GraphControls({
                     />
                 </div>
                 <div style={{ height: '26px', width: '300px' }}>
-                    <ProgressBar
-                        setSuccess={setSuccess}
-                        setError={setError}
-                    />
+                    <ProgressBar />
                 </div>
             </div>
         </Panel>

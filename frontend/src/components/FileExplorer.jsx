@@ -7,7 +7,7 @@ import { useFileExplorer } from '../hooks/useFileExplorer';
 /**
  * File Explorer component with improved modular structure
  */
-const FileExplorer = ({ setError }) => {
+const FileExplorer = () => {
     const {
         items,
         previewItem,
@@ -17,7 +17,7 @@ const FileExplorer = ({ setError }) => {
         handleFileClick,
         closePreview,
         downloadAsZip
-    } = useFileExplorer(setError);
+    } = useFileExplorer();
 
     return (
         <>

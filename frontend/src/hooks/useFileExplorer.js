@@ -2,11 +2,13 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useScene } from '../components/contexts/SceneContext.jsx';
 import { saveAs } from 'file-saver';
 import { sceneApi } from '../utils/api.js';
+import {useNotification} from "../components/contexts/NotificationContext.jsx";
 
 /**
  * Custom hook for file explorer operations
  */
-export function useFileExplorer(setError) {
+export function useFileExplorer() {
+    const { setError } = useNotification();
     const { sceneId } = useScene();
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(false);

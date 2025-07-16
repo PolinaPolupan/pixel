@@ -1,13 +1,22 @@
 import { useState, useCallback } from 'react';
-import { graphApi } from '../utils/api'; // Import the graphApi object, not individual functions
-import { taskManager } from '../components/services/TaskManager.jsx';
-import { useProgress } from '../components/contexts/ProgressContext';
+import { graphApi } from '../utils/api';
+import { useProgress } from "../components/contexts/ProgressContext.jsx";
+import { taskManager } from "../components/services/TaskManager.jsx";
+import {useNotification} from "../components/contexts/NotificationContext.jsx";
 
-export function useGraphExecution({ sceneId, transformGraphData, setError, setSuccess }) {
+export function useGraphExecution({ sceneId, transformGraphData }) {
     const [isProcessing, setIsProcessing] = useState(false);
     const { initProgress, updateProgress, completeProgress, handleError } = useProgress();
+    // Use notification context directly
+    const { setError, setSuccess } = useNotification();
 
     const executeGraph = useCallback(async () => {
+        if (!sceneId) {
+            setError('No active scene');
+            return;
+        }
+
+        // Clear previous errors
         setError(null);
         setIsProcessing(true);
         console.log("Setting processing state to true");
@@ -16,17 +25,18 @@ export function useGraphExecution({ sceneId, transformGraphData, setError, setSu
         initProgress();
 
         try {
+            // Transform the graph
             const graphData = transformGraphData();
-
             console.log("Sending graph data to backend:", graphData);
-            // Use graphApi.processGraph instead of processGraph directly
+
+            // Execute the graph
             const taskData = await graphApi.processGraph(sceneId, graphData);
             console.log("Graph processing task created:", taskData);
 
-            // Start monitoring progress using the TaskManager
+            // Monitor the task - NOTE THE CHANGE HERE: taskData.id instead of response.taskId
             taskManager.monitorTask(
                 sceneId,
-                taskData.id,
+                taskData.id, // THIS WAS THE MAIN ISSUE - using taskData.id not response.taskId
                 taskData,
                 // Progress callback
                 (progressData) => {
@@ -35,7 +45,7 @@ export function useGraphExecution({ sceneId, transformGraphData, setError, setSu
                 // Complete callback
                 (completedData) => {
                     completeProgress(completedData);
-                    setSuccess('Graph processing completed successfully');
+                    setSuccess('Graph execution completed successfully');
                     setIsProcessing(false);
                 },
                 // Error callback
@@ -45,16 +55,13 @@ export function useGraphExecution({ sceneId, transformGraphData, setError, setSu
                     setIsProcessing(false);
                 }
             );
-        } catch (error) {
-            console.error('Error during graph processing:', error);
-            handleError(error.message);
-            setError(error.message);
+        } catch (err) {
+            console.error('Error during graph processing:', err);
+            handleError(err.message);
+            setError(`Failed to execute graph: ${err.message}`);
             setIsProcessing(false);
         }
     }, [sceneId, transformGraphData, initProgress, updateProgress, completeProgress, handleError, setError, setSuccess]);
 
-    return {
-        isProcessing,
-        executeGraph
-    };
+    return { isProcessing, executeGraph };
 }

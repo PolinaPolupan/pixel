@@ -39,8 +39,14 @@ export class TaskManager {
                 }
                 return;
             }
-            else if (initialData.status === 'FAILED') {
-                if (onError) onError(initialData.errorMessage || 'Task failed');
+            if (initialData.status === 'FAILED') {
+                console.log('Task already failed, calling onError with:', initialData.errorMessage);
+                if (onError) {
+                    // The error message should be properly formatted for notification
+                    const errorMsg = initialData.errorMessage || 'Task failed';
+                    console.log('Passing error to notification system:', errorMsg);
+                    onError(errorMsg);
+                }
                 return;
             }
         }

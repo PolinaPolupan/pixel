@@ -1,19 +1,26 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useNodesApi } from '../../hooks/useNodesApi.js';
+import {useNotification} from "./NotificationContext.jsx";
 
 const ContextMenu = ({
-                         onClick,
                          onClose,
                          position = { x: 0, y: 0 },
                          createNode
                      }) => {
     const { nodesByCategory, sortedCategories, isLoading, error } = useNodesApi();
+    const { setError } = useNotification();
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [subMenuPosition, setSubMenuPosition] = useState({ top: 0, height: 0 });
     const categoryRefs = useRef({});
     const mainMenuRef = useRef(null);
 
-    const handleMouseEnter = (category, e) => {
+    useEffect(() => {
+        if (error) {
+            setError(`Error loading node types: ${error}`);
+        }
+    }, [error, setError]);
+
+    const handleMouseEnter = (category) => {
         const element = categoryRefs.current[category];
         if (element) {
             const rect = element.getBoundingClientRect();
@@ -93,26 +100,7 @@ const ContextMenu = ({
 
     // Handle error state
     if (error) {
-        return (
-            <div
-                className="context-menu"
-                style={{
-                    position: 'absolute',
-                    top: position.y,
-                    left: position.x,
-                    zIndex: 10,
-                    background: 'rgba(35, 35, 40, 0.95)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '10px',
-                    minWidth: '150px',
-                    color: '#ff6b6b',
-                    fontSize: '13px'
-                }}
-            >
-                Error loading nodes
-            </div>
-        );
+        return null;
     }
 
     return (

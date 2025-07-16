@@ -1,16 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import DockLayout from 'rc-dock';
 import { SceneProvider } from './components/contexts/SceneContext.jsx';
 import AppContent from './AppContent';
 import FileExplorer from './components/FileExplorer';
 import LoadingScreen from './components/LoadingScreen';
-import ErrorScreen from './components/ErrorScreen';
 import { useScene } from './components/contexts/SceneContext.jsx';
 import NodeTypesPanel from './components/NodeTypesPanel';
-import { useNotification } from './hooks/useNotification.js';
-import { NotificationProvider } from './components/contexts/NotificationContext.jsx';
+import {NotificationProvider, useNotification} from './components/contexts/NotificationContext.jsx';
 import {ProgressProvider} from "./components/contexts/ProgressContext.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 // rc-dock layout with Flow Canvas (80%) and File Explorer (20%) split
 const defaultLayout = {
@@ -38,9 +37,7 @@ const defaultLayout = {
               {
                 id: 'fileExplorer',
                 title: 'File Explorer',
-                content: (
-                    <FileExplorer setError={useNotification}/>
-                ),
+                content: <FileExplorer />,
               },
             ],
           },
@@ -65,6 +62,7 @@ const defaultLayout = {
 // Component for loading and error handling
 function AppWithSceneContext() {
   const { isSceneLoading, sceneError } = useScene();
+  const { setError } = useNotification();
   const layoutRef = useRef(null);
 
   // Persist and debug layout
@@ -90,12 +88,14 @@ function AppWithSceneContext() {
     }
   };
 
+  useEffect(() => {
+    if (sceneError) {
+      setError(sceneError);
+    }
+  }, [sceneError, setError]);
+
   if (isSceneLoading) {
     return <LoadingScreen message="Initializing your workspace..." />;
-  }
-
-  if (sceneError) {
-    return <ErrorScreen message={sceneError} />;
   }
 
   return (
@@ -120,23 +120,19 @@ function AppWithSceneContext() {
 }
 
 export default function App() {
-  const [error, setError] = useState(null);
-
-  if (error) {
-    return <ErrorScreen message={error} />;
-  }
-
   return (
-    <div style={{ height: '100vh', position: 'relative' }}>
-      <ReactFlowProvider>
-        <SceneProvider setError={setError}>
-          <NotificationProvider>
-            <ProgressProvider>
-              <AppWithSceneContext />
-            </ProgressProvider>
-          </NotificationProvider>
-        </SceneProvider>
-      </ReactFlowProvider>
-    </div>
+      <ErrorBoundary>
+        <div style={{ height: '100vh', position: 'relative' }}>
+          <ReactFlowProvider>
+            <NotificationProvider>
+              <SceneProvider>
+                <ProgressProvider>
+                  <AppWithSceneContext />
+                </ProgressProvider>
+              </SceneProvider>
+            </NotificationProvider>
+          </ReactFlowProvider>
+        </div>
+      </ErrorBoundary>
   );
 }

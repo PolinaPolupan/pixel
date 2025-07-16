@@ -11,20 +11,20 @@ import '@xyflow/react/dist/style.css';
 import DebugPanel from './components/Debug';
 import { NotificationPanel, NotificationKeyframes } from './components/NotificationPanel';
 import ContextMenu from './components/contexts/ContextMenu.jsx';
-import { useNotification } from './hooks/useNotification.js';
 import { useGraphTransformation } from './hooks/useGraphTransformation.js';
 import { useScene } from './components/contexts/SceneContext.jsx';
 import { useNodesApi } from './hooks/useNodesApi.js';
 import { GraphEditor } from "./components/GraphEditor.jsx";
 import { GraphControls } from "./components/GraphControls.jsx";
 import { useGraphExecution } from "./hooks/useGraphExecution.js";
+import {useNotification} from "./components/contexts/NotificationContext.jsx";
 
 function AppContent() {
     const { sceneId } = useScene();
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    const [nodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const reactFlowWrapper = useRef(null);
-    const { error, success, setError, setSuccess, clearError, clearSuccess } = useNotification();
+    const { error, success, setError, clearError, clearSuccess } = useNotification();
     const transformGraphData = useGraphTransformation();
     const { screenToFlowPosition, getNodes, addNodes, fitView } = useReactFlow();
     const [contextMenu, setContextMenu] = useState(null);
@@ -43,9 +43,7 @@ function AppContent() {
     // Use our custom execution hook
     const { isProcessing, executeGraph } = useGraphExecution({
         sceneId,
-        transformGraphData,
-        setError,
-        setSuccess
+        transformGraphData
     });
 
     // Set error if there's a problem loading node configurations
@@ -187,8 +185,6 @@ function AppContent() {
                 handlePlay={executeGraph}
                 isProcessing={isProcessing}
                 configLoading={configLoading}
-                setSuccess={setSuccess}
-                setError={setError}
             />
 
             {/* Notifications */}
