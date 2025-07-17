@@ -21,10 +21,10 @@ import {useNotification} from "./components/contexts/NotificationContext.jsx";
 
 function AppContent() {
     const { sceneId } = useScene();
-    const [nodes, onNodesChange] = useNodesState([]);
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const reactFlowWrapper = useRef(null);
-    const { error, success, setError, clearError, clearSuccess } = useNotification();
+    const { error, success, setError, setSuccess, clearError, clearSuccess } = useNotification();
     const transformGraphData = useGraphTransformation();
     const { screenToFlowPosition, getNodes, addNodes, fitView } = useReactFlow();
     const [contextMenu, setContextMenu] = useState(null);

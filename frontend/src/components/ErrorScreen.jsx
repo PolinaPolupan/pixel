@@ -1,9 +1,6 @@
 import React from 'react';
-import { useScene } from './contexts/SceneContext.jsx';
 
 function ErrorScreen({ message = "An error occurred." }) {
-  const { createNewScene } = useScene();
-  
   return (
     <div style={{
       width: '100vw',
@@ -39,20 +36,6 @@ function ErrorScreen({ message = "An error occurred." }) {
         marginBottom: '30px',
         color: 'rgba(255, 255, 255, 0.7)'
       }}>{message}</p>
-      <button 
-        onClick={createNewScene}
-        style={{
-          padding: '10px 16px',
-          background: '#3c4fe0',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        Try Again
-      </button>
     </div>
   );
 }
