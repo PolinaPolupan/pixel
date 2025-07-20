@@ -1,7 +1,7 @@
 import React from 'react';
 import { Handle, Position, useNodeConnections } from '@xyflow/react';
 import { memo } from 'react';
-import { getParameterColor } from '../../utils/parameterColors';
+import {getParameterColor} from "../../services/NodesConfig.jsx";
 
 const LabeledHandle = (props) => {
   const {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useReactFlow, useNodeConnections } from '@xyflow/react';
 import LabeledHandle from './LabeledHandle';
-import { getParameterColor } from '../../utils/parameterColors';
+import {getParameterColor} from "../../services/NodesConfig.jsx";
 
 const InputHandle = ({ 
   id, 

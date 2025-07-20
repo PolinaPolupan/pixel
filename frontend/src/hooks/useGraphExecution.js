@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
-import { graphApi } from '../utils/api';
-import { useProgress } from "../components/contexts/ProgressContext.jsx";
-import { taskManager } from "../components/services/TaskManager.jsx";
-import {useNotification} from "../components/contexts/NotificationContext.jsx";
+import { graphApi } from '../services/api.js';
+import { useProgress } from "../services/contexts/ProgressContext.jsx";
+import { taskManager } from "../services/TaskManager.jsx";
+import {useNotification} from "../services/contexts/NotificationContext.jsx";
 
 export function useGraphExecution({ sceneId, transformGraphData }) {
     const [isProcessing, setIsProcessing] = useState(false);

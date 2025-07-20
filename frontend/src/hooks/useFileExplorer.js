@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useScene } from '../components/contexts/SceneContext.jsx';
+import { useScene } from '../services/contexts/SceneContext.jsx';
 import { saveAs } from 'file-saver';
-import { sceneApi } from '../utils/api.js';
-import {useNotification} from "../components/contexts/NotificationContext.jsx";
+import { sceneApi } from '../services/api.js';
+import {useNotification} from "../services/contexts/NotificationContext.jsx";
 
 /**
  * Custom hook for file explorer operations

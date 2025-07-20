@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNodesConfig } from '../utils/NodesConfig.jsx';
+import { useNodesConfig } from '../services/NodesConfig.jsx';
 
 /**
  * Unified hook for accessing node configurations and related utilities
