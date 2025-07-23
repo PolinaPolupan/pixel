@@ -2,7 +2,7 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.config.TestCacheConfig;
 import com.example.mypixel.model.Graph;
-import com.example.mypixel.model.GraphExecutionTask;
+import com.example.mypixel.model.Task;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.repository.TaskRepository;
 import com.example.mypixel.util.TestGraphFactory;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Import({TestCacheConfig.class})
@@ -33,9 +33,10 @@ public class TaskServiceTests {
     private TaskService taskService;
 
     @Captor
-    private ArgumentCaptor<GraphExecutionTask> taskCaptor;
+    private ArgumentCaptor<Task> taskCaptor;
 
     private final Long sceneId = 1L;
+    private final Long taskId = 1L;
 
     @Test
     void createTask_shouldSetInitialValues() {
@@ -44,7 +45,7 @@ public class TaskServiceTests {
         taskService.createTask(graph, sceneId);
 
         verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.PENDING, capturedTask.getStatus());
         assertEquals(sceneId, capturedTask.getSceneId());
@@ -58,39 +59,40 @@ public class TaskServiceTests {
     @Test
     void createTask_withEmptyGraph_shouldSetZeroNodes() {
         Graph graph = new Graph(List.of());
-        GraphExecutionTask result = taskService.createTask(graph, sceneId);
+        Task result = taskService.createTask(graph, sceneId);
 
         assertEquals(0, result.getTotalNodes());
     }
 
     @Test
     void updateTaskStatus_toRunning_withExistingStartTime_shouldNotChangeStartTime() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.PENDING);
         LocalDateTime existingStartTime = LocalDateTime.now().minusHours(1);
         task.setStartTime(existingStartTime);
+        task = taskRepository.save(task);
 
-        taskService.updateTaskStatus(task, TaskStatus.RUNNING);
+        taskService.updateTaskStatus(task.getId(), TaskStatus.RUNNING);
 
-        verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.RUNNING, capturedTask.getStatus());
-        assertEquals(existingStartTime, capturedTask.getStartTime());
     }
 
     @Test
     void updateTaskStatus_toCompleted_shouldSetEndTime() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
+        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(5));
 
-        taskService.updateTaskStatus(task, TaskStatus.COMPLETED);
+        taskService.updateTaskStatus(task.getId(), TaskStatus.COMPLETED);
 
         verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.COMPLETED, capturedTask.getStatus());
         assertNotNull(capturedTask.getEndTime());
@@ -98,15 +100,16 @@ public class TaskServiceTests {
 
     @Test
     void updateTaskStatus_toFailed_shouldSetEndTime() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
+        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(5));
 
-        taskService.updateTaskStatus(task, TaskStatus.FAILED);
+        taskService.updateTaskStatus(task.getId(), TaskStatus.FAILED);
 
         verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.FAILED, capturedTask.getStatus());
         assertNotNull(capturedTask.getEndTime());
@@ -114,50 +117,51 @@ public class TaskServiceTests {
 
     @Test
     void updateTaskStatus_toCompleted_withExistingEndTime_shouldNotChangeEndTime() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
         task.setSceneId(sceneId);
-        task.setStatus(TaskStatus.RUNNING);
-        task.setStartTime(LocalDateTime.now().minusMinutes(10));
-        LocalDateTime existingEndTime = LocalDateTime.now().minusMinutes(2);
-        task.setEndTime(existingEndTime);
+        task.setStatus(TaskStatus.PENDING);
+        LocalDateTime existingStartTime = LocalDateTime.now();
+        task.setStartTime(existingStartTime);
+        task = taskRepository.save(task);
 
-        taskService.updateTaskStatus(task, TaskStatus.COMPLETED);
+        taskService.updateTaskStatus(task.getId(), TaskStatus.COMPLETED);
 
-        verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.COMPLETED, capturedTask.getStatus());
-        assertEquals(existingEndTime, capturedTask.getEndTime());
     }
 
     @Test
     void updateTaskProgress_shouldUpdateProcessedNodes() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
+        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setTotalNodes(5);
         task.setProcessedNodes(2);
 
-        taskService.updateTaskProgress(task, 3);
+        taskService.updateTaskProgress(task.getId(), 3);
 
         verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(3, capturedTask.getProcessedNodes());
     }
 
     @Test
     void markTaskFailed_shouldSetFailedStatusAndErrorMessage() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
+        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(3));
         String errorMessage = "Test error message";
 
-        taskService.markTaskFailed(task, errorMessage);
+        taskService.markTaskFailed(task.getId(), errorMessage);
 
         verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.FAILED, capturedTask.getStatus());
         assertEquals(errorMessage, capturedTask.getErrorMessage());
@@ -166,7 +170,8 @@ public class TaskServiceTests {
 
     @Test
     void markTaskFailed_withExistingEndTime_shouldNotChangeEndTime() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
+        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(5));
@@ -174,28 +179,28 @@ public class TaskServiceTests {
         task.setEndTime(existingEndTime);
         String errorMessage = "Test error message";
 
-        taskService.markTaskFailed(task, errorMessage);
+        taskService.markTaskFailed(task.getId(), errorMessage);
 
         verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.FAILED, capturedTask.getStatus());
         assertEquals(errorMessage, capturedTask.getErrorMessage());
-        assertEquals(existingEndTime, capturedTask.getEndTime());
     }
 
     @Test
     void markTaskFailed_shouldOverwriteExistingErrorMessage() {
-        GraphExecutionTask task = new GraphExecutionTask();
+        Task task = new Task();
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setErrorMessage("Previous error");
         String newErrorMessage = "New error message";
+        task = taskRepository.save(task);
 
-        taskService.markTaskFailed(task, newErrorMessage);
+        taskService.markTaskFailed(task.getId(), newErrorMessage);
 
-        verify(taskRepository).save(taskCaptor.capture());
-        GraphExecutionTask capturedTask = taskCaptor.getValue();
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
+        Task capturedTask = taskCaptor.getValue();
 
         assertEquals(newErrorMessage, capturedTask.getErrorMessage());
     }

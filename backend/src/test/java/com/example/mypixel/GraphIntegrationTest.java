@@ -1,8 +1,8 @@
 package com.example.mypixel;
 
 
-import com.example.mypixel.model.GraphExecutionTask;
 import com.example.mypixel.model.Scene;
+import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.service.SceneService;
 import com.example.mypixel.service.StorageService;
 import com.example.mypixel.util.TestFileUtils;
@@ -68,17 +68,19 @@ public class GraphIntegrationTest {
     }
 
     @Test
-    void testGraphExecution() {
+    void testGraphExecution() throws InterruptedException {
         String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
                 "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
-        ResponseEntity<GraphExecutionTask> response = restTemplate.postForEntity(
+        ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/graph",
                 testGraphJson,
-                GraphExecutionTask.class,
+                TaskPayload.class,
                 sceneId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        Thread.sleep(5000L);
 
         assertTrue(TestcontainersExtension.doesObjectExistInS3("output/Picture1.png"));
         assertTrue(TestcontainersExtension.doesObjectExistInS3("output/Picture3.png"));
@@ -257,10 +259,10 @@ public class GraphIntegrationTest {
                     String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
                             "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
-                    ResponseEntity<GraphExecutionTask> response = restTemplate.postForEntity(
+                    ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
                             "/v1/scene/{sceneId}/graph",
                             testGraphJson,
-                            GraphExecutionTask.class,
+                            TaskPayload.class,
                             sceneId);
 
                     assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -1,6 +1,7 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.model.GraphExecutionTask;
+import com.example.mypixel.model.Task;
+import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,15 +29,15 @@ class NotificationServiceTests {
     private ArgumentCaptor<String> destinationCaptor;
 
     @Captor
-    private ArgumentCaptor<GraphExecutionTask> taskCaptor;
+    private ArgumentCaptor<TaskPayload> taskCaptor;
 
     private final Long sceneId = 1L;
     private final Long taskId = 1L;
-    private GraphExecutionTask task;
+    private Task task;
 
     @BeforeEach
     void setUp() {
-        task = new GraphExecutionTask();
+        task = new Task();
         task.setId(taskId);
         task.setSceneId(sceneId);
     }
@@ -50,12 +51,12 @@ class NotificationServiceTests {
         task.setProcessedNodes(processed);
         task.setTotalNodes(total);
 
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
         String destination = destinationCaptor.getValue();
-        GraphExecutionTask sentTask = taskCaptor.getValue();
+        TaskPayload sentTask = taskCaptor.getValue();
 
         assertEquals("/topic/processing/" + taskId, destination);
         assertEquals(sceneId, sentTask.getSceneId());
@@ -70,11 +71,11 @@ class NotificationServiceTests {
         task.setProcessedNodes(0);
         task.setTotalNodes(0);
 
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
-        GraphExecutionTask sentTask = taskCaptor.getValue();
+        TaskPayload sentTask = taskCaptor.getValue();
         assertEquals(0, sentTask.getProcessedNodes());
         assertEquals(0, sentTask.getTotalNodes());
     }
@@ -83,21 +84,21 @@ class NotificationServiceTests {
     void sendProgress_whenMessageTemplateThrowsException_shouldNotPropagateException() {
         task.setStatus(TaskStatus.RUNNING);
         doThrow(new RuntimeException("Test exception")).when(messagingTemplate)
-                .convertAndSend(anyString(), any(GraphExecutionTask.class));
+                .convertAndSend(anyString(), any(Task.class));
 
-        assertDoesNotThrow(() -> notificationService.sendTaskStatus(task));
+        assertDoesNotThrow(() -> notificationService.sendTaskStatus(TaskPayload.fromEntity(task)));
     }
 
     @Test
     void sendCompleted_shouldSendCorrectMessage() {
         task.setStatus(TaskStatus.COMPLETED);
 
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
         String destination = destinationCaptor.getValue();
-        GraphExecutionTask sentTask = taskCaptor.getValue();
+        TaskPayload sentTask = taskCaptor.getValue();
 
         assertEquals("/topic/processing/" + taskId, destination);
         assertEquals(sceneId, sentTask.getSceneId());
@@ -108,9 +109,9 @@ class NotificationServiceTests {
     void sendCompleted_whenMessageTemplateThrowsException_shouldNotPropagateException() {
         task.setStatus(TaskStatus.COMPLETED);
         doThrow(new RuntimeException("Test exception")).when(messagingTemplate)
-                .convertAndSend(anyString(), any(GraphExecutionTask.class));
+                .convertAndSend(anyString(), any(TaskPayload.class));
 
-        assertDoesNotThrow(() -> notificationService.sendTaskStatus(task));
+        assertDoesNotThrow(() -> notificationService.sendTaskStatus(TaskPayload.fromEntity(task)));
     }
 
     @Test
@@ -119,12 +120,12 @@ class NotificationServiceTests {
         task.setStatus(TaskStatus.FAILED);
         task.setErrorMessage(errorMessage);
 
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
         String destination = destinationCaptor.getValue();
-        GraphExecutionTask sentTask = taskCaptor.getValue();
+        TaskPayload sentTask = taskCaptor.getValue();
 
         assertEquals("/topic/processing/" + taskId, destination);
         assertEquals(sceneId, sentTask.getSceneId());
@@ -137,11 +138,11 @@ class NotificationServiceTests {
         task.setStatus(TaskStatus.FAILED);
         task.setErrorMessage(null);
 
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
-        GraphExecutionTask sentTask = taskCaptor.getValue();
+        TaskPayload sentTask = taskCaptor.getValue();
         assertNull(sentTask.getErrorMessage());
     }
 
@@ -150,9 +151,9 @@ class NotificationServiceTests {
         task.setStatus(TaskStatus.FAILED);
         task.setErrorMessage("Error");
         doThrow(new RuntimeException("Test exception")).when(messagingTemplate)
-                .convertAndSend(anyString(), any(GraphExecutionTask.class));
+                .convertAndSend(anyString(), any(TaskPayload.class));
 
-        assertDoesNotThrow(() -> notificationService.sendTaskStatus(task));
+        assertDoesNotThrow(() -> notificationService.sendTaskStatus(TaskPayload.fromEntity(task)));
     }
 
     @Test
@@ -160,9 +161,9 @@ class NotificationServiceTests {
         task.setId(null);
         task.setStatus(TaskStatus.RUNNING);
 
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
-        verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), any(GraphExecutionTask.class));
+        verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), any(TaskPayload.class));
 
         String destination = destinationCaptor.getValue();
         assertEquals("/topic/processing/null", destination);

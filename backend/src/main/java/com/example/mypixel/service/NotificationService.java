@@ -1,6 +1,6 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.model.GraphExecutionTask;
+import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.model.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,16 +16,15 @@ public class NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    public void sendTaskStatus(GraphExecutionTask task) {
+    public void sendTaskStatus(TaskPayload task) {
         try {
-            Long taskId = task.getId();
-            String destination = processingTopic + taskId;
+            String destination = processingTopic + task.getId();
             TaskStatus status = task.getStatus();
 
             messagingTemplate.convertAndSend(destination, task);
 
             log.debug("WebSocket notification sent | Task ID: {} | Status: {} | Destination: {} | Nodes: {}/{}",
-                    taskId,
+                    task.getId(),
                     status,
                     destination,
                     task.getProcessedNodes(),

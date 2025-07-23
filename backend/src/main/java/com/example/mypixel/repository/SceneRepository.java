@@ -15,7 +15,7 @@ import java.util.List;
 public interface SceneRepository extends JpaRepository<Scene, Long> {
     @Query("""
         SELECT s
-        FROM GraphExecutionTask t
+        FROM Task t
         JOIN Scene s ON s.id = t.sceneId
         WHERE t.status NOT IN (:statuses)
           AND s.lastAccessed <= :lastAccessBefore

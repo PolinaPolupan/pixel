@@ -1,7 +1,8 @@
 package com.example.mypixel.service;
 
 import com.example.mypixel.config.TestCacheConfig;
-import com.example.mypixel.model.GraphExecutionTask;
+import com.example.mypixel.model.Task;
+import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.model.TaskStatus;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
@@ -47,11 +48,11 @@ class NotificationServiceIntegrationTests {
     private final Long taskId = 1L;
     private final Long sceneId = 1L;
     private final String processingTopic = "/topic/processing/" + taskId;
-    private GraphExecutionTask task;
+    private Task task;
 
     @BeforeEach
     void setupConnection() throws ExecutionException, InterruptedException, TimeoutException {
-        task = new GraphExecutionTask();
+        task = new Task();
         String wsUrl = "ws://localhost:" + port + "/ws";
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
@@ -97,7 +98,7 @@ class NotificationServiceIntegrationTests {
         task.setProcessedNodes(7);
         task.setTotalNodes(10);
 
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
@@ -131,7 +132,7 @@ class NotificationServiceIntegrationTests {
         task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.COMPLETED);
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
@@ -163,7 +164,7 @@ class NotificationServiceIntegrationTests {
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.FAILED);
         task.setErrorMessage(errorMessage);
-        notificationService.sendTaskStatus(task);
+        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
