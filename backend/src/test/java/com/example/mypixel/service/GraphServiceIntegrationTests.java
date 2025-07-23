@@ -4,7 +4,6 @@ import com.example.mypixel.config.TestCacheConfig;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.exception.StorageFileNotFoundException;
 import com.example.mypixel.model.Graph;
-import com.example.mypixel.model.Task;
 import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.model.TaskStatus;
 import com.example.mypixel.model.node.GaussianBlurNode;
@@ -70,8 +69,8 @@ public class GraphServiceIntegrationTests {
         Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = graph.getNodes().size();
 
-        CompletableFuture<Task> future = graphService.startGraphExecutionAsync(graph, sceneId);
-        Task completedTask = future.get();
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        TaskPayload completedTask = future.get();
 
         assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
 
@@ -95,7 +94,7 @@ public class GraphServiceIntegrationTests {
         doThrow(new RuntimeException(errorMessage))
                 .when(nodeProcessorService).processNode(any(), eq(sceneId), any());
 
-        CompletableFuture<Task> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
 
         try {
             future.get();
@@ -113,7 +112,7 @@ public class GraphServiceIntegrationTests {
         Graph multiNodeGraph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = multiNodeGraph.getNodes().size();
 
-        CompletableFuture<Task> future = graphService.startGraphExecutionAsync(multiNodeGraph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(multiNodeGraph, sceneId);
         future.get();
 
         verify(nodeProcessorService, times(nodeCount)).processNode(any(), eq(sceneId), any());
@@ -131,7 +130,7 @@ public class GraphServiceIntegrationTests {
 
         ArgumentCaptor<TaskStatus> statusCaptor = ArgumentCaptor.forClass(TaskStatus.class);
 
-        CompletableFuture<Task> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
         future.get();
 
         verify(taskService, atLeastOnce()).updateTaskStatus(any(), statusCaptor.capture());
@@ -144,7 +143,7 @@ public class GraphServiceIntegrationTests {
     @Test
     void executeMultipleGraphs_concurrently_shouldAllComplete() throws Exception {
         int concurrentTasks = 3;
-        List<CompletableFuture<Task>> futures = new ArrayList<>();
+        List<CompletableFuture<TaskPayload>> futures = new ArrayList<>();
 
         for (int i = 0; i < concurrentTasks; i++) {
             Long sceneId = 100L + i;
@@ -156,8 +155,8 @@ public class GraphServiceIntegrationTests {
                 futures.toArray(new CompletableFuture[0]));
         allDone.get(30, TimeUnit.SECONDS);
 
-        for (CompletableFuture<Task> future : futures) {
-            Task task = future.get();
+        for (CompletableFuture<TaskPayload> future : futures) {
+            TaskPayload task = future.get();
             assertEquals(TaskStatus.COMPLETED, task.getStatus());
         }
     }
@@ -174,7 +173,7 @@ public class GraphServiceIntegrationTests {
 
         String expectedErrorMessage = "SizeX must be positive and odd";
 
-        CompletableFuture<Task> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
 
         try {
             future.get();
@@ -198,7 +197,7 @@ public class GraphServiceIntegrationTests {
         nodes.add(gaussianNode);
         Graph graph = new Graph(nodes);
 
-        CompletableFuture<Task> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
 
         try {
             future.get();
@@ -223,7 +222,7 @@ public class GraphServiceIntegrationTests {
         nodes.add(gaussianNode);
         Graph graph = new Graph(nodes);
 
-        CompletableFuture<Task> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
 
         try {
             future.get();

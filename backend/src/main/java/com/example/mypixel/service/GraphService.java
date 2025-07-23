@@ -24,16 +24,16 @@ public class GraphService {
     private final TaskService taskService;
     private final NotificationService notificationService;
 
-    public Task startGraphExecution(Graph graph, Long sceneId) {
+    public TaskPayload startGraphExecution(Graph graph, Long sceneId) {
         log.info("startGraphExecution: Creating task for sceneId={} ...", sceneId);
         Task task = taskService.createTask(graph, sceneId);
         Long taskId = task.getId();
         log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", taskId);
         executeGraph(graph, taskId, sceneId);
-        return task;
+        return TaskPayload.fromEntity(task);
     }
 
-    public CompletableFuture<Task> startGraphExecutionAsync(Graph graph, Long sceneId) {
+    public CompletableFuture<TaskPayload> startGraphExecutionAsync(Graph graph, Long sceneId) {
         log.info("startGraphExecutionAsync: Creating task for sceneId={} ...", sceneId);
         Task task = taskService.createTask(graph, sceneId);
         log.info("startGraphExecutionAsync: Task created with id={}, starting graph execution ...", task.getId());
@@ -41,7 +41,7 @@ public class GraphService {
     }
 
     @Async("graphTaskExecutor")
-    public CompletableFuture<Task> executeGraph(
+    public CompletableFuture<TaskPayload> executeGraph(
             Graph graph,
             Long taskId,
             Long sceneId
@@ -54,7 +54,7 @@ public class GraphService {
         );
     }
 
-    private CompletableFuture<Task> executeGraphInternal(
+    private CompletableFuture<TaskPayload> executeGraphInternal(
             Graph graph,
             Long taskId,
             Long sceneId
@@ -86,7 +86,7 @@ public class GraphService {
             taskService.updateTaskStatus(taskId, TaskStatus.COMPLETED);
             notificationService.sendTaskStatus(TaskPayload.fromEntity(taskService.findTaskById(taskId)));
 
-            return CompletableFuture.completedFuture(taskService.findTaskById(taskId));
+            return CompletableFuture.completedFuture(TaskPayload.fromEntity(taskService.findTaskById(taskId)));
         } catch (Exception e) {
             log.error("Error processing graph for scene {} (taskId={}): {}", sceneId, taskId, e.getMessage(), e);
 
@@ -97,7 +97,7 @@ public class GraphService {
                 log.error("Failed to mark task as failed or send notification for taskId={}: {}", taskId, inner.getMessage(), inner);
             }
 
-            CompletableFuture<Task> failedFuture = new CompletableFuture<>();
+            CompletableFuture<TaskPayload> failedFuture = new CompletableFuture<>();
             failedFuture.completeExceptionally(e);
             return failedFuture;
         }

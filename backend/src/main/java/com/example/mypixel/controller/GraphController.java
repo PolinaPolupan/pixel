@@ -1,8 +1,6 @@
 package com.example.mypixel.controller;
 
-
 import com.example.mypixel.model.Graph;
-import com.example.mypixel.model.Task;
 import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.service.GraphService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,7 +22,7 @@ public class GraphController {
             @PathVariable Long sceneId,
             @RequestBody String graphJson) throws JsonProcessingException {
         Graph graph = graphObjectMapper.readValue(graphJson, Graph.class);
-        Task task = graphService.startGraphExecution(graph, sceneId);
-        return ResponseEntity.ok(TaskPayload.fromEntity(task));
+        TaskPayload task = graphService.startGraphExecution(graph, sceneId);
+        return ResponseEntity.ok(task);
     }
 }

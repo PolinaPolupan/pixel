@@ -36,7 +36,6 @@ public class TaskServiceTests {
     private ArgumentCaptor<Task> taskCaptor;
 
     private final Long sceneId = 1L;
-    private final Long taskId = 1L;
 
     @Test
     void createTask_shouldSetInitialValues() {
@@ -84,14 +83,14 @@ public class TaskServiceTests {
     @Test
     void updateTaskStatus_toCompleted_shouldSetEndTime() {
         Task task = new Task();
-        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(5));
+        task = taskRepository.save(task);
 
         taskService.updateTaskStatus(task.getId(), TaskStatus.COMPLETED);
 
-        verify(taskRepository).save(taskCaptor.capture());
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
         Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.COMPLETED, capturedTask.getStatus());
@@ -101,14 +100,14 @@ public class TaskServiceTests {
     @Test
     void updateTaskStatus_toFailed_shouldSetEndTime() {
         Task task = new Task();
-        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(5));
+        task = taskRepository.save(task);
 
         taskService.updateTaskStatus(task.getId(), TaskStatus.FAILED);
 
-        verify(taskRepository).save(taskCaptor.capture());
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
         Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.FAILED, capturedTask.getStatus());
@@ -135,15 +134,15 @@ public class TaskServiceTests {
     @Test
     void updateTaskProgress_shouldUpdateProcessedNodes() {
         Task task = new Task();
-        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setTotalNodes(5);
         task.setProcessedNodes(2);
+        task = taskRepository.save(task);
 
         taskService.updateTaskProgress(task.getId(), 3);
 
-        verify(taskRepository).save(taskCaptor.capture());
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
         Task capturedTask = taskCaptor.getValue();
 
         assertEquals(3, capturedTask.getProcessedNodes());
@@ -152,15 +151,15 @@ public class TaskServiceTests {
     @Test
     void markTaskFailed_shouldSetFailedStatusAndErrorMessage() {
         Task task = new Task();
-        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(3));
         String errorMessage = "Test error message";
+        task =  taskRepository.save(task);
 
         taskService.markTaskFailed(task.getId(), errorMessage);
 
-        verify(taskRepository).save(taskCaptor.capture());
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
         Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.FAILED, capturedTask.getStatus());
@@ -171,17 +170,17 @@ public class TaskServiceTests {
     @Test
     void markTaskFailed_withExistingEndTime_shouldNotChangeEndTime() {
         Task task = new Task();
-        task.setId(taskId);
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.RUNNING);
         task.setStartTime(LocalDateTime.now().minusMinutes(5));
         LocalDateTime existingEndTime = LocalDateTime.now().minusMinutes(1);
         task.setEndTime(existingEndTime);
         String errorMessage = "Test error message";
+        task = taskRepository.save(task);
 
         taskService.markTaskFailed(task.getId(), errorMessage);
 
-        verify(taskRepository).save(taskCaptor.capture());
+        verify(taskRepository, times(2)).save(taskCaptor.capture());
         Task capturedTask = taskCaptor.getValue();
 
         assertEquals(TaskStatus.FAILED, capturedTask.getStatus());
