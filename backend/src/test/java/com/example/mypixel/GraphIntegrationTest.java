@@ -1,6 +1,5 @@
 package com.example.mypixel;
 
-
 import com.example.mypixel.model.Scene;
 import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.service.SceneService;
@@ -24,8 +23,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
@@ -52,12 +53,12 @@ public class GraphIntegrationTest {
         TestcontainersExtension.uploadTestFileToS3(
                 sceneId,
                 "test-images/Picture1.png",
-                "upload-image-dir/{{scene_id}}/input/Picture1.png"
+                "Picture1.png"
         );
         TestcontainersExtension.uploadTestFileToS3(
                 sceneId,
                 "test-images/Picture3.png",
-                "upload-image-dir/{{scene_id}}/input/Picture3.png"
+                "Picture3.png"
         );
 
         TestFileUtils.copyResourcesToDirectory(
@@ -68,7 +69,7 @@ public class GraphIntegrationTest {
     }
 
     @Test
-    void testGraphExecution() throws InterruptedException {
+    void testGraphExecution() {
         String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
                 "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
@@ -80,18 +81,24 @@ public class GraphIntegrationTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        Thread.sleep(5000L);
+        await()
+                .atMost(30, TimeUnit.SECONDS)
+                .pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> {
+                    try {
+                        return TestcontainersExtension.doesObjectExistInS3("output/Picture1.png")
+                                && TestcontainersExtension.doesObjectExistInS3("output/Picture3.png")
+                                && storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture1.png").exists()
+                                && storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture3.png").exists();
+                    } catch (Exception e) {
+                        return false;
+                    }
+                });
 
         assertTrue(TestcontainersExtension.doesObjectExistInS3("output/Picture1.png"));
         assertTrue(TestcontainersExtension.doesObjectExistInS3("output/Picture3.png"));
-        assertTrue(storageService.loadAsResource("scenes/" +
-                sceneId + "/output/output_1/output1_Picture1.png").exists());
-        assertTrue(storageService.loadAsResource("scenes/" +
-                sceneId + "/output/output_1/output1_Picture3.png").exists());
-        assertTrue(storageService.loadAsResource("scenes/" +
-                sceneId + "/output/output_1/upload-image-dir/" + sceneId + "/input/output1_Picture1.png").exists());
-        assertTrue(storageService.loadAsResource("scenes/" +
-                sceneId + "/output/output_1/upload-image-dir/" + sceneId + "/input/output1_Picture3.png").exists());
+        assertTrue(storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture1.png").exists());
+        assertTrue(storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture3.png").exists());
     }
 
     @Test

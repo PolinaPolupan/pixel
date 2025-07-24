@@ -8,11 +8,11 @@ import com.example.mypixel.model.node.Node;
 import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @RequiredArgsConstructor
 @Service
@@ -23,13 +23,14 @@ public class GraphService {
     private final PerformanceTracker performanceTracker;
     private final TaskService taskService;
     private final NotificationService notificationService;
+    private final Executor graphTaskExecutor;
 
     public TaskPayload startGraphExecution(Graph graph, Long sceneId) {
         log.info("startGraphExecution: Creating task for sceneId={} ...", sceneId);
         Task task = taskService.createTask(graph, sceneId);
         Long taskId = task.getId();
         log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", taskId);
-        executeGraph(graph, taskId, sceneId);
+        CompletableFuture.runAsync(() -> executeGraph(graph, taskId, sceneId));
         return TaskPayload.fromEntity(task);
     }
 
@@ -37,10 +38,16 @@ public class GraphService {
         log.info("startGraphExecutionAsync: Creating task for sceneId={} ...", sceneId);
         Task task = taskService.createTask(graph, sceneId);
         log.info("startGraphExecutionAsync: Task created with id={}, starting graph execution ...", task.getId());
+        return CompletableFuture.supplyAsync(() -> executeGraph(graph, task.getId(), sceneId).join(), graphTaskExecutor);
+    }
+
+    public CompletableFuture<TaskPayload> startGraphExecutionSync(Graph graph, Long sceneId) {
+        log.info("startGraphExecutionSync: Creating task for sceneId={} ...", sceneId);
+        Task task = taskService.createTask(graph, sceneId);
+        log.info("startGraphExecutionSync: Task created with id={}, starting graph execution ...", task.getId());
         return executeGraph(graph, task.getId(), sceneId);
     }
 
-    @Async("graphTaskExecutor")
     public CompletableFuture<TaskPayload> executeGraph(
             Graph graph,
             Long taskId,

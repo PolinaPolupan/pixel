@@ -32,8 +32,8 @@ storage:
 
 logging:
   level:
-    org.springframework.web: DEBUG
-
+    org.springframework.web: INFO
+    org.springframework.boot.actuate: INFO
 management:
   metrics:
     enable:

@@ -18,8 +18,7 @@ import org.mockito.quality.Strictness;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -88,7 +87,7 @@ public class GraphServiceTests {
 
     @Test
     void startGraphExecution_shouldCreateTaskAndReturnCompletedTask() throws ExecutionException, InterruptedException {
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
         TaskPayload result = future.get();
 
         verify(taskService).createTask(graph, sceneId);
@@ -100,7 +99,7 @@ public class GraphServiceTests {
 
     @Test
     void startGraphExecutionAsync_shouldCreateTaskAndReturnFuture() throws Exception {
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
         TaskPayload result = future.get();
 
         verify(taskService).createTask(graph, sceneId);
@@ -112,7 +111,7 @@ public class GraphServiceTests {
 
     @Test
     void executeGraphInternal_shouldProcessAllNodesInOrder() throws Exception {
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
         future.get();
 
         InOrder inOrder = inOrder(nodeProcessorService, taskService, notificationService);
@@ -139,7 +138,7 @@ public class GraphServiceTests {
         when(emptyGraph.getNodes()).thenReturn(emptyList);
         when(emptyGraph.iterator()).thenReturn(emptyList.iterator());
 
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(emptyGraph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(emptyGraph, sceneId);
         TaskPayload result = future.get();
 
         verify(taskService).updateTaskStatus(taskId, TaskStatus.RUNNING);
@@ -155,7 +154,7 @@ public class GraphServiceTests {
         doThrow(new RuntimeException(errorMessage))
                 .when(nodeProcessorService).processNode(any(), anyLong(), anyLong());
 
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
 
         ExecutionException exception = assertThrows(ExecutionException.class, future::get);
         assertInstanceOf(RuntimeException.class, exception.getCause());
@@ -176,7 +175,7 @@ public class GraphServiceTests {
 
         when(graph.iterator()).thenReturn(manyNodes.iterator());
 
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
         future.get();
 
         ArgumentCaptor<Integer> progressCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -248,7 +247,7 @@ public class GraphServiceTests {
         doThrow(new RuntimeException("Thread interrupted"))
                 .when(nodeProcessorService).processNode(any(), anyLong(), anyLong());
 
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
 
         ExecutionException exception = assertThrows(ExecutionException.class, future::get);
         assertInstanceOf(RuntimeException.class, exception.getCause());
@@ -258,13 +257,18 @@ public class GraphServiceTests {
     }
 
     @Test
-    void executeGraphInternal_shouldLogErrorDetails() {
+    void executeGraphInternal_shouldLogErrorDetails() throws Exception {
         String errorMessage = "Test error message";
         RuntimeException testException = new RuntimeException(errorMessage);
         doThrow(testException)
                 .when(nodeProcessorService).processNode(any(), anyLong(), anyLong());
 
-        graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
+
+        try {
+            future.get();
+        } catch (ExecutionException expected) {
+        }
 
         verify(taskService).markTaskFailed(eq(taskId), eq(errorMessage));
         verify(notificationService, atLeastOnce()).sendTaskStatus(any(TaskPayload.class));
@@ -276,7 +280,7 @@ public class GraphServiceTests {
         doThrow(new RuntimeException("Status update failed"))
                 .when(taskService).updateTaskStatus(any(), eq(TaskStatus.RUNNING));
 
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
 
         ExecutionException exception = assertThrows(ExecutionException.class, future::get);
         assertInstanceOf(RuntimeException.class, exception.getCause());
@@ -295,7 +299,7 @@ public class GraphServiceTests {
             return null;
         }).when(notificationService).sendTaskStatus(any(TaskPayload.class));
 
-        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = graphService.startGraphExecutionSync(graph, sceneId);
         TaskPayload result = future.get();
 
         verify(taskService).updateTaskStatus(taskId, TaskStatus.COMPLETED);
