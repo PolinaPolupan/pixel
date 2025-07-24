@@ -20,9 +20,9 @@ public class AsyncConfig {
     @Bean(name = "graphTaskExecutor")
     public Executor graphTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(50);
+        executor.setCorePoolSize(200);
+        executor.setMaxPoolSize(500);
+        executor.setQueueCapacity(500);
         executor.setThreadNamePrefix("GraphExec-");
         executor.initialize();
         return ExecutorServiceMetrics.monitor(registry, executor.getThreadPoolExecutor(),

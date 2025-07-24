@@ -30,7 +30,7 @@ public class GraphService {
         Task task = taskService.createTask(graph, sceneId);
         Long taskId = task.getId();
         log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", taskId);
-        CompletableFuture.runAsync(() -> executeGraph(graph, taskId, sceneId));
+        CompletableFuture.runAsync(() -> executeGraph(graph, taskId, sceneId), graphTaskExecutor);
         return TaskPayload.fromEntity(task);
     }
 
