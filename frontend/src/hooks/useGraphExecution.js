@@ -32,12 +32,12 @@ export function useGraphExecution({ sceneId, transformGraphData }) {
             // Execute the graph
             const taskData = await graphApi.processGraph(sceneId, graphData);
             console.log("Graph processing task created:", taskData);
+            console.log("Initial task data received:", taskData);
+            console.log("Initial task status:", taskData.status);
 
-            // Monitor the task - NOTE THE CHANGE HERE: taskData.id instead of response.taskId
             taskManager.monitorTask(
-                sceneId,
-                taskData.id, // THIS WAS THE MAIN ISSUE - using taskData.id not response.taskId
-                taskData,
+                taskData.id, // Subscribe to the taskId
+                taskData,    // Provide the initial data
                 // Progress callback
                 (progressData) => {
                     updateProgress(progressData);

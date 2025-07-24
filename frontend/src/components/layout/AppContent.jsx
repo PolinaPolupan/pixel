@@ -107,7 +107,7 @@ function AppContent() {
                         backgroundColor: isLoading ? '#ffc107' : '#4caf50'
                     }} />
                     <span>
-                        {isLoading ? 'Loading...' : `Scene: ${sceneId?.substring(0, 8)}...`}
+                        {isLoading ? 'Loading...' : `Scene: ${sceneId}`}
                     </span>
                 </div>
             </Panel>

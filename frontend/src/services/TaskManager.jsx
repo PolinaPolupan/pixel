@@ -1,141 +1,228 @@
-import { graphApi } from './api.js'
+import { Stomp } from '@stomp/stompjs';
 
-/**
- * A service for managing and monitoring tasks
- */
 export class TaskManager {
     constructor() {
-        this.pollingIntervals = {};
+        this.stompClient = null;
+        this.webSocket = null;
+        this.subscriptions = {};
+        this.isConnected = false;
+        this.currentTaskId = null;
+        this.connectingPromise = null;
+        this.taskStatuses = {}; // Track last known status per task
+        this.initializeConnection();
     }
 
-    /**
-     * Monitor a task's progress
-     * @param {number} sceneId - The scene ID
-     * @param {number} taskId - The task ID
-     * @param {object} initialData - Initial task data (if available)
-     * @param {function} onProgress - Progress callback
-     * @param {function} onComplete - Completion callback
-     * @param {function} onError - Error callback
-     */
-    monitorTask(sceneId, taskId, initialData, onProgress, onComplete, onError) {
-        // If we already have task data, check if it's already completed or failed
+    initializeConnection() {
+        if (this.connectingPromise) return this.connectingPromise;
+
+        this.connectingPromise = new Promise((resolve, reject) => {
+            try {
+                console.log('Connecting to WebSocket...');
+                const wsUrl = 'ws://localhost:8080/ws/websocket';
+                this.webSocket = new WebSocket(wsUrl);
+                this.stompClient = Stomp.over(this.webSocket);
+                this.stompClient.debug = process.env.NODE_ENV === 'development' ? console.log : () => {};
+
+                this.stompClient.connect({}, frame => {
+                    console.log('STOMP Connected:', frame);
+                    this.isConnected = true;
+                    this.connectingPromise = null;
+                    resolve(true);
+                }, error => {
+                    console.error('STOMP Error:', error);
+                    this.isConnected = false;
+                    this.connectingPromise = null;
+                    reject(error);
+                    setTimeout(() => this.initializeConnection(), 5000);
+                });
+
+                this.webSocket.onclose = (event) => {
+                    console.log('WebSocket connection closed:', event);
+                    this.isConnected = false;
+                    this.connectingPromise = null;
+                    if (event.code !== 1000) {
+                        setTimeout(() => this.initializeConnection(), 5000);
+                    }
+                };
+
+                this.webSocket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    this.connectingPromise = null;
+                };
+
+            } catch (error) {
+                console.error('Error setting up WebSocket:', error);
+                this.connectingPromise = null;
+                reject(error);
+                setTimeout(() => this.initializeConnection(), 5000);
+            }
+        });
+
+        return this.connectingPromise;
+    }
+
+    setCurrentTask(taskId) {
+        console.log(`Setting current task to: ${taskId}`);
+        this.currentTaskId = taskId;
+    }
+
+    monitorCurrentTask(sceneId, onProgress, onComplete, onError, initialData = null) {
+        if (!this.currentTaskId) {
+            const errorMsg = 'No current task set. Call setCurrentTask() first.';
+            console.error(errorMsg);
+            if (onError) onError(errorMsg);
+            return;
+        }
+
+        console.log(`Monitoring current task: ${this.currentTaskId}`);
+        this.monitorTask(this.currentTaskId, initialData, onProgress, onComplete, onError);
+    }
+
+    monitorTask(taskId, initialData, onProgress, onComplete, onError) {
+        this.setCurrentTask(taskId);
+        console.log(`[${new Date().toISOString()}] User PolinaPolupan monitoring task ${taskId}`);
+
+        // First subscribe to WebSocket
+        this.subscribeToTask(taskId, onProgress, onComplete, onError);
+
+        // Then handle initial data
         if (initialData) {
-            console.log(`Initial task status: ${initialData.status}`);
+            const status = initialData.status.toUpperCase();
+            console.log(`Initial task status: ${status}`);
+            this.taskStatuses[taskId] = status.toLowerCase();
 
-            if (initialData.status === 'COMPLETED') {
-                // Simulate some progress first (for better UX)
+            // Update UI with initial data
+            if (status === 'COMPLETED' || status === 'RUNNING' || status === 'PROCESSING') {
                 if (onProgress) {
-                    onProgress({
-                        current: Math.floor((initialData.totalNodes || 1) * 0.5),
-                        total: initialData.totalNodes || 1
-                    });
+                    const current = initialData.processedNodes || 0;
+                    const total = initialData.totalNodes || 1;
+                    const percent = Math.round((current / total) * 100);
+                    onProgress({ current, total, percent });
+                }
 
-                    // After a short delay, show completion
+                // If already completed, trigger completion callback
+                if (status === 'COMPLETED') {
+                    // Delay the completion to ensure subscription is established
                     setTimeout(() => {
                         if (onComplete) onComplete(initialData);
-                    }, 500);
-                } else {
-                    if (onComplete) onComplete(initialData);
+                    }, 100);
                 }
-                return;
             }
-            if (initialData.status === 'FAILED') {
-                console.log('Task already failed, calling onError with:', initialData.errorMessage);
-                if (onError) {
-                    // The error message should be properly formatted for notification
-                    const errorMsg = initialData.errorMessage || 'Task failed';
-                    console.log('Passing error to notification system:', errorMsg);
-                    onError(errorMsg);
-                }
-                return;
+            else if (status === 'FAILED') {
+                const errorMsg = initialData.errorMessage || 'Task failed';
+                console.log('Task already failed, calling onError with:', errorMsg);
+                if (onError) onError(errorMsg);
             }
-        }
-
-        // Start polling for task status
-        this.pollTaskStatus(sceneId, taskId, onProgress, onComplete, onError);
-    }
-
-    /**
-     * Poll for task status updates
-     */
-    async pollTaskStatus(sceneId, taskId, onProgress, onComplete, onError) {
-        if (this.pollingIntervals[taskId]) {
-            clearTimeout(this.pollingIntervals[taskId]);
-        }
-
-        try {
-            console.log(`Polling task status for task ${taskId}...`);
-            // Use graphApi.getTaskStatus instead of getTaskStatus directly
-            const taskData = await graphApi.getTaskStatus(sceneId, taskId);
-
-            console.log(`Task ${taskId} status: ${taskData.status}`);
-
-            if (taskData.status === 'PROCESSING') {
-                if (onProgress) {
-                    onProgress({
-                        current: taskData.processedNodes || 0,
-                        total: taskData.totalNodes || 1
-                    });
-                }
-
-                // Continue polling
-                this.pollingIntervals[taskId] = setTimeout(() => {
-                    this.pollTaskStatus(sceneId, taskId, onProgress, onComplete, onError);
-                }, 200);
-            }
-            else if (taskData.status === 'COMPLETED') {
-                // Update to 100% first
-                if (onProgress) {
-                    onProgress({
-                        current: taskData.totalNodes || 1,
-                        total: taskData.totalNodes || 1
-                    });
-                }
-
-                // Then after a short delay mark as complete
-                setTimeout(() => {
-                    if (onComplete) onComplete(taskData);
-                }, 300);
-
-                this.stopPolling(taskId);
-            }
-            else if (taskData.status === 'FAILED') {
-                if (onError) onError(taskData.errorMessage || 'Task failed');
-                this.stopPolling(taskId);
-            }
-            else {
-                // Keep polling for other statuses
-                this.pollingIntervals[taskId] = setTimeout(() => {
-                    this.pollTaskStatus(sceneId, taskId, onProgress, onComplete, onError);
-                }, 200);
-            }
-        } catch (error) {
-            console.error(`Error polling task ${taskId}:`, error);
-            if (onError) onError(error.message);
-            this.stopPolling(taskId);
         }
     }
 
-    /**
-     * Stop polling for a specific task
-     */
-    stopPolling(taskId) {
-        if (this.pollingIntervals[taskId]) {
-            clearTimeout(this.pollingIntervals[taskId]);
-            delete this.pollingIntervals[taskId];
+    subscribeToTask(taskId, onProgress, onComplete, onError) {
+        const destination = `/topic/processing/${taskId}`;
+
+        const setupSubscription = () => {
+            try {
+                console.log(`Subscribing to: ${destination}`);
+                this.unsubscribeFromTask(taskId);
+
+                const subscription = this.stompClient.subscribe(destination, (message) => {
+                    try {
+                        const taskData = JSON.parse(message.body);
+                        console.log(`💬 WebSocket message for task ${taskId}:`, taskData);
+
+                        const status = taskData.status?.toLowerCase();
+
+                        // Always process updates, even if we've seen a completed status
+                        // This ensures we display all progress information
+
+                        // Update current known status
+                        this.taskStatuses[taskId] = status;
+
+                        if (status === 'processing' || status === 'running') {
+                            if (onProgress) {
+                                const current = taskData.processedNodes || 0;
+                                const total = taskData.totalNodes || 1;
+                                const percent = Math.round((current / total) * 100);
+                                console.log(`Progress update: ${current}/${total} (${percent}%)`);
+                                onProgress({ current, total, percent });
+                            }
+                        }
+                        else if (status === 'completed') {
+                            console.log('************ COMPLETION MESSAGE RECEIVED ************');
+                            if (onProgress) {
+                                const total = taskData.totalNodes || 1;
+                                onProgress({ current: total, total, percent: 100 });
+                            }
+
+                            // Delay to allow for any additional messages
+                            setTimeout(() => {
+                                if (onComplete) onComplete(taskData);
+
+                                // Keep subscription open a bit longer to catch any late messages
+                                setTimeout(() => {
+                                    this.unsubscribeFromTask(taskId);
+                                }, 2000);
+                            }, 100);
+                        }
+                        else if (status === 'failed') {
+                            if (onError) onError(taskData.errorMessage || 'Task failed');
+
+                            // Keep subscription open a bit to catch any additional details
+                            setTimeout(() => {
+                                this.unsubscribeFromTask(taskId);
+                            }, 1000);
+                        }
+                    } catch (error) {
+                        console.error(`Error parsing WebSocket message for task ${taskId}:`, error);
+                        if (onError) onError('Error processing task update');
+                    }
+                });
+
+                this.subscriptions[taskId] = subscription;
+                console.log(`Successfully subscribed to task ${taskId}`);
+            } catch (error) {
+                console.error(`Error subscribing to task ${taskId}:`, error);
+                if (onError) onError('Failed to subscribe to task updates');
+            }
+        };
+
+        if (!this.isConnected) {
+            console.log('STOMP not connected yet, waiting...');
+            this.initializeConnection()
+                .then(() => {
+                    console.log('Connection established, now subscribing to task');
+                    setupSubscription();
+                })
+                .catch(error => {
+                    console.error('Failed to establish connection:', error);
+                    if (onError) onError('Failed to connect to WebSocket server');
+                });
+        } else {
+            setupSubscription();
         }
     }
 
-    /**
-     * Stop all polling
-     */
-    stopAllPolling() {
-        Object.keys(this.pollingIntervals).forEach(taskId => {
-            clearTimeout(this.pollingIntervals[taskId]);
+    unsubscribeFromTask(taskId) {
+        const subscription = this.subscriptions[taskId];
+        if (subscription) {
+            subscription.unsubscribe();
+            delete this.subscriptions[taskId];
+            console.log(`Unsubscribed from task ${taskId}`);
+        }
+    }
+
+    unsubscribeAll() {
+        Object.keys(this.subscriptions).forEach(taskId => {
+            this.unsubscribeFromTask(taskId);
         });
-        this.pollingIntervals = {};
+    }
+
+    disconnect() {
+        this.unsubscribeAll();
+        if (this.stompClient) {
+            this.stompClient.disconnect();
+            this.isConnected = false;
+        }
     }
 }
 
-// Create a singleton instance
 export const taskManager = new TaskManager();
