@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,9 +26,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class NodeProcessorServiceTests {
-
-    @Mock
-    private AutowireCapableBeanFactory beanFactory;
 
     @Mock
     private NodeCacheService nodeCacheService;
@@ -106,7 +102,6 @@ class NodeProcessorServiceTests {
     void processNodeInternal_shouldSetupNodeCorrectly() {
         nodeProcessorService.processNodeInternal(node, sceneId, taskId);
 
-        verify(beanFactory).autowireBean(node);
         verify(node).setFileHelper(any(FileHelper.class));
         verify(node).setBatchProcessor(batchProcessor);
     }

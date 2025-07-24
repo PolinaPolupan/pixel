@@ -4,6 +4,7 @@ import com.example.mypixel.model.InputDeserializer;
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.service.BatchProcessor;
 import com.example.mypixel.service.FileHelper;
+import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -33,6 +34,8 @@ public abstract class Node {
     FileHelper fileHelper;
 
     BatchProcessor batchProcessor;
+
+    FilteringService filteringService;
 
     boolean cacheable = true;
 

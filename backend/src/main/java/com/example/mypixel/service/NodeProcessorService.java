@@ -5,7 +5,6 @@ import com.example.mypixel.model.node.Node;
 import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -15,12 +14,12 @@ import java.util.*;
 @Slf4j
 public class NodeProcessorService {
 
-    private final AutowireCapableBeanFactory beanFactory;
     private final NodeCacheService nodeCacheService;
     private final StorageService storageService;
     private final BatchProcessor batchProcessor;
     private final PerformanceTracker performanceTracker;
     private final TypeConverterRegistry typeConverterRegistry;
+    private final FilteringService filteringService;
 
     public void processNode(
             Node node,
@@ -46,10 +45,11 @@ public class NodeProcessorService {
             Long sceneId,
             Long taskId
     ) {
-        beanFactory.autowireBean(node);
+      //  beanFactory.autowireBean(node);
         FileHelper fileHelper = new FileHelper(storageService, node, sceneId, taskId);
         node.setFileHelper(fileHelper);
         node.setBatchProcessor(batchProcessor);
+        node.setFilteringService(filteringService);
 
         log.debug("Started node: {}", node.getId());
 

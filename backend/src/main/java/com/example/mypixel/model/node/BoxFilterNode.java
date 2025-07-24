@@ -5,10 +5,8 @@ import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.Vector2D;
-import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 
 import java.util.HashSet;
@@ -16,9 +14,6 @@ import java.util.Map;
 
 @MyPixelNode("BoxFilter")
 public class BoxFilterNode extends Node {
-
-    @Autowired
-    private FilteringService filteringService;
 
     @JsonCreator
     public BoxFilterNode(
