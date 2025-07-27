@@ -3,6 +3,8 @@ package com.example.mypixel.model.node;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -24,18 +26,39 @@ public class GaussianBlurNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "files", Parameter.required(ParameterType.FILEPATH_ARRAY),
-                "sizeX", Parameter.required(ParameterType.INT),
-                "sizeY", Parameter.optional(ParameterType.INT),
-                "sigmaX", Parameter.optional(ParameterType.DOUBLE),
-                "sigmaY", Parameter.optional(ParameterType.DOUBLE)
+        return ParamsMap.of(
+                "files", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "sizeX", Parameter.builder()
+                        .type(ParameterType.INT)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "sizeY", Parameter.builder()
+                        .type(ParameterType.INT)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "sigmaX", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "sigmaY", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build()
         );
     }
 
+
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "files", new HashSet<String>(),
                 "sizeX", 3,
                 "sizeY", 3,
@@ -46,12 +69,12 @@ public class GaussianBlurNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "Filtering",
                 "description", "Blurs an image using a Gaussian kernel",
                 "color", "#FF8A65",
@@ -59,6 +82,7 @@ public class GaussianBlurNode extends Node {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> exec() {
         HashSet<String> files = (HashSet<String>) inputs.get("files");

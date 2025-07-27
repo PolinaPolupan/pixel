@@ -13,7 +13,7 @@ import java.util.*;
 
 @Service
 public class NodeConfigService {
-    private final Map<String, Object> completeNodesConfig = new HashMap<>();
+    private final Map<String, Object> completeNodesConfig = new LinkedHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -31,7 +31,7 @@ public class NodeConfigService {
                     String nodeType = annotation.value();
 
                     Constructor<?> constructor = clazz.getConstructor(Long.class, String.class, Map.class);
-                    Node nodeInstance = (Node) constructor.newInstance(1L, nodeType, new HashMap<>());
+                    Node nodeInstance = (Node) constructor.newInstance(1L, nodeType, new LinkedHashMap<>());
 
                     Map<String, Object> nodeConfig = buildNodeConfig(nodeType, nodeInstance);
                     completeNodesConfig.put(nodeType, nodeConfig);
@@ -44,13 +44,14 @@ public class NodeConfigService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> buildNodeConfig(String nodeType, Node nodeInstance) {
-        Map<String, Object> config = new HashMap<>();
+        Map<String, Object> config = new LinkedHashMap<>();
 
         config.put("component", nodeType);
 
         Map<String, String> displayInfo = nodeInstance.getDisplayInfo();
-        Map<String, Object> display = new HashMap<>();
+        Map<String, Object> display = new LinkedHashMap<>();
         display.put("category", displayInfo.getOrDefault("category", "Uncategorized"));
         display.put("description", displayInfo.getOrDefault("description", ""));
         display.put("color", displayInfo.getOrDefault("color", "#78909C"));
@@ -59,18 +60,22 @@ public class NodeConfigService {
 
         config.put("defaultData", nodeInstance.getDefaultInputs());
 
-        Map<String, Object> handles = new HashMap<>();
+        // Use LinkedHashMap to preserve order of handles
+        Map<String, Object> handles = new LinkedHashMap<>();
 
+        // Add input handles in their defined order
         Map<String, Parameter> inputTypes = nodeInstance.getInputTypes();
         for (Map.Entry<String, Parameter> entry : inputTypes.entrySet()) {
             String inputName = entry.getKey();
             ParameterType paramType = entry.getValue().getType();
 
-            Map<String, String> handleInfo = new HashMap<>();
+            Map<String, String> handleInfo = new LinkedHashMap<>();
             handleInfo.put("target", paramType.toString());
+            handleInfo.put("widget", entry.getValue().getWidget().toString());
             handles.put(inputName, handleInfo);
         }
 
+        // Add output handles, updating any that are both input and output
         Map<String, Parameter> outputTypes = nodeInstance.getOutputTypes();
         for (Map.Entry<String, Parameter> entry : outputTypes.entrySet()) {
             String outputName = entry.getKey();
@@ -81,10 +86,10 @@ public class NodeConfigService {
                 // This handle is both input and output
                 handleInfo = (Map<String, String>) handles.get(outputName);
             } else {
-                handleInfo = new HashMap<>();
+                handleInfo = new LinkedHashMap<>();
             }
-
             handleInfo.put("source", paramType.toString());
+            handleInfo.put("widget", entry.getValue().getWidget().toString());
             handles.put(outputName, handleInfo);
         }
 

@@ -23,7 +23,7 @@ function AppContent() {
     const [contextMenu, setContextMenu] = useState(null);
 
     // Get node configurations
-    const { nodeTypes, getHandleParameterType, canCastType, getDefaultData, isLoading } = useNodesApi();
+    const { nodesConfig, nodeTypes, getHandleParameterType, canCastType, getDefaultData, isLoading } = useNodesApi();
 
     // Graph execution
     const { isProcessing, executeGraph } = useGraphExecution({
@@ -54,9 +54,12 @@ function AppContent() {
             id: newId,
             type,
             position,
-            data: getDefaultData(type)
+            data: {
+                ...getDefaultData(type),
+                config: nodesConfig[type]
+            }
         });
-    }, [getNodes, addNodes, getDefaultData]);
+    }, [getNodes, addNodes, getDefaultData, nodesConfig]);
 
     // Handle right-click context menu
     const onContextMenu = useCallback((event) => {

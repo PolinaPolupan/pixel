@@ -2,6 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -33,24 +35,30 @@ public class ResNet50Node extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of(
+                "files", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build()
+        );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "files", new HashSet<String>()
         );
     }
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("json", Parameter.required(ParameterType.STRING));
+        return ParamsMap.of("json", Parameter.required(ParameterType.STRING));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "ML",
                 "description", "Run ResNet50 on images",
                 "color", "#81C784",
@@ -58,6 +66,7 @@ public class ResNet50Node extends Node {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> exec() {
         HashMap<String, Object> outputs = new HashMap<>();

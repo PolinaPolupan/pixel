@@ -3,6 +3,8 @@ package com.example.mypixel.model.node;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -40,18 +42,38 @@ public class S3InputNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "access_key_id", Parameter.required(ParameterType.STRING),
-                "secret_access_key", Parameter.required(ParameterType.STRING),
-                "region", Parameter.required(ParameterType.STRING),
-                "bucket", Parameter.required(ParameterType.STRING),
-                "endpoint", Parameter.optional(ParameterType.STRING)
+        return ParamsMap.of(
+                "access_key_id", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "secret_access_key", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "region", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "bucket", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "endpoint", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build()
         );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "access_key_id", "",
                 "secret_access_key", "",
                 "region", "",
@@ -61,12 +83,12 @@ public class S3InputNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "IO",
                 "description", "Load files from S3",
                 "color", "#AED581",

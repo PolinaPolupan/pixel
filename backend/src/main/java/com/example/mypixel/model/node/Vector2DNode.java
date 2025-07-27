@@ -1,8 +1,6 @@
 package com.example.mypixel.model.node;
 
-import com.example.mypixel.model.Parameter;
-import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.model.Vector2D;
+import com.example.mypixel.model.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -21,15 +19,23 @@ public class Vector2DNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "x", Parameter.required(ParameterType.DOUBLE), // Any numerical type can be used here
-                "y", Parameter.required(ParameterType.DOUBLE)
+        return ParamsMap.of(
+                "x", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "y", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build()
         );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "x", 0.0,
                 "y", 0.0
         );
@@ -37,12 +43,12 @@ public class Vector2DNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("vector2D", Parameter.required(ParameterType.VECTOR2D));
+        return ParamsMap.of("vector2D", Parameter.required(ParameterType.VECTOR2D));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "Types",
                 "description", "Creates a 2D vector",
                 "color", "#FF8A65",

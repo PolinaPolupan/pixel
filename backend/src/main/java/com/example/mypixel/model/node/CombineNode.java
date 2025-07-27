@@ -2,6 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -22,18 +24,38 @@ public class CombineNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "files_0", Parameter.required(ParameterType.FILEPATH_ARRAY),
-                "files_1", Parameter.optional(ParameterType.FILEPATH_ARRAY),
-                "files_2", Parameter.optional(ParameterType.FILEPATH_ARRAY),
-                "files_3", Parameter.optional(ParameterType.FILEPATH_ARRAY),
-                "files_4", Parameter.optional(ParameterType.FILEPATH_ARRAY)
+        return ParamsMap.of(
+                "files_0", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "files_1", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(false)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "files_2", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(false)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "files_3", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(false)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "files_4", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(false)
+                        .widget(Widget.LABEL)
+                        .build()
         );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "files_0", new HashSet<String>(),
                 "files_1", new HashSet<String>(),
                 "files_2", new HashSet<String>(),
@@ -44,12 +66,12 @@ public class CombineNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "IO",
                 "description", "Combine multiple data sources into a single source",
                 "color", "#AED581",
@@ -57,6 +79,7 @@ public class CombineNode extends Node {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> exec() {
         HashSet<String> files = new HashSet<>();

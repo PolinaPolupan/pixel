@@ -4,7 +4,7 @@
       "id": 10,
       "type": "Input",
       "inputs": {
-        "files" : [
+        "input" : [
           "upload-image-dir/scenes/{{scene_id}}/input/Picture1.png",
           "upload-image-dir/scenes/{{scene_id}}/input/Picture3.png"
         ]
@@ -14,24 +14,24 @@
       "id": 4,
       "type": "Floor",
       "inputs": {
-        "number": 1.7e309
+        "input": 1.7e309
       }
     },
     {
       "id": 1,
       "type": "GaussianBlur",
       "inputs": {
-        "files": "@node:10:files",
+        "files": "@node:10:output",
         "sizeX":  33,
         "sizeY": 33,
-        "sigmaX": "@node:4:number"
+        "sigmaX": "@node:4:output"
       }
     },
     {
       "id": 2,
       "type": "Output",
       "inputs": {
-        "files": "@node:10:files",
+        "files": "@node:10:output",
         "prefix": "output1",
         "folder": "output_1"
       }

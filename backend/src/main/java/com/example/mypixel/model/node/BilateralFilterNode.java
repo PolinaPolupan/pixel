@@ -2,6 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -22,17 +24,33 @@ public class BilateralFilterNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "files", Parameter.required(ParameterType.FILEPATH_ARRAY),
-                "d", Parameter.required(ParameterType.INT),
-                "sigmaColor", Parameter.required(ParameterType.DOUBLE),
-                "sigmaSpace", Parameter.required(ParameterType.DOUBLE)
+        return ParamsMap.of(
+                "files", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "d", Parameter.builder()
+                        .type(ParameterType.INT)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "sigmaColor", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "sigmaSpace", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build()
         );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "files", new HashSet<String>(),
                 "d", 9,
                 "sigmaColor", 75.0,
@@ -42,12 +60,12 @@ public class BilateralFilterNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "Filtering",
                 "description", "Applies a bilateral filter to the input image.",
                 "color", "#FF8A65",
@@ -55,6 +73,7 @@ public class BilateralFilterNode extends Node {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> exec() {
         HashSet<String> files = (HashSet<String>) inputs.get("files");

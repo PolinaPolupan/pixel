@@ -2,6 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -21,24 +23,30 @@ public class StringNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of("value", Parameter.required(ParameterType.STRING));
+        return ParamsMap.of(
+                "input", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build()
+        );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
-                "value", "value"
+        return ParamsMap.of(
+                "input", ""
         );
     }
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("value", Parameter.required(ParameterType.STRING));
+        return ParamsMap.of("output", Parameter.required(ParameterType.STRING));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "Types",
                 "description", "String",
                 "color", "#AED581",
@@ -49,8 +57,8 @@ public class StringNode extends Node {
     @Override
     public Map<String, Object> exec() {
         Map<String, Object> outputs;
-        String value = (String) inputs.get("value");
-        outputs = Map.of("value", value);
+        String value = (String) inputs.get("input");
+        outputs = Map.of("output", value);
         return outputs;
     }
 

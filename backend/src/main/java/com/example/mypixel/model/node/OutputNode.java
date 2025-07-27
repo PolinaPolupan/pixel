@@ -2,6 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -23,16 +25,28 @@ public class OutputNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "files", Parameter.required(ParameterType.FILEPATH_ARRAY),
-                "prefix", Parameter.optional(ParameterType.STRING),
-                "folder", Parameter.optional(ParameterType.STRING)
+        return ParamsMap.of(
+                "files", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "prefix", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "folder", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build()
         );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "files", new HashSet<>(),
                 "prefix", "",
                 "folder", ""
@@ -41,12 +55,12 @@ public class OutputNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of();
+        return ParamsMap.of();
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "IO",
                 "description", "Output files to a folder",
                 "color", "#AED581",
@@ -54,6 +68,7 @@ public class OutputNode extends Node {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> exec() {
         HashSet<String> files = (HashSet<String>) inputs.get("files");

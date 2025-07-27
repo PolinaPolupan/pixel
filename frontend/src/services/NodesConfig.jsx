@@ -1,44 +1,8 @@
 import { useState, useEffect } from 'react';
 
-// Import all node components
-import Floor from '../components/graph/nodes/Floor.jsx';
-import Input from '../components/graph/nodes/Input.jsx';
-import Combine from '../components/graph/nodes/Combine.jsx';
-import Output from '../components/graph/nodes/Output.jsx';
-import GaussianBlur from '../components/graph/nodes/GaussianBlur.jsx';
-import S3Input from '../components/graph/nodes/S3Input.jsx';
-import S3Output from '../components/graph/nodes/S3Output.jsx';
-import String from '../components/graph/nodes/String.jsx';
-import ResNet50 from "../components/graph/nodes/ResNet50.jsx";
-import OutputFile from "../components/graph/nodes/OutputFile.jsx";
-import MedianBlur from "../components/graph/nodes/MedianBlur.jsx";
-import Vector2D from "../components/graph/nodes/Vector2D.jsx";
-import Blur from "../components/graph/nodes/Blur.jsx";
-import BoxFilter from "../components/graph/nodes/BoxFilter.jsx";
-import BilateralFilter from "../components/graph/nodes/BilateralFilter.jsx";
-
 // Import icons
 import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline } from 'react-icons/io5';
 import {nodeApi} from "./api.js";
-
-// Define component mapping
-const componentMap = {
-    Floor,
-    Input,
-    Combine,
-    Output,
-    GaussianBlur,
-    S3Input,
-    S3Output,
-    String,
-    ResNet50,
-    OutputFile,
-    MedianBlur,
-    Vector2D,
-    Blur,
-    BoxFilter,
-    BilateralFilter
-};
 
 // Define icon components
 const iconComponents = {
@@ -108,18 +72,12 @@ export function useNodesConfig() {
                 const processedConfig = {};
 
                 Object.entries(data).forEach(([nodeType, config]) => {
-                    const component = componentMap[nodeType];
-
-                    if (!component) {
-                        console.warn(`No component found for node type: ${nodeType}`);
-                    }
-
-                    const iconName = config.display.icon;
-                    const IconComponent = iconComponents[iconName] || iconComponents.DefaultIcon;
-
+                    // Always use Node as the component
+                    const IconComponent = iconComponents[config.display.icon] || iconComponents.DefaultIcon;
+                    console.log(nodeType, config)
                     processedConfig[nodeType] = {
                         ...config,
-                        component,
+                        nodeType,
                         display: {
                             ...config.display,
                             icon: IconComponent
@@ -149,7 +107,7 @@ export const getParameterColor = (parameterType) => {
         DOUBLE: '#45b7d1', // Blue
         STRING: '#96ceb4', // Greenish
         STRING_ARRAY: '#ffeead', // Yellowish
-        FILENAMES_ARRAY: '#d4a5a5', // Pinkish
+        FILEPATH_ARRAY: '#d4a5a5', // Pinkish
         VECTOR2D: '#f7a072' // Orange
     };
     return colorMap[parameterType] || '#cccccc'; // Default gray if unknown

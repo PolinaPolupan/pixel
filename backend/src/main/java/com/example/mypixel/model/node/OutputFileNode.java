@@ -2,6 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -21,15 +23,23 @@ public class OutputFileNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "content", Parameter.optional(ParameterType.STRING),
-                "filename", Parameter.optional(ParameterType.STRING)
+        return ParamsMap.of(
+                "content", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build(),
+                "filename", Parameter.builder()
+                        .type(ParameterType.STRING)
+                        .required(false)
+                        .widget(Widget.INPUT)
+                        .build()
         );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "content", "",
                 "filename", "new.txt"
         );
@@ -37,12 +47,12 @@ public class OutputFileNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of();
+        return ParamsMap.of();
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "IO",
                 "description", "Output to a file",
                 "color", "#AED581",

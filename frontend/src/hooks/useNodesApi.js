@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useNodesConfig } from '../services/NodesConfig.jsx';
+import Node from "../components/graph/Node.jsx";
 
 /**
  * Unified hook for accessing node configurations and related utilities
@@ -15,7 +16,7 @@ export function useNodesApi() {
         'FLOAT': ['DOUBLE', 'INT'],
         'DOUBLE': ['FLOAT', 'INT'],
         'STRING': [],
-        'FILENAMES_ARRAY': [],
+        'FILEPATH_ARRAY': [],
         'STRING_ARRAY': [],
         'VECTOR2D': []
     }), []);
@@ -26,7 +27,7 @@ export function useNodesApi() {
             return {};
         }
         return Object.fromEntries(
-            Object.entries(nodesConfig).map(([type, config]) => [type, config.component])
+            Object.entries(nodesConfig).map(([type]) => [type, Node])
         );
     }, [nodesConfig]);
 

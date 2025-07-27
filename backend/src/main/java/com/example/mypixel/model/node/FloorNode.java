@@ -2,6 +2,8 @@ package com.example.mypixel.model.node;
 
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -22,24 +24,29 @@ public class FloorNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of("number", Parameter.required(ParameterType.DOUBLE));
+        return ParamsMap.of(
+                "input", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build()
+        );
     }
-
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
-                "number", 0.0
+        return ParamsMap.of(
+                "input", 0.0
         );
     }
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("number", Parameter.required(ParameterType.DOUBLE));
+        return ParamsMap.of("output", Parameter.required(ParameterType.DOUBLE));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "Math",
                 "description", "Returns the largest integer less than or equal to the input number.",
                 "color", "#BA68C8",
@@ -50,8 +57,8 @@ public class FloorNode extends Node {
     @Override
     public Map<String, Object> exec() {
         Map<String, Object> outputs;
-        double number = (double) inputs.get("number");
-        outputs = Map.of("number", Math.floor(number));
+        double number = (double) inputs.get("input");
+        outputs = Map.of("output", Math.floor(number));
         return outputs;
     }
 

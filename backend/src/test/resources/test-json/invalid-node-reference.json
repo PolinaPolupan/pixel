@@ -15,7 +15,7 @@
       "id": 10,
       "type": "Input",
       "inputs": {
-        "files" : [
+        "input" : [
           "upload-image-dir/scenes/{{scene_id}}/input/Picture1.png",
           "upload-image-dir/scenes/{{scene_id}}/input/Picture3.png"
         ]
@@ -25,7 +25,7 @@
       "id": 11,
       "type": "Combine",
       "inputs": {
-        "files_0" : "@node:10:files",
+        "files_0" : "@node:10:output",
         "files_1" : "@node:0:files"
       }
     },
@@ -33,7 +33,7 @@
       "id": 4,
       "type": "Floor",
       "inputs": {
-        "number": 56
+        "input": 56
       }
     },
     {
@@ -43,7 +43,7 @@
         "files": "@node:11:files",
         "sizeX": 33,
         "sizeY": 33,
-        "sigmaX": "@node:4:number"
+        "sigmaX": "@node:4:output"
       }
     },
     {

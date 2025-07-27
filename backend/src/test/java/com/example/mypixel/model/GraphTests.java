@@ -34,7 +34,7 @@ public class GraphTests {
         List<Node> nodes = new ArrayList<>();
 
         Map<String, Object> floorParams = new HashMap<>();
-        floorParams.put("number", 56);
+        floorParams.put("input", 56);
         FloorNode floorNode1 = new FloorNode(4L, "Floor", floorParams);
         nodes.add(floorNode1);
 
@@ -183,22 +183,22 @@ public class GraphTests {
         List<String> files = new ArrayList<>();
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
-        inputParams.put("files", files);
+        inputParams.put("input", files);
         InputNode inputNode = new InputNode(10L, "Input", inputParams);
         nodes.add(inputNode);
 
         // Create Floor node (id: 4)
         Map<String, Object> floorParams = new HashMap<>();
-        floorParams.put("number", 56);
+        floorParams.put("input", 56);
         FloorNode floorNode = new FloorNode(4L, "Floor", floorParams);
         nodes.add(floorNode);
 
         // Create GaussianBlur node (id: 1)
         Map<String, Object> gaussianParams = new HashMap<>();
-        gaussianParams.put("files", new NodeReference("@node:10:files"));
+        gaussianParams.put("files", new NodeReference("@node:10:output"));
         gaussianParams.put("sizeX", 33);
         gaussianParams.put("sizeY", 33);
-        gaussianParams.put("sigmaX", new NodeReference("@node:4:number"));
+        gaussianParams.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
         GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
@@ -208,7 +208,7 @@ public class GraphTests {
         gaussianParams2.put("files", new NodeReference("@node:3:files"));
         gaussianParams2.put("sizeX", 33);
         gaussianParams2.put("sizeY", 33);
-        gaussianParams2.put("sigmaX", new NodeReference("@node:4:number"));
+        gaussianParams2.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams2.put("sigmaY", 1.5); // Not in JSON, using default value
         GaussianBlurNode gaussianNode2 = new GaussianBlurNode(2L, "GaussianBlur", gaussianParams2);
         nodes.add(gaussianNode2);
@@ -218,7 +218,7 @@ public class GraphTests {
         gaussianParams3.put("files", new NodeReference("@node:2:files"));
         gaussianParams3.put("sizeX", 33);
         gaussianParams3.put("sizeY", 33);
-        gaussianParams3.put("sigmaX", new NodeReference("@node:4:number"));
+        gaussianParams3.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams3.put("sigmaY", 1.5); // Not in JSON, using default value
         GaussianBlurNode gaussianNode3 = new GaussianBlurNode(3L, "GaussianBlur", gaussianParams3);
         nodes.add(gaussianNode3);
@@ -272,7 +272,7 @@ public class GraphTests {
         List<String> files = new ArrayList<>();
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
-        inputParams.put("files", files);
+        inputParams.put("input", files);
         InputNode inputNode = new InputNode(10L, "Input", inputParams);
         nodes.add(inputNode);
 

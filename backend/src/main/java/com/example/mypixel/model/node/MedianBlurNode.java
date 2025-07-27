@@ -3,6 +3,8 @@ package com.example.mypixel.model.node;
 import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
+import com.example.mypixel.model.ParamsMap;
+import com.example.mypixel.model.Widget;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -23,15 +25,23 @@ public class MedianBlurNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return Map.of(
-                "files", Parameter.required(ParameterType.FILEPATH_ARRAY),
-                "ksize", Parameter.required(ParameterType.INT)
+        return ParamsMap.of(
+                "files", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build(),
+                "ksize", Parameter.builder()
+                        .type(ParameterType.INT)
+                        .required(true)
+                        .widget(Widget.INPUT)
+                        .build()
         );
     }
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return Map.of(
+        return ParamsMap.of(
                 "files", new HashSet<String>(),
                 "ksize", 3
         );
@@ -39,12 +49,12 @@ public class MedianBlurNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return Map.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return Map.of(
+        return ParamsMap.of(
                 "category", "Filtering",
                 "description", "Blurs an image using the specified kernel size",
                 "color", "#FF8A65",
@@ -52,6 +62,7 @@ public class MedianBlurNode extends Node {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> exec() {
         HashSet<String> files = (HashSet<String>) inputs.get("files");

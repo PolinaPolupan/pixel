@@ -16,11 +16,11 @@ public class TestGraphFactory {
         List<String> files = new ArrayList<>();
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
-        inputParams.put("files", files);
+        inputParams.put("input", files);
 
         Map<String, Object> outputParams = new HashMap<>();
         outputParams.put("files", new NodeReference("@node:6:files"));
-        outputParams.put("prefix", new NodeReference("@node:7:value"));
+        outputParams.put("prefix", new NodeReference("@node:7:output"));
         outputParams.put("folder", "processed");
 
         return getDefaultGraph(inputParams, outputParams);
@@ -45,13 +45,13 @@ public class TestGraphFactory {
 
         // Create Floor node (id: 3)
         Map<String, Object> floorParams = new HashMap<>();
-        floorParams.put("number", 2.5);
+        floorParams.put("input", 2.5);
         FloorNode floorNode = new FloorNode(3L, "Floor", floorParams);
         nodes.add(floorNode);
 
         // Create Blur node (id: 4)
         Map<String, Object> blurParams = new HashMap<>();
-        blurParams.put("files", new NodeReference("@node:1:files"));
+        blurParams.put("files", new NodeReference("@node:1:output"));
         blurParams.put("ksize", new NodeReference("@node:2:vector2D"));
         BlurNode blurNode = new BlurNode(4L, "Blur", blurParams);
         nodes.add(blurNode);
@@ -77,7 +77,7 @@ public class TestGraphFactory {
 
         // Create String node (id: 7)
         Map<String, Object> stringParams = new HashMap<>();
-        stringParams.put("value", "filtered_result");
+        stringParams.put("input", "filtered_result");
         StringNode stringNode = new StringNode(7L, "String", stringParams);
         nodes.add(stringNode);
 
@@ -94,29 +94,29 @@ public class TestGraphFactory {
         // Create Input node (id: 10)
         Map<String, Object> inputParams = new HashMap<>();
         List<String> files = new ArrayList<>();
-        inputParams.put("files", files);
+        inputParams.put("input", files);
         InputNode inputNode = new InputNode(10L, "Input", inputParams);
         nodes.add(inputNode);
 
         // Create Floor node (id: 4)
         Map<String, Object> floorParams = new HashMap<>();
-        floorParams.put("number", 56);
+        floorParams.put("input", 56);
         FloorNode floorNode = new FloorNode(4L, "Floor", floorParams);
         nodes.add(floorNode);
 
         // Create GaussianBlur node (id: 1)
         Map<String, Object> gaussianParams = new HashMap<>();
-        gaussianParams.put("files", new NodeReference("@node:10:files"));
+        gaussianParams.put("files", new NodeReference("@node:10:output"));
         gaussianParams.put("sizeX", 33);
         gaussianParams.put("sizeY", 33);
-        gaussianParams.put("sigmaX", new NodeReference("@node:4:number"));
+        gaussianParams.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
         GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
         // Create Output node (id: 2)
         Map<String, Object> outputParams = new HashMap<>();
-        outputParams.put("files", new NodeReference("@node:10:files"));
+        outputParams.put("files", new NodeReference("@node:10:output"));
         outputParams.put("prefix", "output1");
         outputParams.put("folder", "output_1");
         OutputNode outputNode = new OutputNode(2L, "Output", outputParams);
