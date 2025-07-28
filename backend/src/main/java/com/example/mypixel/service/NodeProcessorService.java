@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 
 @RequiredArgsConstructor
 @Component
@@ -32,21 +33,21 @@ public class NodeProcessorService {
                 "scene.id", String.valueOf(sceneId),
                 "task.id", String.valueOf(taskId)
         );
+        node.setSceneId(sceneId);
+        node.setTaskId(taskId);
 
         performanceTracker.trackOperation(
                 "node.execution",
                 nodeTags,
-                () -> processNodeInternal(node, sceneId, taskId)
+                () -> processNodeInternal(node, taskId)
         );
     }
 
     public void processNodeInternal(
             Node node,
-            Long sceneId,
             Long taskId
     ) {
-        FileHelper fileHelper = new FileHelper(storageService, node.getId(), sceneId, taskId);
-        node.setFileHelper(fileHelper);
+        FileHelper.storageService = storageService;
         node.setBatchProcessor(batchProcessor);
         node.setFilteringService(filteringService);
 
@@ -82,8 +83,9 @@ public class NodeProcessorService {
             input = resolveReference((NodeReference) input, taskId);
         }
 
+        Function<String, String> dump = (String filepath) -> FileHelper.createDump(taskId, node.getId(), filepath);
         // Cast to required type
-        input = typeConverterRegistry.convert(input, requiredType, node.getFileHelper());
+        input = typeConverterRegistry.convert(input, requiredType, dump) ;
 
         return input;
     }

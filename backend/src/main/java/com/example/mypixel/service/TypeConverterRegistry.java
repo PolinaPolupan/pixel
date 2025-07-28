@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class TypeConverterRegistry {
         converters.put(ParameterType.STRING_ARRAY, this::convertToStringArray);
     }
 
-    public Object convert(Object value, Parameter parameter, FileHelper fileHelper) {
+    public Object convert(Object value, Parameter parameter, Object context) {
         if (value == null) {
             throw new InvalidNodeParameter("Cannot cast null to " + parameter.getType() + " type");
         }
@@ -37,38 +38,38 @@ public class TypeConverterRegistry {
             throw new InvalidNodeParameter("No converter registered for type: " + parameter.getType());
         }
 
-        return converter.convert(value, fileHelper);
+        return converter.convert(value, context);
     }
 
-    private Object convertToFloat(Object value, FileHelper fileHelper) {
+    private Object convertToFloat(Object value, Object context) {
         if (value instanceof Number number) {
             return number.floatValue();
         }
         throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to Float");
     }
 
-    private Object convertToInt(Object value, FileHelper fileHelper) {
+    private Object convertToInt(Object value, Object context) {
         if (value instanceof Number number) {
             return number.intValue();
         }
         throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to Integer");
     }
 
-    private Object convertToDouble(Object value, FileHelper fileHelper) {
+    private Object convertToDouble(Object value, Object context) {
         if (value instanceof Number number) {
             return number.doubleValue();
         }
         throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to Double");
     }
 
-    private Object convertToString(Object value, FileHelper fileHelper) {
+    private Object convertToString(Object value, Object context) {
         if (value instanceof String string) {
             return string;
         }
         throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to String");
     }
 
-    private Object convertToVector2D(Object value, FileHelper fileHelper) {
+    private Object convertToVector2D(Object value, Object context) {
         if (value instanceof Vector2D vector) {
             return vector;
         } else if (value instanceof Map map) {
@@ -81,10 +82,12 @@ public class TypeConverterRegistry {
         throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to Vector2D");
     }
 
-    private Object convertToFilePathArray(Object value, FileHelper fileHelper) {
-        if (fileHelper == null) {
-            throw new InvalidNodeParameter("FileHelper is required for FILEPATH_ARRAY conversion");
+    private Object convertToFilePathArray(Object value, Object context) {
+        if (!(context instanceof Function)) {
+            throw new InvalidNodeParameter("Expected a Function for FILEPATH_ARRAY conversion");
         }
+        @SuppressWarnings("unchecked")
+        Function<String, String> fileFunction = (Function<String, String>) context;
 
         HashSet<String> files = new HashSet<>();
         if (value instanceof Collection<?> collection) {
@@ -92,7 +95,7 @@ public class TypeConverterRegistry {
                     collection,
                     item -> {
                         if (item instanceof String file) {
-                            files.add(fileHelper.createDump(file));
+                            files.add(fileFunction.apply(file));
                         } else {
                             throw new InvalidNodeParameter(
                                     "Invalid file path: expected String but got " +
@@ -106,7 +109,7 @@ public class TypeConverterRegistry {
         throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to FILEPATH_ARRAY");
     }
 
-    private Object convertToStringArray(Object value, FileHelper fileHelper) {
+    private Object convertToStringArray(Object value, Object context) {
         if (value instanceof List<?> list) {
             // Verify each element is a string
             for (Object item : list) {
@@ -122,6 +125,6 @@ public class TypeConverterRegistry {
 
     @FunctionalInterface
     private interface TypeConverter {
-        Object convert(Object value, FileHelper fileHelper);
+        Object convert(Object value, Object context);
     }
 }

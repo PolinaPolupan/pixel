@@ -5,6 +5,7 @@ import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.ParamsMap;
 import com.example.mypixel.model.Widget;
+import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -134,7 +135,7 @@ public class S3InputNode extends Node {
                         InputStream in = s3Client
                                 .getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
 
-                        files.add(fileHelper.storeToTemp(in, filename));
+                        files.add(FileHelper.storeToTemp(taskId, id, in, filename));
                         try {
                             in.close();
                         } catch (IOException e) {

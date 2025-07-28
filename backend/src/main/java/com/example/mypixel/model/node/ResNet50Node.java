@@ -4,6 +4,7 @@ import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.ParamsMap;
 import com.example.mypixel.model.Widget;
+import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,9 @@ public class ResNet50Node extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return ParamsMap.of("json", Parameter.required(ParameterType.STRING));
+        return ParamsMap.of(
+                "json",
+                Parameter.required(ParameterType.STRING));
     }
 
     @Override
@@ -72,7 +75,7 @@ public class ResNet50Node extends Node {
         HashMap<String, Object> outputs = new HashMap<>();
         HashSet<String> files = (HashSet<String>) inputs.get("files");
 
-        File outputFile = fileHelper.createTempJson();
+        File outputFile = FileHelper.createTempJson(taskId, id);
 
         batchProcessor.processBatchesList(files, file ->
             executeScript(file, outputFile, outputs)

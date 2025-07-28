@@ -4,6 +4,7 @@ import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.ParamsMap;
 import com.example.mypixel.model.Widget;
+import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -65,7 +66,7 @@ public class OutputFileNode extends Node {
         String content = (String) inputs.getOrDefault("content", "");
         String filename = (String) inputs.getOrDefault("filename", "new.txt");
 
-        fileHelper.storeFile(filename, content);
+        FileHelper.storeFile(sceneId, filename, content);
 
         return Map.of();
     }

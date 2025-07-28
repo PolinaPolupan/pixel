@@ -4,6 +4,7 @@ import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.ParamsMap;
 import com.example.mypixel.model.Widget;
+import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -78,7 +79,7 @@ public class OutputNode extends Node {
         Map<String, Object> outputs = Map.of();
 
         batchProcessor.processBatches(files,
-                filepath -> fileHelper.storeToOutput(filepath, folder, prefix));
+                filepath -> FileHelper.storeToOutput(sceneId, filepath, folder, prefix));
 
         return outputs;
     }

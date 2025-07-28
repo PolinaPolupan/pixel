@@ -51,9 +51,6 @@ class NodeProcessorServiceTests {
     @Captor
     private ArgumentCaptor<Map<String, Object>> inputsCaptor;
 
-    @Captor
-    private ArgumentCaptor<FileHelper> fileHelperCaptor;
-
     private final Long sceneId = 1L;
     private final Long taskId = 100L;
     private final Long nodeId = 10L;
@@ -100,15 +97,14 @@ class NodeProcessorServiceTests {
 
     @Test
     void processNodeInternal_shouldSetupNodeCorrectly() {
-        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+        nodeProcessorService.processNodeInternal(node, taskId);
 
-        verify(node).setFileHelper(any(FileHelper.class));
         verify(node).setBatchProcessor(batchProcessor);
     }
 
     @Test
     void processNodeInternal_shouldResolveInputsValidateAndExecute() {
-        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+        nodeProcessorService.processNodeInternal(node, taskId);
 
         verify(node).validate();
         verify(node).exec();
@@ -116,7 +112,7 @@ class NodeProcessorServiceTests {
 
     @Test
     void processNodeInternal_shouldCacheInputsAndOutputs() {
-        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+        nodeProcessorService.processNodeInternal(node, taskId);
 
         verify(nodeCacheService).put("100:10:input", inputs);
         verify(nodeCacheService).put("100:10:output", outputs);
@@ -134,7 +130,7 @@ class NodeProcessorServiceTests {
         when(nodeCacheService.get("100:20:output")).thenReturn(referencedOutput);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+                nodeProcessorService.processNodeInternal(node, taskId));
 
         assertTrue(exception.getMessage().contains("Failed to resolve reference"));
     }
@@ -148,7 +144,7 @@ class NodeProcessorServiceTests {
         when(nodeCacheService.exists("100:20:output")).thenReturn(false);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+                nodeProcessorService.processNodeInternal(node, taskId));
 
         assertTrue(exception.getMessage().contains("Failed to resolve reference"));
     }
@@ -164,20 +160,9 @@ class NodeProcessorServiceTests {
                 .thenThrow(new ClassCastException("Cannot cast String to Integer"));
 
         ClassCastException exception = assertThrows(ClassCastException.class, () ->
-                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+                nodeProcessorService.processNodeInternal(node, taskId));
 
         assertTrue(exception.getMessage().contains("Cannot cast String to Integer"));
-    }
-
-    @Test
-    void fileHelper_shouldBeCreatedWithCorrectParameters() {
-        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
-
-        verify(node).setFileHelper(fileHelperCaptor.capture());
-        FileHelper fileHelper = fileHelperCaptor.getValue();
-
-        // Since FileHelper doesn't expose its fields, we can only verify it was created and set
-        assertNotNull(fileHelper);
     }
 
     @Test
@@ -185,7 +170,7 @@ class NodeProcessorServiceTests {
         doThrow(new RuntimeException("Validation failed")).when(node).validate();
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+                nodeProcessorService.processNodeInternal(node, taskId));
 
         assertEquals("Validation failed", exception.getMessage());
         verify(node, never()).exec();
@@ -196,7 +181,7 @@ class NodeProcessorServiceTests {
         when(node.exec()).thenThrow(new RuntimeException("Execution failed"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, sceneId, taskId));
+                nodeProcessorService.processNodeInternal(node, taskId));
 
         assertEquals("Execution failed", exception.getMessage());
         verify(nodeCacheService).put("100:10:input", inputs);
@@ -207,7 +192,7 @@ class NodeProcessorServiceTests {
     void resolveInputs_shouldHandleEmptyInputs() {
         inputs.clear();  // Ensure inputs is empty
 
-        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
+        nodeProcessorService.processNodeInternal(node, taskId);
 
         verify(node).setInputs(inputsCaptor.capture());
         Map<String, Object> resolvedInputs = inputsCaptor.getValue();

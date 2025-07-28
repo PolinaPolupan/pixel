@@ -24,8 +24,6 @@ import java.nio.file.Paths;
 @ExtendWith(MockitoExtension.class)
 public class FileHelperTests {
 
-    private FileHelper fileHelper;
-
     @Mock
     private StorageService storageService;
 
@@ -38,7 +36,7 @@ public class FileHelperTests {
 
     @BeforeEach
     void setUp() {
-        fileHelper = new FileHelper(storageService, NODE_ID, SCENE_ID, TASK_ID);
+       FileHelper.storageService = storageService;
     }
 
     @Nested
@@ -53,18 +51,18 @@ public class FileHelperTests {
                 "path/to/filename.with.dots.jpg, filename.with.dots.jpg"
         })
         void shouldExtractFilenameCorrectly(String input, String expected) {
-            assertEquals(expected, fileHelper.extractFilename(input));
+            assertEquals(expected, FileHelper.extractFilename(input));
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         void shouldHandleNullAndEmptyInput(String input) {
-            assertEquals("", fileHelper.extractFilename(input));
+            assertEquals("", FileHelper.extractFilename(input));
         }
 
         @Test
         void shouldHandlePathEndingWithSlash() {
-            assertEquals("", fileHelper.extractFilename("/path/to/directory/"));
+            assertEquals("", FileHelper.extractFilename("/path/to/directory/"));
         }
     }
 
@@ -75,44 +73,44 @@ public class FileHelperTests {
         @Test
         void shouldExtractPath() {
             String filepath = "123/input/pic/Picture.jpeg";
-            assertEquals("123/input/pic/", fileHelper.extractPath(filepath));
+            assertEquals("123/input/pic/", FileHelper.extractPath(filepath));
         }
 
         @Test
         void shouldExtractEmptyPath() {
             String filepath = "Picture.jpeg";
-            assertEquals("", fileHelper.extractPath(filepath));
+            assertEquals("", FileHelper.extractPath(filepath));
         }
 
         @Test
         void shouldExtractPathAfterInput() {
             String filepath = "scenes/" + SCENE_ID + "/input/pic/Picture.jpeg";
-            assertEquals("pic/", fileHelper.extractRelativeWorkspacePath(filepath));
+            assertEquals("pic/", FileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldExtractPathAfterId() {
             String filepath = "tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture.jpeg";
-            assertEquals("output/", fileHelper.extractRelativeWorkspacePath(filepath));
+            assertEquals("output/", FileHelper.extractRelativeWorkspacePath(filepath));
         }
 
 
         @Test
         void shouldHandleMultipleSubfoldersAfterInput() {
             String filepath = "scenes/" + SCENE_ID + "/input/folder1/folder2/Picture.jpeg";
-            assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
+            assertEquals("folder1/folder2/", FileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleMultipleSubfoldersAfter() {
             String filepath = "tasks/" + TASK_ID + "/" + NODE_ID + "/folder1/folder2/Picture.jpeg";
-            assertEquals("folder1/folder2/", fileHelper.extractRelativeWorkspacePath(filepath));
+            assertEquals("folder1/folder2/", FileHelper.extractRelativeWorkspacePath(filepath));
         }
 
         @Test
         void shouldHandleInputAsLastSegment() {
             String filepath = "scenes" + SCENE_ID + "/input";
-            assertEquals("", fileHelper.extractRelativeWorkspacePath(filepath));
+            assertEquals("", FileHelper.extractRelativeWorkspacePath(filepath));
         }
     }
 
@@ -128,7 +126,7 @@ public class FileHelperTests {
                 "file, prefix, prefix_file"
         })
         void shouldAddPrefixCorrectly(String filename, String prefix, String expected) {
-            assertEquals(expected, fileHelper.addPrefixToFilename(filename, prefix));
+            assertEquals(expected, FileHelper.addPrefixToFilename(filename, prefix));
         }
     }
 
@@ -147,7 +145,7 @@ public class FileHelperTests {
             when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
             when(storageService.load("scenes/" + SCENE_ID + "/output/picture.jpg")).thenReturn(outputPath);
 
-            String result = fileHelper.storeToOutput(filepath, null, null);
+            String result = FileHelper.storeToOutput(SCENE_ID, filepath, null, null);
 
             verify(storageService).store(resource, "scenes/" + SCENE_ID + "/output/picture.jpg");
             assertEquals(outputPath.toString(), result);
@@ -167,7 +165,7 @@ public class FileHelperTests {
             when(storageService.folderExists("scenes/" + SCENE_ID + "/output/" + folder + "/")).thenReturn(false);
             when(storageService.load("scenes/" + SCENE_ID + "/output/" + folder + "/edited_picture.jpg")).thenReturn(outputPath);
 
-            String result = fileHelper.storeToOutput(filepath, folder, prefix);
+            String result = FileHelper.storeToOutput(SCENE_ID, filepath, folder, prefix);
 
             verify(storageService).createFolder("scenes/" + SCENE_ID + "/output/" + folder + "/");
             verify(storageService).store(resource, "scenes/" + SCENE_ID + "/output/" + folder + "/edited_picture.jpg");
@@ -187,7 +185,7 @@ public class FileHelperTests {
             when(storageService.folderExists("scenes/" + SCENE_ID + "/output/" + folder + "/")).thenReturn(true);
             when(storageService.load("scenes/" + SCENE_ID + "/output/" + folder + "/picture.jpg")).thenReturn(outputPath);
 
-            fileHelper.storeToOutput(filepath, folder, null);
+            FileHelper.storeToOutput(SCENE_ID, filepath, folder, null);
 
             verify(storageService, never()).createFolder(anyString());
         }
@@ -206,7 +204,7 @@ public class FileHelperTests {
             when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/path/")).thenReturn(false);
             when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename)).thenReturn(tempPath);
 
-            String result = fileHelper.storeToTemp(inputStream, filename);
+            String result = FileHelper.storeToTemp(TASK_ID, NODE_ID, inputStream, filename);
 
             verify(storageService).createFolder("tasks/" + TASK_ID + "/" + NODE_ID + "/path/");
             verify(storageService).store(inputStream, "tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename);
@@ -222,7 +220,7 @@ public class FileHelperTests {
             when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/")).thenReturn(true);
             when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename)).thenReturn(tempPath);
 
-            fileHelper.storeToTemp(inputStream, filename);
+            FileHelper.storeToTemp(TASK_ID, NODE_ID, inputStream, filename);
 
             verify(storageService, never()).createFolder(anyString());
         }
@@ -244,7 +242,7 @@ public class FileHelperTests {
             when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/")).thenReturn(false);
             when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/picture.jpg")).thenReturn(dumpPath);
 
-            String result = fileHelper.createDump(filepath);
+            String result = FileHelper.createDump(TASK_ID, NODE_ID, filepath);
 
             verify(storageService).createFolder("tasks/" + TASK_ID + "/" + NODE_ID + "/");
             verify(storageService).store(resource, "tasks/" + TASK_ID + "/" + NODE_ID + "/picture.jpg");
@@ -263,7 +261,7 @@ public class FileHelperTests {
             when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/output/")).thenReturn(false);
             when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png")).thenReturn(dumpPath);
 
-            String result = fileHelper.createDump(filepath);
+            String result = FileHelper.createDump(TASK_ID, NODE_ID, filepath);
 
             verify(storageService).createFolder("tasks/" + TASK_ID + "/" + NODE_ID + "/output/");
             verify(storageService).store(resource, "tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png");
@@ -280,7 +278,7 @@ public class FileHelperTests {
             when(storageService.loadAsResource(relativePath.toString())).thenReturn(null);
             when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/input/")).thenReturn(true);
 
-            assertThrows(StorageException.class, () -> fileHelper.createDump(filepath));
+            assertThrows(StorageException.class, () -> FileHelper.createDump(TASK_ID, NODE_ID, filepath));
         }
     }
 
@@ -291,7 +289,7 @@ public class FileHelperTests {
 
         when(storageService.load(filepath)).thenReturn(fullPath);
 
-        String result = fileHelper.getFullPath(filepath);
+        String result = FileHelper.getFullPath(filepath);
 
         verify(storageService).load(filepath);
         assertEquals(fullPath.toString(), result);
