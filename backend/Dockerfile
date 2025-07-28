@@ -39,4 +39,6 @@ COPY python/ /app/python/
 
 WORKDIR /app
 
+COPY node-config/ /app/node-config/
+
 CMD ["java", "-Djava.library.path=/app/native-libs", "-jar", "app.jar"]

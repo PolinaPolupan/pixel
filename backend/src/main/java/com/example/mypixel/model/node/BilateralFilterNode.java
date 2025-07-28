@@ -60,7 +60,13 @@ public class BilateralFilterNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return ParamsMap.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of(
+                "files", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build()
+        );
     }
 
     @Override

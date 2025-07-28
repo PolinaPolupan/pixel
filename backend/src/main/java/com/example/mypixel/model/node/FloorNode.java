@@ -32,6 +32,7 @@ public class FloorNode extends Node {
                         .build()
         );
     }
+
     @Override
     public Map<String, Object> getDefaultInputs() {
         return ParamsMap.of(
@@ -41,7 +42,13 @@ public class FloorNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return ParamsMap.of("output", Parameter.required(ParameterType.DOUBLE));
+        return ParamsMap.of(
+                "output", Parameter.builder()
+                        .type(ParameterType.DOUBLE)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build()
+        );
     }
 
     @Override

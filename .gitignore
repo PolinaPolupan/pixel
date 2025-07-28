@@ -6,3 +6,4 @@
 /native/cmake-build-debug-wsl/
 /build/
 /.env
+/backend/node-config/

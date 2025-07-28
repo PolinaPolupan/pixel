@@ -1,10 +1,7 @@
 package com.example.mypixel.model.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
-import com.example.mypixel.model.Parameter;
-import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.model.ParamsMap;
-import com.example.mypixel.model.Widget;
+import com.example.mypixel.model.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -26,60 +23,27 @@ public class GaussianBlurNode extends Node {
 
     @Override
     public Map<String, Parameter> getInputTypes() {
-        return ParamsMap.of(
-                "files", Parameter.builder()
-                        .type(ParameterType.FILEPATH_ARRAY)
-                        .required(true)
-                        .widget(Widget.LABEL)
-                        .build(),
-                "sizeX", Parameter.builder()
-                        .type(ParameterType.INT)
-                        .required(true)
-                        .widget(Widget.INPUT)
-                        .build(),
-                "sizeY", Parameter.builder()
-                        .type(ParameterType.INT)
-                        .required(false)
-                        .widget(Widget.INPUT)
-                        .build(),
-                "sigmaX", Parameter.builder()
-                        .type(ParameterType.DOUBLE)
-                        .required(false)
-                        .widget(Widget.INPUT)
-                        .build(),
-                "sigmaY", Parameter.builder()
-                        .type(ParameterType.DOUBLE)
-                        .required(false)
-                        .widget(Widget.INPUT)
-                        .build()
-        );
+        NodeConfig config = findConfig("node-config/GaussianBlur");
+        return ParameterConfig.castConfigsToParameters(config.getInputs());
     }
 
 
     @Override
     public Map<String, Object> getDefaultInputs() {
-        return ParamsMap.of(
-                "files", new HashSet<String>(),
-                "sizeX", 3,
-                "sizeY", 3,
-                "sigmaX", 0.0,
-                "sigmaY", 0.0
-        );
+        NodeConfig config = findConfig("node-config/GaussianBlur");
+        return config.getDefaultInputs();
     }
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return ParamsMap.of("files", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        NodeConfig config = findConfig("node-config/GaussianBlur");
+        return ParameterConfig.castConfigsToParameters(config.getOutputs());
     }
 
     @Override
     public Map<String, String> getDisplayInfo() {
-        return ParamsMap.of(
-                "category", "Filtering",
-                "description", "Blurs an image using a Gaussian kernel",
-                "color", "#FF8A65",
-                "icon", "BlurIcon"
-        );
+        NodeConfig config = findConfig("node-config/GaussianBlur");
+        return config.getDisplay();
     }
 
     @SuppressWarnings("unchecked")

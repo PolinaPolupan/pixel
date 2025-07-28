@@ -42,7 +42,13 @@ public class InputNode extends Node {
 
     @Override
     public Map<String, Parameter> getOutputTypes() {
-        return ParamsMap.of("output", Parameter.required(ParameterType.FILEPATH_ARRAY));
+        return ParamsMap.of(
+                "output", Parameter.builder()
+                        .type(ParameterType.FILEPATH_ARRAY)
+                        .required(true)
+                        .widget(Widget.LABEL)
+                        .build()
+        );
     }
 
     @Override

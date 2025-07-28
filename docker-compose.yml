@@ -15,6 +15,7 @@ services:
       - ./backend/python:/app/python
       - ./backend/build/libs:/app/libs
       - ./backend/native/build:/app/native-libs
+      - ./backend/node-config:/app/node-config
     command: java -Djava.library.path=/app/native-libs -jar /app/libs/mypixel-0.0.1-SNAPSHOT.jar
   frontend:
     build:
