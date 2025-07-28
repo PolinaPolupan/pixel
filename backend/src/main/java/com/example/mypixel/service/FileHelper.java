@@ -1,7 +1,6 @@
 package com.example.mypixel.service;
 
 import com.example.mypixel.exception.StorageException;
-import com.example.mypixel.model.node.Node;
 import com.google.common.base.Splitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -22,19 +21,19 @@ public class FileHelper {
     StorageService storageService;
     Long taskId;
     Long sceneId;
-    Node node;
+    Long nodeId;
 
     private final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");
 
-    public FileHelper(StorageService storageService, Node node, Long sceneId, Long taskId) {
+    public FileHelper(StorageService storageService, Long nodeId, Long sceneId, Long taskId) {
         this.storageService = storageService;
         this.sceneId = sceneId;
         this.taskId = taskId;
-        this.node = node;
+        this.nodeId = nodeId;
     }
 
     public File createTempJson() {
-        String path = "tasks/" + taskId + "/" + node.getId();
+        String path = "tasks/" + taskId + "/" + nodeId;
 
         if (!storageService.folderExists(path)) {
             storageService.createFolder(path);
@@ -84,7 +83,7 @@ public class FileHelper {
     }
 
     public String storeToTemp(InputStream in, String filepath) {
-        String path = "tasks/" + taskId + "/" + node.getId() + "/" + extractPath(filepath);
+        String path = "tasks/" + taskId + "/" + nodeId + "/" + extractPath(filepath);
 
         if (!storageService.folderExists(path)) {
             storageService.createFolder(path);
@@ -101,7 +100,7 @@ public class FileHelper {
 
     public String createDump(String filepath) {
         String actualFilename = extractFilename(filepath);
-        String outputPath = "tasks/" + taskId + "/" + node.getId() + "/" + extractRelativeWorkspacePath(filepath);
+        String outputPath = "tasks/" + taskId + "/" + nodeId + "/" + extractRelativeWorkspacePath(filepath);
 
         if (!storageService.folderExists(outputPath)) {
             storageService.createFolder(outputPath);

@@ -45,8 +45,7 @@ public class NodeProcessorService {
             Long sceneId,
             Long taskId
     ) {
-      //  beanFactory.autowireBean(node);
-        FileHelper fileHelper = new FileHelper(storageService, node, sceneId, taskId);
+        FileHelper fileHelper = new FileHelper(storageService, node.getId(), sceneId, taskId);
         node.setFileHelper(fileHelper);
         node.setBatchProcessor(batchProcessor);
         node.setFilteringService(filteringService);

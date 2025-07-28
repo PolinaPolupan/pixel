@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.example.mypixel.exception.StorageException;
-import com.example.mypixel.model.node.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,9 +30,6 @@ public class FileHelperTests {
     private StorageService storageService;
 
     @Mock
-    private Node node;
-
-    @Mock
     private Resource resource;
 
     private static final Long SCENE_ID = 123L;
@@ -42,7 +38,7 @@ public class FileHelperTests {
 
     @BeforeEach
     void setUp() {
-        fileHelper = new FileHelper(storageService, node, SCENE_ID, TASK_ID);
+        fileHelper = new FileHelper(storageService, NODE_ID, SCENE_ID, TASK_ID);
     }
 
     @Nested
@@ -203,7 +199,6 @@ public class FileHelperTests {
 
         @Test
         void shouldStoreFileToTemp() {
-            when(node.getId()).thenReturn(NODE_ID);
             String filename = "path/temp-file.jpg";
             Path tempPath = Paths.get("/root/path/tasks/"+ TASK_ID + "/" + NODE_ID + "/" + filename);
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
@@ -220,7 +215,6 @@ public class FileHelperTests {
 
         @Test
         void shouldNotCreateFolderIfItAlreadyExists() {
-            when(node.getId()).thenReturn(NODE_ID);
             String filename = "temp-file.jpg";
             Path tempPath = Paths.get("/root/path/tasks" + TASK_ID + "/" + NODE_ID + "/" + filename);
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
@@ -240,7 +234,6 @@ public class FileHelperTests {
 
         @Test
         void shouldCreateDumpFile() {
-            when(node.getId()).thenReturn(NODE_ID);
             String filepath = "/root/path/123/input/picture.jpg";
             Path rootPath = Paths.get("/root/path");
             Path relativePath = Paths.get("123/input/picture.jpg");
@@ -260,7 +253,6 @@ public class FileHelperTests {
 
         @Test
         void shouldCreateDumpFromTempFile() {
-            when(node.getId()).thenReturn(NODE_ID);
             String filepath = "upload-image-dir/tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png";
             Path rootPath = Paths.get("upload-image-dir/");
             Path relativePath = Paths.get("tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png");
@@ -280,7 +272,6 @@ public class FileHelperTests {
 
         @Test
         void shouldThrowExceptionWhenResourceIsNull() {
-            when(node.getId()).thenReturn(NODE_ID);
             String filepath = "/root/path/tasks/" + TASK_ID + "/" + NODE_ID + "/input/picture.jpg";
             Path rootPath = Paths.get("/root/path");
             Path relativePath = Paths.get("tasks/" + TASK_ID + "/" + NODE_ID + "/input/picture.jpg");
