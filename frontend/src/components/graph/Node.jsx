@@ -57,7 +57,7 @@ export default function Node({ id, data }) {
                     const { updateNodeData } = useReactFlow();
 
                     const handleImagesSelected = (filePaths) => {
-                        updateNodeData(id, { files: filePaths }); // Update with relative paths (e.g., output/Picture.jpeg)
+                        updateNodeData(id, { [handleId]: filePaths }); // Update with relative paths (e.g., output/Picture.jpeg)
                     };
 
                     return (
