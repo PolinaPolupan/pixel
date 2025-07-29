@@ -2,6 +2,7 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.model.*;
 import com.example.mypixel.model.node.Node;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,8 @@ public class NodeProcessorService {
     private final NodeCacheService nodeCacheService;
     private final PerformanceTracker performanceTracker;
     private final TypeConverterRegistry typeConverterRegistry;
+    private final ObjectMapper objectMapper;
+
 
     public void processNode(Node node, Long sceneId, Long taskId) {
         node.setSceneId(sceneId);
@@ -39,24 +42,44 @@ public class NodeProcessorService {
     public void processNodeInternal(Node node) {
         log.debug("Started node: {}", node.getId());
 
-        resolveInputs(node);
+        Map<String, Object> resolvedInputs = resolveInputs(node);
+        node.setInputs(resolvedInputs);
+
+        try {
+            String inputJson = objectMapper.writeValueAsString(resolvedInputs);
+            log.info("Node {} Input JSON: {}", node.getId(), inputJson);
+        } catch (Exception e) {
+            log.warn("Failed to serialize input JSON for node {}: {}", node.getId(), e.getMessage());
+        }
+
         node.validate();
 
         String outputKey = node.getTaskId() + ":" + node.getId() + ":output";
         String inputKey = node.getTaskId() + ":" + node.getId() + ":input";
 
         nodeCacheService.put(inputKey, node.getInputs());
-        nodeCacheService.put(outputKey, node.exec());
+
+        Map<String, Object> outputs = node.exec();
+
+        try {
+            String outputJson = objectMapper.writeValueAsString(outputs);
+            log.info("Node {} Output JSON: {}", node.getId(), outputJson);
+        } catch (Exception e) {
+            log.warn("Failed to serialize output JSON for node {}: {}", node.getId(), e.getMessage());
+        }
+
+        nodeCacheService.put(outputKey, outputs);
     }
 
-    private void resolveInputs(Node node) {
+
+    private Map<String, Object> resolveInputs(Node node) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputs().keySet()) {
             resolvedInputs.put(key, resolveInput(node, key));
         }
 
-        node.setInputs(resolvedInputs);
+        return resolvedInputs;
     }
 
     private Object resolveInput(Node node, String key) {

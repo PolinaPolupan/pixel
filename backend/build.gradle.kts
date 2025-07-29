@@ -61,24 +61,4 @@ tasks.jar {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
-	dependsOn(":native:assemble")
-	systemProperty("java.library.path", project(":native").layout.buildDirectory.get().asFile.absolutePath)
-}
-
-tasks.named<BootRun>("bootTestRun") {
-	dependsOn(":native:assemble")
-	systemProperty("java.library.path", project(":native").layout.buildDirectory.get().asFile.absolutePath)
-}
-
-tasks.named<BootRun>("bootRun") {
-	dependsOn(":native:assemble")
-	systemProperty("java.library.path", project(":native").layout.buildDirectory.get().asFile.absolutePath)
-}
-
-tasks.named<DefaultTask>("build") {
-	dependsOn(":native:assemble")
-}
-
-tasks.compileJava {
-	options.compilerArgs = options.compilerArgs + listOf("-h", "${rootProject.projectDir}/native/src/include")
 }
