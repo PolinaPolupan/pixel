@@ -57,9 +57,6 @@ public class GaussianBlurNode extends Node {
         double sigmaX = (double) inputs.getOrDefault("sigmaX", 0.0);
         double sigmaY = (double) inputs.getOrDefault("sigmaY", 0.0);
 
-        batchProcessor.processBatches(files,
-                filepath -> filteringService.gaussianBlur(filepath, sizeX, sizeY, sigmaX, sigmaY));
-
         outputs = Map.of("files", files);
 
         return outputs;

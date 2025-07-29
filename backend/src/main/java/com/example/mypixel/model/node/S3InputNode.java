@@ -128,21 +128,19 @@ public class S3InputNode extends Node {
 
             List<S3Object> contents = listObjectsV2Response.contents();
 
-            batchProcessor.processBatches(
-                    contents, file -> {
-                        String filename = file.key();
-                        log.debug("Loading file from S3: {}", filename);
-                        InputStream in = s3Client
-                                .getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
+            for (S3Object file: contents) {
+                String filename = file.key();
+                log.debug("Loading file from S3: {}", filename);
+                InputStream in = s3Client
+                        .getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
 
-                        files.add(FileHelper.storeToTemp(taskId, id, in, filename));
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-            );
+                files.add(FileHelper.storeToTemp(taskId, id, in, filename));
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         outputs = Map.of("files", files);

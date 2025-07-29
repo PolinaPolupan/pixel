@@ -15,10 +15,8 @@ import java.util.*;
 public class NodeProcessorService {
 
     private final NodeCacheService nodeCacheService;
-    private final BatchProcessor batchProcessor;
     private final PerformanceTracker performanceTracker;
     private final TypeConverterRegistry typeConverterRegistry;
-    private final FilteringService filteringService;
 
     public void processNode(
             Node node,
@@ -45,9 +43,6 @@ public class NodeProcessorService {
             Node node,
             Long taskId
     ) {
-        node.setBatchProcessor(batchProcessor);
-        node.setFilteringService(filteringService);
-
         log.debug("Started node: {}", node.getId());
 
         resolveInputs(node, taskId);

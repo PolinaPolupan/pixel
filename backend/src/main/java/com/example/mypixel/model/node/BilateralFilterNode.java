@@ -89,9 +89,6 @@ public class BilateralFilterNode extends Node {
         double sigmaSpace = (double) inputs.get("sigmaSpace");
         int d = (int) inputs.get("d");
 
-        batchProcessor.processBatches(files,
-                filepath -> filteringService.bilateralFilter(filepath, d, sigmaColor, sigmaSpace));
-
         outputs = Map.of("files", files);
 
         return outputs;

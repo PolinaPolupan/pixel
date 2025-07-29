@@ -77,10 +77,6 @@ public class ResNet50Node extends Node {
 
         File outputFile = FileHelper.createTempJson(taskId, id);
 
-        batchProcessor.processBatchesList(files, file ->
-            executeScript(file, outputFile, outputs)
-        );
-
         return outputs;
     }
 

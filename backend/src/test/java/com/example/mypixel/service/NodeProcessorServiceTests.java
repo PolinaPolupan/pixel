@@ -96,13 +96,6 @@ class NodeProcessorServiceTests {
     }
 
     @Test
-    void processNodeInternal_shouldSetupNodeCorrectly() {
-        nodeProcessorService.processNodeInternal(node, taskId);
-
-        verify(node).setBatchProcessor(batchProcessor);
-    }
-
-    @Test
     void processNodeInternal_shouldResolveInputsValidateAndExecute() {
         nodeProcessorService.processNodeInternal(node, taskId);
 

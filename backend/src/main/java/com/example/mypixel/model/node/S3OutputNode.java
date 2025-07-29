@@ -126,7 +126,7 @@ public class S3OutputNode extends Node {
         }
 
         try (S3Client s3Client = clientBuilder.build()) {
-            batchProcessor.processBatches(files, file -> {
+            for (String file: files) {
                 String filename = FileHelper.extractFilename(file);
                 Map<String, String> metadata = new HashMap<>();
 
@@ -136,7 +136,7 @@ public class S3OutputNode extends Node {
                                         .key(folder + "/" + filename)
                                         .metadata(metadata),
                         Path.of(file));
-            });
+            }
         }
 
         return outputs;

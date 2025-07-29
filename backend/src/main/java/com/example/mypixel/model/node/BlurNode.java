@@ -74,9 +74,6 @@ public class BlurNode extends Node {
 
         Vector2D<Number> ksize = (Vector2D<Number>) inputs.get("ksize");
 
-        batchProcessor.processBatches(files,
-                filepath -> filteringService.blur(filepath, ksize));
-
         outputs = Map.of("files", files);
 
         return outputs;

@@ -76,9 +76,6 @@ public class MedianBlurNode extends Node {
 
         int ksize = (int) inputs.get("ksize");
 
-        batchProcessor.processBatches(files,
-                filepath -> filteringService.medianBlur(filepath, ksize));
-
         outputs = Map.of("files", files);
 
         return outputs;

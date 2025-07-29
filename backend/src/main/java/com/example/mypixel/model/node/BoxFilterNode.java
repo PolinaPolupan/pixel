@@ -81,9 +81,6 @@ public class BoxFilterNode extends Node {
         Vector2D<Number> ksize = (Vector2D<Number>) inputs.get("ksize");
         int ddepth = (int) inputs.get("ddepth");
 
-        batchProcessor.processBatches(files,
-                filepath -> filteringService.boxFilter(filepath, ddepth, ksize));
-
         outputs = Map.of("files", files);
 
         return outputs;

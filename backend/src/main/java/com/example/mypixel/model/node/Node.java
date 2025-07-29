@@ -3,8 +3,6 @@ package com.example.mypixel.model.node;
 import com.example.mypixel.model.InputDeserializer;
 import com.example.mypixel.model.NodeConfig;
 import com.example.mypixel.model.Parameter;
-import com.example.mypixel.service.BatchProcessor;
-import com.example.mypixel.service.FilteringService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -38,12 +36,6 @@ public abstract class Node {
 
     @JsonDeserialize(contentUsing = InputDeserializer.class)
     Map<String, Object> inputs;
-
-    BatchProcessor batchProcessor;
-
-    FilteringService filteringService;
-
-    boolean cacheable = true;
 
     @JsonCreator
     public Node(
