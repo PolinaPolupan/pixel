@@ -24,18 +24,18 @@ public abstract class Node {
 
     @NonNull
     @Setter(AccessLevel.NONE)
-    Long id;
+    protected Long id;
 
-    Long sceneId;
+    protected Long sceneId;
 
-    Long taskId;
+    protected Long taskId;
 
     @NonNull
     @Setter(AccessLevel.NONE)
-    String type;
+    protected String type;
 
     @JsonDeserialize(contentUsing = InputDeserializer.class)
-    Map<String, Object> inputs;
+    protected Map<String, Object> inputs;
 
     @JsonCreator
     public Node(
