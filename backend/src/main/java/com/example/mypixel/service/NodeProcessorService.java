@@ -18,61 +18,53 @@ public class NodeProcessorService {
     private final PerformanceTracker performanceTracker;
     private final TypeConverterRegistry typeConverterRegistry;
 
-    public void processNode(
-            Node node,
-            Long sceneId,
-            Long taskId
-    ) {
+    public void processNode(Node node, Long sceneId, Long taskId) {
+        node.setSceneId(sceneId);
+        node.setTaskId(taskId);
+
         Tags nodeTags = Tags.of(
                 "node.id", String.valueOf(node.getId()),
                 "node.type", node.getType(),
-                "scene.id", String.valueOf(sceneId),
-                "task.id", String.valueOf(taskId)
+                "scene.id", String.valueOf(node.getSceneId()),
+                "task.id", String.valueOf(node.getTaskId())
         );
-        node.setSceneId(sceneId);
-        node.setTaskId(taskId);
 
         performanceTracker.trackOperation(
                 "node.execution",
                 nodeTags,
-                () -> processNodeInternal(node, taskId)
+                () -> processNodeInternal(node)
         );
     }
 
-    public void processNodeInternal(
-            Node node,
-            Long taskId
-    ) {
+    public void processNodeInternal(Node node) {
         log.debug("Started node: {}", node.getId());
 
-        resolveInputs(node, taskId);
+        resolveInputs(node);
         node.validate();
 
-        String outputKey = taskId + ":" + node.getId() + ":output";
-        String inputKey = taskId + ":" + node.getId() + ":input";
+        String outputKey = node.getTaskId() + ":" + node.getId() + ":output";
+        String inputKey = node.getTaskId() + ":" + node.getId() + ":input";
 
         nodeCacheService.put(inputKey, node.getInputs());
         nodeCacheService.put(outputKey, node.exec());
     }
 
-    private void resolveInputs(Node node, Long taskId) {
+    private void resolveInputs(Node node) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputs().keySet()) {
-            resolvedInputs.put(key, resolveInput(node, taskId, key));
+            resolvedInputs.put(key, resolveInput(node, key));
         }
 
         node.setInputs(resolvedInputs);
     }
 
-    private Object resolveInput(Node node,
-                                Long taskId,
-                                String key) {
+    private Object resolveInput(Node node, String key) {
         Object input = node.getInputs().get(key);
         Parameter requiredType = node.getInputTypes().get(key);
 
         if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, taskId);
+            input = resolveReference((NodeReference) input, node.getTaskId());
         }
         // Cast to required type
         input = typeConverterRegistry.convert(input, requiredType, node) ;

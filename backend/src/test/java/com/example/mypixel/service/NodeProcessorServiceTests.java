@@ -31,12 +31,6 @@ class NodeProcessorServiceTests {
     private NodeCacheService nodeCacheService;
 
     @Mock
-    private StorageService storageService;
-
-    @Mock
-    private BatchProcessor batchProcessor;
-
-    @Mock
     private PerformanceTracker performanceTracker;
 
     @Mock
@@ -65,6 +59,8 @@ class NodeProcessorServiceTests {
         inputTypes = new HashMap<>();
 
         when(node.getId()).thenReturn(nodeId);
+        when(node.getTaskId()).thenReturn(taskId);
+        when(node.getSceneId()).thenReturn(sceneId);
         when(node.getType()).thenReturn("testNode");
         when(node.getInputs()).thenReturn(inputs);
         when(node.getInputTypes()).thenReturn(inputTypes);
@@ -97,7 +93,7 @@ class NodeProcessorServiceTests {
 
     @Test
     void processNodeInternal_shouldResolveInputsValidateAndExecute() {
-        nodeProcessorService.processNodeInternal(node, taskId);
+        nodeProcessorService.processNodeInternal(node);
 
         verify(node).validate();
         verify(node).exec();
@@ -105,7 +101,7 @@ class NodeProcessorServiceTests {
 
     @Test
     void processNodeInternal_shouldCacheInputsAndOutputs() {
-        nodeProcessorService.processNodeInternal(node, taskId);
+        nodeProcessorService.processNodeInternal(node);
 
         verify(nodeCacheService).put("100:10:input", inputs);
         verify(nodeCacheService).put("100:10:output", outputs);
@@ -123,7 +119,7 @@ class NodeProcessorServiceTests {
         when(nodeCacheService.get("100:20:output")).thenReturn(referencedOutput);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, taskId));
+                nodeProcessorService.processNodeInternal(node));
 
         assertTrue(exception.getMessage().contains("Failed to resolve reference"));
     }
@@ -137,7 +133,7 @@ class NodeProcessorServiceTests {
         when(nodeCacheService.exists("100:20:output")).thenReturn(false);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, taskId));
+                nodeProcessorService.processNodeInternal(node));
 
         assertTrue(exception.getMessage().contains("Failed to resolve reference"));
     }
@@ -153,7 +149,7 @@ class NodeProcessorServiceTests {
                 .thenThrow(new ClassCastException("Cannot cast String to Integer"));
 
         ClassCastException exception = assertThrows(ClassCastException.class, () ->
-                nodeProcessorService.processNodeInternal(node, taskId));
+                nodeProcessorService.processNodeInternal(node));
 
         assertTrue(exception.getMessage().contains("Cannot cast String to Integer"));
     }
@@ -163,7 +159,7 @@ class NodeProcessorServiceTests {
         doThrow(new RuntimeException("Validation failed")).when(node).validate();
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, taskId));
+                nodeProcessorService.processNodeInternal(node));
 
         assertEquals("Validation failed", exception.getMessage());
         verify(node, never()).exec();
@@ -174,7 +170,7 @@ class NodeProcessorServiceTests {
         when(node.exec()).thenThrow(new RuntimeException("Execution failed"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNodeInternal(node, taskId));
+                nodeProcessorService.processNodeInternal(node));
 
         assertEquals("Execution failed", exception.getMessage());
         verify(nodeCacheService).put("100:10:input", inputs);
@@ -185,7 +181,7 @@ class NodeProcessorServiceTests {
     void resolveInputs_shouldHandleEmptyInputs() {
         inputs.clear();  // Ensure inputs is empty
 
-        nodeProcessorService.processNodeInternal(node, taskId);
+        nodeProcessorService.processNodeInternal(node);
 
         verify(node).setInputs(inputsCaptor.capture());
         Map<String, Object> resolvedInputs = inputsCaptor.getValue();
