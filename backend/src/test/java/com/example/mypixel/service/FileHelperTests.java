@@ -36,7 +36,7 @@ public class FileHelperTests {
 
     @BeforeEach
     void setUp() {
-       FileHelper.storageService = storageService;
+       FileHelper.setStorageService(storageService);
     }
 
     @Nested

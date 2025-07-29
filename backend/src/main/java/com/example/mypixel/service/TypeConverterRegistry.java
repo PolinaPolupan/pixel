@@ -4,12 +4,12 @@ import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.Vector2D;
+import com.example.mypixel.model.node.Node;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -69,6 +69,7 @@ public class TypeConverterRegistry {
         throw new InvalidNodeParameter("Cannot convert " + value.getClass().getSimpleName() + " to String");
     }
 
+    @SuppressWarnings("unchecked")
     private Object convertToVector2D(Object value, Object context) {
         if (value instanceof Vector2D vector) {
             return vector;
@@ -83,19 +84,14 @@ public class TypeConverterRegistry {
     }
 
     private Object convertToFilePathArray(Object value, Object context) {
-        if (!(context instanceof Function)) {
-            throw new InvalidNodeParameter("Expected a Function for FILEPATH_ARRAY conversion");
-        }
-        @SuppressWarnings("unchecked")
-        Function<String, String> fileFunction = (Function<String, String>) context;
-
+        Node node = (Node) context;
         HashSet<String> files = new HashSet<>();
         if (value instanceof Collection<?> collection) {
             batchProcessor.processBatches(
                     collection,
                     item -> {
                         if (item instanceof String file) {
-                            files.add(fileFunction.apply(file));
+                            files.add(FileHelper.createDump(node.getTaskId(), node.getId(), file));
                         } else {
                             throw new InvalidNodeParameter(
                                     "Invalid file path: expected String but got " +

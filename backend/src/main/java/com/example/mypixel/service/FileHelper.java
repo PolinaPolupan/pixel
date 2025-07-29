@@ -18,15 +18,15 @@ import java.util.regex.Pattern;
 @Slf4j
 public class FileHelper {
 
-    static StorageService storageService;
+    private static StorageService storageService;
 
     private static final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");
 
-    public FileHelper(StorageService storageService) {
+    public static void setStorageService(StorageService storageService) {
         FileHelper.storageService = storageService;
     }
 
-    static public File createTempJson(Long taskId, Long nodeId) {
+    public static File createTempJson(Long taskId, Long nodeId) {
         String path = "tasks/" + taskId + "/" + nodeId;
 
         if (!storageService.folderExists(path)) {
@@ -36,7 +36,7 @@ public class FileHelper {
         return new File(storageService.getRootLocation() + "/" + path + "/temp.json");
     }
 
-    static public void storeFile(Long sceneId, String filepath, String content) {
+    public static void storeFile(Long sceneId, String filepath, String content) {
         String path = "scenes/" + sceneId + "/" + extractPath(filepath);
 
         if (!storageService.folderExists(path)) {
@@ -53,7 +53,7 @@ public class FileHelper {
         }
     }
 
-    static public String storeToOutput(Long sceneId, String filepath, String folder, String prefix) {
+    public static String storeToOutput(Long sceneId, String filepath, String folder, String prefix) {
         String filename = extractFilename(filepath);
         String relativePath = extractRelativeWorkspacePath(filepath);
 
@@ -76,7 +76,7 @@ public class FileHelper {
         return getFullPath("scenes/" + sceneId + "/output/" + relativePath + filename);
     }
 
-    static public String storeToTemp(Long taskId, Long nodeId, InputStream in, String filepath) {
+    public static String storeToTemp(Long taskId, Long nodeId, InputStream in, String filepath) {
         String path = "tasks/" + taskId + "/" + nodeId + "/" + extractPath(filepath);
 
         if (!storageService.folderExists(path)) {
@@ -88,11 +88,11 @@ public class FileHelper {
         return getFullPath(path + extractFilename(filepath));
     }
 
-    static public String getFullPath(String filepath) {
+    public static String getFullPath(String filepath) {
         return storageService.load(filepath).toString();
     }
 
-    static public String createDump(Long taskId, Long nodeId, String filepath) {
+    public static String createDump(Long taskId, Long nodeId, String filepath) {
         String actualFilename = extractFilename(filepath);
         String outputPath = "tasks/" + taskId + "/" + nodeId + "/" + extractRelativeWorkspacePath(filepath);
 
@@ -113,7 +113,7 @@ public class FileHelper {
         throw new StorageException("Failed to create dump file: Input resource is null for " + fullInputPath);
     }
 
-    static public String extractFilename(String path) {
+    public static String extractFilename(String path) {
         if (path == null || path.isEmpty()) {
             return "";
         }
@@ -127,7 +127,7 @@ public class FileHelper {
         return path;
     }
 
-    static public String extractPath(String path) {
+    public static String extractPath(String path) {
         if (path == null || path.isEmpty()) {
             return "";
         }
@@ -140,7 +140,7 @@ public class FileHelper {
         return "";
     }
 
-    static public String extractRelativeWorkspacePath(String filepath) {
+    public static String extractRelativeWorkspacePath(String filepath) {
         List<String> pathSegments = Splitter.on("/").splitToList(filepath);
         int index = -1;
         // Example: scenes/{sceneId}/input/folder1/folder2/Picture.jpeg -> folder1/folder2/
@@ -160,7 +160,7 @@ public class FileHelper {
         return insideInputPathBuilder.toString();
     }
 
-    static public String addPrefixToFilename(String filename, String prefix) {
+    public static String addPrefixToFilename(String filename, String prefix) {
         filename = extractFilename(filename);
 
         Matcher matcher = filenamePattern.matcher(filename);

@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.Function;
 
 @RequiredArgsConstructor
 @Component
@@ -16,7 +15,6 @@ import java.util.function.Function;
 public class NodeProcessorService {
 
     private final NodeCacheService nodeCacheService;
-    private final StorageService storageService;
     private final BatchProcessor batchProcessor;
     private final PerformanceTracker performanceTracker;
     private final TypeConverterRegistry typeConverterRegistry;
@@ -47,7 +45,6 @@ public class NodeProcessorService {
             Node node,
             Long taskId
     ) {
-        FileHelper.storageService = storageService;
         node.setBatchProcessor(batchProcessor);
         node.setFilteringService(filteringService);
 
@@ -82,10 +79,8 @@ public class NodeProcessorService {
         if (input instanceof NodeReference) {
             input = resolveReference((NodeReference) input, taskId);
         }
-
-        Function<String, String> dump = (String filepath) -> FileHelper.createDump(taskId, node.getId(), filepath);
         // Cast to required type
-        input = typeConverterRegistry.convert(input, requiredType, dump) ;
+        input = typeConverterRegistry.convert(input, requiredType, node) ;
 
         return input;
     }
