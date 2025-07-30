@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -47,7 +48,10 @@ public class NodeProcessorService {
 
         try {
             String inputJson = objectMapper.writeValueAsString(resolvedInputs);
-            log.info("Node {} Input JSON: {}", node.getId(), inputJson);
+            RestTemplate restTemplate = new RestTemplate();
+            PythonNodeTester tester = new PythonNodeTester(restTemplate, "http://node:8000/validate");
+            String response = tester.sendJsonToPython(inputJson);
+            log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), inputJson, response);
         } catch (Exception e) {
             log.warn("Failed to serialize input JSON for node {}: {}", node.getId(), e.getMessage());
         }
@@ -63,7 +67,10 @@ public class NodeProcessorService {
 
         try {
             String outputJson = objectMapper.writeValueAsString(outputs);
-            log.info("Node {} Output JSON: {}", node.getId(), outputJson);
+            RestTemplate restTemplate = new RestTemplate();
+            PythonNodeTester tester = new PythonNodeTester(restTemplate, "http://node:8000/exec");
+            String response = tester.sendJsonToPython(outputJson);
+            log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), outputJson, response);
         } catch (Exception e) {
             log.warn("Failed to serialize output JSON for node {}: {}", node.getId(), e.getMessage());
         }
