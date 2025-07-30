@@ -1,7 +1,7 @@
 services:
-  backend:
+  engine:
     build:
-      context: backend
+      context: engine
     ports:
       - '8080:8080'
     environment:
@@ -12,10 +12,8 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
       FLYWAY_ENABLED: true
     volumes:
-      - ./backend/python:/app/python
-      - ./backend/build/libs:/app/libs
-      - ./backend/native/build:/app/native-libs
-    command: java -Djava.library.path=/app/native-libs -jar /app/libs/mypixel-0.0.1-SNAPSHOT.jar
+      - ./engine/build/libs:/app/libs
+    command: java -Djava.library.path=/app/native-libs -jar /app/libs/engine-0.0.1-SNAPSHOT.jar
   frontend:
     build:
       context: frontend
@@ -67,4 +65,4 @@ services:
 volumes:
   postgres_data:
 include:
-  - ./backend/monitoring/docker-compose.monitoring.yml
+  - ./engine/monitoring/docker-compose.monitoring.yml

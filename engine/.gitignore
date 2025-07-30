@@ -38,3 +38,6 @@ out/
 /upload-image-dir/
 /temp-image-dir/
 /native/cmake-build-debug/
+
+# Ignore Gradle build output directory
+build

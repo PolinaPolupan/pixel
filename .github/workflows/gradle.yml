@@ -17,7 +17,7 @@ jobs:
   build:
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./engine
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,12 +34,6 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-
-    - name: Update
-      run: sudo apt update
-      
-    - name: Install OpenCV
-      run: sudo apt install libopencv-dev -y
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
@@ -58,7 +52,7 @@ jobs:
   dependency-submission:
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./engine
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -76,4 +70,4 @@ jobs:
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
       with:
-        build-root-directory: backend
+        build-root-directory: engine
