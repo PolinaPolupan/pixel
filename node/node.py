@@ -1,28 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
+
+NODE_REGISTRY = {}
 
 class Node(ABC):
-    def __init__(self, id: int, type: str, inputs: Optional[Dict[str, Any]] = None):
-        self._id = id
-        self.scene_id: Optional[int] = None
-        self.task_id: Optional[int] = None
-        self._type = type
-        self.inputs: Dict[str, Any] = inputs or {}
-
-    @property
-    def id(self) -> int:
-        return self._id
+    node_type = None
 
     @property
     def type(self) -> str:
-        return self._type
+        return self.__class__.node_type
 
     @abstractmethod
     def get_input_types(self) -> Dict[str, Any]:
-        pass
-
-    @abstractmethod
-    def get_default_inputs(self) -> Dict[str, Any]:
         pass
 
     @abstractmethod
@@ -34,9 +23,21 @@ class Node(ABC):
         pass
 
     @abstractmethod
-    def exec(self) -> Dict[str, Any]:
+    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         pass
 
     @abstractmethod
-    def validate(self) -> None:
+    def validate(self, inputs: Dict[str, Any]) -> None:
         pass
+
+def get_node_class(node_type: str) -> Optional[Type[Node]]:
+    return NODE_REGISTRY.get(node_type)
+
+def register_node_class(cls):
+    if hasattr(cls, 'node_type') and cls.node_type is not None:
+        NODE_REGISTRY[cls.node_type] = cls
+    else:
+        cls.node_type = cls.__name__
+        NODE_REGISTRY[cls.node_type] = cls
+
+    return cls

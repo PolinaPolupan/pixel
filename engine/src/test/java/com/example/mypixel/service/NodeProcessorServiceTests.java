@@ -179,7 +179,7 @@ class NodeProcessorServiceTests {
 
     @Test
     void resolveInputs_shouldHandleEmptyInputs() {
-        inputs.clear();  // Ensure inputs is empty
+        inputs.clear();
 
         nodeProcessorService.processNodeInternal(node);
 

@@ -43,11 +43,20 @@ public class NodeProcessorService {
     public void processNodeInternal(Node node) {
         log.debug("Started node: {}", node.getId());
 
+        Map<String, Object> data = new HashMap<>();
         Map<String, Object> resolvedInputs = resolveInputs(node);
+        Map<String, Object> meta = Map.of(
+                "id", node.getId(),
+                "type", node.getType(),
+                "sceneId", node.getSceneId(),
+                "taskId", node.getTaskId()
+        );
+        data.put("meta", meta);
+        data.put("inputs", resolvedInputs);
         node.setInputs(resolvedInputs);
 
         try {
-            String inputJson = objectMapper.writeValueAsString(resolvedInputs);
+            String inputJson = objectMapper.writeValueAsString(data);
             RestTemplate restTemplate = new RestTemplate();
             PythonNodeTester tester = new PythonNodeTester(restTemplate, "http://node:8000/validate");
             String response = tester.sendJsonToPython(inputJson);
@@ -66,7 +75,7 @@ public class NodeProcessorService {
         Map<String, Object> outputs = node.exec();
 
         try {
-            String outputJson = objectMapper.writeValueAsString(outputs);
+            String outputJson = objectMapper.writeValueAsString(data);
             RestTemplate restTemplate = new RestTemplate();
             PythonNodeTester tester = new PythonNodeTester(restTemplate, "http://node:8000/exec");
             String response = tester.sendJsonToPython(outputJson);
@@ -97,7 +106,7 @@ public class NodeProcessorService {
             input = resolveReference((NodeReference) input, node.getTaskId());
         }
         // Cast to required type
-        input = typeConverterRegistry.convert(input, requiredType, node) ;
+        input = typeConverterRegistry.convert(input, requiredType, node);
 
         return input;
     }

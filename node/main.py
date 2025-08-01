@@ -1,26 +1,90 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from test_node import node_from_json
+from node import get_node_class, register_node_class
+from nodes.bilateral_filter_node import BilateralFilterNode
+from nodes.blur_node import BlurNode
+from nodes.box_filter import BoxFilterNode
+from nodes.combine_node import CombineNode
+from nodes.floor_node import FloorNode
+from nodes.gaussian_blur_node import GaussianBlurNode
+from nodes.input_node import InputNode
+from nodes.median_blur import MedianBlurNode
+from nodes.string_node import StringNode
+from nodes.vector2d_node import Vector2DNode
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    register_node_class(BlurNode)
+    register_node_class(GaussianBlurNode)
+    register_node_class(BilateralFilterNode)
+    register_node_class(BoxFilterNode)
+    register_node_class(CombineNode)
+    register_node_class(FloorNode)
+    register_node_class(GaussianBlurNode)
+    register_node_class(InputNode)
+    register_node_class(MedianBlurNode)
+    register_node_class(StringNode)
+    register_node_class(Vector2DNode)
+
+def get_node(data: dict):
+    meta = data.get("meta", {})
+    if not meta:
+        raise ValueError("Meta information is required")
+
+    node_type = meta.get("type")
+    if not node_type:
+        raise ValueError("Node type is required in meta")
+
+    node_class = get_node_class(node_type)
+    if node_class is None:
+        raise ValueError(f"Unknown node type: {node_type}")
+
+    return node_class()
+
 
 @app.post("/validate")
 async def validate(request: Request):
     try:
         data = await request.json()
-        node = node_from_json(data)
-        node.validate()
+
+        inputs = data.get("inputs")
+        node = get_node(data)
+        node.validate(inputs)
+
         return {"status": "ok"}
     except Exception as e:
-        return JSONResponse(content={"status": "not ok", "error": str(e)}, status_code=400)
+        return JSONResponse(
+            content={"status": "not ok", "error": str(e)},
+            status_code=400
+        )
+
 
 @app.post("/exec")
 async def exec_node(request: Request):
     try:
         data = await request.json()
-        node = node_from_json(data)
-        outputs = node.exec()
+
+        inputs = data.get("inputs")
+        node = get_node(data)
+        outputs = node.exec(inputs)
+
+        if "meta" in data:
+            outputs["meta"] = data["meta"]
+
         return outputs
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=400)
+        return JSONResponse(
+            content={"error": str(e)},
+            status_code=400
+        )
+
+@app.get("/info")
+async def info():
+    from node import NODE_REGISTRY
+
+    return {
+        "registered_nodes": list(NODE_REGISTRY.keys())
+    }
