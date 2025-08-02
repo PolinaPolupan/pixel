@@ -5,7 +5,6 @@ import com.example.mypixel.model.Parameter;
 import com.example.mypixel.model.ParameterType;
 import com.example.mypixel.model.ParamsMap;
 import com.example.mypixel.model.Widget;
-import com.example.mypixel.service.FileHelper;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.NonNull;
@@ -127,13 +126,12 @@ public class S3OutputNode extends Node {
 
         try (S3Client s3Client = clientBuilder.build()) {
             for (String file: files) {
-                String filename = FileHelper.extractFilename(file);
                 Map<String, String> metadata = new HashMap<>();
 
                 s3Client.putObject(request ->
                                 request
                                         .bucket(bucket)
-                                        .key(folder + "/" + filename)
+                                        .key(folder + "/" + file)
                                         .metadata(metadata),
                         Path.of(file));
             }

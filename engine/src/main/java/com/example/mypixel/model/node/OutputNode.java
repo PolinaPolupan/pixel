@@ -79,7 +79,7 @@ public class OutputNode extends Node {
         Map<String, Object> outputs = Map.of();
 
         for (String filepath : files) {
-            FileHelper.storeFromTaskToSceneContext(sceneId, filepath, folder, prefix);
+            FileHelper.storeFromWorkspaceToScene(sceneId, filepath, folder, prefix);
         }
 
         return outputs;

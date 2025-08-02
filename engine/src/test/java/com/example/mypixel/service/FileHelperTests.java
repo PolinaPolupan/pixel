@@ -133,7 +133,7 @@ public class FileHelperTests {
             String filepath = "scenes/" + SCENE_ID + "/input/picture.jpg";
             String outputPath = "scenes/" + SCENE_ID + "/picture.jpg";
 
-            String result = FileHelper.storeFromTaskToSceneContext(SCENE_ID, filepath, null, null);
+            String result = FileHelper.storeFromWorkspaceToScene(SCENE_ID, filepath, null, null);
 
             verify(storageService).store(filepath, outputPath);
             assertEquals(outputPath, result);
@@ -146,7 +146,7 @@ public class FileHelperTests {
             String prefix = "edited";
             String outputPath = "scenes/" + SCENE_ID + "/processed/edited_picture.jpg";
 
-            String result = FileHelper.storeFromTaskToSceneContext(SCENE_ID, filepath, folder, prefix);
+            String result = FileHelper.storeFromWorkspaceToScene(SCENE_ID, filepath, folder, prefix);
 
             verify(storageService).store(filepath, outputPath);
             assertEquals(outputPath, result);
@@ -163,7 +163,7 @@ public class FileHelperTests {
             String tempPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename;
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
 
-            String result = FileHelper.storeToTaskContext(TASK_ID, NODE_ID, inputStream, filename);
+            String result = FileHelper.storeToTask(TASK_ID, NODE_ID, inputStream, filename);
 
             verify(storageService).store(inputStream, tempPath);
             assertEquals(tempPath, result);
@@ -179,7 +179,7 @@ public class FileHelperTests {
             String filepath = SCENE_ID + "/input/picture.jpg";
             String dumpPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/picture.jpg";
 
-            String result = FileHelper.storeFromTaskToTaskContext(TASK_ID, NODE_ID, filepath);
+            String result = FileHelper.storeFromWorkspaceToTask(TASK_ID, NODE_ID, filepath);
 
             verify(storageService).store(filepath, dumpPath);
             assertEquals(dumpPath, result);
@@ -190,7 +190,7 @@ public class FileHelperTests {
             String filepath = "tasks/" + "78" + "/" + "768" + "/output/Picture1.png";
             String dumpPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png";
 
-            String result = FileHelper.storeFromTaskToTaskContext(TASK_ID, NODE_ID, filepath);
+            String result = FileHelper.storeFromWorkspaceToTask(TASK_ID, NODE_ID, filepath);
 
             verify(storageService).store(filepath, dumpPath);
             assertEquals(dumpPath, result);
@@ -202,7 +202,7 @@ public class FileHelperTests {
 
             doThrow(RuntimeException.class).when(storageService).store(anyString(), anyString());
 
-            assertThrows(RuntimeException.class, () -> FileHelper.storeFromTaskToTaskContext(TASK_ID, NODE_ID, filepath));
+            assertThrows(RuntimeException.class, () -> FileHelper.storeFromWorkspaceToTask(TASK_ID, NODE_ID, filepath));
         }
     }
 }

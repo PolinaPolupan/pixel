@@ -19,34 +19,34 @@ public class FileHelper {
         FileHelper.storageService = storageService;
     }
 
-    public static String storeFromTaskToSceneContext(Long sceneId, String filepath, String folder, String prefix) {
-        String filename = extractFilename(filepath);
-        String relativePath = extractRelativeWorkspacePath(filepath);
+    public static String storeFromWorkspaceToScene(Long sceneId, String source, String folder, String prefix) {
+        String filename = extractFilename(source);
+        String relativePath = extractRelativeWorkspacePath(source);
 
-        if (prefix != null && !prefix.isBlank()) filename = addPrefixToFilename(filepath, prefix);
+        if (prefix != null && !prefix.isBlank()) filename = addPrefixToFilename(source, prefix);
         if (folder != null) relativePath = folder + "/" + relativePath;
 
-        storageService.store(filepath, getSceneContext(sceneId) + relativePath + filename);
+        String target = getSceneContext(sceneId) + relativePath + filename;
 
-        return getSceneContext(sceneId) + relativePath + filename;
+        storageService.store(source, target);
+
+        return target;
     }
 
-    public static String storeToTaskContext(Long taskId, Long nodeId, InputStream in, String filepath) {
-        String path = getTaskContext(taskId, nodeId) + extractPath(filepath);
+    public static String storeToTask(Long taskId, Long nodeId, InputStream in, String target) {
+        String path = getTaskContext(taskId, nodeId) + target;
 
-        storageService.store(in, path + extractFilename(filepath));
+        storageService.store(in, path);
 
-        return path + extractFilename(filepath);
+        return path;
     }
 
-    public static String storeFromTaskToTaskContext(Long taskId, Long nodeId, String filepath) {
-        String actualFilename = extractFilename(filepath);
-        String outputPath = getTaskContext(taskId, nodeId) + extractRelativeWorkspacePath(filepath);
+    public static String storeFromWorkspaceToTask(Long taskId, Long nodeId, String source) {
+        String target = getTaskContext(taskId, nodeId) + extractRelativeWorkspacePath(source) + extractFilename(source);
 
-        String outputFilePath = outputPath + actualFilename;
-        storageService.store(filepath, outputFilePath);
+        storageService.store(source, target);
 
-        return outputFilePath;
+        return target;
     }
 
     private static String getTaskContext(Long taskId, Long nodeId) {

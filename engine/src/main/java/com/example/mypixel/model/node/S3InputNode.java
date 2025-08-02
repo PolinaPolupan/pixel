@@ -134,7 +134,7 @@ public class S3InputNode extends Node {
                 InputStream in = s3Client
                         .getObject(GetObjectRequest.builder().bucket(bucket).key(filename).build());
 
-                files.add(FileHelper.storeToTaskContext(taskId, id, in, filename));
+                files.add(FileHelper.storeToTask(taskId, id, in, filename));
                 try {
                     in.close();
                 } catch (IOException e) {
