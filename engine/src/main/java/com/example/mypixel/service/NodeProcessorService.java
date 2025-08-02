@@ -23,33 +23,31 @@ public class NodeProcessorService {
 
 
     public void processNode(Node node, Long sceneId, Long taskId) {
-        node.setSceneId(sceneId);
-        node.setTaskId(taskId);
 
         Tags nodeTags = Tags.of(
                 "node.id", String.valueOf(node.getId()),
                 "node.type", node.getType(),
-                "scene.id", String.valueOf(node.getSceneId()),
-                "task.id", String.valueOf(node.getTaskId())
+                "scene.id", String.valueOf(sceneId),
+                "task.id", String.valueOf(taskId)
         );
 
         performanceTracker.trackOperation(
                 "node.execution",
                 nodeTags,
-                () -> processNodeInternal(node)
+                () -> processNodeInternal(node, sceneId, taskId)
         );
     }
 
-    public void processNodeInternal(Node node) {
+    public void processNodeInternal(Node node, Long sceneId, Long taskId) {
         log.debug("Started node: {}", node.getId());
 
         Map<String, Object> data = new HashMap<>();
-        Map<String, Object> resolvedInputs = resolveInputs(node);
+        Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
         Map<String, Object> meta = Map.of(
                 "id", node.getId(),
                 "type", node.getType(),
-                "sceneId", node.getSceneId(),
-                "taskId", node.getTaskId()
+                "sceneId", sceneId,
+                "taskId", taskId
         );
         data.put("meta", meta);
         data.put("inputs", resolvedInputs);
@@ -65,8 +63,8 @@ public class NodeProcessorService {
             log.warn("Failed to serialize input JSON for node {}: {}", node.getId(), e.getMessage());
         }
 
-        String outputKey = node.getTaskId() + ":" + node.getId() + ":output";
-        String inputKey = node.getTaskId() + ":" + node.getId() + ":input";
+        String outputKey = taskId + ":" + node.getId() + ":output";
+        String inputKey = taskId + ":" + node.getId() + ":input";
 
         nodeCacheService.put(inputKey, node.getInputs());
 
@@ -95,21 +93,21 @@ public class NodeProcessorService {
     }
 
 
-    private Map<String, Object> resolveInputs(Node node) {
+    private Map<String, Object> resolveInputs(Node node, Long taskId) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputs().keySet()) {
-            resolvedInputs.put(key, resolveInput(node, key));
+            resolvedInputs.put(key, resolveInput(node, taskId, key));
         }
 
         return resolvedInputs;
     }
 
-    private Object resolveInput(Node node, String key) {
+    private Object resolveInput(Node node, Long taskId, String key) {
         Object input = node.getInputs().get(key);
 
         if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, node.getTaskId());
+            input = resolveReference((NodeReference) input, taskId);
         }
 
         return input;
