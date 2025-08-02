@@ -6,8 +6,7 @@ import com.example.mypixel.exception.StorageFileNotFoundException;
 import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.model.TaskStatus;
-import com.example.mypixel.model.node.GaussianBlurNode;
-import com.example.mypixel.model.node.Node;
+import com.example.mypixel.model.Node;
 import com.example.mypixel.util.TestFileUtils;
 import com.example.mypixel.util.TestGraphFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,9 +48,6 @@ public class GraphServiceIntegrationTests {
 
     @MockitoSpyBean
     private NotificationService notificationService;
-
-    @MockitoSpyBean
-    private TypeConverterRegistry typeConverterRegistry;
 
     private final Long sceneId = 1L;
 

@@ -1,8 +1,6 @@
 package com.example.mypixel.model;
 
 import com.example.mypixel.exception.InvalidGraph;
-import com.example.mypixel.exception.InvalidNodeParameter;
-import com.example.mypixel.model.node.Node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -32,7 +30,6 @@ public class Graph {
         // Then process the nodes
         for (Node node: nodes) {
             mapOutputNodes(node);
-            validateNodeInputs(node);
         }
 
         buildTopologicalOrder();
@@ -55,50 +52,6 @@ public class Graph {
             }
         }
         nodeOutputs.put(node, dependentNodes);
-    }
-
-    private void validateNodeInputs(Node node) {
-        for (String paramName: node.getInputTypes().keySet()) {
-            // If the user's inputs don't contain one of the parameters
-            if (!node.getInputs().containsKey(paramName)) {
-                // If it is required - throw an exception
-                if (node.getInputTypes().get(paramName).isRequired()) {
-                    throw new InvalidNodeParameter("Required input " + paramName
-                            + " is not provided for the node with id " + node.getId());
-                }
-            }
-
-            validateParameterValue(node, paramName);
-        }
-    }
-
-    private void validateParameterValue(Node node, String paramName) {
-        Object paramValue = node.getInputs().get(paramName);
-        ParameterType parameterType = node.getInputTypes().get(paramName).getType();
-
-        if (paramValue instanceof NodeReference) {
-            validateNodeReference((NodeReference) paramValue);
-        }
-
-        if (paramValue instanceof Number) {
-            overflowCheck((Number) paramValue, parameterType);
-        }
-    }
-
-    private void validateNodeReference(NodeReference reference) {
-        Long targetNodeId = reference.getNodeId();
-        String targetOutputName = reference.getOutputName();
-
-        if (!nodeMap.containsKey(targetNodeId)) {
-            throw new InvalidNodeParameter("Invalid node reference: Node with id " +
-                    targetNodeId + " is not found. Please ensure the node id is correct.");
-        }
-
-        if (!nodeMap.get(targetNodeId).getOutputTypes().containsKey(targetOutputName)) {
-            throw new InvalidNodeParameter("Invalid node reference: Node with id "
-                    + targetNodeId + " does not contain output '" + targetOutputName
-                    + "'. Available outputs are: " + nodeMap.get(targetNodeId).getOutputTypes().keySet());
-        }
     }
 
     private void verifyGraphIntegrity() {
@@ -158,38 +111,6 @@ public class Graph {
                 inDegreeMap.put(dependent.getId(), inDegree);
                 if (inDegree == 0) {
                     zeroInDegreeNodes.add(nodeMap.get(dependent.getId()));
-                }
-            }
-        }
-    }
-
-    private void overflowCheck(Number value, ParameterType type) {
-        double doubleValue = value.doubleValue();
-        String originalValue = value.toString();
-
-        switch (type) {
-            case INT -> {
-                if (doubleValue > Integer.MAX_VALUE || doubleValue < Integer.MIN_VALUE) {
-                    throw new InvalidNodeParameter(
-                            String.format("Value %s exceeds integer range [%d, %d]",
-                                    originalValue, Integer.MIN_VALUE, Integer.MAX_VALUE)
-                    );
-                }
-            }
-            case FLOAT -> {
-                if (doubleValue > Float.MAX_VALUE || doubleValue < -Float.MAX_VALUE) {
-                    throw new InvalidNodeParameter(
-                            String.format("Value %s exceeds float range [%s, %s]",
-                                    originalValue, -Float.MAX_VALUE, Float.MAX_VALUE)
-                    );
-                }
-            }
-            case DOUBLE -> {
-                if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
-                    throw new InvalidNodeParameter(
-                            String.format("Value %s is too large or not a valid number for double representation",
-                                    originalValue)
-                    );
                 }
             }
         }

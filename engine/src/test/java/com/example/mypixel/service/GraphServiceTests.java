@@ -4,7 +4,7 @@ import com.example.mypixel.model.Graph;
 import com.example.mypixel.model.Task;
 import com.example.mypixel.model.TaskPayload;
 import com.example.mypixel.model.TaskStatus;
-import com.example.mypixel.model.node.Node;
+import com.example.mypixel.model.Node;
 import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;

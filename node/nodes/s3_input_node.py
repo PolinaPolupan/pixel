@@ -115,7 +115,15 @@ class S3InputNode(Node):
 
                     os.remove(temp_file_path)
 
-        return {"files": files}
+        task_id = inputs.get("meta", {}).get("taskId")
+        node_id = inputs.get("meta", {}).get("nodeId")
+
+        output_files = []
+
+        for file in files:
+            output_files.append(StorageClient.store_from_workspace_to_task(task_id, node_id, file))
+
+        return {"files": output_files}
 
     def validate(self, inputs: Dict[str, Any]) -> None:
         if not inputs.get("access_key_id", ""):

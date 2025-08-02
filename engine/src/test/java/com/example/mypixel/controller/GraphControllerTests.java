@@ -4,7 +4,7 @@
 //import com.example.mypixel.model.Graph;
 //import com.example.mypixel.model.node.GaussianBlurNode;
 //import com.example.mypixel.model.node.InputNode;
-//import com.example.mypixel.model.node.Node;
+//import com.example.mypixel.model.Node;
 //import com.example.mypixel.NodeType;
 //import com.example.mypixel.model.node.OutputNode;
 //import com.example.mypixel.service.GraphService;

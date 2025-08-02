@@ -2,7 +2,6 @@ package com.example.mypixel.model;
 
 import com.example.mypixel.exception.InvalidGraph;
 import com.example.mypixel.exception.InvalidNodeParameter;
-import com.example.mypixel.model.node.*;
 import com.example.mypixel.util.TestGraphFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

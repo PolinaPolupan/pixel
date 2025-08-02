@@ -92,9 +92,6 @@ async def exec_node(request: Request):
         node = get_node(data)
         outputs = node.exec(inputs)
 
-        if "meta" in data:
-            outputs["meta"] = data["meta"]
-
         return outputs
     except Exception as e:
         return JSONResponse(

@@ -1,9 +1,7 @@
 package com.example.mypixel.service;
 
 import com.example.mypixel.model.NodeReference;
-import com.example.mypixel.model.Parameter;
-import com.example.mypixel.model.ParameterType;
-import com.example.mypixel.model.node.Node;
+import com.example.mypixel.model.Node;
 import io.micrometer.core.instrument.Tags;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,9 +32,6 @@ class NodeProcessorServiceTests {
     private PerformanceTracker performanceTracker;
 
     @Mock
-    private TypeConverterRegistry typeConverterRegistry;
-
-    @Mock
     private Node node;
 
     @InjectMocks
@@ -63,8 +58,6 @@ class NodeProcessorServiceTests {
         when(node.getSceneId()).thenReturn(sceneId);
         when(node.getType()).thenReturn("testNode");
         when(node.getInputs()).thenReturn(inputs);
-        when(node.getInputTypes()).thenReturn(inputTypes);
-        when(node.exec()).thenReturn(outputs);
     }
 
     @Test
@@ -87,16 +80,11 @@ class NodeProcessorServiceTests {
                 )),
                 any(Runnable.class)
         );
-
-        verify(node).exec();
     }
 
     @Test
     void processNodeInternal_shouldResolveInputsValidateAndExecute() {
         nodeProcessorService.processNodeInternal(node);
-
-        verify(node).validate();
-        verify(node).exec();
     }
 
     @Test
@@ -145,9 +133,6 @@ class NodeProcessorServiceTests {
 
         when(node.getId()).thenReturn(10L);
 
-        when(typeConverterRegistry.convert(any(), any(), any()))
-                .thenThrow(new ClassCastException("Cannot cast String to Integer"));
-
         ClassCastException exception = assertThrows(ClassCastException.class, () ->
                 nodeProcessorService.processNodeInternal(node));
 
@@ -156,18 +141,15 @@ class NodeProcessorServiceTests {
 
     @Test
     void processNodeInternal_shouldHandleValidationFailure() {
-        doThrow(new RuntimeException("Validation failed")).when(node).validate();
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 nodeProcessorService.processNodeInternal(node));
 
         assertEquals("Validation failed", exception.getMessage());
-        verify(node, never()).exec();
     }
 
     @Test
     void processNodeInternal_shouldHandleExecutionFailure() {
-        when(node.exec()).thenThrow(new RuntimeException("Execution failed"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
                 nodeProcessorService.processNodeInternal(node));
@@ -187,7 +169,6 @@ class NodeProcessorServiceTests {
         Map<String, Object> resolvedInputs = inputsCaptor.getValue();
 
         assertTrue(resolvedInputs.isEmpty());
-        verify(typeConverterRegistry, never()).convert(any(), any(), any());
     }
 
     @Test
@@ -199,6 +180,5 @@ class NodeProcessorServiceTests {
                 nodeProcessorService.processNode(node, sceneId, taskId));
 
         assertEquals("Tracker failed", exception.getMessage());
-        verify(node, never()).exec();
     }
 }

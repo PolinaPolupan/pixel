@@ -1,10 +1,7 @@
-package com.example.mypixel.model.node;
+package com.example.mypixel.model;
 
-import com.example.mypixel.model.InputDeserializer;
-import com.example.mypixel.model.Parameter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -16,7 +13,6 @@ import java.util.Map;
 
 @Slf4j
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
 public abstract class Node {
 
     @NonNull
@@ -43,16 +39,4 @@ public abstract class Node {
         this.type = type;
         this.inputs = inputs;
     }
-
-    public abstract Map<String, Parameter> getInputTypes();
-
-    public abstract Map<String, Object> getDefaultInputs();
-
-    public abstract Map<String, Parameter> getOutputTypes();
-
-    public abstract Map<String, String> getDisplayInfo();
-
-    public abstract Map<String, Object> exec();
-
-    public abstract void validate();
 }

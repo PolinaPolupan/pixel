@@ -1,5 +1,6 @@
 from typing import Dict, Any
 from node import Node
+from storage_client import StorageClient
 
 
 class CombineNode(Node):
@@ -68,7 +69,15 @@ class CombineNode(Node):
                     file_set = set(file_set) if isinstance(file_set, (list, tuple)) else set()
                 files.update(file_set)
 
-        return {"files": files}
+        task_id = inputs.get("meta", {}).get("taskId")
+        node_id = inputs.get("meta", {}).get("nodeId")
+
+        output_files = []
+
+        for file in files:
+            output_files.append(StorageClient.store_from_workspace_to_task(task_id, node_id, file))
+
+        return {"files": output_files}
 
     def validate(self, inputs: Dict[str, Any]) -> None:
         pass

@@ -1,7 +1,8 @@
 package com.example.mypixel.service;
 
 import com.example.mypixel.model.*;
-import com.example.mypixel.model.node.Node;
+import com.example.mypixel.model.Node;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,6 @@ public class NodeProcessorService {
 
     private final NodeCacheService nodeCacheService;
     private final PerformanceTracker performanceTracker;
-    private final TypeConverterRegistry typeConverterRegistry;
     private final ObjectMapper objectMapper;
 
 
@@ -65,23 +65,30 @@ public class NodeProcessorService {
             log.warn("Failed to serialize input JSON for node {}: {}", node.getId(), e.getMessage());
         }
 
-        node.validate();
-
         String outputKey = node.getTaskId() + ":" + node.getId() + ":output";
         String inputKey = node.getTaskId() + ":" + node.getId() + ":input";
 
         nodeCacheService.put(inputKey, node.getInputs());
 
-        Map<String, Object> outputs = node.exec();
+        Map<String, Object> outputs = Map.of();
 
         try {
             String outputJson = objectMapper.writeValueAsString(data);
+
             RestTemplate restTemplate = new RestTemplate();
             PythonNodeTester tester = new PythonNodeTester(restTemplate, "http://node:8000/exec");
             String response = tester.sendJsonToPython(outputJson);
+
             log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), outputJson, response);
+
+            TypeReference<Map<String, Object>> typeRef = new TypeReference<>() {};
+            Map<String, Object> responseMap = objectMapper.readValue(response, typeRef);
+            outputs = responseMap;
+
+            log.info("Deserialized response: {}", responseMap);
+
         } catch (Exception e) {
-            log.warn("Failed to serialize output JSON for node {}: {}", node.getId(), e.getMessage());
+            log.warn("Failed to process JSON for node {}: {}", node.getId(), e.getMessage());
         }
 
         nodeCacheService.put(outputKey, outputs);
@@ -100,13 +107,10 @@ public class NodeProcessorService {
 
     private Object resolveInput(Node node, String key) {
         Object input = node.getInputs().get(key);
-        Parameter requiredType = node.getInputTypes().get(key);
 
         if (input instanceof NodeReference) {
             input = resolveReference((NodeReference) input, node.getTaskId());
         }
-        // Cast to required type
-        input = typeConverterRegistry.convert(input, requiredType, node);
 
         return input;
     }
