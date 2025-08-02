@@ -76,11 +76,11 @@ public class GraphServiceIntegrationTests {
 
         verify(taskService).createTask(graph, sceneId);
 
-        assertTrue(storageService.loadAll("scenes/" + sceneId + "/output").toArray().length > 0);
+        assertTrue(storageService.loadAll("scenes/" + sceneId).toArray().length > 0);
         assertTrue(storageService.loadAsResource("scenes/" +
-                sceneId + "/output/processed/filtered_result_Picture1.png").exists());
+                sceneId + "/processed/filtered_result_Picture1.png").exists());
         assertTrue(storageService.loadAsResource("scenes/" +
-                sceneId + "/output/processed/filtered_result_Picture3.png").exists());
+                sceneId + "/processed/filtered_result_Picture3.png").exists());
 
         verify(nodeProcessorService, times(nodeCount)).processNode(any(), eq(sceneId), eq(completedTask.getId()));
         verify(notificationService, times(nodeCount + 1)).sendTaskStatus(any());

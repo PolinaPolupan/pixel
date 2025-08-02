@@ -113,7 +113,7 @@ public class ImageUploadController {
             switch (Objects.requireNonNull(contentType)) {
                 case "image/jpeg", "image/png": {
                     storageService.store(file, basePath + file.getOriginalFilename());
-                    locations.add(storageService.load(basePath + file.getOriginalFilename()).toString());
+                    locations.add(basePath + file.getOriginalFilename());
                     break;
                 }
                 case "application/zip", "application/x-zip-compressed": {
@@ -129,7 +129,7 @@ public class ImageUploadController {
                     for (ZipEntry entry; (entry = inputStream.getNextEntry()) != null; ) {
                         Path entryPath = Path.of(entry.getName());
                         if (entry.isDirectory()) {
-                            storageService.createFolder( basePath+ zipFolderName + "/" + entry.getName());
+                            storageService.createFolder( basePath + zipFolderName + "/" + entry.getName());
                         } else {
                             if (entryPath.getParent() != null) {
                                 storageService.createFolder(basePath + zipFolderName + "/" + entryPath.getParent());
@@ -139,7 +139,7 @@ public class ImageUploadController {
                                 log.warn("Couldn't process file {}. Only JPEG, PNG and ZIP files are allowed", entry.getName());
                             } else {
                                 storageService.store(inputStream, basePath + zipFolderName + "/" + entry.getName());
-                                locations.add(storageService.load(basePath + zipFolderName + "/" + entry.getName()).toString());
+                                locations.add(basePath + zipFolderName + "/" + entry.getName());
                             }
                         }
                     }

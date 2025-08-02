@@ -1,16 +1,9 @@
 package com.example.mypixel.service;
 
-import com.example.mypixel.exception.StorageException;
 import com.google.common.base.Splitter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,91 +19,42 @@ public class FileHelper {
         FileHelper.storageService = storageService;
     }
 
-    public static File createTempJson(Long taskId, Long nodeId) {
-        String path = "tasks/" + taskId + "/" + nodeId;
-
-        if (!storageService.folderExists(path)) {
-            storageService.createFolder(path);
-        }
-
-        return new File(storageService.getRootLocation() + "/" + path + "/temp.json");
-    }
-
-    public static void storeFile(Long sceneId, String filepath, String content) {
-        String path = "scenes/" + sceneId + "/" + extractPath(filepath);
-
-        if (!storageService.folderExists(path)) {
-            storageService.createFolder(path);
-        }
-
-        String fullPath = storageService.getRootLocation() + "/" + path + "/" + extractFilename(filepath);
-
-        try {
-            Files.write(Paths.get(fullPath), content.getBytes(),
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            log.error("Error writing to file: {}", e.getMessage());
-        }
-    }
-
-    public static String storeToOutput(Long sceneId, String filepath, String folder, String prefix) {
+    public static String storeFromTaskToSceneContext(Long sceneId, String filepath, String folder, String prefix) {
         String filename = extractFilename(filepath);
         String relativePath = extractRelativeWorkspacePath(filepath);
 
-        if (prefix != null && !prefix.isBlank()) {
-            filename = addPrefixToFilename(filepath, prefix);
-        }
-        if (folder != null) {
-            relativePath = folder + "/" + relativePath;
-        }
+        if (prefix != null && !prefix.isBlank()) filename = addPrefixToFilename(filepath, prefix);
+        if (folder != null) relativePath = folder + "/" + relativePath;
 
-        if (!storageService.folderExists("scenes/" + sceneId + "/output/" + relativePath)) {
-            storageService.createFolder("scenes/" + sceneId + "/output/" + relativePath);
-        }
+        storageService.store(filepath, getSceneContext(sceneId) + relativePath + filename);
 
-        String fullInputPath = storageService.getRootLocation().relativize(Paths.get(filepath)).toString();
-
-        storageService.store(storageService.loadAsResource(fullInputPath),
-                "scenes/" + sceneId + "/output/" + relativePath + filename);
-
-        return getFullPath("scenes/" + sceneId + "/output/" + relativePath + filename);
+        return getSceneContext(sceneId) + relativePath + filename;
     }
 
-    public static String storeToTemp(Long taskId, Long nodeId, InputStream in, String filepath) {
-        String path = "tasks/" + taskId + "/" + nodeId + "/" + extractPath(filepath);
-
-        if (!storageService.folderExists(path)) {
-            storageService.createFolder(path);
-        }
+    public static String storeToTaskContext(Long taskId, Long nodeId, InputStream in, String filepath) {
+        String path = getTaskContext(taskId, nodeId) + extractPath(filepath);
 
         storageService.store(in, path + extractFilename(filepath));
 
-        return getFullPath(path + extractFilename(filepath));
+        return path + extractFilename(filepath);
     }
 
-    public static String getFullPath(String filepath) {
-        return storageService.load(filepath).toString();
-    }
-
-    public static String createDump(Long taskId, Long nodeId, String filepath) {
+    public static String storeFromTaskToTaskContext(Long taskId, Long nodeId, String filepath) {
         String actualFilename = extractFilename(filepath);
-        String outputPath = "tasks/" + taskId + "/" + nodeId + "/" + extractRelativeWorkspacePath(filepath);
+        String outputPath = getTaskContext(taskId, nodeId) + extractRelativeWorkspacePath(filepath);
 
-        if (!storageService.folderExists(outputPath)) {
-            storageService.createFolder(outputPath);
-        }
+        String outputFilePath = outputPath + actualFilename;
+        storageService.store(filepath, outputFilePath);
 
-        String fullInputPath = storageService.getRootLocation().relativize(Paths.get(filepath)).toString();
+        return outputFilePath;
+    }
 
-        Resource resource = storageService.loadAsResource(fullInputPath);
-        if (resource != null) {
-            String outputFilePath = outputPath + actualFilename;
-            storageService.store(resource, outputFilePath);
+    private static String getTaskContext(Long taskId, Long nodeId) {
+        return  "tasks/" + taskId + "/" + nodeId + "/";
+    }
 
-            return getFullPath(outputFilePath);
-        }
-
-        throw new StorageException("Failed to create dump file: Input resource is null for " + fullInputPath);
+    private static String getSceneContext(Long sceneId) {
+        return  "scenes/" + sceneId + "/";
     }
 
     public static String extractFilename(String path) {

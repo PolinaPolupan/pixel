@@ -86,19 +86,19 @@ public class GraphIntegrationTest {
                 .pollInterval(1, TimeUnit.SECONDS)
                 .until(() -> {
                     try {
-                        return TestcontainersExtension.doesObjectExistInS3("output/Picture1.png")
-                                && TestcontainersExtension.doesObjectExistInS3("output/Picture3.png")
-                                && storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture1.png").exists()
-                                && storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture3.png").exists();
+                        return TestcontainersExtension.doesObjectExistInS3("Picture1.png")
+                                && TestcontainersExtension.doesObjectExistInS3("Picture3.png")
+                                && storageService.loadAsResource("scenes/" + sceneId + "/output_1/output1_Picture1.png").exists()
+                                && storageService.loadAsResource("scenes/" + sceneId + "/output_1/output1_Picture3.png").exists();
                     } catch (Exception e) {
                         return false;
                     }
                 });
 
-        assertTrue(TestcontainersExtension.doesObjectExistInS3("output/Picture1.png"));
-        assertTrue(TestcontainersExtension.doesObjectExistInS3("output/Picture3.png"));
-        assertTrue(storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture1.png").exists());
-        assertTrue(storageService.loadAsResource("scenes/" + sceneId + "/output/output_1/output1_Picture3.png").exists());
+        assertTrue(TestcontainersExtension.doesObjectExistInS3("Picture1.png"));
+        assertTrue(TestcontainersExtension.doesObjectExistInS3("Picture3.png"));
+        assertTrue(storageService.loadAsResource("scenes/" + sceneId + "/output_1/output1_Picture1.png").exists());
+        assertTrue(storageService.loadAsResource("scenes/" + sceneId + "/output_1/output1_Picture3.png").exists());
     }
 
     @Test

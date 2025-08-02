@@ -91,7 +91,7 @@ public class TypeConverterRegistry {
                     collection,
                     item -> {
                         if (item instanceof String file) {
-                            files.add(FileHelper.createDump(node.getTaskId(), node.getId(), file));
+                            files.add(FileHelper.storeFromTaskToTaskContext(node.getTaskId(), node.getId(), file));
                         } else {
                             throw new InvalidNodeParameter(
                                     "Invalid file path: expected String but got " +

@@ -32,15 +32,4 @@ public class BatchProcessor {
         CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allOf.join();
     }
-
-    public <T> void processBatchesList(Collection<T> input, Consumer<List<T>> itemProcessor) {
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-
-        Iterators.partition(input.iterator(), batchSize)
-                .forEachRemaining(batch -> futures.add(CompletableFuture.runAsync(() ->
-                                itemProcessor.accept(batch), graphTaskExecutor)));
-
-        CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allOf.join();
-    }
 }

@@ -82,6 +82,9 @@ public class TempStorageService implements StorageService {
             throw new StorageException("Filename cannot be empty");
         }
 
+        String path = extractPath(filename);
+        this.createFolder(path);
+
         try {
             Path destinationFile = resolveAndValidatePath(filename);
             copyToDestination(inputStream, destinationFile, filename);
@@ -89,6 +92,11 @@ public class TempStorageService implements StorageService {
             log.error("Failed to store file: {}. Error: {}", filename, e.getMessage(), e);
             throw new StorageException("Failed to store file.", e);
         }
+    }
+
+    @Override
+    public synchronized void store(String source, String target) {
+        store(this.loadAsResource(source), target);
     }
 
     private Path resolveAndValidatePath(String filename) {
@@ -189,9 +197,16 @@ public class TempStorageService implements StorageService {
         }
     }
 
-    @Override
-    public synchronized boolean folderExists(String name) {
-        Path scenePath = Paths.get(String.valueOf(rootLocation), name);
-        return Files.exists(scenePath) && Files.isDirectory(scenePath);
+    public static String extractPath(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+
+        int lastSlashIndex = path.lastIndexOf('/');
+        if (lastSlashIndex >= 0 && lastSlashIndex < path.length() - 1) {
+            return path.substring(0, lastSlashIndex + 1);
+        }
+
+        return "";
     }
 }

@@ -15,8 +15,6 @@ public interface StorageService {
 
     void createFolder(String name);
 
-    boolean folderExists(String name);
-
     void store(MultipartFile file);
 
     void store(MultipartFile file, String filename);
@@ -24,6 +22,8 @@ public interface StorageService {
     void store(Resource file, String filename);
 
     void store(InputStream inputStream, String filename);
+
+    void store(String source, String target);
 
     Stream<Path> loadAll(String relativePath);
 

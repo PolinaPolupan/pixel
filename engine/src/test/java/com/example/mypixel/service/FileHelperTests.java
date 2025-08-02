@@ -3,7 +3,6 @@ package com.example.mypixel.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.example.mypixel.exception.StorageException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,21 +13,16 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 
 @ExtendWith(MockitoExtension.class)
 public class FileHelperTests {
 
     @Mock
     private StorageService storageService;
-
-    @Mock
-    private Resource resource;
 
     private static final Long SCENE_ID = 123L;
     private static final Long TASK_ID = 123L;
@@ -136,58 +130,26 @@ public class FileHelperTests {
 
         @Test
         void shouldStoreFileToOutputWithoutFolderOrPrefix() {
-            String filepath = "/root/path/scenes/" + SCENE_ID + "/input/picture.jpg";
-            Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scenes/" + SCENE_ID + "/input/picture.jpg");
-            Path outputPath = Paths.get("/root/path/scenes/" + SCENE_ID + "/output/picture.jpg");
+            String filepath = "scenes/" + SCENE_ID + "/input/picture.jpg";
+            String outputPath = "scenes/" + SCENE_ID + "/picture.jpg";
 
-            when(storageService.getRootLocation()).thenReturn(rootPath);
-            when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
-            when(storageService.load("scenes/" + SCENE_ID + "/output/picture.jpg")).thenReturn(outputPath);
+            String result = FileHelper.storeFromTaskToSceneContext(SCENE_ID, filepath, null, null);
 
-            String result = FileHelper.storeToOutput(SCENE_ID, filepath, null, null);
-
-            verify(storageService).store(resource, "scenes/" + SCENE_ID + "/output/picture.jpg");
-            assertEquals(outputPath.toString(), result);
+            verify(storageService).store(filepath, outputPath);
+            assertEquals(outputPath, result);
         }
 
         @Test
         void shouldStoreFileToOutputWithFolderAndPrefix() {
-            String filepath = "/root/path/scenes/123/input/picture.jpg";
+            String filepath = "scenes/" + SCENE_ID + "/input/picture.jpg";
             String folder = "processed";
             String prefix = "edited";
-            Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scenes/123/input/picture.jpg");
-            Path outputPath = Paths.get("/root/path/scenes/123/output/processed/edited_picture.jpg");
+            String outputPath = "scenes/" + SCENE_ID + "/processed/edited_picture.jpg";
 
-            when(storageService.getRootLocation()).thenReturn(rootPath);
-            when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
-            when(storageService.folderExists("scenes/" + SCENE_ID + "/output/" + folder + "/")).thenReturn(false);
-            when(storageService.load("scenes/" + SCENE_ID + "/output/" + folder + "/edited_picture.jpg")).thenReturn(outputPath);
+            String result = FileHelper.storeFromTaskToSceneContext(SCENE_ID, filepath, folder, prefix);
 
-            String result = FileHelper.storeToOutput(SCENE_ID, filepath, folder, prefix);
-
-            verify(storageService).createFolder("scenes/" + SCENE_ID + "/output/" + folder + "/");
-            verify(storageService).store(resource, "scenes/" + SCENE_ID + "/output/" + folder + "/edited_picture.jpg");
-            assertEquals(outputPath.toString(), result);
-        }
-
-        @Test
-        void shouldNotCreateFolderIfItAlreadyExists() {
-            String filepath = "/root/path/scenes/123/input/picture.jpg";
-            String folder = "processed";
-            Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("scenes/123/input/picture.jpg");
-            Path outputPath = Paths.get("/root/path/scenes/123/output/processed/picture.jpg");
-
-            when(storageService.getRootLocation()).thenReturn(rootPath);
-            when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
-            when(storageService.folderExists("scenes/" + SCENE_ID + "/output/" + folder + "/")).thenReturn(true);
-            when(storageService.load("scenes/" + SCENE_ID + "/output/" + folder + "/picture.jpg")).thenReturn(outputPath);
-
-            FileHelper.storeToOutput(SCENE_ID, filepath, folder, null);
-
-            verify(storageService, never()).createFolder(anyString());
+            verify(storageService).store(filepath, outputPath);
+            assertEquals(outputPath, result);
         }
     }
 
@@ -198,31 +160,13 @@ public class FileHelperTests {
         @Test
         void shouldStoreFileToTemp() {
             String filename = "path/temp-file.jpg";
-            Path tempPath = Paths.get("/root/path/tasks/"+ TASK_ID + "/" + NODE_ID + "/" + filename);
+            String tempPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename;
             InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
 
-            when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/path/")).thenReturn(false);
-            when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename)).thenReturn(tempPath);
+            String result = FileHelper.storeToTaskContext(TASK_ID, NODE_ID, inputStream, filename);
 
-            String result = FileHelper.storeToTemp(TASK_ID, NODE_ID, inputStream, filename);
-
-            verify(storageService).createFolder("tasks/" + TASK_ID + "/" + NODE_ID + "/path/");
-            verify(storageService).store(inputStream, "tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename);
-            assertEquals(tempPath.toString(), result);
-        }
-
-        @Test
-        void shouldNotCreateFolderIfItAlreadyExists() {
-            String filename = "temp-file.jpg";
-            Path tempPath = Paths.get("/root/path/tasks" + TASK_ID + "/" + NODE_ID + "/" + filename);
-            InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
-
-            when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/")).thenReturn(true);
-            when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename)).thenReturn(tempPath);
-
-            FileHelper.storeToTemp(TASK_ID, NODE_ID, inputStream, filename);
-
-            verify(storageService, never()).createFolder(anyString());
+            verify(storageService).store(inputStream, tempPath);
+            assertEquals(tempPath, result);
         }
     }
 
@@ -232,66 +176,33 @@ public class FileHelperTests {
 
         @Test
         void shouldCreateDumpFile() {
-            String filepath = "/root/path/123/input/picture.jpg";
-            Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("123/input/picture.jpg");
-            Path dumpPath = Paths.get("/root/path/tasks" + TASK_ID + "/" + NODE_ID + "/picture.jpg");
+            String filepath = SCENE_ID + "/input/picture.jpg";
+            String dumpPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/picture.jpg";
 
-            when(storageService.getRootLocation()).thenReturn(rootPath);
-            when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
-            when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/")).thenReturn(false);
-            when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/picture.jpg")).thenReturn(dumpPath);
+            String result = FileHelper.storeFromTaskToTaskContext(TASK_ID, NODE_ID, filepath);
 
-            String result = FileHelper.createDump(TASK_ID, NODE_ID, filepath);
-
-            verify(storageService).createFolder("tasks/" + TASK_ID + "/" + NODE_ID + "/");
-            verify(storageService).store(resource, "tasks/" + TASK_ID + "/" + NODE_ID + "/picture.jpg");
-            assertEquals(dumpPath.toString(), result);
+            verify(storageService).store(filepath, dumpPath);
+            assertEquals(dumpPath, result);
         }
 
         @Test
         void shouldCreateDumpFromTempFile() {
-            String filepath = "upload-image-dir/tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png";
-            Path rootPath = Paths.get("upload-image-dir/");
-            Path relativePath = Paths.get("tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png");
-            Path dumpPath = Paths.get("tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png");
+            String filepath = "tasks/" + "78" + "/" + "768" + "/output/Picture1.png";
+            String dumpPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png";
 
-            when(storageService.getRootLocation()).thenReturn(rootPath);
-            when(storageService.loadAsResource(relativePath.toString())).thenReturn(resource);
-            when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/output/")).thenReturn(false);
-            when(storageService.load("tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png")).thenReturn(dumpPath);
+            String result = FileHelper.storeFromTaskToTaskContext(TASK_ID, NODE_ID, filepath);
 
-            String result = FileHelper.createDump(TASK_ID, NODE_ID, filepath);
-
-            verify(storageService).createFolder("tasks/" + TASK_ID + "/" + NODE_ID + "/output/");
-            verify(storageService).store(resource, "tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png");
-            assertEquals(dumpPath.toString(), result);
+            verify(storageService).store(filepath, dumpPath);
+            assertEquals(dumpPath, result);
         }
 
         @Test
         void shouldThrowExceptionWhenResourceIsNull() {
             String filepath = "/root/path/tasks/" + TASK_ID + "/" + NODE_ID + "/input/picture.jpg";
-            Path rootPath = Paths.get("/root/path");
-            Path relativePath = Paths.get("tasks/" + TASK_ID + "/" + NODE_ID + "/input/picture.jpg");
 
-            when(storageService.getRootLocation()).thenReturn(rootPath);
-            when(storageService.loadAsResource(relativePath.toString())).thenReturn(null);
-            when(storageService.folderExists("tasks/" + TASK_ID + "/" + NODE_ID + "/input/")).thenReturn(true);
+            doThrow(RuntimeException.class).when(storageService).store(anyString(), anyString());
 
-            assertThrows(StorageException.class, () -> FileHelper.createDump(TASK_ID, NODE_ID, filepath));
+            assertThrows(RuntimeException.class, () -> FileHelper.storeFromTaskToTaskContext(TASK_ID, NODE_ID, filepath));
         }
-    }
-
-    @Test
-    void getFullPathShouldCallStorageServiceLoad() {
-        String filepath = "scene123/input/picture.jpg";
-        Path fullPath = Paths.get("/root/path/123/input/picture.jpg");
-
-        when(storageService.load(filepath)).thenReturn(fullPath);
-
-        String result = FileHelper.getFullPath(filepath);
-
-        verify(storageService).load(filepath);
-        assertEquals(fullPath.toString(), result);
     }
 }

@@ -14,8 +14,8 @@ public class TestGraphFactory {
     public static Graph getDefaultGraph(Long sceneId) {
         Map<String, Object> inputParams = new HashMap<>();
         List<String> files = new ArrayList<>();
-        files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
-        files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
+        files.add("scenes/" + sceneId + "/input/Picture1.png");
+        files.add("scenes/" + sceneId + "/input/Picture3.png");
         inputParams.put("input", files);
 
         Map<String, Object> outputParams = new HashMap<>();
