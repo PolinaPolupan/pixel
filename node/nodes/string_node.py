@@ -32,13 +32,8 @@ class StringNode(Node):
             "icon": "StringIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        value = inputs.get("input", "")
-
-        if not isinstance(value, str):
-            value = str(value)
-
+    def exec(self, value: str) -> Dict[str, Any]:
         return {"output": value}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
+    def validate(self, value: str) -> None:
         pass

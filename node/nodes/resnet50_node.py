@@ -32,17 +32,9 @@ class ResNet50Node(Node):
             "icon": "ResNet50Icon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+    def exec(self, files) -> Dict[str, Any]:
         outputs = {}
-        files = inputs.get("files", set())
-
-        if not isinstance(files, set):
-            files = set(files) if isinstance(files, (list, tuple)) else set()
-
-        # Implement ResNet50 processing logic here
-
         return outputs
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
-        # Add validation logic if needed
+    def validate(self, files) -> None:
         pass

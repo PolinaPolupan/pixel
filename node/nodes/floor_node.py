@@ -34,10 +34,7 @@ class FloorNode(Node):
             "icon": "FloorIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        number = inputs.get("input", 0.0)
-
-
+    def exec(self, number) -> Dict[str, Any]:
         try:
             number = float(number)
         except (TypeError, ValueError):
@@ -45,5 +42,5 @@ class FloorNode(Node):
 
         return {"output": math.floor(number)}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
+    def validate(self, number) -> None:
         pass

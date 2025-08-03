@@ -3,6 +3,7 @@ import boto3
 from typing import Dict, Any
 import logging
 
+from metadata import Metadata
 from node import Node
 
 logger = logging.getLogger(__name__)
@@ -61,76 +62,65 @@ class S3InputNode(Node):
             "icon": "S3Icon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        access_key = inputs.get("access_key_id", "")
-        secret_key = inputs.get("secret_access_key", "")
-        region_name = inputs.get("region", "")
-        bucket = inputs.get("bucket", "")
-        endpoint = inputs.get("endpoint", "")
+    def exec(self, access_key_id, secret_access_key, region, bucket, meta: Metadata, endpoint=None) -> Dict[str, Any]:
+        logger.info(f"S3 configuration - Region: {region}, Bucket: {bucket}")
 
         files = set()
 
         session = boto3.Session(
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_key,
-            region_name=region_name
+            aws_access_key_id=access_key_id,
+            aws_secret_access_key=secret_access_key,
+            region_name=region
         )
 
         s3_config = {}
         if endpoint and endpoint.strip():
             s3_config['endpoint_url'] = endpoint
             s3_config['use_ssl'] = endpoint.startswith('https')
-            s3_config['verify'] = False  # For testing only
 
-        s3_client = session.client('s3', **s3_config)
+        try:
+            s3_client = session.client('s3', **s3_config)
+            response = s3_client.list_objects_v2(Bucket=bucket)
 
-        response = s3_client.list_objects_v2(Bucket=bucket)
-
-        if 'Contents' in response:
-            for obj in response['Contents']:
-                filename = obj['Key']
-                logger.debug(f"Loading file from S3: {filename}")
-
-                response = s3_client.get_object(Bucket=bucket, Key=filename)
-                content = response['Body'].read()
+            if 'Contents' in response:
+                logger.info(f"Found {len(response['Contents'])} objects in bucket")
 
                 from storage_client import StorageClient
 
-                task_id = inputs.get("meta", {}).get("taskId")
-                node_id = inputs.get("meta", {}).get("nodeId")
+                for obj in response['Contents']:
+                    filename = obj['Key']
 
-                if task_id and node_id:
+                    file_response = s3_client.get_object(Bucket=bucket, Key=filename)
+                    content = file_response['Body'].read()
+
                     temp_file_path = f"/tmp/{filename}"
                     with open(temp_file_path, 'wb') as f:
                         f.write(content)
 
                     file_path = StorageClient.store_to_task(
-                        task_id=task_id,
-                        node_id=node_id,
+                        task_id=meta.task_id,
+                        node_id=meta.id,
                         file_path=temp_file_path,
                         target=filename
                     )
-
+                    logger.info(f'Saved {file_path}')
                     files.add(file_path)
-
                     os.remove(temp_file_path)
+            else:
+                logger.info("No files found in bucket")
 
-        task_id = inputs.get("meta", {}).get("taskId")
-        node_id = inputs.get("meta", {}).get("nodeId")
+        except Exception as e:
+            logger.error(f"S3 error: {str(e)}")
+            raise ValueError(f"Failed to connect to S3: {str(e)}")
 
-        output_files = []
+        return {"files": files}
 
-        for file in files:
-            output_files.append(StorageClient.store_from_workspace_to_task(task_id, node_id, file))
-
-        return {"files": output_files}
-
-    def validate(self, inputs: Dict[str, Any]) -> None:
-        if not inputs.get("access_key_id", ""):
+    def validate(self, access_key_id, secret_access_key, region, bucket, meta, endpoint=None) -> None:
+        if not access_key_id:
             raise ValueError("Access key ID cannot be blank.")
-        if not inputs.get("secret_access_key", ""):
+        if not secret_access_key:
             raise ValueError("Secret cannot be blank.")
-        if not inputs.get("region", ""):
+        if not region:
             raise ValueError("Region cannot be blank.")
-        if not inputs.get("bucket", ""):
+        if not bucket:
             raise ValueError("Bucket cannot be blank.")

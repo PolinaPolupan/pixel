@@ -1,4 +1,6 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
+
+from metadata import Metadata
 from node import Node
 from storage_client import StorageClient
 
@@ -40,26 +42,15 @@ class BlurNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        files = inputs.get("files", set())
-        ksize = inputs.get("ksize")
-
-        if not isinstance(files, set):
-            files = set(files) if isinstance(files, (list, tuple)) else set()
-
-        task_id = inputs.get("meta", {}).get("taskId")
-        node_id = inputs.get("meta", {}).get("nodeId")
-
+    def exec(self, files: List[str], ksize, meta: Metadata) -> Dict[str, Any]:
         output_files = []
 
         for file in files:
-            output_files.append(StorageClient.store_from_workspace_to_task(task_id, node_id, file))
+            output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
         return {"files": output_files}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
-        ksize = inputs.get("ksize")
-
+    def validate(self, files: List[str], ksize, meta: Metadata) -> None:
         if isinstance(ksize, dict):
             x = ksize.get("x", 0)
             y = ksize.get("y", 0)

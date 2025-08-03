@@ -33,11 +33,8 @@ class OutputFileNode(Node):
             "icon": "OutputIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        content = inputs.get("content", "")
-        filename = inputs.get("filename", "new.txt")
-
+    def exec(self, content, filename) -> Dict[str, Any]:
         return {}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
+    def validate(self, content, filename) -> None:
         pass

@@ -39,7 +39,7 @@ public class NodeProcessorService {
     }
 
     public void processNodeInternal(Node node, Long sceneId, Long taskId) {
-        log.debug("Started node: {}", node.getId());
+        log.info("Started node: {} Scene: {} Task: {}", node.getId(), sceneId, taskId);
 
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> resolvedInputs = resolveInputs(node, taskId);

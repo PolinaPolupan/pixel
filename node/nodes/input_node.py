@@ -1,4 +1,6 @@
 from typing import Dict, Any
+
+from metadata import Metadata
 from node import Node
 from storage_client import StorageClient
 
@@ -34,21 +36,13 @@ class InputNode(Node):
             "icon": "InputIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        files = inputs.get("input", set())
-
-        if not isinstance(files, set):
-            files = set(files) if isinstance(files, (list, tuple)) else set()
-
-        task_id = inputs.get("meta", {}).get("taskId")
-        node_id = inputs.get("meta", {}).get("nodeId")
-
+    def exec(self, input, meta: Metadata) -> Dict[str, Any]:
         output_files = []
 
-        for file in files:
-            output_files.append(StorageClient.store_from_workspace_to_task(task_id, node_id, file))
+        for file in input:
+            output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
-        return {"files": output_files}
+        return {"output": output_files}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
+    def validate(self, input, meta: Metadata) -> None:
         pass

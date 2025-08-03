@@ -1,3 +1,4 @@
+from numbers import Number
 from typing import Dict, Any
 from node import Node
 from vector2d import Vector2D
@@ -39,25 +40,10 @@ class Vector2DNode(Node):
             "icon": "Vector2DIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        x = inputs.get("x", 0.0)
-        y = inputs.get("y", 0.0)
-
-        if isinstance(x, str):
-            try:
-                x = float(x)
-            except ValueError:
-                pass
-
-        if isinstance(y, str):
-            try:
-                y = float(y)
-            except ValueError:
-                pass
-
+    def exec(self, x: Number=0, y: Number=0) -> Dict[str, Any]:
         vector2d = Vector2D(x, y)
 
         return {"vector2D": vector2d.to_dict()}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
+    def validate(self, x: Number=0, y: Number=0) -> None:
         pass

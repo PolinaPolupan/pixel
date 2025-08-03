@@ -42,7 +42,12 @@ async def startup_event():
     register_node_class(S3OutputNode)
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -73,7 +78,7 @@ async def validate(request: Request):
 
         inputs = data.get("inputs")
         node = get_node(data)
-        node.validate(inputs)
+        node.validate_params(inputs)
 
         return {"status": "ok"}
     except Exception as e:
@@ -88,9 +93,8 @@ async def exec_node(request: Request):
     try:
         data = await request.json()
 
-        inputs = data.get("inputs")
         node = get_node(data)
-        outputs = node.exec(inputs)
+        outputs = node.exec_params(data)
 
         return outputs
     except Exception as e:

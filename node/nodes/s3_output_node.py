@@ -68,22 +68,11 @@ class S3OutputNode(Node):
             "icon": "OutputIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        files = inputs.get("files", set())
-        if not isinstance(files, set):
-            files = set(files) if isinstance(files, (list, tuple)) else set()
-
-        access_key = inputs.get("access_key_id", "")
-        secret_key = inputs.get("secret_access_key", "")
-        region_name = inputs.get("region", "")
-        bucket = inputs.get("bucket", "")
-        endpoint = inputs.get("endpoint", "")
-        folder = inputs.get("folder", "")
-
+    def exec(self, files, access_key_id, secret_access_key, region, bucket, endpoint=None, folder="") -> Dict[str, Any]:
         session = boto3.Session(
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_key,
-            region_name=region_name
+            aws_access_key_id=access_key_id,
+            aws_secret_access_key=secret_access_key,
+            region_name=region
         )
 
         s3_config = {}
@@ -109,12 +98,12 @@ class S3OutputNode(Node):
 
         return {}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
-        if not inputs.get("access_key_id", ""):
+    def validate(self, files, access_key_id, secret_access_key, region, bucket, endpoint=None) -> None:
+        if not access_key_id:
             raise ValueError("Access key ID cannot be blank.")
-        if not inputs.get("secret_access_key", ""):
+        if not secret_access_key:
             raise ValueError("Secret cannot be blank.")
-        if not inputs.get("region", ""):
+        if not region:
             raise ValueError("Region cannot be blank.")
-        if not inputs.get("bucket", ""):
+        if not bucket:
             raise ValueError("Bucket cannot be blank.")

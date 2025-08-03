@@ -1,4 +1,6 @@
 from typing import Dict, Any
+
+from metadata import Metadata
 from node import Node
 from storage_client import StorageClient
 
@@ -58,26 +60,22 @@ class CombineNode(Node):
             "icon": "CombineIcon"
         }
 
-    def exec(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+    def exec(self, meta: Metadata, files_0=None, files_1=None, files_2=None, files_3=None, files_4=None) -> Dict[str, Any]:
         files = set()
 
-        for i in range(5):
-            key = f"files_{i}"
-            if key in inputs and inputs[key] is not None:
-                file_set = inputs[key]
+        file_params = [files_0, files_1, files_2, files_3, files_4]
+        for file_set in file_params:
+            if file_set is not None:
                 if not isinstance(file_set, set):
-                    file_set = set(file_set) if isinstance(file_set, (list, tuple)) else set()
+                    file_set = set(file_set) if isinstance(file_set, (list, tuple)) else {file_set}
                 files.update(file_set)
-
-        task_id = inputs.get("meta", {}).get("taskId")
-        node_id = inputs.get("meta", {}).get("nodeId")
 
         output_files = []
 
         for file in files:
-            output_files.append(StorageClient.store_from_workspace_to_task(task_id, node_id, file))
+            output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
         return {"files": output_files}
 
-    def validate(self, inputs: Dict[str, Any]) -> None:
+    def validate(self, meta: Metadata, files_0=None, files_1=None, files_2=None, files_3=None, files_4=None) -> None:
         pass
