@@ -2,6 +2,7 @@ package com.example.mypixel.controller;
 
 import com.example.mypixel.service.FileHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,13 @@ import java.util.Map;
 @Slf4j
 public class StorageController {
 
+    private final FileHelper fileHelper;
+
+    @Autowired
+    public StorageController(FileHelper fileHelper) {
+        this.fileHelper = fileHelper;
+    }
+
     @PostMapping("/workspace-to-scene")
     public ResponseEntity<Map<String, String>> storeFromWorkspaceToScene(
             @RequestParam("sceneId") Long sceneId,
@@ -25,7 +33,7 @@ public class StorageController {
             @RequestParam(value = "prefix", required = false) String prefix
     ) {
         try {
-            String targetPath = FileHelper.storeFromWorkspaceToScene(sceneId, source, folder, prefix);
+            String targetPath = fileHelper.storeFromWorkspaceToScene(sceneId, source, folder, prefix);
 
             Map<String, String> response = new HashMap<>();
             response.put("path", targetPath);
@@ -50,7 +58,7 @@ public class StorageController {
             @RequestParam("target") String target
     ) {
         try {
-            String targetPath = FileHelper.storeToTask(taskId, nodeId, file.getInputStream(), target);
+            String targetPath = fileHelper.storeToTask(taskId, nodeId, file.getInputStream(), target);
 
             Map<String, String> response = new HashMap<>();
             response.put("path", targetPath);
@@ -74,7 +82,7 @@ public class StorageController {
             @RequestParam("source") String source
     ) {
         try {
-            String targetPath = FileHelper.storeFromWorkspaceToTask(taskId, nodeId, source);
+            String targetPath = fileHelper.storeFromWorkspaceToTask(taskId, nodeId, source);
 
             Map<String, String> response = new HashMap<>();
             response.put("path", targetPath);

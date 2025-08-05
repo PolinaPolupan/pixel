@@ -1,6 +1,5 @@
 package com.example.mypixel.config;
 
-import com.example.mypixel.service.FileHelper;
 import com.example.mypixel.service.StorageService;
 import com.example.mypixel.service.TempStorageService;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +17,6 @@ public class StorageConfig {
         StorageService service = new TempStorageService(location);
         service.deleteAll();
         service.init();
-        FileHelper.setStorageService(service);
         return service;
     }
 }
