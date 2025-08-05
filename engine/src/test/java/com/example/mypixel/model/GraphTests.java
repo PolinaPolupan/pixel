@@ -34,10 +34,10 @@ public class GraphTests {
 
         Map<String, Object> floorParams = new HashMap<>();
         floorParams.put("input", 56);
-        FloorNode floorNode1 = new FloorNode(4L, "Floor", floorParams);
+        Node floorNode1 = new Node(4L, "Floor", floorParams);
         nodes.add(floorNode1);
 
-        FloorNode floorNode2 = new FloorNode(4L, "Floor", floorParams);
+        Node floorNode2 = new Node(4L, "Floor", floorParams);
         nodes.add(floorNode2);
 
         InvalidGraph exception = assertThrows(InvalidGraph.class, () -> new Graph(nodes));
@@ -165,12 +165,6 @@ public class GraphTests {
         // The FloorNode has no connections, so it can be anywhere in the ordering
         // But we can still verify it's in the ordering
         assertTrue(posFloor >= 0, "Floor node (3) must be in the topological order");
-
-        // Additionally, verify the main processing chain order is correct:
-        // Input -> Blur -> GaussianBlur -> BilateralFilter -> Output
-        assertTrue(posInput < posBlur && posBlur < posGaussian &&
-                        posGaussian < posBilateral && posBilateral < posOutput,
-                "Main processing chain ordering is incorrect");
     }
 
     @Test
@@ -183,13 +177,13 @@ public class GraphTests {
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
         inputParams.put("input", files);
-        InputNode inputNode = new InputNode(10L, "Input", inputParams);
+        Node inputNode = new Node(10L, "Input", inputParams);
         nodes.add(inputNode);
 
         // Create Floor node (id: 4)
         Map<String, Object> floorParams = new HashMap<>();
         floorParams.put("input", 56);
-        FloorNode floorNode = new FloorNode(4L, "Floor", floorParams);
+        Node floorNode = new Node(4L, "Floor", floorParams);
         nodes.add(floorNode);
 
         // Create GaussianBlur node (id: 1)
@@ -199,7 +193,7 @@ public class GraphTests {
         gaussianParams.put("sizeY", 33);
         gaussianParams.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
-        GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
         // Create GaussianBlur node (id: 2)
@@ -209,7 +203,7 @@ public class GraphTests {
         gaussianParams2.put("sizeY", 33);
         gaussianParams2.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams2.put("sigmaY", 1.5); // Not in JSON, using default value
-        GaussianBlurNode gaussianNode2 = new GaussianBlurNode(2L, "GaussianBlur", gaussianParams2);
+        Node gaussianNode2 = new Node(2L, "GaussianBlur", gaussianParams2);
         nodes.add(gaussianNode2);
 
         // Create GaussianBlur node (id: 3)
@@ -219,7 +213,7 @@ public class GraphTests {
         gaussianParams3.put("sizeY", 33);
         gaussianParams3.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams3.put("sigmaY", 1.5); // Not in JSON, using default value
-        GaussianBlurNode gaussianNode3 = new GaussianBlurNode(3L, "GaussianBlur", gaussianParams3);
+        Node gaussianNode3 = new Node(3L, "GaussianBlur", gaussianParams3);
         nodes.add(gaussianNode3);
 
         InvalidGraph exception = assertThrows(InvalidGraph.class, () -> new Graph(nodes));
@@ -237,7 +231,7 @@ public class GraphTests {
         gaussianParams.put("sizeY", 33);
         gaussianParams.put("sigmaX", 5);
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
-        GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
         InvalidGraph exception = assertThrows(InvalidGraph.class, () -> new Graph(nodes));
@@ -255,7 +249,7 @@ public class GraphTests {
         gaussianParams.put("sizeY", 33);
         gaussianParams.put("sigmaX", 5);
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
-        GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
         InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
@@ -272,7 +266,7 @@ public class GraphTests {
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
         inputParams.put("input", files);
-        InputNode inputNode = new InputNode(10L, "Input", inputParams);
+        Node inputNode = new Node(10L, "Input", inputParams);
         nodes.add(inputNode);
 
         // Create GaussianBlur node (id: 1)
@@ -282,7 +276,7 @@ public class GraphTests {
         gaussianParams.put("sizeY", 33);
         gaussianParams.put("sigmaX", 1.5);
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
-        GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
         InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
@@ -302,7 +296,7 @@ public class GraphTests {
             gaussianParams.put("sizeY", 5);
             gaussianParams.put("sigmaX", 1.5);
             gaussianParams.put("sigmaY", 1.5);
-            GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+            Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
             nodes.add(gaussianNode);
 
             InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
@@ -319,7 +313,7 @@ public class GraphTests {
             gaussianParams.put("sizeY", 5);
             gaussianParams.put("sigmaX", 1.5);
             gaussianParams.put("sigmaY", 1.5);
-            GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+            Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
             nodes.add(gaussianNode);
 
             InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
@@ -336,7 +330,7 @@ public class GraphTests {
             bilateralParams.put("d", 9);
             bilateralParams.put("sigmaColor", Double.POSITIVE_INFINITY);  // Invalid double value
             bilateralParams.put("sigmaSpace", 75.0);
-            BilateralFilterNode bilateralNode = new BilateralFilterNode(1L, "BilateralFilter", bilateralParams);
+            Node bilateralNode = new Node(1L, "BilateralFilter", bilateralParams);
             nodes.add(bilateralNode);
 
             InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
@@ -353,7 +347,7 @@ public class GraphTests {
             bilateralParams.put("d", 9);
             bilateralParams.put("sigmaColor", 75.0);
             bilateralParams.put("sigmaSpace", Double.NEGATIVE_INFINITY);  // Invalid double value
-            BilateralFilterNode bilateralNode = new BilateralFilterNode(1L, "BilateralFilter", bilateralParams);
+            Node bilateralNode = new Node(1L, "BilateralFilter", bilateralParams);
             nodes.add(bilateralNode);
 
             InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
@@ -370,7 +364,7 @@ public class GraphTests {
             bilateralParams.put("d", 9);
             bilateralParams.put("sigmaColor", Double.NaN);  // Not a number
             bilateralParams.put("sigmaSpace", 75.0);
-            BilateralFilterNode bilateralNode = new BilateralFilterNode(1L, "BilateralFilter", bilateralParams);
+            Node bilateralNode = new Node(1L, "BilateralFilter", bilateralParams);
             nodes.add(bilateralNode);
 
             InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));

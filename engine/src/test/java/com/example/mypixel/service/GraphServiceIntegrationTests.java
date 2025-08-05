@@ -163,7 +163,7 @@ public class GraphServiceIntegrationTests {
         Map<String, Object> gaussianParams = new HashMap<>();
         gaussianParams.put("files", List.of());
         gaussianParams.put("sizeX", 2);
-        GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
         Graph graph = new Graph(nodes);
 
@@ -189,7 +189,7 @@ public class GraphServiceIntegrationTests {
         Map<String, Object> gaussianParams = new HashMap<>();
         gaussianParams.put("files", 7);
         gaussianParams.put("sizeX", 5);
-        GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
         Graph graph = new Graph(nodes);
 
@@ -214,7 +214,7 @@ public class GraphServiceIntegrationTests {
         files.add("non-existent");
         gaussianParams.put("files", files);
         gaussianParams.put("sizeX", 5);
-        GaussianBlurNode gaussianNode = new GaussianBlurNode(1L, "GaussianBlur", gaussianParams);
+        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
         Graph graph = new Graph(nodes);
 
