@@ -3,6 +3,7 @@ package com.example.mypixel.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.example.mypixel.config.TestCacheConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,19 +11,28 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.mockito.Mock;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-
+@SpringBootTest
+@Import({TestCacheConfig.class})
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 public class FileHelperTests {
 
-    @Mock
+    @MockitoBean
     private StorageService storageService;
-    
+
+    @InjectMocks
+    @Autowired
     private FileHelper fileHelper;
 
     private static final Long SCENE_ID = 123L;
