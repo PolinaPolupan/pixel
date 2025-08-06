@@ -2,13 +2,10 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.model.*;
 import com.example.mypixel.model.Node;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -17,10 +14,9 @@ import java.util.*;
 @Slf4j
 public class NodeProcessorService {
 
+    private final NodeCommunicationService nodeCommunicationService;
     private final NodeCacheService nodeCacheService;
     private final PerformanceTracker performanceTracker;
-    private final ObjectMapper objectMapper;
-
 
     public void processNode(Node node, Long sceneId, Long taskId) {
 
@@ -38,6 +34,7 @@ public class NodeProcessorService {
         );
     }
 
+    @SuppressWarnings("unchecked")
     public void processNodeInternal(Node node, Long sceneId, Long taskId) {
         log.info("Started node: {} Scene: {} Task: {}", node.getId(), sceneId, taskId);
 
@@ -53,41 +50,16 @@ public class NodeProcessorService {
         data.put("inputs", resolvedInputs);
         node.setInputs(resolvedInputs);
 
-        try {
-            String inputJson = objectMapper.writeValueAsString(data);
-            RestTemplate restTemplate = new RestTemplate();
-            PythonNodeTester tester = new PythonNodeTester(restTemplate, "http://node:8000/validate");
-            String response = tester.sendJsonToPython(inputJson);
-            log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), inputJson, response);
-        } catch (Exception e) {
-            log.warn("Failed to serialize input JSON for node {}: {}", node.getId(), e.getMessage());
-        }
+        Map<String, Object> response = nodeCommunicationService.executeNodeRequest("validate", data, Map.class);
+        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), data, response);
 
         String outputKey = taskId + ":" + node.getId() + ":output";
         String inputKey = taskId + ":" + node.getId() + ":input";
 
         nodeCacheService.put(inputKey, node.getInputs());
 
-        Map<String, Object> outputs = Map.of();
-
-        try {
-            String outputJson = objectMapper.writeValueAsString(data);
-
-            RestTemplate restTemplate = new RestTemplate();
-            PythonNodeTester tester = new PythonNodeTester(restTemplate, "http://node:8000/exec");
-            String response = tester.sendJsonToPython(outputJson);
-
-            log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), outputJson, response);
-
-            TypeReference<Map<String, Object>> typeRef = new TypeReference<>() {};
-            Map<String, Object> responseMap = objectMapper.readValue(response, typeRef);
-            outputs = responseMap;
-
-            log.info("Deserialized response: {}", responseMap);
-
-        } catch (Exception e) {
-            log.warn("Failed to process JSON for node {}: {}", node.getId(), e.getMessage());
-        }
+        Map<String, Object> outputs = nodeCommunicationService.executeNodeRequest("exec", data, Map.class);
+        log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), data, response);
 
         nodeCacheService.put(outputKey, outputs);
     }
