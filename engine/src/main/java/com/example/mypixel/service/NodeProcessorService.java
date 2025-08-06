@@ -44,10 +44,10 @@ public class NodeProcessorService {
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
         Map<String, Object> meta = Map.of(
-                "id", node.getId(),
+                "node_id", node.getId(),
                 "type", node.getType(),
-                "sceneId", sceneId,
-                "taskId", taskId
+                "scene_id", sceneId,
+                "task_id", taskId
         );
         data.put("meta", meta);
         data.put("inputs", resolvedInputs);

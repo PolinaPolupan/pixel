@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -20,10 +21,8 @@ from nodes.s3_output_node import S3OutputNode
 from nodes.string_node import StringNode
 from nodes.vector2d_node import Vector2DNode
 
-app = FastAPI()
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     register_node_class(BlurNode)
     register_node_class(GaussianBlurNode)
     register_node_class(BilateralFilterNode)
@@ -40,7 +39,8 @@ async def startup_event():
     register_node_class(ResNet50Node)
     register_node_class(S3InputNode)
     register_node_class(S3OutputNode)
-
+    yield
+app = FastAPI(lifespan=lifespan)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,11 +49,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
-
-class Settings:
-    def __init__(self):
-        self.storage_url = "http://engine:8080/v1/storage"
 
 def get_node(data: dict):
     meta = data.get("meta", {})
