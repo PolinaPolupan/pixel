@@ -100,12 +100,14 @@ public class ImageUploadController {
                         "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
-    @PostMapping("/input")
-    public ResponseEntity<List<String>> handleFileUpload(@PathVariable String sceneId,
-                                                                      @RequestParam("file") List<MultipartFile> files) throws IOException {
+    @PostMapping("/upload")
+    public ResponseEntity<List<String>> handleUpload(
+            @PathVariable String sceneId,
+            @RequestParam("file") List<MultipartFile> files
+    ) throws IOException {
 
         List<String> locations = new ArrayList<>();
-        String basePath = "scenes/" + sceneId + "/input/";
+        String basePath = "scenes/" + sceneId + "/";
 
         for (MultipartFile file: files) {
             String contentType = file.getContentType();
