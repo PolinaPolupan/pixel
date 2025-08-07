@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/scene/{sceneId}/graph")
+@RequestMapping("/v1/scene/{sceneId}/exec")
 public class ExecutionController {
 
     private final ExecutionService executionService;
