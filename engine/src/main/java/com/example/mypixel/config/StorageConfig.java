@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class StorageConfig {
 
-    @Value("${storage.images}")
+    @Value("${storage.directory}")
     private String location;
 
     @Bean

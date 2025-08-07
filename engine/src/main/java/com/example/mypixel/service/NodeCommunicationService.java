@@ -2,6 +2,7 @@ package com.example.mypixel.service;
 
 import com.example.mypixel.exception.NodeExecutionException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -11,13 +12,10 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @Slf4j
 public class NodeCommunicationService {
-    private final RestTemplate restTemplate;
-    private final String nodeBaseUrl;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public NodeCommunicationService() {
-        this.restTemplate = new RestTemplate();
-        this.nodeBaseUrl = "http://node:8000/";
-    }
+    @Value("${node.service.url}")
+    private String nodeBaseUrl;
 
     public <T> T executeNodeRequest(String endpoint, Object payload, Class<T> responseType) {
         try {

@@ -12,8 +12,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
-      host: redis
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
     datasource:
       url: ${SPRING_DATASOURCE_URL}
@@ -27,8 +27,8 @@ spring:
       baseline-version: 0
       locations: classpath:db/migration
 
-storage:
-  images: upload-image-dir
+storage.directory: ${STORAGE_DIRECTORY}
+node.service.url: ${NODE_SERVICE_URL}
 
 logging:
   level:

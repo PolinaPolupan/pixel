@@ -4,8 +4,7 @@ spring:
       max-file-size: 8MB
       max-request-size: 8MB
 
-storage:
-  images: upload-image-dir
+storage.directory: upload-image-dir
 
 logging:
   level:
