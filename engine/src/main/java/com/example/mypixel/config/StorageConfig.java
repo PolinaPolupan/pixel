@@ -1,7 +1,7 @@
 package com.example.mypixel.config;
 
-import com.example.mypixel.service.StorageService;
-import com.example.mypixel.service.TempStorageService;
+import com.example.mypixel.file_system.StorageService;
+import com.example.mypixel.file_system.TempStorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

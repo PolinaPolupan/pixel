@@ -1,6 +1,6 @@
 package com.example.mypixel.config;
 
-import com.example.mypixel.controller.SceneInterceptor;
+import com.example.mypixel.scene.SceneInterceptor;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;

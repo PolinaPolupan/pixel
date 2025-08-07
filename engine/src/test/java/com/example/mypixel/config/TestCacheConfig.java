@@ -1,7 +1,7 @@
 package com.example.mypixel.config;
 
-import com.example.mypixel.service.InMemoryNodeCacheService;
-import com.example.mypixel.service.NodeCacheService;
+import com.example.mypixel.node.InMemoryNodeCacheService;
+import com.example.mypixel.node.NodeCacheService;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

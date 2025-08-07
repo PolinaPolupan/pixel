@@ -1,8 +1,8 @@
 package com.example.mypixel.util;
 
-import com.example.mypixel.model.Graph;
-import com.example.mypixel.model.Node;
-import com.example.mypixel.model.NodeReference;
+import com.example.mypixel.execution.Graph;
+import com.example.mypixel.node.Node;
+import com.example.mypixel.node.NodeReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
