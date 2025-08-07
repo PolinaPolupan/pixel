@@ -29,8 +29,7 @@ public class SceneService {
 
         String sceneId = scene.getId().toString();
 
-        storageService.createFolder("scenes/" + sceneId + "/output");
-        storageService.createFolder("scenes/" + sceneId + "/input");
+        storageService.createFolder("scenes/" + sceneId);
 
         return scene;
     }
