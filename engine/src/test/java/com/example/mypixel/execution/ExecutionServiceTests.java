@@ -83,9 +83,9 @@ public class ExecutionServiceTests {
                 });
 
         when(taskService.createTask(any(Graph.class), anyLong()))
-                .thenReturn(task);
+                .thenReturn(TaskPayload.fromEntity(task));
 
-        when(taskService.findTaskById(taskId)).thenReturn(task);
+        when(taskService.findTaskById(taskId)).thenReturn(TaskPayload.fromEntity(task));
     }
 
     @Test

@@ -4,7 +4,6 @@ import com.example.mypixel.node.Node;
 import com.example.mypixel.node.NodeProcessorService;
 import com.example.mypixel.common.NotificationService;
 import com.example.mypixel.common.PerformanceTracker;
-import com.example.mypixel.task.Task;
 import com.example.mypixel.task.TaskPayload;
 import com.example.mypixel.task.TaskService;
 import com.example.mypixel.task.TaskStatus;
@@ -30,23 +29,23 @@ public class ExecutionService {
 
     public TaskPayload startExecution(Graph graph, Long sceneId) {
         log.info("startGraphExecution: Creating task for sceneId={} ...", sceneId);
-        Task task = taskService.createTask(graph, sceneId);
+        TaskPayload task = taskService.createTask(graph, sceneId);
         Long taskId = task.getId();
         log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", taskId);
         CompletableFuture.runAsync(() -> execute(graph, taskId, sceneId), graphTaskExecutor);
-        return TaskPayload.fromEntity(task);
+        return task;
     }
 
     public CompletableFuture<TaskPayload> startExecutionAsync(Graph graph, Long sceneId) {
         log.info("startGraphExecutionAsync: Creating task for sceneId={} ...", sceneId);
-        Task task = taskService.createTask(graph, sceneId);
+        TaskPayload task = taskService.createTask(graph, sceneId);
         log.info("startGraphExecutionAsync: Task created with id={}, starting graph execution ...", task.getId());
         return CompletableFuture.supplyAsync(() -> execute(graph, task.getId(), sceneId).join(), graphTaskExecutor);
     }
 
     public CompletableFuture<TaskPayload> startExecutionSync(Graph graph, Long sceneId) {
         log.info("startGraphExecutionSync: Creating task for sceneId={} ...", sceneId);
-        Task task = taskService.createTask(graph, sceneId);
+        TaskPayload task = taskService.createTask(graph, sceneId);
         log.info("startGraphExecutionSync: Task created with id={}, starting graph execution ...", task.getId());
         return execute(graph, task.getId(), sceneId);
     }
@@ -87,22 +86,22 @@ public class ExecutionService {
                 log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodes().size());
 
                 taskService.updateTaskProgress(taskId, processedNodes);
-                notificationService.sendTaskStatus(TaskPayload.fromEntity(taskService.findTaskById(taskId)));
+                notificationService.sendTaskStatus(taskService.findTaskById(taskId));
 
                 log.debug("Node with id: {} is processed (taskId={})", node.getId(), taskId);
             }
 
             log.info("All nodes processed for taskId={}, updating status to COMPLETED", taskId);
             taskService.updateTaskStatus(taskId, TaskStatus.COMPLETED);
-            notificationService.sendTaskStatus(TaskPayload.fromEntity(taskService.findTaskById(taskId)));
+            notificationService.sendTaskStatus(taskService.findTaskById(taskId));
 
-            return CompletableFuture.completedFuture(TaskPayload.fromEntity(taskService.findTaskById(taskId)));
+            return CompletableFuture.completedFuture(taskService.findTaskById(taskId));
         } catch (Exception e) {
             log.error("Error processing graph for scene {} (taskId={}): {}", sceneId, taskId, e.getMessage(), e);
 
             try {
                 taskService.markTaskFailed(taskId, e.getMessage());
-                notificationService.sendTaskStatus(TaskPayload.fromEntity(taskService.findTaskById(taskId)));
+                notificationService.sendTaskStatus(taskService.findTaskById(taskId));
             } catch (Exception inner) {
                 log.error("Failed to mark task as failed or send notification for taskId={}: {}", taskId, inner.getMessage(), inner);
             }

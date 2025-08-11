@@ -75,8 +75,9 @@ class S3InputNode(Node):
 
         s3_config = {}
         if endpoint and endpoint.strip():
-            s3_config['endpoint_url'] = endpoint
-            s3_config['use_ssl'] = endpoint.startswith('https')
+            clean_endpoint = endpoint.strip().rstrip('/')
+            s3_config['endpoint_url'] = clean_endpoint
+            s3_config['use_ssl'] = clean_endpoint.startswith('https')
 
         try:
             s3_client = session.client('s3', **s3_config)

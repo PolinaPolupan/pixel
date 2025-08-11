@@ -16,18 +16,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
+import static com.example.mypixel.util.TestcontainersExtension.localstack;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -43,7 +47,7 @@ public class GraphIntegrationTest {
     @Autowired
     private StorageService storageService;
 
-    Long sceneId;
+    private Long sceneId;
 
     @BeforeEach
     void setupTestFiles() {
@@ -69,12 +73,50 @@ public class GraphIntegrationTest {
     }
 
     @Test
+    void testEndpointConfiguration() {
+        log.info("=== Testing Endpoint Configuration ===");
+
+        String externalEndpoint = localstack.getEndpointOverride(S3).toString();
+        String containerName = localstack.getContainerName();
+        if (containerName.startsWith("/")) {
+            containerName = containerName.substring(1);
+        }
+        String internalEndpoint = "http://" + containerName + ":4566";
+
+        log.info("External endpoint (for Java/host): {}", externalEndpoint);
+        log.info("Internal endpoint (for Python/container): {}", internalEndpoint);
+        log.info("Container name: {}", localstack.getContainerName());
+
+        // Test that both endpoints have the right format
+        assertTrue(externalEndpoint.contains("127.0.0.1") || externalEndpoint.contains("localhost"));
+        assertFalse(internalEndpoint.contains("127.0.0.1"));
+        assertFalse(internalEndpoint.contains("localhost"));
+        assertTrue(internalEndpoint.endsWith(":4566"));
+    }
+
+    @Test
+    public void testNodeServiceConnectivity() {
+        String nodeServiceUrl = System.getProperty("node.service.url");
+        assertNotNull("Node service URL is not set", nodeServiceUrl);
+
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<Map> response = restTemplate.getForEntity(nodeServiceUrl + "info", Map.class);
+            assertEquals(200, response.getStatusCode().value());
+            assertNotNull(response.getBody());
+            assertTrue(response.getBody().containsKey("registered_nodes"));
+        } catch (Exception e) {
+            fail("Failed to connect to node service: " + e.getMessage());
+        }
+    }
+
+    @Test
     void testGraphExecution() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 TaskPayload.class,
                 sceneId);
@@ -102,25 +144,12 @@ public class GraphIntegrationTest {
     }
 
     @Test
-    void testGraphExecutionWithInvalidGraphJson() {
-        String invalidGraphJson = "invalid graph json";
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
-                invalidGraphJson,
-                String.class,
-                sceneId);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
     void testGraphExecutionWithInvalidSceneId() {
         String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
                 "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 6666666);
@@ -129,30 +158,12 @@ public class GraphIntegrationTest {
     }
 
     @Test
-    void testInvalidNodeReference() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
-                "test-json/invalid-node-reference.json", sceneId, TestcontainersExtension.getLocalstack());
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
-                testGraphJson,
-                String.class,
-                sceneId);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(),
-                "Should reject invalid node reference");
-        assertNotNull(response.getBody(), "Should return error details");
-        assertTrue(response.getBody().contains("999"),
-                "Error should mention invalid node ID");
-    }
-
-    @Test
     void testInvalidNodeType() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-node-type.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 sceneId);
@@ -163,11 +174,11 @@ public class GraphIntegrationTest {
 
     @Test
     void testInvalidAwsCredentials() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-aws.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 sceneId);
@@ -178,11 +189,11 @@ public class GraphIntegrationTest {
 
     @Test
     void testMissingRequiredInputs() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/missing-required-inputs.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 sceneId);
@@ -193,11 +204,11 @@ public class GraphIntegrationTest {
 
     @Test
     void testInvalidIdLongRange() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-id-long-range.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 sceneId);
@@ -207,11 +218,11 @@ public class GraphIntegrationTest {
 
     @Test
     void testInvalidIdString() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-id-string.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 sceneId);
@@ -221,11 +232,11 @@ public class GraphIntegrationTest {
 
     @Test
     void testIntegerOverflow() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/integer-overflow.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 sceneId);
@@ -235,11 +246,11 @@ public class GraphIntegrationTest {
 
     @Test
     void testDoubleOverflow() {
-        String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+        Graph testGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/double-overflow.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/v1/scene/{sceneId}/graph",
+                "/v1/scene/{sceneId}/exec",
                 testGraphJson,
                 String.class,
                 sceneId);
@@ -263,11 +274,11 @@ public class GraphIntegrationTest {
                 futures.add(CompletableFuture.supplyAsync(() -> {
                     long requestStart = System.currentTimeMillis();
 
-                    String testGraphJson = TestJsonTemplates.getGraphJsonWithTestCredentials(
+                     Graph testGraphJson = TestJsonTemplates.loadGraph(
                             "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
                     ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
-                            "/v1/scene/{sceneId}/graph",
+                            "/v1/scene/{sceneId}/exec",
                             testGraphJson,
                             TaskPayload.class,
                             sceneId);

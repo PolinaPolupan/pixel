@@ -16,25 +16,27 @@ public class TaskService {
     private final TaskRepository taskRepository;
 
     @Transactional
-    public Task findTaskById(Long taskId) {
-        return taskRepository.findById(taskId)
+    public TaskPayload findTaskById(Long taskId) {
+        Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+        return TaskPayload.fromEntity(task);
     }
 
     @Transactional
-    public Task createTask(Graph graph, Long sceneId) {
+    public TaskPayload createTask(Graph graph, Long sceneId) {
         log.debug("Creating task for scene {}", sceneId);
         Task task = new Task();
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.PENDING);
         task.setTotalNodes(graph.getNodes().size());
         task.setProcessedNodes(0);
-        return taskRepository.save(task);
+        return TaskPayload.fromEntity(taskRepository.save(task));
     }
 
     @Transactional
     public void updateTaskStatus(Long taskId, TaskStatus status) {
-        Task task = findTaskById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
         task.setStatus(status);
         if (status == TaskStatus.RUNNING && task.getStartTime() == null) {
             task.setStartTime(LocalDateTime.now());
@@ -47,14 +49,16 @@ public class TaskService {
 
     @Transactional
     public void updateTaskProgress(Long taskId, int processedNodes) {
-        Task task = findTaskById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
         task.setProcessedNodes(processedNodes);
         taskRepository.save(task);
     }
 
     @Transactional
     public void markTaskFailed(Long taskId, String errorMessage) {
-        Task task = findTaskById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
         task.setStatus(TaskStatus.FAILED);
         if (task.getEndTime() == null) task.setEndTime(LocalDateTime.now());
         task.setErrorMessage(errorMessage);

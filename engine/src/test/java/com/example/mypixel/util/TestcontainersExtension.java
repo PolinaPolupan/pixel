@@ -4,9 +4,13 @@ import lombok.Getter;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -21,26 +25,46 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Objects;
 
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 public class TestcontainersExtension implements BeforeAllCallback {
 
+    private static final Network SHARED_NETWORK = Network.newNetwork();
+
     @Getter
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17.2-alpine")
             .withDatabaseName("testdb")
             .withUsername("test")
+            .withNetwork(SHARED_NETWORK)
             .withPassword("test");
 
     @Getter
     private static final GenericContainer<?> redis = new GenericContainer<>("redislabs/redismod")
+            .withNetwork(SHARED_NETWORK)
             .withExposedPorts(6379);
 
     @Getter
-    private static final LocalStackContainer localstack = new LocalStackContainer(
+    public static final LocalStackContainer localstack = new LocalStackContainer(
             DockerImageName.parse("localstack/localstack:latest"))
+            .withNetwork(SHARED_NETWORK)
             .withServices(S3);
+
+    @Getter
+    public static final GenericContainer<?> node = new GenericContainer<>(
+            new ImageFromDockerfile()
+                    .withDockerfile(Paths.get("../node/Dockerfile"))
+                    .withBuildArg("BUILDKIT_INLINE_CACHE", "1")
+    )
+            .withExposedPorts(8000)
+            .waitingFor(
+                    Wait.forHttp("/health")
+                            .forPort(8000)
+                            .forStatusCode(200)
+                            .withStartupTimeout(Duration.ofMinutes(2))
+            );
 
     private static boolean started = false;
 
@@ -52,6 +76,7 @@ public class TestcontainersExtension implements BeforeAllCallback {
             postgres.start();
             redis.start();
             localstack.start();
+            node.start();
 
             // Database configuration
             System.setProperty("spring.datasource.url", postgres.getJdbcUrl());
@@ -68,6 +93,8 @@ public class TestcontainersExtension implements BeforeAllCallback {
             System.setProperty("aws.access-key", localstack.getAccessKey());
             System.setProperty("aws.secret-key", localstack.getSecretKey());
             System.setProperty("aws.bucket", TEST_BUCKET);
+
+            System.setProperty("node.service.url", "http://" + node.getHost() + ":" + node.getMappedPort(8000) + "/");
 
             // Initialize test bucket
             createTestBucket();

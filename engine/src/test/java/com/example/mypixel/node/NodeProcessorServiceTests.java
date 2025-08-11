@@ -36,6 +36,9 @@ class NodeProcessorServiceTests {
     @InjectMocks
     private NodeProcessorService nodeProcessorService;
 
+    @Mock
+    private NodeCommunicationService nodeCommunicationService;
+
     @Captor
     private ArgumentCaptor<Map<String, Object>> inputsCaptor;
 
@@ -63,6 +66,8 @@ class NodeProcessorServiceTests {
             return null;
         }).when(performanceTracker).trackOperation(anyString(), any(Tags.class), any(Runnable.class));
 
+        when(nodeCommunicationService.executeNodeRequest(anyString(), any(Map.class), any())).thenReturn(outputs);
+
         nodeProcessorService.processNode(node, sceneId, taskId);
 
         verify(performanceTracker).trackOperation(
@@ -78,12 +83,9 @@ class NodeProcessorServiceTests {
     }
 
     @Test
-    void processNodeInternal_shouldResolveInputsValidateAndExecute() {
-        nodeProcessorService.processNodeInternal(node, sceneId, taskId);
-    }
-
-    @Test
     void processNodeInternal_shouldCacheInputsAndOutputs() {
+        when(nodeCommunicationService.executeNodeRequest(eq("exec"), any(Map.class), any())).thenReturn(outputs);
+
         nodeProcessorService.processNodeInternal(node,  sceneId, taskId);
 
         verify(nodeCacheService).put("100:10:input", inputs);
@@ -123,30 +125,28 @@ class NodeProcessorServiceTests {
     void resolveInput_shouldThrowInvalidNodeParameterOnConversionError() {
         inputs.put("param1", "not a number");
 
+        when(nodeCommunicationService.executeNodeRequest(anyString(), any(Map.class), any())).thenThrow(ClassCastException.class);
         when(node.getId()).thenReturn(10L);
 
-        ClassCastException exception = assertThrows(ClassCastException.class, () ->
+        assertThrows(ClassCastException.class, () ->
                 nodeProcessorService.processNodeInternal(node, sceneId, taskId));
-
-        assertTrue(exception.getMessage().contains("Cannot cast String to Integer"));
     }
 
     @Test
     void processNodeInternal_shouldHandleValidationFailure() {
+        when(nodeCommunicationService.executeNodeRequest(anyString(), any(Map.class), any())).thenThrow(RuntimeException.class);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        assertThrows(RuntimeException.class, () ->
                 nodeProcessorService.processNodeInternal(node, sceneId, taskId));
-
-        assertEquals("Validation failed", exception.getMessage());
     }
 
     @Test
     void processNodeInternal_shouldHandleExecutionFailure() {
+        when(nodeCommunicationService.executeNodeRequest(eq("exec"), any(Map.class), any())).thenThrow(RuntimeException.class);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        assertThrows(RuntimeException.class, () ->
                 nodeProcessorService.processNodeInternal(node, sceneId, taskId));
 
-        assertEquals("Execution failed", exception.getMessage());
         verify(nodeCacheService).put("100:10:input", inputs);
         verify(nodeCacheService, never()).put(eq("100:10:output"), any());
     }

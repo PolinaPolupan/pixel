@@ -5,6 +5,7 @@ spring:
       max-request-size: 8MB
 
 storage.directory: upload-image-dir
+node.service.url: node-service-url
 
 logging:
   level:

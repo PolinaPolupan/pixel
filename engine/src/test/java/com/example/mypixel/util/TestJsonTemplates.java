@@ -1,5 +1,7 @@
 package com.example.mypixel.util;
 
+import com.example.mypixel.execution.Graph;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.util.Map;
 
 
 public class TestJsonTemplates {
+
+    static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Load a JSON template from resources and return as a string
@@ -59,9 +63,22 @@ public class TestJsonTemplates {
         replacements.put("aws_region", TestcontainersExtension.getLocalstack().getRegion());
         replacements.put("aws_bucket", TestcontainersExtension.getTestBucket());
         replacements.put("scene_id", String.valueOf(sceneId));
-        replacements.put("aws_endpoint", localstack.getEndpointOverride(LocalStackContainer.Service.S3).toString());
+        replacements.put("aws_endpoint", "http://host.docker.internal:4566");
 
         // Apply replacements
         return applyPlaceholders(template, replacements);
+    }
+
+    public static Graph deserializeGraphJson(String jsonString) {
+        try {
+            return objectMapper.readValue(jsonString, Graph.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to deserialize graph JSON: " + e.getMessage(), e);
+        }
+    }
+
+    public static Graph loadGraph(String templatePath, Long sceneId, LocalStackContainer localstack) {
+        String graphJson = getGraphJsonWithTestCredentials(templatePath, sceneId, localstack);
+        return deserializeGraphJson(graphJson);
     }
 }

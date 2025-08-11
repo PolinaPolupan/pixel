@@ -55,7 +55,7 @@ public class TaskServiceTests {
     @Test
     void createTask_withEmptyGraph_shouldSetZeroNodes() {
         Graph graph = new Graph(List.of());
-        Task result = taskService.createTask(graph, sceneId);
+        TaskPayload result = taskService.createTask(graph, sceneId);
 
         assertEquals(0, result.getTotalNodes());
     }

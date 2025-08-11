@@ -1,6 +1,7 @@
 package com.example.mypixel.execution;
 
 import com.example.mypixel.exception.InvalidGraph;
+import com.example.mypixel.exception.InvalidNodeParameter;
 import com.example.mypixel.node.Node;
 import com.example.mypixel.node.NodeReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -32,6 +33,7 @@ public class Graph {
         // Then process the nodes
         for (Node node: nodes) {
             mapOutputNodes(node);
+            validateReferences(node);
         }
 
         buildTopologicalOrder();
@@ -54,6 +56,21 @@ public class Graph {
             }
         }
         nodeOutputs.put(node, dependentNodes);
+    }
+
+    private void validateReferences(Node node) {
+        for (String paramName: node.getInputs().keySet()) {
+            Object paramValue = node.getInputs().get(paramName);
+
+            if (paramValue instanceof NodeReference) {
+                Long targetNodeId = ((NodeReference) paramValue).getNodeId();
+
+                if (!nodeMap.containsKey(targetNodeId)) {
+                    throw new InvalidNodeParameter("Invalid node reference: Node with id " +
+                            targetNodeId + " is not found. Please ensure the node id is correct.");
+                }
+            }
+        }
     }
 
     private void verifyGraphIntegrity() {

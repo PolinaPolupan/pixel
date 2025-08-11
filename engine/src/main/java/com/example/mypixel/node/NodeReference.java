@@ -2,29 +2,59 @@ package com.example.mypixel.node;
 
 import com.example.mypixel.exception.InvalidNodeParameter;
 import lombok.Getter;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Getter
 public class NodeReference {
-    private final Pattern nodeRefPattern = Pattern.compile("@node:(\\d+):(\\w+)");
-    private final String reference;
-    private final Matcher matcher;
+    private static final Pattern NODE_REF_PATTERN = Pattern.compile("@node:(\\d+):(\\w+)");
 
-    public NodeReference(String reference) {
-        matcher = nodeRefPattern.matcher(reference);
+    private final String reference;
+
+    @JsonIgnore
+    private transient Matcher matcher;
+
+    @JsonIgnore
+    private transient Pattern nodeRefPattern;
+
+    @JsonCreator
+    public NodeReference(@JsonProperty("reference") String reference) {
+        this.reference = reference;
+        this.nodeRefPattern = NODE_REF_PATTERN;
+        this.matcher = nodeRefPattern.matcher(reference);
+
         if (!matcher.matches()) {
             throw new InvalidNodeParameter("Invalid node reference format: " + reference);
         }
-
-        this.reference = reference;
     }
 
+    @JsonIgnore
     public Long getNodeId() {
+        if (matcher == null || !matcher.matches()) {
+            matcher = NODE_REF_PATTERN.matcher(reference);
+            if (!matcher.matches()) {
+                throw new InvalidNodeParameter("Invalid node reference format: " + reference);
+            }
+        }
         return Long.parseLong(matcher.group(1));
     }
 
-    public String getOutputName() { return matcher.group(2); }
+    @JsonIgnore
+    public String getOutputName() {
+        if (matcher == null || !matcher.matches()) {
+            matcher = NODE_REF_PATTERN.matcher(reference);
+            if (!matcher.matches()) {
+                throw new InvalidNodeParameter("Invalid node reference format: " + reference);
+            }
+        }
+        return matcher.group(2);
+    }
+
+    @Override
+    public String toString() {
+        return reference;
+    }
 }

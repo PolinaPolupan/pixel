@@ -12,8 +12,10 @@ import com.example.mypixel.node.Node;
 import com.example.mypixel.node.NodeProcessorService;
 import com.example.mypixel.util.TestFileUtils;
 import com.example.mypixel.util.TestGraphFactory;
+import com.example.mypixel.util.TestcontainersExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ExtendWith(TestcontainersExtension.class)
 @Import({TestCacheConfig.class})
 @ActiveProfiles("test")
 public class ExecutionServiceIntegrationTests {
