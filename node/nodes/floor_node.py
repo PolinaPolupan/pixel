@@ -1,8 +1,8 @@
 from typing import Dict, Any
-from node import Node
+from node import Node, register_node_class
 import math
 
-
+@register_node_class
 class FloorNode(Node):
 
     node_type = "Floor"

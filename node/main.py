@@ -6,22 +6,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import socket
 
-from node import get_node_class, register_node_class
-from nodes.bilateral_filter_node import BilateralFilterNode
-from nodes.blur_node import BlurNode
-from nodes.box_filter_node import BoxFilterNode
-from nodes.combine_node import CombineNode
-from nodes.floor_node import FloorNode
-from nodes.gaussian_blur_node import GaussianBlurNode
-from nodes.input_node import InputNode
-from nodes.median_blur_node import MedianBlurNode
-from nodes.output_file_node import OutputFileNode
-from nodes.output_node import OutputNode
-from nodes.resnet50_node import ResNet50Node
-from nodes.s3_input_node import S3InputNode
-from nodes.s3_output_node import S3OutputNode
-from nodes.string_node import StringNode
-from nodes.vector2d_node import Vector2DNode
+from load_nodes import load_nodes_from_directory
+from node import get_node_class
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,16 +21,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting node service and registering node types...")
 
-    node_classes = [
-        BlurNode, GaussianBlurNode, BilateralFilterNode, BoxFilterNode,
-        CombineNode, FloorNode, InputNode, MedianBlurNode, StringNode,
-        Vector2DNode, OutputNode, OutputFileNode, ResNet50Node,
-        S3InputNode, S3OutputNode
-    ]
-
-    for node_class in node_classes:
-        register_node_class(node_class)
-        logger.info(f"Registered node type: {node_class.__name__}")
+    load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "nodes"))
 
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)

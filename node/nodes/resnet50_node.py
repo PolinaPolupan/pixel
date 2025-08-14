@@ -1,8 +1,9 @@
 from typing import Dict, Any
 
-from node import Node
+from node import Node, register_node_class
 
 
+@register_node_class
 class ResNet50Node(Node):
     node_type = "ResNet50"
 

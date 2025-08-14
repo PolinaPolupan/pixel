@@ -4,11 +4,11 @@ from typing import Dict, Any
 import logging
 
 from metadata import Metadata
-from node import Node
+from node import Node, register_node_class
 
 logger = logging.getLogger(__name__)
 
-
+@register_node_class
 class S3InputNode(Node):
     node_type = "S3Input"
 
