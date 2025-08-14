@@ -49,7 +49,7 @@ public class NodeProcessorService {
         data.put("inputs", resolvedInputs);
         node.setInputs(resolvedInputs);
 
-        Map<String, Object> response = nodeCommunicationService.executeNodeRequest("validate", data, Map.class);
+        Map<String, Object> response = nodeCommunicationService.executeNodeRequest("/validate", data, Map.class);
         log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), data, response);
 
         String outputKey = taskId + ":" + node.getId() + ":output";
@@ -57,7 +57,7 @@ public class NodeProcessorService {
 
         nodeCacheService.put(inputKey, node.getInputs());
 
-        Map<String, Object> outputs = nodeCommunicationService.executeNodeRequest("exec", data, Map.class);
+        Map<String, Object> outputs = nodeCommunicationService.executeNodeRequest("/exec", data, Map.class);
         log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), data, response);
 
         nodeCacheService.put(outputKey, outputs);

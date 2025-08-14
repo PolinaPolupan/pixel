@@ -1,3 +1,5 @@
+import os
+
 import requests
 import logging
 from typing import Optional
@@ -6,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class StorageClient:
-    BASE_URL = "http://engine:8080/v1/storage"
+    BASE_URL = os.environ.get("ENGINE_SERVICE_URL") + "/v1/storage"
 
     @staticmethod
     def store_from_workspace_to_scene(scene_id: int, source: str, folder: Optional[str] = None,
