@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 import socket
 
 from load_nodes import load_nodes_from_directory
-from node import get_node_class
+from node import get_node_class, NODE_REGISTRY
 
 logging.basicConfig(
     level=logging.INFO,
@@ -99,15 +99,17 @@ async def exec_node(request: Request):
             status_code=400
         )
 
-
 @app.get("/info")
-async def info():
-    from node import NODE_REGISTRY
-    nodes = list(NODE_REGISTRY.keys())
-    logger.info(f"Info request: {len(nodes)} nodes registered")
-    return {
-        "registered_nodes": nodes
-    }
+async def node_info():
+    result = {}
+    for node_type, node_cls in NODE_REGISTRY.items():
+        node = node_cls()
+        result[node_type] = {
+            "inputs": node.get_input_types() if hasattr(node, "get_input_types") else {},
+            "outputs": node.get_output_types() if hasattr(node, "get_output_types") else {},
+            "display": node.get_display_info() if hasattr(node, "get_display_info") else {}
+        }
+    return result
 
 
 @app.get("/health")
