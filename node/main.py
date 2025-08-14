@@ -6,6 +6,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import socket
 
+from starlette.middleware.cors import CORSMiddleware
+
 from load_nodes import load_nodes_from_directory
 from node import get_node_class, NODE_REGISTRY
 
@@ -42,6 +44,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_node(data: dict):
     meta = data.get("meta", {})
