@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-
-// Import icons
 import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline } from 'react-icons/io5';
-import {nodeApi} from "./api.js";
+import { nodeApi } from "./api.js";
 
 // Define icon components
 const iconComponents = {
@@ -54,7 +52,6 @@ const iconComponents = {
     )
 };
 
-
 export function useNodesConfig() {
     const [nodesConfig, setNodesConfig] = useState({});
     const [isLoading, setIsLoading] = useState(true);
@@ -69,15 +66,42 @@ export function useNodesConfig() {
                 // Use the centralized API client
                 const data = await nodeApi.getNodeConfig();
 
+                // Transform the data to match expected structure
                 const processedConfig = {};
 
                 Object.entries(data).forEach(([nodeType, config]) => {
-                    // Always use Node as the component
-                    const IconComponent = iconComponents[config.display.icon] || iconComponents.DefaultIcon;
-                    console.log(nodeType, config)
+                    const IconComponent = iconComponents[config.display?.icon] || iconComponents.DefaultIcon;
+
+                    // Create separate input and output handle collections
+                    const inputHandles = {};
+                    const outputHandles = {};
+
+                    Object.entries(config.inputs || {}).forEach(([inputId, inputConfig]) => {
+                        outputHandles[inputId] = {
+                            ...inputConfig,
+                            target: inputConfig.type,
+                        };
+                    });
+
+                    Object.entries(config.outputs || {}).forEach(([outputId, outputConfig]) => {
+                        inputHandles[outputId] = {
+                            ...outputConfig,
+                            source: outputConfig.type,
+                            widget: outputConfig.widget || "LABEL"
+                        };
+                    });
+
                     processedConfig[nodeType] = {
-                        ...config,
-                        nodeType,
+                        component: nodeType,
+                        nodeType: nodeType,
+                        // Keep the original handles object for compatibility
+                        handles: {
+                            ...inputHandles,
+                            ...outputHandles
+                        },
+                        // Add pre-filtered collections
+                        inputHandles,
+                        outputHandles,
                         display: {
                             ...config.display,
                             icon: IconComponent

@@ -6,6 +6,7 @@ import { useReactFlow } from '@xyflow/react';
  * - Converts node ids to integers
  * - Resolves input handles based on edges
  * - Strips out config/meta fields from inputs
+ * - Handles prefixed source/target IDs
  */
 export function useGraphTransformation() {
   const { getNodes, getEdges } = useReactFlow();
@@ -22,14 +23,27 @@ export function useGraphTransformation() {
       return inputs;
     };
 
+    // Helper: extract actual handle ID without prefix
+    const cleanHandleId = (handleId) => {
+      if (!handleId) return null;
+      return handleId.replace(/^(source-|target-)/, '');
+    };
+
     // Map for quick lookup of edges by target node and handle
     const edgesByTarget = {};
     edges.forEach(edge => {
       if (!edgesByTarget[edge.target]) edgesByTarget[edge.target] = {};
-      // If handles are missing, default to 'output' for source, and first input for target
-      const targetHandle = edge.targetHandle || Object.keys(getNodeInputs(nodes.find(n => n.id === edge.target)))[0];
-      const sourceHandle = edge.sourceHandle || 'output';
-      edgesByTarget[edge.target][targetHandle] = { source: edge.source, sourceHandle };
+
+      // Clean the handle IDs by removing prefixes
+      const cleanTargetHandle = cleanHandleId(edge.targetHandle) ||
+          Object.keys(getNodeInputs(nodes.find(n => n.id === edge.target)))[0];
+
+      const cleanSourceHandle = cleanHandleId(edge.sourceHandle) || 'output';
+
+      edgesByTarget[edge.target][cleanTargetHandle] = {
+        source: edge.source,
+        sourceHandle: cleanSourceHandle
+      };
     });
 
     const transformedNodes = nodes.map(node => {

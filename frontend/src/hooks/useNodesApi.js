@@ -63,10 +63,16 @@ export function useNodesApi() {
         return Object.keys(nodesByCategory).sort();
     }, [nodesByCategory]);
 
-    // Handle parameter type utility
     const getHandleParameterType = useMemo(() => {
         return (nodeType, handleId, handleType) => {
-            return nodesConfig[nodeType]?.handles?.[handleId]?.[handleType] || null;
+            // Remove prefixes if they exist
+            const cleanHandleId = handleId.replace(/^(source-|target-)/, '');
+
+            if (handleType === 'source') {
+                return nodesConfig[nodeType]?.inputHandles?.[cleanHandleId]?.source || null;
+            } else {
+                return nodesConfig[nodeType]?.outputHandles?.[cleanHandleId]?.target || null;
+            }
         };
     }, [nodesConfig]);
 
