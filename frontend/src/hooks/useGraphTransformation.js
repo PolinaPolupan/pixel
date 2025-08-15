@@ -1,13 +1,6 @@
 import { useCallback } from 'react';
 import { useReactFlow } from '@xyflow/react';
 
-/**
- * Transforms React Flow graph data into server graph format.
- * - Converts node ids to integers
- * - Resolves input handles based on edges
- * - Strips out config/meta fields from inputs
- * - Handles prefixed source/target IDs
- */
 export function useGraphTransformation() {
   const { getNodes, getEdges } = useReactFlow();
 
@@ -23,26 +16,14 @@ export function useGraphTransformation() {
       return inputs;
     };
 
-    // Helper: extract actual handle ID without prefix
-    const cleanHandleId = (handleId) => {
-      if (!handleId) return null;
-      return handleId.replace(/^(source-|target-)/, '');
-    };
-
     // Map for quick lookup of edges by target node and handle
     const edgesByTarget = {};
     edges.forEach(edge => {
       if (!edgesByTarget[edge.target]) edgesByTarget[edge.target] = {};
 
-      // Clean the handle IDs by removing prefixes
-      const cleanTargetHandle = cleanHandleId(edge.targetHandle) ||
-          Object.keys(getNodeInputs(nodes.find(n => n.id === edge.target)))[0];
-
-      const cleanSourceHandle = cleanHandleId(edge.sourceHandle) || 'output';
-
-      edgesByTarget[edge.target][cleanTargetHandle] = {
+      edgesByTarget[edge.target][edge.targetHandle] = {
         source: edge.source,
-        sourceHandle: cleanSourceHandle
+        sourceHandle: edge.sourceHandle
       };
     });
 

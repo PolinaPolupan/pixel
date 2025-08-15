@@ -65,13 +65,10 @@ export function useNodesApi() {
 
     const getHandleParameterType = useMemo(() => {
         return (nodeType, handleId, handleType) => {
-            // Remove prefixes if they exist
-            const cleanHandleId = handleId.replace(/^(source-|target-)/, '');
-
             if (handleType === 'source') {
-                return nodesConfig[nodeType]?.inputHandles?.[cleanHandleId]?.source || null;
+                return nodesConfig[nodeType]?.inputHandles?.[handleId]?.source || null;
             } else {
-                return nodesConfig[nodeType]?.outputHandles?.[cleanHandleId]?.target || null;
+                return nodesConfig[nodeType]?.outputHandles?.[handleId]?.target || null;
             }
         };
     }, [nodesConfig]);

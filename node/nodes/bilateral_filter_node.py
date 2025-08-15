@@ -11,7 +11,7 @@ class BilateralFilterNode(Node):
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "input": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL",
@@ -39,7 +39,7 @@ class BilateralFilterNode(Node):
 
     def get_output_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "output": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL"
@@ -54,14 +54,14 @@ class BilateralFilterNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, files: List[str], d: int, sigmaColor: int, sigmaSpace: float, meta: Metadata) -> Dict[str, Any]:
+    def exec(self, input: List[str], d: int, sigmaColor: int, sigmaSpace: float, meta: Metadata) -> Dict[str, Any]:
         output_files = []
 
-        for file in files:
+        for file in input:
             output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
 
-        return {"files": output_files}
+        return {"output": output_files}
 
-    def validate(self, files: List[str], d: int, sigmaColor: int, sigmaSpace: float, meta) -> None:
+    def validate(self, input: List[str], d: int, sigmaColor: int, sigmaSpace: float, meta) -> None:
         pass

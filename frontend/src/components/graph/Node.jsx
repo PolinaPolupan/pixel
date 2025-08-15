@@ -40,7 +40,7 @@ export default function Node({ id, data }) {
                     return (
                         <LabeledHandle
                             key={`source-${handleId}`}
-                            id={`source-${handleId}`}
+                            id={handleId}
                             label={handleId}
                             type="source"
                             position="right"
@@ -58,7 +58,7 @@ export default function Node({ id, data }) {
                     return (
                         <LabeledHandle
                             key={`target-${handleId}`}
-                            id={`target-${handleId}`}
+                            id={handleId}
                             label={handleId}
                             type="target"
                             position="left"
@@ -72,7 +72,7 @@ export default function Node({ id, data }) {
                             key={`input-${handleId}`}
                             id={id}
                             data={data}
-                            handleId={handleId}  // Pass the handle ID WITHOUT prefix
+                            handleId={handleId}
                             handleLabel={handleId}
                             parameterType={handleConfig.target}
                             defaultValue={handleConfig.default}
@@ -93,7 +93,7 @@ export default function Node({ id, data }) {
                                 defaultFiles={handleConfig.default}
                             />
                             <LabeledHandle
-                                id={`target-${handleId}`}
+                                id={handleId}
                                 label={handleId}
                                 type="target"
                                 position="left"

@@ -33,18 +33,13 @@ function AppContent() {
 
     // Check if connection is valid
     const isValidConnection = useCallback((connection) => {
-        // Don't allow connections to the same node
         if (connection.source === connection.target) return false;
 
         const sourceNode = nodes.find(n => n.id === connection.source);
         const targetNode = nodes.find(n => n.id === connection.target);
 
-        // Extract the actual handle IDs without prefixes
-        const sourceHandleId = connection.sourceHandle.replace('source-', '');
-        const targetHandleId = connection.targetHandle.replace('target-', '');
-
-        const sourceType = getHandleParameterType(sourceNode?.type, sourceHandleId, 'source');
-        const targetType = getHandleParameterType(targetNode?.type, targetHandleId, 'target');
+        const sourceType = getHandleParameterType(sourceNode?.type, connection.sourceHandle, 'source');
+        const targetType = getHandleParameterType(targetNode?.type, connection.targetHandle, 'target');
 
         console.log(`Attempting connection: ${sourceType} -> ${targetType}`);
 

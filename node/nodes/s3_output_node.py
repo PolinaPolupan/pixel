@@ -13,7 +13,7 @@ class S3OutputNode(Node):
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "input": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL",
@@ -68,7 +68,7 @@ class S3OutputNode(Node):
             "icon": "OutputIcon"
         }
 
-    def exec(self, files, access_key_id, secret_access_key, region, bucket, endpoint=None, folder="") -> Dict[str, Any]:
+    def exec(self, input, access_key_id, secret_access_key, region, bucket, endpoint=None, folder="") -> Dict[str, Any]:
         session = boto3.Session(
             aws_access_key_id=access_key_id,
             aws_secret_access_key=secret_access_key,
@@ -83,7 +83,7 @@ class S3OutputNode(Node):
 
         s3_client = session.client('s3', **s3_config)
 
-        for file_path in files:
+        for file_path in input:
             if os.path.exists(file_path):
                 filename = os.path.basename(file_path)
                 key = f"{folder}/{filename}" if folder else filename
@@ -98,7 +98,7 @@ class S3OutputNode(Node):
 
         return {}
 
-    def validate(self, files, access_key_id, secret_access_key, region, bucket, endpoint=None) -> None:
+    def validate(self, input, access_key_id, secret_access_key, region, bucket, endpoint=None) -> None:
         if not access_key_id:
             raise ValueError("Access key ID cannot be blank.")
         if not secret_access_key:

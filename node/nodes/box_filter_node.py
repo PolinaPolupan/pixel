@@ -11,7 +11,7 @@ class BoxFilterNode(Node):
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "input": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL",
@@ -33,7 +33,7 @@ class BoxFilterNode(Node):
 
     def get_output_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "output": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL"
@@ -48,15 +48,15 @@ class BoxFilterNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, files: List[str], ksize, ddepth, meta: Metadata) -> Dict[str, Any]:
+    def exec(self, input: List[str], ksize, ddepth, meta: Metadata) -> Dict[str, Any]:
         output_files = []
 
-        for file in files:
+        for file in input:
             output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
-        return {"files": output_files}
+        return {"output": output_files}
 
-    def validate(self, files: List[str], ksize, ddepth, meta: Metadata) -> None:
+    def validate(self, input: List[str], ksize, ddepth, meta: Metadata) -> None:
         if isinstance(ksize, dict):
             x = ksize.get("x", 0)
             y = ksize.get("y", 0)

@@ -11,7 +11,7 @@ class GaussianBlurNode(Node):
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "input": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL",
@@ -45,7 +45,7 @@ class GaussianBlurNode(Node):
 
     def get_output_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "output": {
                 "type": "FILEPATH_ARRAY",
                 "required": True
             }
@@ -59,15 +59,15 @@ class GaussianBlurNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, files, sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> Dict[str, Any]:
+    def exec(self, input, sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> Dict[str, Any]:
         output_files = []
 
-        for file in files:
+        for file in input:
             output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
-        return {"files": output_files}
+        return {"output": output_files}
 
-    def validate(self, files, sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> None:
+    def validate(self, input, sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> None:
         try:
             sizeX = int(sizeX)
             sizeY = int(sizeY)

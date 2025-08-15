@@ -9,7 +9,7 @@ class ResNet50Node(Node):
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "input": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL",
@@ -33,9 +33,9 @@ class ResNet50Node(Node):
             "icon": "ResNet50Icon"
         }
 
-    def exec(self, files) -> Dict[str, Any]:
+    def exec(self, input) -> Dict[str, Any]:
         outputs = {}
         return outputs
 
-    def validate(self, files) -> None:
+    def validate(self, input) -> None:
         pass

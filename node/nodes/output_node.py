@@ -12,7 +12,7 @@ class OutputNode(Node):
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "input": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL",
@@ -43,8 +43,8 @@ class OutputNode(Node):
             "icon": "OutputIcon"
         }
 
-    def exec(self, files, prefix, folder, meta: Metadata) -> Dict[str, Any]:
-        for filepath in files:
+    def exec(self, input, prefix, folder, meta: Metadata) -> Dict[str, Any]:
+        for filepath in input:
             from storage_client import StorageClient
             StorageClient.store_from_workspace_to_scene(
                 scene_id=meta.scene_id,
@@ -55,5 +55,5 @@ class OutputNode(Node):
 
         return {}
 
-    def validate(self, files, prefix, folder, meta) -> None:
+    def validate(self, input, prefix, folder, meta) -> None:
         pass
