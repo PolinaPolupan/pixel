@@ -2,7 +2,6 @@ package com.example.pixel.file_system;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,22 +30,13 @@ public class StorageController {
             @RequestParam(value = "folder", required = false) String folder,
             @RequestParam(value = "prefix", required = false) String prefix
     ) {
-        try {
-            String targetPath = fileHelper.storeFromWorkspaceToScene(sceneId, source, folder, prefix);
+        String targetPath = fileHelper.storeFromWorkspaceToScene(sceneId, source, folder, prefix);
 
-            Map<String, String> response = new HashMap<>();
-            response.put("path", targetPath);
-            response.put("message", "File stored successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("path", targetPath);
+        response.put("message", "File stored successfully");
 
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error storing file from workspace to scene", e);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(value = "/to-task", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -55,23 +45,14 @@ public class StorageController {
             @RequestParam("nodeId") Long nodeId,
             @RequestParam("file") MultipartFile file,
             @RequestParam("target") String target
-    ) {
-        try {
-            String targetPath = fileHelper.storeToTask(taskId, nodeId, file.getInputStream(), target);
+    ) throws IOException {
+        String targetPath = fileHelper.storeToTask(taskId, nodeId, file.getInputStream(), target);
 
-            Map<String, String> response = new HashMap<>();
-            response.put("path", targetPath);
-            response.put("message", "File stored successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("path", targetPath);
+        response.put("message", "File stored successfully");
 
-            return ResponseEntity.ok(response);
-        } catch (IOException e) {
-            log.error("Error storing file to task", e);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/workspace-to-task")
@@ -80,21 +61,12 @@ public class StorageController {
             @RequestParam("nodeId") Long nodeId,
             @RequestParam("source") String source
     ) {
-        try {
-            String targetPath = fileHelper.storeFromWorkspaceToTask(taskId, nodeId, source);
+        String targetPath = fileHelper.storeFromWorkspaceToTask(taskId, nodeId, source);
 
-            Map<String, String> response = new HashMap<>();
-            response.put("path", targetPath);
-            response.put("message", "File stored successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("path", targetPath);
+        response.put("message", "File stored successfully");
 
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error storing file from workspace to task", e);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        return ResponseEntity.ok(response);
     }
 }
