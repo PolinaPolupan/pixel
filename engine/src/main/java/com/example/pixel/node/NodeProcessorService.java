@@ -35,7 +35,7 @@ public class NodeProcessorService {
     }
 
     @SuppressWarnings("unchecked")
-    public void processNodeInternal(Node node, Long sceneId, Long taskId) {
+    private void processNodeInternal(Node node, Long sceneId, Long taskId) {
         log.info("Started node: {} Scene: {} Task: {}", node.getId(), sceneId, taskId);
 
         Map<String, Object> data = new HashMap<>();
