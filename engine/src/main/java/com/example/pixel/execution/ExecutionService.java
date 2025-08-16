@@ -50,11 +50,7 @@ public class ExecutionService {
         return execute(graph, task.getId(), sceneId);
     }
 
-    public CompletableFuture<TaskPayload> execute(
-            Graph graph,
-            Long taskId,
-            Long sceneId
-    ) {
+    private CompletableFuture<TaskPayload> execute(Graph graph, Long taskId, Long sceneId) {
         log.info("executeGraph: Called for taskId={}, sceneId={}", taskId, sceneId);
         return performanceTracker.trackOperation(
                 "graph.execution",
@@ -63,11 +59,7 @@ public class ExecutionService {
         );
     }
 
-    private CompletableFuture<TaskPayload> executeInternal(
-            Graph graph,
-            Long taskId,
-            Long sceneId
-    ) {
+    private CompletableFuture<TaskPayload> executeInternal(Graph graph, Long taskId, Long sceneId) {
         log.info("executeGraphInternal: Starting execution for taskId={}, sceneId={}", taskId, sceneId);
         try {
             log.debug("Updating task status to RUNNING for taskId={}", taskId);

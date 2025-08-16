@@ -233,7 +233,7 @@ public class ExecutionServiceTests {
         when(performanceTracker.trackOperation(anyString(), any(Tags.class), any(Supplier.class)))
                 .thenReturn(expectedFuture);
 
-        CompletableFuture<TaskPayload> actualFuture = executionService.execute(graph, taskId, sceneId);
+        CompletableFuture<TaskPayload> actualFuture = executionService.startExecutionSync(graph, sceneId);
 
         verify(performanceTracker).trackOperation(
                 eq("graph.execution"),
