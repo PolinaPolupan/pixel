@@ -1,4 +1,4 @@
-# MyPixel
+# pixel
 An image processing system designed to proccess images using node-based workflow
 
 > ⚠️ **IMPORTANT**: This project is currently in early development phase
