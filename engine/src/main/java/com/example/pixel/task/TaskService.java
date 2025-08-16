@@ -1,12 +1,15 @@
 package com.example.pixel.task;
 
 import com.example.pixel.execution.Graph;
+import com.example.pixel.file_system.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final StorageService storageService;
 
     @Transactional
     public TaskPayload findTaskById(Long taskId) {
@@ -63,5 +67,20 @@ public class TaskService {
         if (task.getEndTime() == null) task.setEndTime(LocalDateTime.now());
         task.setErrorMessage(errorMessage);
         taskRepository.save(task);
+    }
+
+    public void delete(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+        storageService.delete("tasks/" + taskId);
+        taskRepository.delete(task);
+    }
+
+    public List<TaskPayload> getInactiveTasks() {
+        List<Task> inactiveTasks = taskRepository.findByStatusNotIn(List.of(TaskStatus.PENDING, TaskStatus.RUNNING));
+
+        return inactiveTasks.stream()
+                .map(TaskPayload::fromEntity)
+                .collect(Collectors.toList());
     }
 }
