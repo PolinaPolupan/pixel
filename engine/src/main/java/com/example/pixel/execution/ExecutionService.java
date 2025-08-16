@@ -99,12 +99,8 @@ public class ExecutionService {
         } catch (Exception e) {
             log.error("Error processing graph for scene {} (taskId={}): {}", sceneId, taskId, e.getMessage(), e);
 
-            try {
-                taskService.markTaskFailed(taskId, e.getMessage());
-                notificationService.sendTaskStatus(taskService.findTaskById(taskId));
-            } catch (Exception inner) {
-                log.error("Failed to mark task as failed or send notification for taskId={}: {}", taskId, inner.getMessage(), inner);
-            }
+            taskService.markTaskFailed(taskId, e.getMessage());
+            notificationService.sendTaskStatus(taskService.findTaskById(taskId));
 
             CompletableFuture<TaskPayload> failedFuture = new CompletableFuture<>();
             failedFuture.completeExceptionally(e);
