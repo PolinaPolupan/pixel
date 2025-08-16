@@ -14,7 +14,7 @@ export function SceneProvider({ children }) {
 
   // Check for an existing scene ID in session storage
   useEffect(() => {
-    const storedSceneId = sessionStorage.getItem('mypixel_scene_id');
+    const storedSceneId = sessionStorage.getItem('scene_id');
 
     if (storedSceneId) {
       console.log('Using existing scene:', storedSceneId);
@@ -35,7 +35,7 @@ export function SceneProvider({ children }) {
       console.log('Created new scene:', sceneData.id);
 
       // Store the scene ID in session storage
-      sessionStorage.setItem('mypixel_scene_id', sceneData.id);
+      sessionStorage.setItem('scene_id', sceneData.id);
       setSceneId(sceneData.id);
     } catch (error) {
       console.error('Scene creation error:', error);

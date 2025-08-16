@@ -3,14 +3,6 @@ import { useScene } from '../../services/contexts/SceneContext.jsx';
 import { useNotification } from '../../services/contexts/NotificationContext.jsx';
 import { sceneApi } from '../../services/api.js';
 
-/**
- * File upload component for MyPixel
- * Allows uploading images and ZIP files to the current scene
- *
- * @param {Function} onFilesSelected - Callback when files are selected/changed
- * @param {number} maxFiles - Maximum number of files allowed
- * @param {Array} initialFiles - Initial file list
- */
 function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) {
   const { sceneId } = useScene();
   const { setError } = useNotification();
