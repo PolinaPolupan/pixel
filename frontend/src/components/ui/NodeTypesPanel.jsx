@@ -70,19 +70,22 @@ const NodeTypesPanel = () => {
         return { position, ...nodeDimensions };
     }, [screenToFlowPosition, store]);
 
+    const { nodesConfig } = useNodesApi();
+
     const createNode = (type) => {
         const nodeIds = getNodes().map(node => parseInt(node.id));
         const newId = (Math.max(...nodeIds, 0) + 1).toString();
         const { position } = getViewportCenterNode(type);
 
-        const newNode = {
+        addNodes({
             id: newId,
             type,
             position,
-            data: getDefaultData(type)
-        };
-
-        addNodes(newNode);
+            data: {
+                ...getDefaultData(type),
+                config: nodesConfig[type]
+            }
+        });
     };
 
     const renderIcon = (icon, type) => {
