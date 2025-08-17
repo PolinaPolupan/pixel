@@ -1,0 +1,15 @@
+management:
+  metrics:
+    enable:
+      jvm: true
+    tags:
+      application: ${APP_NAME}
+  endpoints:
+    web:
+      exposure:
+        include: [ "prometheus", "health", "info"]
+
+logging:
+  level:
+    com.example.pixel: DEBUG
+    com.example.pixel.common: DEBUG

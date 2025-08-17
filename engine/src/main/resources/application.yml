@@ -34,13 +34,9 @@ logging:
   level:
     org.springframework.web: INFO
     org.springframework.boot.actuate: INFO
+
 management:
-  metrics:
-    enable:
-      jvm: true
-    tags:
-      application: graph-processor
   endpoints:
     web:
       exposure:
-        include: [ "prometheus", "health", "info"]
+        include: ["health", "info"]

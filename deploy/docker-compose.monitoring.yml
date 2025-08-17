@@ -1,4 +1,8 @@
 services:
+  engine:
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default},monitoring
+
   prometheus:
     image: prom/prometheus:v2.44.0
     ports:

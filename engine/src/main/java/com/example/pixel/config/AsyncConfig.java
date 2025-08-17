@@ -1,7 +1,5 @@
 package com.example.pixel.config;
 
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +12,6 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 public class AsyncConfig {
-
-    private final MeterRegistry registry;
-
     @Bean(name = "graphTaskExecutor")
     public Executor graphTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -25,7 +20,6 @@ public class AsyncConfig {
         executor.setQueueCapacity(500);
         executor.setThreadNamePrefix("GraphExec-");
         executor.initialize();
-        return ExecutorServiceMetrics.monitor(registry, executor.getThreadPoolExecutor(),
-                "application.tasks");
+        return executor.getThreadPoolExecutor();
     }
 }
