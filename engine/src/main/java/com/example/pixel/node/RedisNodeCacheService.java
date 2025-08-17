@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@Profile("storage")
 @RequiredArgsConstructor
 public class RedisNodeCacheService implements NodeCacheService {
 

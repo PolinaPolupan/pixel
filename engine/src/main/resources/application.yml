@@ -4,11 +4,10 @@ spring:
       max-file-size: 800MB
       max-request-size: 800MB
 
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
+  cache:
+    type: caffeine
 
+  data:
     datasource:
       url: jdbc:h2:mem:testdb;MODE=PostgreSQL
       driver-class-name: org.h2.Driver

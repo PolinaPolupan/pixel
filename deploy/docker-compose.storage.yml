@@ -5,9 +5,13 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/app}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-postgres}
+      SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-redis}
+      SPRING_DATA_REDIS_PORT: ${REDIS_PORT:-6379}
+    depends_on:
+      - postgres
+      - redis
 
   postgres:
-    profiles: ["storage", "db"]
     image: 'postgres:17.2-alpine'
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -20,7 +24,6 @@ services:
     restart: unless-stopped
 
   redis:
-    profiles: ["storage", "cache"]
     image: "redislabs/redismod"
     ports:
       - "${REDIS_PORT:-6379}:6379"
