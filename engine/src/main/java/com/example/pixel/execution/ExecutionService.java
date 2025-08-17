@@ -3,11 +3,9 @@ package com.example.pixel.execution;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeProcessorService;
 import com.example.pixel.common.NotificationService;
-import com.example.pixel.common.PerformanceTracker;
 import com.example.pixel.task.TaskPayload;
 import com.example.pixel.task.TaskService;
 import com.example.pixel.task.TaskStatus;
-import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +20,6 @@ import java.util.concurrent.Executor;
 public class ExecutionService {
 
     private final NodeProcessorService nodeProcessorService;
-    private final PerformanceTracker performanceTracker;
     private final TaskService taskService;
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
@@ -51,15 +48,6 @@ public class ExecutionService {
     }
 
     private CompletableFuture<TaskPayload> execute(Graph graph, Long taskId, Long sceneId) {
-        log.info("executeGraph: Called for taskId={}, sceneId={}", taskId, sceneId);
-        return performanceTracker.trackOperation(
-                "graph.execution",
-                Tags.of("scene.id", String.valueOf(sceneId)),
-                () -> executeInternal(graph, taskId, sceneId)
-        );
-    }
-
-    private CompletableFuture<TaskPayload> executeInternal(Graph graph, Long taskId, Long sceneId) {
         log.info("executeGraphInternal: Starting execution for taskId={}, sceneId={}", taskId, sceneId);
         try {
             log.debug("Updating task status to RUNNING for taskId={}", taskId);

@@ -1,8 +1,6 @@
 package com.example.pixel.node;
 
-import com.example.pixel.common.PerformanceTracker;
 import com.example.pixel.exception.NodeExecutionException;
-import io.micrometer.core.instrument.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,26 +14,9 @@ public class NodeProcessorService {
 
     private final NodeCommunicationService nodeCommunicationService;
     private final NodeCacheService nodeCacheService;
-    private final PerformanceTracker performanceTracker;
-
-    public void processNode(Node node, Long sceneId, Long taskId) {
-
-        Tags nodeTags = Tags.of(
-                "node.id", String.valueOf(node.getId()),
-                "node.type", node.getType(),
-                "scene.id", String.valueOf(sceneId),
-                "task.id", String.valueOf(taskId)
-        );
-
-        performanceTracker.trackOperation(
-                "node.execution",
-                nodeTags,
-                () -> processNodeInternal(node, sceneId, taskId)
-        );
-    }
 
     @SuppressWarnings("unchecked")
-    private void processNodeInternal(Node node, Long sceneId, Long taskId) {
+    public void processNode(Node node, Long sceneId, Long taskId) {
         log.info("Started node: {} Scene: {} Task: {}", node.getId(), sceneId, taskId);
 
         Map<String, Object> data = new HashMap<>();

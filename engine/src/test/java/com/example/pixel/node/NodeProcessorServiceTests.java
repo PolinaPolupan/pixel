@@ -1,8 +1,6 @@
 package com.example.pixel.node;
 
-import com.example.pixel.common.PerformanceTracker;
 import com.example.pixel.exception.NodeExecutionException;
-import io.micrometer.core.instrument.Tags;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,9 +27,6 @@ class NodeProcessorServiceTests {
     private NodeCacheService nodeCacheService;
 
     @Mock
-    private PerformanceTracker performanceTracker;
-
-    @Mock
     private Node node;
 
     @InjectMocks
@@ -54,39 +49,9 @@ class NodeProcessorServiceTests {
         inputs = new HashMap<>();
         outputs = new HashMap<>();
 
-        doAnswer(inv -> {
-            Runnable runnable = inv.getArgument(2);
-            runnable.run();
-            return null;
-        }).when(performanceTracker).trackOperation(anyString(), any(Tags.class), any(Runnable.class));
-
         when(node.getId()).thenReturn(nodeId);
         when(node.getType()).thenReturn("testNode");
         when(node.getInputs()).thenReturn(inputs);
-    }
-
-    @Test
-    void processNode_shouldTrackOperation() {
-        doAnswer(inv -> {
-            Runnable runnable = inv.getArgument(2);
-            runnable.run();
-            return null;
-        }).when(performanceTracker).trackOperation(anyString(), any(Tags.class), any(Runnable.class));
-
-        when(nodeCommunicationService.executeNodeRequest(anyString(), any(Map.class), any())).thenReturn(outputs);
-
-        nodeProcessorService.processNode(node, sceneId, taskId);
-
-        verify(performanceTracker).trackOperation(
-                eq("node.execution"),
-                eq(Tags.of(
-                        "node.id", nodeId.toString(),
-                        "node.type", "testNode",
-                        "scene.id", sceneId.toString(),
-                        "task.id", taskId.toString()
-                )),
-                any(Runnable.class)
-        );
     }
 
     @Test
@@ -168,16 +133,5 @@ class NodeProcessorServiceTests {
         Map<String, Object> resolvedInputs = inputsCaptor.getValue();
 
         assertTrue(resolvedInputs.isEmpty());
-    }
-
-    @Test
-    void processNode_shouldHandlePerformanceTrackerFailure() {
-        doThrow(new RuntimeException("Tracker failed")).when(performanceTracker)
-                .trackOperation(anyString(), any(Tags.class), any(Runnable.class));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNode(node, sceneId, taskId));
-
-        assertEquals("Tracker failed", exception.getMessage());
     }
 }

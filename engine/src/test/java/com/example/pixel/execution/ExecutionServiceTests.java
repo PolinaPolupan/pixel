@@ -1,14 +1,12 @@
 package com.example.pixel.execution;
 
 import com.example.pixel.common.NotificationService;
-import com.example.pixel.common.PerformanceTracker;
 import com.example.pixel.task.TaskService;
 import com.example.pixel.task.Task;
 import com.example.pixel.task.TaskPayload;
 import com.example.pixel.task.TaskStatus;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeProcessorService;
-import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -34,9 +31,6 @@ public class ExecutionServiceTests {
 
     @Mock
     private NodeProcessorService nodeProcessorService;
-
-    @Mock
-    private PerformanceTracker performanceTracker;
 
     @Mock
     private TaskService taskService;
@@ -75,12 +69,6 @@ public class ExecutionServiceTests {
         task.setStatus(TaskStatus.PENDING);
         task.setTotalNodes(2);
         task.setProcessedNodes(0);
-
-        when(performanceTracker.trackOperation(anyString(), any(Tags.class), any(Supplier.class)))
-                .thenAnswer(invocation -> {
-                    Supplier<?> supplier = invocation.getArgument(2);
-                    return supplier.get();
-                });
 
         when(taskService.createTask(any(Graph.class), anyLong()))
                 .thenReturn(TaskPayload.fromEntity(task));
@@ -222,26 +210,6 @@ public class ExecutionServiceTests {
                 executionService.startExecutionAsync(graph, sceneId));
 
         assertEquals(errorMessage, exception.getMessage());
-    }
-
-    @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)
-    void execute_shouldUsePerformanceTracker() {
-        reset(performanceTracker);
-        CompletableFuture<TaskPayload> expectedFuture = CompletableFuture.completedFuture(TaskPayload.fromEntity(task));
-
-        when(performanceTracker.trackOperation(anyString(), any(Tags.class), any(Supplier.class)))
-                .thenReturn(expectedFuture);
-
-        CompletableFuture<TaskPayload> actualFuture = executionService.startExecutionSync(graph, sceneId);
-
-        verify(performanceTracker).trackOperation(
-                eq("graph.execution"),
-                eq(Tags.of("scene.id", String.valueOf(sceneId))),
-                any(Supplier.class)
-        );
-
-        assertSame(expectedFuture, actualFuture);
     }
 
     @Test
