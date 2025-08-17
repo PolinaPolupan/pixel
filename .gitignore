@@ -5,4 +5,4 @@
 /native/cmake-build-debug/
 /native/cmake-build-debug-wsl/
 /build/
-/.env
+/deploy/.env
