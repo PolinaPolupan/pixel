@@ -17,7 +17,7 @@ services:
       FLYWAY_ENABLED: true
     volumes:
       - ./engine/build/libs:/app/libs
-    command: java -Djava.library.path=/app/native-libs -jar /app/libs/engine-0.0.1-SNAPSHOT.jar
+    command: java -jar /app/libs/engine-0.0.1-SNAPSHOT.jar
   node:
     build:
       context: node
