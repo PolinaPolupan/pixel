@@ -23,9 +23,10 @@ public class Node {
 
     @JsonCreator
     public Node(
-            @JsonProperty("id") Long id,
-            @JsonProperty("type") String type,
-            @JsonProperty("inputs") Map<String, Object> inputs) {
+            @NonNull @JsonProperty("id") Long id,
+            @NonNull @JsonProperty("type") String type,
+            @NonNull @JsonProperty("inputs") Map<String, Object> inputs
+    ) {
         this.id = id;
         this.type = type;
         this.inputs = inputs;
