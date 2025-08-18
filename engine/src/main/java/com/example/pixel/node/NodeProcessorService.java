@@ -19,28 +19,21 @@ public class NodeProcessorService {
     public void processNode(Node node, Long sceneId, Long taskId) {
         log.info("Started node: {} Scene: {} Task: {}", node.getId(), sceneId, taskId);
 
-        Map<String, Object> data = new HashMap<>();
         Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
-        Map<String, Object> meta = Map.of(
-                "node_id", node.getId(),
-                "type", node.getType(),
-                "scene_id", sceneId,
-                "task_id", taskId
-        );
-        data.put("meta", meta);
-        data.put("inputs", resolvedInputs);
+        Metadata meta = new Metadata(node.getId(), sceneId, taskId, node.getType());
+        NodeData nodeData = new NodeData(meta, resolvedInputs);
         node.setInputs(resolvedInputs);
 
-        Map<String, Object> response = nodeCommunicationService.executeNodeRequest("/validate", data, Map.class);
-        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), data, response);
+        Map<String, Object> response = nodeCommunicationService.executeNodeRequest("/validate", nodeData, Map.class);
+        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeData, response);
 
         String outputKey = taskId + ":" + node.getId() + ":output";
         String inputKey = taskId + ":" + node.getId() + ":input";
 
         nodeCacheService.put(inputKey, node.getInputs());
 
-        Map<String, Object> outputs = nodeCommunicationService.executeNodeRequest("/exec", data, Map.class);
-        log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), data, response);
+        Map<String, Object> outputs = nodeCommunicationService.executeNodeRequest("/exec", nodeData, Map.class);
+        log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), nodeData, response);
 
         nodeCacheService.put(outputKey, outputs);
     }
