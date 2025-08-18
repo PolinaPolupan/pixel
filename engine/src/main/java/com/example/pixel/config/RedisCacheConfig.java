@@ -16,6 +16,7 @@ import redis.clients.jedis.Protocol;
 @Configuration
 @Profile("storage")
 public class RedisCacheConfig {
+
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
@@ -31,9 +32,7 @@ public class RedisCacheConfig {
             @Value("${spring.data.redis.host}") String host,
             @Value("${spring.data.redis.port}") int port
     ) {
-
         JedisPoolConfig poolConfig = new JedisPoolConfig();
-
         return new JedisPool(poolConfig, host, port, Protocol.DEFAULT_TIMEOUT);
     }
 

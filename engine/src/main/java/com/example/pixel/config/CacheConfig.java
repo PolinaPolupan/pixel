@@ -23,7 +23,6 @@ public class CacheConfig {
         return cacheManager;
     }
 
-
     @Bean
     public NodeCacheService nodeCacheService(CacheManager cacheManager) {
         return new SpringCacheNodeService(cacheManager);
