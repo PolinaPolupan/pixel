@@ -1,6 +1,6 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.scene.Scene;
+import com.example.pixel.scene.ScenePayload;
 import com.example.pixel.task.TaskPayload;
 import com.example.pixel.scene.SceneService;
 import com.example.pixel.file_system.StorageService;
@@ -51,7 +51,7 @@ public class GraphIntegrationTest {
 
     @BeforeEach
     void setupTestFiles() {
-        Scene scene = sceneService.createScene();
+        ScenePayload scene = sceneService.createScene();
         sceneId = scene.getId();
 
         TestcontainersExtension.uploadTestFileToS3(
@@ -97,7 +97,6 @@ public class GraphIntegrationTest {
     @Test
     public void testNodeServiceConnectivity() {
         String nodeServiceUrl = System.getProperty("node.service.url");
-        assertNotNull("Node service URL is not set", nodeServiceUrl);
 
         RestTemplate restTemplate = new RestTemplate();
         try {

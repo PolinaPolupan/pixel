@@ -15,7 +15,7 @@ public class SceneController {
    private final SceneService sceneService;
 
     @PostMapping("/")
-    public ResponseEntity<Scene> createScene() {
+    public ResponseEntity<ScenePayload> createScene() {
         return ResponseEntity.status(HttpStatus.CREATED).body(sceneService.createScene());
     }
 }

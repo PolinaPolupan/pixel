@@ -15,7 +15,7 @@ public class SceneService {
     private final StorageService storageService;
     private final SceneRepository sceneRepository;
 
-    public Scene createScene() {
+    public ScenePayload createScene() {
         Scene scene = Scene
                 .builder()
                 .createdAt(LocalDateTime.now())
@@ -29,7 +29,7 @@ public class SceneService {
 
         storageService.createFolder("scenes/" + sceneId);
 
-        return scene;
+        return ScenePayload.fromEntity(scene);
     }
 
     @Transactional
