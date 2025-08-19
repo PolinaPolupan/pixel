@@ -27,11 +27,10 @@ public class NodeProcessorService {
         Map<String, Object> response = nodeCommunicationService.executeNodeRequest("/validate", nodeData, Map.class);
         log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeData, response);
 
-        String outputKey = taskId + ":" + node.getId() + ":output";
-        String inputKey = taskId + ":" + node.getId() + ":input";
-
+        String inputKey = getInputKey(taskId, node.getId());
         nodeCacheService.put(inputKey, node.getInputs());
 
+        String outputKey = getOutputKey(taskId, node.getId());
         Map<String, Object> outputs = nodeCommunicationService.executeNodeRequest("/exec", nodeData, Map.class);
         log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), nodeData, response);
 
@@ -60,10 +59,8 @@ public class NodeProcessorService {
     }
 
     private Object resolveReference(NodeReference reference, Long taskId) {
-        Long id = reference.getNodeId();
         String output = reference.getOutputName();
-
-        String cacheKey = taskId + ":" + id + ":output";
+        String cacheKey = getOutputKey(taskId, reference.getNodeId());
 
         if (!nodeCacheService.exists(cacheKey)) {
             throw new NodeExecutionException("Failed to resolve reference: " + reference.getReference());
@@ -76,5 +73,13 @@ public class NodeProcessorService {
         }
 
         return outputMap.get(output);
+    }
+
+    private String getOutputKey(Long taskId, Long nodeId) {
+        return taskId + ":" + nodeId + ":output";
+    }
+
+    private String getInputKey(Long taskId, Long nodeId) {
+        return taskId + ":" + nodeId + ":input";
     }
 }
