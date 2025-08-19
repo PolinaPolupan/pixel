@@ -63,13 +63,17 @@ public class NodeProcessorService {
         String cacheKey = getOutputKey(taskId, reference.getNodeId());
 
         if (!nodeCacheService.exists(cacheKey)) {
-            throw new NodeExecutionException("Failed to resolve reference: " + reference.getReference());
+            throw new NodeExecutionException(
+                    "Missing cache for node " + reference.getNodeId() + " in task " + taskId
+            );
         }
 
         Map<String, Object> outputMap = nodeCacheService.get(cacheKey);
 
         if (!outputMap.containsKey(output)) {
-            throw new NodeExecutionException("Failed to resolve reference: " + reference.getReference());
+            throw new NodeExecutionException(
+                    "Output '" + output + "' not found in node " + reference.getNodeId() + " for task " + taskId
+            );
         }
 
         return outputMap.get(output);
