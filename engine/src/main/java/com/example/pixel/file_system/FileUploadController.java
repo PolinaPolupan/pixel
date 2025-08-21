@@ -14,7 +14,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import com.example.pixel.exception.InvalidImageFormat;
-import com.example.pixel.scene.SceneService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -29,20 +28,23 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/v1/scene/{sceneId}")
 @Slf4j
 @RequiredArgsConstructor
-public class ImageUploadController {
+public class FileUploadController {
 
-    private final SceneService sceneService;
     private final StorageService storageService;
 
     @GetMapping(path = "/list", produces = "application/json")
-    public List<String> listUploadedFiles(@PathVariable String sceneId,
-                                          @RequestParam(required = false, defaultValue = "") String folder) {
-        sceneService.updateLastAccessed(Long.valueOf(sceneId));
+    public List<String> listUploadedFiles(
+            @PathVariable String sceneId,
+            @RequestParam(required = false, defaultValue = "") String folder
+    ) {
         return storageService.loadAll("scenes/" + sceneId + "/" + folder).map(Path::toString).collect(Collectors.toList());
     }
 
     @GetMapping(path = "/zip", produces = "application/zip")
-    public byte[] zipUploadedFiles(@PathVariable String sceneId, @RequestParam(required = false, defaultValue = "") String folder) throws IOException {
+    public byte[] zipUploadedFiles(
+            @PathVariable String sceneId,
+            @RequestParam(required = false, defaultValue = "") String folder
+    ) throws IOException {
         String basePath = "scenes/" + sceneId + "/" + folder;
 
         List<String> relativePaths = storageService.loadAll(basePath)
@@ -73,9 +75,7 @@ public class ImageUploadController {
     @GetMapping(path ="/file")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String sceneId, @RequestParam String filepath) {
-        sceneService.updateLastAccessed(Long.valueOf(sceneId));
         Resource file = storageService.loadAsResource("scenes/" + sceneId + "/" + filepath);
-
         return getResourceResponseEntity(file);
     }
 
