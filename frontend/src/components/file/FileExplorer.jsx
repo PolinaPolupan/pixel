@@ -51,28 +51,22 @@ const FileExplorer = () => {
 
                 {/* File tree */}
                 <div style={{ flex: 1, overflowY: 'auto', marginBottom: '12px' }}>
-                    {items.length === 0 ? (
-                        <p style={{ fontSize: '14px', color: '#cccccc' }}>No files or folders available</p>
-                    ) : (
-                        <FileTree
-                            nodes={items}
-                            onToggleFolder={toggleFolder}
-                            onFileClick={handleFileClick}
-                        />
-                    )}
+                    <FileTree
+                        nodes={items}
+                        onToggleFolder={toggleFolder}
+                        onFileClick={handleFileClick}
+                    />
                 </div>
 
                 {/* Download button */}
-                {items.length > 0 && (
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '30px' }}>
-                        <button
-                            onClick={downloadAsZip}
-                            className='button'
-                        >
-                            Download ZIP
-                        </button>
-                    </div>
-                )}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '30px' }}>
+                    <button
+                        onClick={downloadAsZip}
+                        className='button'
+                    >
+                        Download ZIP
+                    </button>
+                </div>
             </div>
 
             {/* File preview modal */}

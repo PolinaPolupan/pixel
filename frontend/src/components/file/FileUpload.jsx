@@ -24,37 +24,16 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
       setIsUploading(false);
       return;
     }
-
-    // Validate file types before uploading
-    const validFiles = uploadedFiles.filter(file => {
-      const isImage = file.type === 'image/jpeg' || file.type === 'image/png' ||
-          file.name.match(/\.(jpg|jpeg|png)$/i);
-      const isZip = file.type === 'application/zip' ||
-          file.type === 'application/x-zip-compressed' ||
-          file.name.toLowerCase().endsWith('.zip');
-      return isImage || isZip;
-    });
-
-    if (validFiles.length === 0) {
-      setError('Please select only JPEG, PNG, or ZIP files.');
-      setIsUploading(false);
-      return;
-    }
-
-    if (validFiles.length < uploadedFiles.length) {
-      setError('Some files were skipped because only JPEG, PNG, and ZIP files are allowed.');
-    }
-
     setIsUploading(true);
     try {
       // Use the centralized API client for uploading
-      const serverLocations = await sceneApi.uploadInput(sceneId, validFiles);
+      const serverLocations = await sceneApi.uploadInput(sceneId, uploadedFiles);
 
       // Create file data for all server-returned paths
       const updatedFileData = serverLocations.map((location, index) => {
         const serverUrl = location.fileLocation || location; // Handle object or string
         // Use the original file's metadata for the first file if available
-        const originalFile = validFiles[Math.min(index, validFiles.length - 1)];
+        const originalFile = uploadedFiles[Math.min(index, uploadedFiles.length - 1)];
         return {
           id: Date.now() + Math.random().toString(36).substr(2, 9) + index,
           name: serverUrl.substring(serverUrl.lastIndexOf('/') + 1), // Extract filename for stats
@@ -65,7 +44,7 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
         };
       });
 
-      console.log(`Uploaded ${validFiles.length} files, server returned ${serverLocations.length} paths`);
+      console.log(`Uploaded ${uploadedFiles.length} files, server returned ${serverLocations.length} paths`);
 
       const updatedFiles = [...files, ...updatedFileData].slice(0, maxFiles);
       setFiles(updatedFiles);
