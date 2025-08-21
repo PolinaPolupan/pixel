@@ -33,11 +33,16 @@ public class FileUploadController {
     private final StorageService storageService;
 
     @GetMapping(path = "/list", produces = "application/json")
-    public List<String> listUploadedFiles(
+    public FileStatsPayload listUploadedFiles(
             @PathVariable Long sceneId,
             @RequestParam(required = false, defaultValue = "") String folder
     ) {
-        return storageService.loadAll(getSceneContext(sceneId) + folder).map(Path::toString).collect(Collectors.toList());
+        String basePath = getSceneContext(sceneId) + folder;
+        List<String> locations = storageService.loadAll(basePath)
+                .map((path) -> basePath + path.toString())
+                .collect(Collectors.toList());
+
+        return calculateFileStats(locations);
     }
 
     @GetMapping(path = "/zip", produces = "application/zip")
@@ -101,7 +106,7 @@ public class FileUploadController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<List<String>> handleUpload(
+    public ResponseEntity<FileStatsPayload> handleUpload(
             @PathVariable Long sceneId,
             @RequestParam("file") List<MultipartFile> files
     ) throws IOException {
@@ -121,7 +126,7 @@ public class FileUploadController {
             }
         }
 
-        return new ResponseEntity<>(locations, HttpStatus.CREATED);
+        return new ResponseEntity<>(calculateFileStats(locations), HttpStatus.CREATED);
     }
 
     private List<String> storeZip(Long sceneId, MultipartFile file) throws IOException {
@@ -145,6 +150,37 @@ public class FileUploadController {
         }
 
         return locations;
+    }
+
+    private FileStatsPayload calculateFileStats(List<String> locations) {
+        int zipFiles = 0;
+        int imageFiles = 0;
+        long totalSize = 0;
+
+        for (String location : locations) {
+            String filename = location.substring(location.lastIndexOf('/') + 1);
+            Path filePath = this.storageService.getRootLocation().resolve(location);
+
+            try {
+                totalSize += Files.size(filePath);
+
+                if (filename.toLowerCase().endsWith(".zip")) {
+                    zipFiles++;
+                } else if (filename.toLowerCase().matches(".*\\.(jpg|jpeg|png)$")) {
+                    imageFiles++;
+                }
+            } catch (IOException e) {
+                log.warn("Could not determine size of file: {}", location, e);
+            }
+        }
+
+        return FileStatsPayload.builder()
+                .totalFiles(locations.size())
+                .totalSize(totalSize)
+                .zipFiles(zipFiles)
+                .imageFiles(imageFiles)
+                .locations(locations)
+                .build();
     }
 
     private String getSceneContext(Long sceneId) {

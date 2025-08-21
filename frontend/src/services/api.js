@@ -94,28 +94,37 @@ export const sceneApi = {
     delete: (sceneId) =>
         apiRequest(`/scene/${sceneId}`, { method: 'DELETE' }),
 
-    listFiles: (sceneId, folder = '') =>
-        apiRequest(`/scene/${sceneId}/list${folder ? `?folder=${encodeURIComponent(folder)}` : ''}`),
-
     getFileUrl: (sceneId, filePath, cacheBuster = Date.now()) =>
         `${ENGINE_CONFIG.BASE_URL}/scene/${sceneId}/file?filepath=${encodeURIComponent(filePath)}${cacheBuster ? `&_cb=${cacheBuster}` : ''}`,
 
-    uploadInput: (sceneId, files) => {
+    uploadInput: async (sceneId, files) => {
         const formData = new FormData();
-        if (files instanceof FileList) {
-            for (let i = 0; i < files.length; i++) {
-                formData.append('file', files[i]);
-            }
-        } else if (Array.isArray(files)) {
-            files.forEach(file => formData.append('file', file));
-        } else {
-            formData.append('file', files);
+        for (const file of files) {
+            formData.append('file', file);
         }
 
-        return apiRequest(`/scene/${sceneId}/upload`, {
+        const response = await fetch(`${ENGINE_CONFIG.BASE_URL}/scene/${sceneId}/upload`, {
             method: 'POST',
             body: formData
         });
+
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error || 'Failed to upload files');
+        }
+
+        return await response.json();
+    },
+
+    listFiles: async (sceneId, folder = '') => {
+        const response = await fetch(`${ENGINE_CONFIG.BASE_URL}/scene/${sceneId}/list?folder=${encodeURIComponent(folder)}`);
+
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error || 'Failed to list files');
+        }
+
+        return await response.json();
     },
 
     downloadZip: async (sceneId) => {

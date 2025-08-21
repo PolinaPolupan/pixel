@@ -17,7 +17,7 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
     ).length
   });
 
-  // Handle file upload and send to server
+
   const handleFileChange = async (event) => {
     const uploadedFiles = Array.from(event.target.files);
     if (uploadedFiles.length === 0) {
@@ -26,41 +26,20 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
     }
     setIsUploading(true);
     try {
-      // Use the centralized API client for uploading
-      const serverLocations = await sceneApi.uploadInput(sceneId, uploadedFiles);
+      const fileStats = await sceneApi.uploadInput(sceneId, uploadedFiles);
 
-      // Create file data for all server-returned paths
-      const updatedFileData = serverLocations.map((location, index) => {
-        const serverUrl = location.fileLocation || location; // Handle object or string
-        // Use the original file's metadata for the first file if available
-        const originalFile = uploadedFiles[Math.min(index, uploadedFiles.length - 1)];
-        return {
-          id: Date.now() + Math.random().toString(36).substr(2, 9) + index,
-          name: serverUrl.substring(serverUrl.lastIndexOf('/') + 1), // Extract filename for stats
-          size: originalFile ? originalFile.size : 0, // Approximate size (unknown for ZIP contents)
-          type: originalFile ? originalFile.type : 'image/jpeg', // Default to JPEG for ZIP contents
-          fullUrl: sceneApi.getFileUrl(sceneId, serverUrl),
-          serverUrl: serverUrl // Store full server path
-        };
-      });
+      console.log(`Uploaded ${fileStats.totalFiles} files`);
 
-      console.log(`Uploaded ${uploadedFiles.length} files, server returned ${serverLocations.length} paths`);
-
-      const updatedFiles = [...files, ...updatedFileData].slice(0, maxFiles);
+      const updatedFiles = [...files].slice(0, maxFiles);
       setFiles(updatedFiles);
+      updateParent(fileStats.locations);
 
-      // Update stats based on server-returned paths
       setStats({
-        totalFiles: updatedFiles.length,
-        totalSize: updatedFiles.reduce((sum, file) => sum + (file.size || 0), 0),
-        zipFiles: updatedFiles.filter(file => file.name.toLowerCase().endsWith('.zip')).length,
-        imageFiles: updatedFiles.filter(file =>
-            file.type?.startsWith('image/') || file.name.match(/\.(jpg|jpeg|png)$/i)
-        ).length
+        totalFiles: fileStats.totalFiles,
+        totalSize: fileStats.totalSize,
+        zipFiles: fileStats.zipFiles,
+        imageFiles: fileStats.imageFiles
       });
-
-      updateParent(updatedFiles);
-
     } catch (error) {
       console.error('Failed to upload files:', error);
       setError(`Error uploading files: ${error.message}`);
@@ -70,7 +49,6 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
     }
   };
 
-  // Clear all files
   const clearFiles = () => {
     setFiles([]);
     setStats({
@@ -82,19 +60,10 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
     updateParent([]);
   };
 
-  // Update parent with full server paths
   const updateParent = (fileList) => {
     if (onFilesSelected) {
-      const filePaths = fileList.map(file => file.serverUrl); // Use full server paths
-      onFilesSelected(filePaths);
+      onFilesSelected(fileList);
     }
-  };
-
-  // Format file count label
-  const getFileLabel = () => {
-    if (stats.totalFiles === 0) return "No files";
-    if (stats.totalFiles === 1) return "1 file";
-    return `${stats.totalFiles} files`;
   };
 
   // Format file size
@@ -114,66 +83,59 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
         maxWidth: '250px',
       }}>
         {/* Header with count and clear button */}
-        {stats.totalFiles > 0 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '6px',
-            }}>
-              <span style={{ fontWeight: 500 }}>{getFileLabel()}</span>
-              <button
-                  onClick={clearFiles}
-                  disabled={isUploading}
-                  style={{
-                    padding: '2px 6px',
-                    fontSize: '10px',
-                    background: 'rgba(0, 0, 0, 0)',
-                    color: isUploading ? 'rgba(255, 255, 255, 0.3)' : '#d9534f',
-                    border: `1px solid ${isUploading ? 'rgba(255, 255, 255, 0.2)' : 'rgba(217, 83, 79, 0.5)'}`,
-                    borderRadius: '2px',
-                    cursor: isUploading ? 'not-allowed' : 'pointer',
-                    transition: 'background 0.2s, color 0.2s, border-color 0.2s',
-                  }}
-                  onMouseOver={(e) => !isUploading && (e.target.style.background = 'rgba(217, 83, 79, 0.1)', e.target.style.borderColor = '#d9534f')}
-                  onMouseOut={(e) => !isUploading && (e.target.style.background = 'rgba(0, 0, 0, 0)', e.target.style.borderColor = 'rgba(217, 83, 79, 0.5)')}
-              >
-                Clear
-              </button>
-            </div>
-        )}
-
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '6px',
+        }}>
+          <button
+              onClick={clearFiles}
+              disabled={isUploading}
+              style={{
+                padding: '2px 6px',
+                fontSize: '10px',
+                background: 'rgba(0, 0, 0, 0)',
+                color: isUploading ? 'rgba(255, 255, 255, 0.3)' : '#d9534f',
+                border: `1px solid ${isUploading ? 'rgba(255, 255, 255, 0.2)' : 'rgba(217, 83, 79, 0.5)'}`,
+                borderRadius: '2px',
+                cursor: isUploading ? 'not-allowed' : 'pointer',
+                transition: 'background 0.2s, color 0.2s, border-color 0.2s',
+              }}
+              onMouseOver={(e) => !isUploading && (e.target.style.background = 'rgba(217, 83, 79, 0.1)', e.target.style.borderColor = '#d9534f')}
+              onMouseOut={(e) => !isUploading && (e.target.style.background = 'rgba(0, 0, 0, 0)', e.target.style.borderColor = 'rgba(217, 83, 79, 0.5)')}
+          >
+            Clear
+          </button>
+        </div>
         {/* Stats display */}
-        {stats.totalFiles > 0 && (
-            <div style={{
-              marginBottom: '8px',
-              padding: '8px 10px',
-              background: 'rgba(20, 20, 20, 0.9)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              borderRadius: '4px',
-              fontFamily: '"Courier New", Courier, monospace',
-              fontSize: 'x',
-              color: '#e0e0e0',
-              lineHeight: '1',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-              animation: 'fadeIn 0.3s ease-in',
-              textAlign: 'left'
-            }}>
-              <div style={{ marginBottom: '4px' }}>
-                <span style={{ color: '#569cd6' }}>total_size</span>: {formatSize(stats.totalSize)}
-              </div>
-              <div style={{ marginBottom: '4px' }}>
-                <span style={{ color: '#569cd6' }}>images</span>: {stats.imageFiles}
-              </div>
-              <div style={{ marginBottom: '4px' }}>
-                <span style={{ color: '#569cd6' }}>zip_files</span>: {stats.zipFiles}
-              </div>
-              <div>
-                <span style={{ color: '#569cd6' }}>other_files</span>: {stats.totalFiles - stats.imageFiles - stats.zipFiles}
-              </div>
-            </div>
-        )}
-
+        <div style={{
+          marginBottom: '8px',
+          padding: '8px 10px',
+          background: 'rgba(20, 20, 20, 0.9)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          borderRadius: '4px',
+          fontFamily: '"Courier New", Courier, monospace',
+          fontSize: 'x',
+          color: '#e0e0e0',
+          lineHeight: '1',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+          animation: 'fadeIn 0.3s ease-in',
+          textAlign: 'left'
+        }}>
+          <div style={{ marginBottom: '4px' }}>
+            <span style={{ color: '#569cd6' }}>total_size</span>: {formatSize(stats.totalSize)}
+          </div>
+          <div style={{ marginBottom: '4px' }}>
+            <span style={{ color: '#569cd6' }}>images</span>: {stats.imageFiles}
+          </div>
+          <div style={{ marginBottom: '4px' }}>
+            <span style={{ color: '#569cd6' }}>zip_files</span>: {stats.zipFiles}
+          </div>
+          <div>
+            <span style={{ color: '#569cd6' }}>other_files</span>: {stats.totalFiles - stats.imageFiles - stats.zipFiles}
+          </div>
+        </div>
         {/* Upload button */}
         <div style={{
           display: 'flex',
@@ -195,7 +157,6 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
             {isUploading ? 'Uploading...' : (stats.totalFiles > 0 ? 'Add Files' : 'Upload Files')}
             <input
                 type="file"
-                accept=".jpg,.jpeg,.png,.zip"
                 multiple
                 onChange={handleFileChange}
                 disabled={isUploading}

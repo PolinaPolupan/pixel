@@ -28,11 +28,20 @@ export function useFileExplorer() {
         try {
             setIsLoading(true);
 
-            // Use the centralized API client instead of direct fetch
-            const paths = await sceneApi.listFiles(sceneId, folder);
+            const response = await sceneApi.listFiles(sceneId, folder);
+
+            const paths = response.locations || response;
 
             console.log(`FileExplorer fetchItems response (folder=${folder}):`, paths);
-            return paths.map((path) => path.replace(/\/+$/, '')); // Normalize paths
+
+            const prefix = `scenes/${sceneId}/`;
+            return paths.map((path) => {
+                const truncatedPath = path.startsWith(prefix)
+                    ? path.substring(prefix.length)
+                    : path;
+
+                return truncatedPath.replace(/\/+$/, ''); // Normalize paths
+            });
         } catch (err) {
             setError?.(err.message);
             console.error(`FileExplorer fetchItems error (folder=${folder}):`, err);
