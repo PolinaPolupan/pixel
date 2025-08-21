@@ -1,16 +1,14 @@
-import React from 'react';
 import { useReactFlow, useNodeConnections } from '@xyflow/react';
 import LabeledHandle from './LabeledHandle';
-import {getParameterColor} from "../../services/NodesConfig.jsx";
+import { getParameterColor } from "../../services/NodesConfig.jsx";
 
-const InputHandle = ({ 
-  id, 
-  data, 
-  handleId, 
-  handleLabel, 
-  type = 'number', 
-  parameterType,
-}) => {
+const InputHandle = ({
+                       id,
+                       data,
+                       handleId,
+                       handleLabel,
+                       parameterType
+                     }) => {
   const { updateNodeData } = useReactFlow();
 
   const connections = useNodeConnections({
@@ -20,22 +18,15 @@ const InputHandle = ({
 
   const isConnected = connections.length > 0;
 
+  const inputValue = data[handleId] ?? '';
+
   const handleInputChange = (evt) => {
     if (!isConnected) {
-      let value;
-      
-      if (type === 'number') {
-        const isValidNumber = !isNaN(evt.target.valueAsNumber);
-        value = isValidNumber ? evt.target.valueAsNumber : evt.target.value;
-      } else {
-        value = evt.target.value;
-      }
-      
-      updateNodeData(id, { [handleId]: value });
+      updateNodeData(id, { [handleId]: evt.target.value });
     }
   };
 
-  const inputClass = `input-handle-${id}-${handleId}`;
+  const inputClass = `${handleId}`;
 
   const inputStyle = {
     display: 'block',
@@ -53,28 +44,27 @@ const InputHandle = ({
   };
 
   return (
-    <div>
-      <style>{`
+      <div>
+        <style>{`
         .${inputClass} {
           -moz-appearance: textfield; /* Optional: hide arrows in Firefox */
         }
       `}</style>
-      <LabeledHandle
-        label={handleLabel}
-        type="target"
-        position="left"
-        id={handleId}
-        parameterType={parameterType}
-      />
-      <input
-        type={type}
-        onChange={handleInputChange}
-        value={data[handleId] ?? ''}
-        disabled={isConnected}
-        className={inputClass}
-        style={inputStyle}
-      />
-    </div>
+        <LabeledHandle
+            label={handleLabel}
+            type="target"
+            position="left"
+            id={handleId}
+            parameterType={parameterType}
+        />
+        <input
+            onChange={handleInputChange}
+            value={inputValue}
+            disabled={isConnected}
+            className={inputClass}
+            style={inputStyle}
+        />
+      </div>
   );
 };
 

@@ -39,7 +39,7 @@ export default function Node({ id, data }) {
                 if (handleConfig.widget === "LABEL") {
                     return (
                         <LabeledHandle
-                            key={`source-${handleId}`}
+                            key={handleId}
                             id={handleId}
                             label={handleId}
                             type="source"
@@ -57,7 +57,7 @@ export default function Node({ id, data }) {
                 if (handleConfig.widget === "LABEL") {
                     return (
                         <LabeledHandle
-                            key={`target-${handleId}`}
+                            key={handleId}
                             id={handleId}
                             label={handleId}
                             type="target"
@@ -69,7 +69,7 @@ export default function Node({ id, data }) {
                 if (handleConfig.widget === "INPUT") {
                     return (
                         <InputHandle
-                            key={`input-${handleId}`}
+                            key={handleId}
                             id={id}
                             data={data}
                             handleId={handleId}
@@ -87,7 +87,7 @@ export default function Node({ id, data }) {
                     };
 
                     return (
-                        <div key={`file-${handleId}`}>
+                        <div key={handleId}>
                             <FileUpload
                                 onFilesSelected={handleImagesSelected}
                                 defaultFiles={handleConfig.default}

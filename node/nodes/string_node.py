@@ -33,8 +33,8 @@ class StringNode(Node):
             "icon": "StringIcon"
         }
 
-    def exec(self, value: str) -> Dict[str, Any]:
-        return {"output": value}
+    def exec(self, input: str) -> Dict[str, Any]:
+        return {"output": input}
 
-    def validate(self, value: str) -> None:
+    def validate(self, input: str) -> None:
         pass
