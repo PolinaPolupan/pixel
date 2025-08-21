@@ -62,8 +62,8 @@ public class ErrorController {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InvalidImageFormat.class)
-    public ResponseEntity<?> handleInvalidImageFormat(InvalidImageFormat ex, HttpServletRequest request) {
+    @ExceptionHandler(InvalidFileFormat.class)
+    public ResponseEntity<?> handleInvalidImageFormat(InvalidFileFormat ex, HttpServletRequest request) {
         recordExceptionMetric(ex, request, HttpStatus.BAD_REQUEST);
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
