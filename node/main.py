@@ -100,7 +100,7 @@ async def exec_node(request: Request):
         node = get_node(data)
         outputs = node.exec_params(data)
 
-        return outputs
+        return {"status": "ok", "outputs": outputs}
     except Exception as e:
         logger.error(f"Execution error: {str(e)}", exc_info=True)
         return JSONResponse(

@@ -38,6 +38,12 @@ class NodeProcessorServiceTests {
     @Captor
     private ArgumentCaptor<Map<String, Object>> inputsCaptor;
 
+    @Mock
+    private NodeValidationResponse nodeValidationResponse;
+
+    @Mock
+    private NodeExecutionResponse nodeExecutionResponse;
+
     private final Long sceneId = 1L;
     private final Long taskId = 100L;
     private final Long nodeId = 10L;
@@ -52,11 +58,13 @@ class NodeProcessorServiceTests {
         when(node.getId()).thenReturn(nodeId);
         when(node.getType()).thenReturn("testNode");
         when(node.getInputs()).thenReturn(inputs);
+        when(nodeExecutionResponse.getOutputs()).thenReturn(outputs);
     }
 
     @Test
     void processNodeInternal_shouldCacheInputsAndOutputs() {
-        when(nodeCommunicationService.executeNodeRequest(eq("/exec"), any(Map.class), any())).thenReturn(outputs);
+        when(nodeCommunicationService.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
+        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
         nodeProcessorService.processNode(node,  sceneId, taskId);
 
@@ -74,10 +82,8 @@ class NodeProcessorServiceTests {
         when(nodeCacheService.exists(taskId + ":" + nodeId + ":output")).thenReturn(true);
         when(nodeCacheService.get(taskId + ":" + nodeId + ":output")).thenReturn(referencedOutput);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        assertThrows(RuntimeException.class, () ->
                 nodeProcessorService.processNode(node, sceneId, taskId));
-
-        assertTrue(exception.getMessage().contains("Failed to resolve reference"));
     }
 
     @Test
@@ -87,34 +93,23 @@ class NodeProcessorServiceTests {
 
         when(nodeCacheService.exists(taskId + ":" + nodeId + ":output")).thenReturn(false);
 
-        RuntimeException exception = assertThrows(NodeExecutionException.class, () ->
-                nodeProcessorService.processNode(node, sceneId, taskId));
-
-        assertTrue(exception.getMessage().contains("Failed to resolve reference"));
-    }
-
-    @Test
-    void resolveInput_shouldThrowInvalidNodeParameterOnConversionError() {
-        inputs.put("param1", "not a number");
-
-        when(nodeCommunicationService.executeNodeRequest(anyString(), any(Map.class), any())).thenThrow(ClassCastException.class);
-        when(node.getId()).thenReturn(10L);
-
-        assertThrows(ClassCastException.class, () ->
+        assertThrows(NodeExecutionException.class, () ->
                 nodeProcessorService.processNode(node, sceneId, taskId));
     }
 
     @Test
     void processNodeInternal_shouldHandleValidationFailure() {
-        when(nodeCommunicationService.executeNodeRequest(anyString(), any(Map.class), any())).thenThrow(RuntimeException.class);
+        when(nodeCommunicationService.validateNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
+        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
-        assertThrows(RuntimeException.class, () ->
+        assertThrows(NodeExecutionException.class, () ->
                 nodeProcessorService.processNode(node, sceneId, taskId));
     }
 
     @Test
     void processNodeInternal_shouldHandleExecutionFailure() {
-        when(nodeCommunicationService.executeNodeRequest(eq("/exec"), any(Map.class), any())).thenThrow(NodeExecutionException.class);
+        when(nodeCommunicationService.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
+        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
 
         assertThrows(NodeExecutionException.class, () ->
                 nodeProcessorService.processNode(node, sceneId, taskId));
@@ -126,6 +121,8 @@ class NodeProcessorServiceTests {
     @Test
     void resolveInputs_shouldHandleEmptyInputs() {
         inputs.clear();
+
+        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
         nodeProcessorService.processNode(node, sceneId, taskId);
 

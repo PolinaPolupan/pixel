@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from metadata import Metadata
 from node import Node, register_node_class
@@ -43,7 +43,7 @@ class OutputNode(Node):
             "icon": "OutputIcon"
         }
 
-    def exec(self, input, prefix, folder, meta: Metadata) -> Dict[str, Any]:
+    def exec(self, input: List[str], prefix, folder, meta: Metadata) -> Dict[str, Any]:
         for filepath in input:
             from storage_client import StorageClient
             StorageClient.store_from_workspace_to_scene(
@@ -55,5 +55,5 @@ class OutputNode(Node):
 
         return {}
 
-    def validate(self, input, prefix, folder, meta) -> None:
+    def validate(self, input: List[str], prefix, folder, meta) -> None:
         pass

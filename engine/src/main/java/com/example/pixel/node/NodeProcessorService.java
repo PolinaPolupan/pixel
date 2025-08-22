@@ -15,7 +15,6 @@ public class NodeProcessorService {
     private final NodeCommunicationService nodeCommunicationService;
     private final NodeCacheService nodeCacheService;
 
-    @SuppressWarnings("unchecked")
     public void processNode(Node node, Long sceneId, Long taskId) {
         log.info("Started node: {} Scene: {} Task: {}", node.getId(), sceneId, taskId);
 
@@ -24,17 +23,17 @@ public class NodeProcessorService {
         NodeData nodeData = new NodeData(meta, resolvedInputs);
         node.setInputs(resolvedInputs);
 
-        Map<String, Object> response = nodeCommunicationService.executeNodeRequest("/validate", nodeData, Map.class);
-        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeData, response);
+        NodeValidationResponse validationResponse = nodeCommunicationService.validateNode(nodeData);
+        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeData, validationResponse);
 
         String inputKey = getInputKey(taskId, node.getId());
         nodeCacheService.put(inputKey, node.getInputs());
 
         String outputKey = getOutputKey(taskId, node.getId());
-        Map<String, Object> outputs = nodeCommunicationService.executeNodeRequest("/exec", nodeData, Map.class);
-        log.info("Node {} Exec Output JSON: {} | Response: {}", node.getId(), nodeData, response);
+        NodeExecutionResponse executionResponse = nodeCommunicationService.executeNode(nodeData);
+        log.info("Node {} Exec Output JSON | Response: {}", node.getId(), executionResponse);
 
-        nodeCacheService.put(outputKey, outputs);
+        nodeCacheService.put(outputKey, executionResponse.getOutputs());
     }
 
 
