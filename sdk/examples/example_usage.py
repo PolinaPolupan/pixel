@@ -7,13 +7,13 @@ print(f"Created new scene with ID: {scene_id}")
 
 uploaded_files = client.upload_file(
     scene_id=scene_id,
-    file_path="file.jpg"
+    file_path="test_res/file.jpg"
 )
 print(f"Uploaded files: {uploaded_files}")
 
 uploaded_files = client.upload_file(
     scene_id=scene_id,
-    file_path="scene_1_files.zip"
+    file_path="test_res/scene_1_files.zip"
 )
 print(f"Uploaded files: {uploaded_files}")
 
@@ -80,7 +80,7 @@ print(f"Scene execution result: {result}")
 
 # Download a processed file
 output_file = client.get_file(scene_id, "file.jpg")
-with open("downloaded_result.png", "wb") as f:
+with open("test_res/downloaded_result.png", "wb") as f:
     f.write(output_file)
 
 print("Workflow completed successfully!")
