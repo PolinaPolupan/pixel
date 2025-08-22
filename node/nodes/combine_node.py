@@ -45,7 +45,7 @@ class CombineNode(Node):
 
     def get_output_types(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "files": {
+            "output": {
                 "type": "FILEPATH_ARRAY",
                 "required": True,
                 "widget": "LABEL"
@@ -75,7 +75,7 @@ class CombineNode(Node):
         for file in files:
             output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
-        return {"files": output_files}
+        return {"output": output_files}
 
     def validate(self, meta: Metadata, files_0=None, files_1=None, files_2=None, files_3=None, files_4=None) -> None:
         pass

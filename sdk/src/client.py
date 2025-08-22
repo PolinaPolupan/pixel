@@ -22,38 +22,44 @@ class Client:
         response.raise_for_status()
         return response.json().get("id")
 
-    def list_scene_files(self, scene_id: str) -> List[str]:
+    def list_scene_files(self, scene_id: str)-> Dict[str, Any]:
         url = self._make_url(f"/v1/scene/{scene_id}/list")
         response = self.session.get(url)
         response.raise_for_status()
         return response.json()
 
-    def upload_file(self, scene_id: str, file_content: Union[BinaryIO, bytes], file_path: Optional[str] = None) -> List[str]:
+    def upload_file(self, scene_id: str, file_path: str)-> Dict[str, Any]:
         url = self._make_url(f"/v1/scene/{scene_id}/upload")
 
-        filename = None
-        if hasattr(file_content, 'name'):
-            filename = os.path.basename(file_content.name)
-        elif file_path:
+        file_content = open(file_path, "rb")
+
+        try:
             filename = os.path.basename(file_path)
-        else:
-            filename = 'image.jpg'
 
-        content_type= 'image/jpeg'
+            if filename.lower().endswith('.zip'):
+                content_type = 'application/zip'
+            elif filename.lower().endswith(('.jpg', '.jpeg')):
+                content_type = 'image/jpeg'
+            elif filename.lower().endswith('.png'):
+                content_type = 'image/png'
+            else:
+                content_type = 'application/octet-stream'
 
-        files = {
-            'file': (filename, file_content, content_type)
-        }
+            files = {
+                'file': (filename, file_content, content_type)
+            }
 
-        response = self.session.post(url, files=files)
+            response = self.session.post(url, files=files)
 
-        if response.status_code >= 400:
-            print(f"Upload failed with status code: {response.status_code}")
-            print(f"Response content: {response.text}")
-            print(f"Request details: URL={url}, filename={filename}, content_type={content_type}")
+            if response.status_code >= 400:
+                print(f"Upload failed with status code: {response.status_code}")
+                print(f"Response content: {response.text}")
+                print(f"Request details: URL={url}, filename={filename}, content_type={content_type}")
 
-        response.raise_for_status()
-        return response.json()
+            response.raise_for_status()
+            return response.json()
+        finally:
+            file_content.close()
 
     def get_file(self, scene_id: str, file_path: str) -> bytes:
         url = self._make_url(f"/v1/scene/{scene_id}/file")

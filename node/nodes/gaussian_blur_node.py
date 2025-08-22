@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from metadata import Metadata
 from node import Node, register_node_class
@@ -59,7 +59,7 @@ class GaussianBlurNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, input, sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> Dict[str, Any]:
+    def exec(self, input: List[str], sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> Dict[str, Any]:
         output_files = []
 
         for file in input:
@@ -67,7 +67,7 @@ class GaussianBlurNode(Node):
 
         return {"output": output_files}
 
-    def validate(self, input, sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> None:
+    def validate(self, input: List[str], sizeX, sizeY, sigmaX, meta: Metadata, sigmaY=0) -> None:
         try:
             sizeX = int(sizeX)
             sizeY = int(sizeY)
