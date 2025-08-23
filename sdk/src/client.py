@@ -1,6 +1,6 @@
 import os
 import requests
-from typing import List, Dict, Any, Optional, Union, BinaryIO
+from typing import List, Dict, Any
 from urllib.parse import urljoin
 
 
@@ -13,7 +13,7 @@ class Client:
         return urljoin(self.base_url, path)
 
     def get_node_info(self) -> Dict[str, Any]:
-        response = self.session.get(self._make_url("/info"))
+        response = self.session.get("http://localhost:8000/info")
         response.raise_for_status()
         return response.json()
 
