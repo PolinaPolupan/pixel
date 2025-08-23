@@ -7,55 +7,63 @@ An image processing system designed to proccess images using node-based workflow
 ![image](https://github.com/user-attachments/assets/a4c38118-e976-42d3-b599-abfa7d92621f)
 
 ```
-{
-  "nodes": [
-    {
-      "id": 0,
-      "type": "Input",
-      "inputs": {
-        "files" : [
-          "Picture1.png",
-          "Picture3.png"
-        ]
-      }
-    },
-    {
-      "id": 4,
-      "type": "Floor",
-      "inputs": {
-        "number": 56
-      }
-    },
-    {
-      "id": 1,
-      "type": "GaussianBlur",
-      "inputs": {
-        "files": "@node:0:files",
-        "sizeX": 33,
-        "sigmaX": "@node:4:number"
-      }
-    },
-    {
-      "id": 2,
-      "type": "Output",
-      "inputs": {
-        "files": "@node:1:files",
-        "prefix": "output"
-      }
-    },
-    {
-      "id": 3,
-      "type": "S3Output",
-      "inputs": {
-        "files": "@node:1:files",
-        "access_key_id": "ACCESS_KEY",
-        "secret_access_key": "SECRET",
-        "region": "REGION",
-        "bucket": "BUCKET_NAME"
-      }
-    }
-  ]
-}
+from src import NodeFlow
+
+flow = NodeFlow()
+
+scene_id = flow.create_scene()
+
+flow.upload_file("test_res/file.jpg")
+flow.upload_file("test_res/scene_1_files.zip")
+
+files = flow.list_files()
+
+access_key_id = flow.String(input="key")
+secret_access_key = flow.String(input="secret")
+bucket = flow.String(input="bucket")
+region = flow.String(input="region")
+
+s3_input = flow.S3Input(
+    access_key_id=access_key_id.output,
+    secret_access_key=secret_access_key.output,
+    bucket=bucket.output,
+    region=region.output
+)
+
+input_node = flow.Input(input=files)
+floor_result = flow.Floor(input=56)
+
+combined = flow.Combine(
+    files_0=input_node.output,
+    files_1=s3_input.files
+)
+
+blurred = flow.GaussianBlur(
+    input=combined.output,
+    sigmaX=floor_result.output,
+    sizeX=33,
+    sizeY=33
+)
+
+output = flow.Output(
+    input=blurred.output,
+    prefix="output1",
+    folder="output_1"
+)
+
+s3_output = flow.S3Output(
+    input=blurred.output,
+    access_key_id=access_key_id.output,
+    secret_access_key=secret_access_key.output,
+    bucket=bucket.output,
+    region=region.output,
+    folder="output"
+)
+
+execution_result = flow.execute()
+
+flow.download_file("file.jpg", "test_res/downloaded_result.png")
+print(flow.list_files())
 ```
 
 ## Core Features
