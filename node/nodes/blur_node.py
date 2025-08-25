@@ -1,10 +1,9 @@
 from typing import Dict, Any, List
 
 from metadata import Metadata
-from node import Node, register_node_class
+from node import Node
 from storage_client import StorageClient
 
-@register_node_class
 class BlurNode(Node):
 
     node_type = "Blur"

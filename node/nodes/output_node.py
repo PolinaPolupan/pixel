@@ -2,10 +2,9 @@ import os
 from typing import Dict, Any, List
 
 from metadata import Metadata
-from node import Node, register_node_class
+from node import Node
 
 
-@register_node_class
 class OutputNode(Node):
 
     node_type = "Output"

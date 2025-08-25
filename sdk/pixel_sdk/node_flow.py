@@ -1,4 +1,4 @@
-from src import Client, create_node
+from pixel_sdk import Client, create_node
 
 class NodeOutput:
     """
@@ -34,8 +34,8 @@ class NodeOutput:
 class NodeFlow:
     _node_methods = {}
 
-    def __init__(self, base_url: str = "http://localhost:8080"):
-        self.client = Client(base_url=base_url)
+    def __init__(self):
+        self.client = Client(engine_url="http://localhost:8080", node_url="http://localhost:8000")
         self.scene_id = None
         self.nodes = {}
         self.next_id = 1

@@ -1,9 +1,8 @@
 from numbers import Number
 from typing import Dict, Any
-from node import Node, register_node_class
+from node import Node
 from vector2d import Vector2D
 
-@register_node_class
 class Vector2DNode(Node):
 
     node_type = "Vector2D"
