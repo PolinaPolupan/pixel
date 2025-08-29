@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class NodeProcessorServiceTests {
+class NodeProcessorServiceTest {
 
     @Mock
     private NodeCacheService nodeCacheService;

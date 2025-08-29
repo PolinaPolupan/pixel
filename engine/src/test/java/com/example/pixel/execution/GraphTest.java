@@ -15,7 +15,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class GraphTests {
+public class GraphTest {
 
     private final Long sceneId = 1L;
 

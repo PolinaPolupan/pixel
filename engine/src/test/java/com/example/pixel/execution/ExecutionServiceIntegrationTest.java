@@ -14,6 +14,7 @@ import com.example.pixel.util.TestFileUtils;
 import com.example.pixel.util.TestGraphFactory;
 import com.example.pixel.util.TestcontainersExtension;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,7 +39,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(TestcontainersExtension.class)
 @Import({TestCacheConfig.class})
 @ActiveProfiles("test")
-public class ExecutionServiceIntegrationTests {
+@Tag("integration")
+public class ExecutionServiceIntegrationTest {
 
     @MockitoSpyBean
     private ExecutionService executionService;

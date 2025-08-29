@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class ExecutionServiceTests {
+public class ExecutionServiceTest {
 
     @Mock
     private NodeProcessorService nodeProcessorService;

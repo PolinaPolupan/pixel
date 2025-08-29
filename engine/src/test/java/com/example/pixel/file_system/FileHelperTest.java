@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.example.pixel.config.TestCacheConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,7 +27,8 @@ import java.io.InputStream;
 @Import({TestCacheConfig.class})
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-public class FileHelperTests {
+@Tag("integration")
+public class FileHelperTest {
 
     @MockitoBean
     private StorageService storageService;

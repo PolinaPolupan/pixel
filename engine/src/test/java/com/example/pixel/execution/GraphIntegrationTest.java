@@ -9,6 +9,7 @@ import com.example.pixel.util.TestJsonTemplates;
 import com.example.pixel.util.TestcontainersExtension;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(TestcontainersExtension.class)
+@Tag("integration")
 public class GraphIntegrationTest {
 
     @Autowired

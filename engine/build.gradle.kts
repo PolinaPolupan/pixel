@@ -64,3 +64,15 @@ tasks.jar {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+tasks.register<Test>("integrationTest") {
+	useJUnitPlatform {
+		includeTags("integration")
+	}
+}
+
+tasks.register<Test>("unitTest") {
+	useJUnitPlatform {
+		excludeTags("integration")
+	}
+}

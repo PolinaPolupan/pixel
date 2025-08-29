@@ -3,6 +3,7 @@ package com.example.pixel.task;
 import com.example.pixel.config.TestCacheConfig;
 import com.example.pixel.execution.Graph;
 import com.example.pixel.util.TestGraphFactory;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -21,7 +22,8 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @Import({TestCacheConfig.class})
 @ActiveProfiles("test")
-public class TaskServiceTests {
+@Tag("integration")
+public class TaskServiceTest {
 
     @MockitoSpyBean
     private TaskRepository taskRepository;
