@@ -11,9 +11,6 @@ services:
       STORAGE_DIRECTORY: ${STORAGE_DIRECTORY:-/app/storage}
       NODE_SERVICE_URL: ${NODE_SERVICE_URL:-http://node:8000}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
-    volumes:
-      - ../engine/build/libs:/app/libs
-    command: java -jar /app/libs/engine-0.0.1-SNAPSHOT.jar
   
   node:
     build:
