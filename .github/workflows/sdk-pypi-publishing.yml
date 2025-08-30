@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: SDK
+        working-directory: sdk
     steps:
       - uses: actions/checkout@v4
 
