@@ -29,8 +29,7 @@ jobs:
         run: |
           unzip -p dist/pixel_sdk-*.whl *.dist-info/METADATA || echo "No METADATA"
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.11
-        with:
-          packages-dir: ${{ github.workspace }}/sdk/dist
-          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish with Twine
+        run: |
+          pip install twine
+          twine upload --repository pypi sdk/dist/*.whl -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
