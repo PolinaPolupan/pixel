@@ -13,4 +13,4 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["pixel_sdk"]
+include = ["pixel_sdk", "test_res"]
