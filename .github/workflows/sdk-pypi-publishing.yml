@@ -24,6 +24,11 @@ jobs:
           rm -rf build dist *.egg-info
           python -m build
 
+      - name: Inspect wheel METADATA
+        working-directory: sdk
+        run: |
+          unzip -p dist/pixel_sdk-*.whl *.dist-info/METADATA || echo "No METADATA"
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@v1.8.11
         with:
