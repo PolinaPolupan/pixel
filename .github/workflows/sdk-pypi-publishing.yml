@@ -4,35 +4,28 @@ on:
   push:
     branches: [ main ]
     tags: [ 'v*' ]
-
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: sdk
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Build sdist and wheel
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
-          python -m build --sdist --wheel
+      - name: Install build tools
+        run: python -m pip install --upgrade build
 
-      - name: Show dist contents (debug)
-        run: ls -la dist || true
+      - name: Build package
+        working-directory: sdk
+        run: |
+          rm -rf build dist *.egg-info
+          python -m build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@v1.8.11
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: sdk/dist
-          skip-existing: true
+          password: ${{ secrets.PYPI_API_TOKEN }}
