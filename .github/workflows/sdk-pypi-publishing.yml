@@ -32,5 +32,5 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@v1.8.11
         with:
-          packages-dir: sdk/dist
+          packages-dir: ${{ github.workspace }}/sdk/dist
           password: ${{ secrets.PYPI_API_TOKEN }}
