@@ -83,15 +83,71 @@ print(flow.list_files())
 - [ ] Comprehensive image metadata preservation
 - [ ] OAuth2 authentication and fine-grained permissions
 
-## Planned Tech Stack
+# Installation
+---
+## Prerequisites
+- [Docker](https://docs.docker.com/get-docker/) installed
+- [Docker Compose](https://docs.docker.com/compose/install/) (comes with Docker Desktop)
 
-- Java 17
-- Spring Boot 3.4.3
-- Apache Kafka
-- OpenCV
-- PostgreSQL
-- Redis
-- React (for web interface)
+---
+
+## Step 1: Create a Docker Compose File
+
+Download **deploy/docker-compose.install.yaml** from the repository
+
+In a new folder, paste the file
+
+---
+
+## Step 2: Start the app
+
+Open a terminal in this folder and run:
+
+```sh
+docker compose up
+```
+
+This command will download the pre-built images and start all services.
+
+---
+
+## Step 3: Access the App
+
+- **Frontend:** [http://localhost:5173](http://localhost:5173)
+- **Engine API:** [http://localhost:8080](http://localhost:8080)
+- **Node API:** [http://localhost:8000](http://localhost:8000)
+
+---
+
+## Step 4: Stop
+
+To stop all services, press `Ctrl+C` in the terminal or run:
+
+```sh
+docker compose down
+```
+
+---
+
+## Optional: Use the Python SDK
+
+You can interact with pixel using the Python SDK for automation and scripting.
+
+### Install the SDK
+
+```sh
+pip install pixel-sdk
+```
+
+## Troubleshooting
+
+- Make sure Docker and Docker Compose are running.
+- If you see "port already in use," change the port number in `docker-compose.yml`.
+- For other issues, see our [GitHub Issues](https://github.com/PolinaPolupan/pixel/issues).
+
+---
+
+Enjoy using Pixel!
 
 ## Contributing
 
