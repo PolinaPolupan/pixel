@@ -1,0 +1,15 @@
+name: Build and Push Node Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'node/**'
+      - '.github/workflows/docker-node.yml'
+
+jobs:
+  build-and-push-node:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      service: node

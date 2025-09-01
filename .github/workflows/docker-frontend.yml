@@ -1,0 +1,15 @@
+name: Build and Push Frontend Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/docker-frontend.yml'
+
+jobs:
+  build-and-push-frontend:
+    uses: ./.github/workflows/docker-build-push.yml
+    with:
+      service: frontend
