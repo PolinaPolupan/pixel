@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'node/**'
-      - 'docker-node.yml'
+      - '.github/workflows/docker-node.yml'
 
 jobs:
   build-and-push-node:
