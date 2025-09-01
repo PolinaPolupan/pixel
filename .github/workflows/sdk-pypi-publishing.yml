@@ -23,11 +23,9 @@ jobs:
         run: |
           rm -rf build dist *.egg-info
           python -m build
-      - name: Inspect wheel METADATA
-        working-directory: sdk
-        run: |
-          unzip -p dist/pixel_sdk-*.whl *.dist-info/METADATA || echo "No METADATA"
-      - name: Publish with Twine
-        run: |
-          pip install twine
-          twine upload --repository pypi sdk/dist/*.whl -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.8.11
+        with:
+          packages-dir: sdk/dist
+          password: ${{ secrets.PYPI_API_TOKEN }}
