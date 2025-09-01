@@ -9,8 +9,12 @@ name: Engine unit tests
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'engine/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'engine/**'
 
 jobs:
   build:
