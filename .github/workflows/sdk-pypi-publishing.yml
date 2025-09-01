@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     tags: [ 'v*' ]
     paths:
-      - 'sdk/**'
+      - 'sdk/pixel_sdk/**'
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
