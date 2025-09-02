@@ -1,5 +1,6 @@
 package com.example.pixel.task;
 
+import com.example.pixel.exception.TaskNotFoundException;
 import com.example.pixel.execution.Graph;
 import com.example.pixel.file_system.StorageService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class TaskService {
     @Transactional
     public TaskPayload findTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
         return TaskPayload.fromEntity(task);
     }
 
@@ -40,7 +41,7 @@ public class TaskService {
     @Transactional
     public void updateTaskStatus(Long taskId, TaskStatus status) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
         task.setStatus(status);
         if (status == TaskStatus.RUNNING && task.getStartTime() == null) {
             task.setStartTime(LocalDateTime.now());
@@ -54,7 +55,7 @@ public class TaskService {
     @Transactional
     public void updateTaskProgress(Long taskId, int processedNodes) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
         task.setProcessedNodes(processedNodes);
         taskRepository.save(task);
     }
@@ -62,7 +63,7 @@ public class TaskService {
     @Transactional
     public void markTaskFailed(Long taskId, String errorMessage) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
         task.setStatus(TaskStatus.FAILED);
         if (task.getEndTime() == null) task.setEndTime(LocalDateTime.now());
         task.setErrorMessage(errorMessage);
@@ -71,7 +72,7 @@ public class TaskService {
 
     public void delete(Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + taskId));
+                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
         storageService.delete("tasks/" + taskId);
         taskRepository.delete(task);
     }
