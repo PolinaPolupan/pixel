@@ -1,6 +1,6 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.exception.InvalidGraph;
+import com.example.pixel.exception.InvalidGraphException;
 import com.example.pixel.exception.InvalidNodeInputException;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeReference;
@@ -40,7 +40,7 @@ public class GraphTest {
         Node floorNode2 = new Node(4L, "Floor", floorParams);
         nodes.add(floorNode2);
 
-        InvalidGraph exception = assertThrows(InvalidGraph.class, () -> new Graph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(nodes));
         assertTrue(exception.getMessage().contains("duplicate IDs"));
         assertTrue(exception.getMessage().contains("4"));
     }
@@ -216,7 +216,7 @@ public class GraphTest {
         Node gaussianNode3 = new Node(3L, "GaussianBlur", gaussianParams3);
         nodes.add(gaussianNode3);
 
-        InvalidGraph exception = assertThrows(InvalidGraph.class, () -> new Graph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
@@ -234,7 +234,7 @@ public class GraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidGraph exception = assertThrows(InvalidGraph.class, () -> new Graph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 

@@ -80,8 +80,8 @@ public class ErrorController {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InvalidGraph.class)
-    public ResponseEntity<?> handleInvalidGraph(InvalidGraph ex, HttpServletRequest request) {
+    @ExceptionHandler(InvalidGraphException.class)
+    public ResponseEntity<?> handleInvalidGraph(InvalidGraphException ex, HttpServletRequest request) {
         recordExceptionMetric(ex, request, HttpStatus.BAD_REQUEST);
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);

@@ -1,6 +1,6 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.exception.InvalidGraph;
+import com.example.pixel.exception.InvalidGraphException;
 import com.example.pixel.exception.InvalidNodeInputException;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeReference;
@@ -86,12 +86,12 @@ public class Graph {
         }
 
         if (!duplicateIds.isEmpty()) {
-            throw new InvalidGraph("Graph contains nodes with duplicate IDs: " + duplicateIds);
+            throw new InvalidGraphException("Graph contains nodes with duplicate IDs: " + duplicateIds);
         }
 
         // Check for cycles
         if (topologicalOrder.size() != nodes.size()) {
-            throw new InvalidGraph("Graph contains a cycle");
+            throw new InvalidGraphException("Graph contains a cycle");
         }
 
         log.info("Graph validation passed: no duplicate node IDs found");
