@@ -1,7 +1,7 @@
 package com.example.pixel.task;
 
 import com.example.pixel.config.TestCacheConfig;
-import com.example.pixel.execution.Graph;
+import com.example.pixel.execution.ExecutionGraph;
 import com.example.pixel.util.TestGraphFactory;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -38,9 +38,9 @@ public class TaskServiceTest {
 
     @Test
     void createTask_shouldSetInitialValues() {
-        Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
 
-        taskService.createTask(graph, sceneId);
+        taskService.createTask(executionGraph, sceneId);
 
         verify(taskRepository).save(taskCaptor.capture());
         Task capturedTask = taskCaptor.getValue();
@@ -56,8 +56,8 @@ public class TaskServiceTest {
 
     @Test
     void createTask_withEmptyGraph_shouldSetZeroNodes() {
-        Graph graph = new Graph(List.of());
-        TaskPayload result = taskService.createTask(graph, sceneId);
+        ExecutionGraph executionGraph = new ExecutionGraph(List.of());
+        TaskPayload result = taskService.createTask(executionGraph, sceneId);
 
         assertEquals(0, result.getTotalNodes());
     }

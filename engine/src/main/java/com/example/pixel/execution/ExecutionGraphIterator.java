@@ -4,12 +4,12 @@ import com.example.pixel.node.Node;
 
 import java.util.*;
 
-public class GraphIterator implements Iterator<Node> {
+public class ExecutionGraphIterator implements Iterator<Node> {
     private final List<Node> topologicalOrder;
     private int currentIndex;
 
-    public GraphIterator(Graph graph) {
-        this.topologicalOrder = graph.getTopologicalOrder();
+    public ExecutionGraphIterator(ExecutionGraph executionGraph) {
+        this.topologicalOrder = executionGraph.getTopologicalOrder();
         this.currentIndex = 0;
     }
 

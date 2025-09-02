@@ -70,15 +70,15 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_defaultCase_shouldGenerateOutputFiles() throws Exception {
-        Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
-        int nodeCount = graph.getNodes().size();
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        int nodeCount = executionGraph.getNodes().size();
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
         TaskPayload completedTask = future.get();
 
         assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
 
-        verify(taskService).createTask(graph, sceneId);
+        verify(taskService).createTask(executionGraph, sceneId);
 
         assertTrue(storageService.loadAll("scenes/" + sceneId).toArray().length > 0);
         assertTrue(storageService.loadAsResource("scenes/" +
@@ -92,13 +92,13 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_whenNodeProcessingFails_shouldMarkTaskAsFailed() throws Exception {
-        Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         String errorMessage = "Simulated node processing failure";
 
         doThrow(new RuntimeException(errorMessage))
                 .when(nodeProcessorService).processNode(any(), eq(sceneId), any());
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -113,10 +113,10 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_withMultipleNodes_shouldUpdateProgressCorrectly() throws Exception {
-        Graph multiNodeGraph = TestGraphFactory.getDefaultGraph(sceneId);
-        int nodeCount = multiNodeGraph.getNodes().size();
+        ExecutionGraph multiNodeExecutionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        int nodeCount = multiNodeExecutionGraph.getNodes().size();
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(multiNodeGraph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(multiNodeExecutionGraph, sceneId);
         future.get();
 
         verify(nodeProcessorService, times(nodeCount)).processNode(any(), eq(sceneId), any());
@@ -130,11 +130,11 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_shouldTransitionTaskStatusCorrectly() throws Exception {
-        Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
 
         ArgumentCaptor<TaskStatus> statusCaptor = ArgumentCaptor.forClass(TaskStatus.class);
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
         future.get();
 
         verify(taskService, atLeastOnce()).updateTaskStatus(any(), statusCaptor.capture());
@@ -151,8 +151,8 @@ public class ExecutionServiceIntegrationTest {
 
         for (int i = 0; i < concurrentTasks; i++) {
             Long sceneId = 100L + i;
-            Graph graph = TestGraphFactory.getMinimalGraph();
-            futures.add(executionService.startExecutionAsync(graph, sceneId));
+            ExecutionGraph executionGraph = TestGraphFactory.getMinimalGraph();
+            futures.add(executionService.startExecutionAsync(executionGraph, sceneId));
         }
 
         CompletableFuture<Void> allDone = CompletableFuture.allOf(
@@ -173,11 +173,11 @@ public class ExecutionServiceIntegrationTest {
         gaussianParams.put("sizeX", 2);
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
-        Graph graph = new Graph(nodes);
+        ExecutionGraph executionGraph = new ExecutionGraph(nodes);
 
         String expectedErrorMessage = "SizeX must be positive and odd";
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -199,9 +199,9 @@ public class ExecutionServiceIntegrationTest {
         gaussianParams.put("sizeX", 5);
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
-        Graph graph = new Graph(nodes);
+        ExecutionGraph executionGraph = new ExecutionGraph(nodes);
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -224,9 +224,9 @@ public class ExecutionServiceIntegrationTest {
         gaussianParams.put("sizeX", 5);
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
-        Graph graph = new Graph(nodes);
+        ExecutionGraph executionGraph = new ExecutionGraph(nodes);
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();

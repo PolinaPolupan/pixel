@@ -12,7 +12,7 @@ CREATE TABLE graph_execution_tasks (
 
 CREATE INDEX idx_graph_execution_tasks_status ON graph_execution_tasks(status);
 
-COMMENT ON TABLE graph_execution_tasks IS 'Stores the state of asynchronous graph execution tasks';
+COMMENT ON TABLE graph_execution_tasks IS 'Stores the state of asynchronous executionGraph execution tasks';
 COMMENT ON COLUMN graph_execution_tasks.scene_id IS 'Unique identifier for the scene being processed';
 COMMENT ON COLUMN graph_execution_tasks.status IS 'Current status of the task (PENDING, RUNNING, COMPLETED, FAILED)';
 COMMENT ON COLUMN graph_execution_tasks.version IS 'Optimistic locking version for concurrent updates';

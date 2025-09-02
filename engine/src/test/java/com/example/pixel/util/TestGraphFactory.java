@@ -1,6 +1,6 @@
 package com.example.pixel.util;
 
-import com.example.pixel.execution.Graph;
+import com.example.pixel.execution.ExecutionGraph;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeReference;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class TestGraphFactory {
 
-    public static Graph getDefaultGraph(Long sceneId) {
+    public static ExecutionGraph getDefaultGraph(Long sceneId) {
         Map<String, Object> inputParams = new HashMap<>();
         List<String> files = new ArrayList<>();
         files.add("scenes/" + sceneId + "/input/Picture1.png");
@@ -26,7 +26,7 @@ public class TestGraphFactory {
         return getDefaultGraph(inputParams, outputParams);
     }
 
-    public static Graph getDefaultGraph(
+    public static ExecutionGraph getDefaultGraph(
             Map<String, Object> inputParams,
             Map<String, Object> outputParams
     ) {
@@ -85,10 +85,10 @@ public class TestGraphFactory {
         Node outputNode = new Node(8L, "Output", outputParams);
         nodes.add(outputNode);
 
-        return new Graph(nodes);
+        return new ExecutionGraph(nodes);
     }
 
-    public static Graph getMinimalGraph() {
+    public static ExecutionGraph getMinimalGraph() {
         List<Node> nodes = new ArrayList<>();
 
         // Create Input node (id: 10)
@@ -122,6 +122,6 @@ public class TestGraphFactory {
         Node outputNode = new Node(2L, "Output", outputParams);
         nodes.add(outputNode);
 
-        return new Graph(nodes);
+        return new ExecutionGraph(nodes);
     }
 }

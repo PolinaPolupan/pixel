@@ -14,7 +14,7 @@ import java.util.*;
 
 @Slf4j
 @Getter
-public class Graph {
+public class ExecutionGraph {
     private final List<Node> nodes;
     @JsonIgnore
     private final List<Node> topologicalOrder = new ArrayList<>();
@@ -24,7 +24,7 @@ public class Graph {
     private final Map<Node, List<Node>> nodeOutputs = new HashMap<>();
 
     @JsonCreator
-    public Graph(@JsonProperty("nodes") List<Node> nodes) {
+    public ExecutionGraph(@JsonProperty("nodes") List<Node> nodes) {
         this.nodes = nodes;
 
         // First populate the node map
@@ -41,7 +41,7 @@ public class Graph {
     }
 
     public Iterator<Node> iterator() {
-        return new GraphIterator(this);
+        return new ExecutionGraphIterator(this);
     }
 
     private void mapOutputNodes(Node node) {

@@ -41,7 +41,7 @@ public class ExecutionServiceTest {
     @InjectMocks
     private ExecutionService executionService;
 
-    private Graph graph;
+    private ExecutionGraph executionGraph;
 
     private Task task;
 
@@ -59,9 +59,9 @@ public class ExecutionServiceTest {
         nodes.add(node1);
         nodes.add(node2);
 
-        graph = mock(Graph.class);
+        executionGraph = mock(ExecutionGraph.class);
         Iterator<Node> mockIterator = nodes.iterator();
-        when(graph.iterator()).thenReturn(mockIterator);
+        when(executionGraph.iterator()).thenReturn(mockIterator);
 
         task = new Task();
         task.setId(taskId);
@@ -70,7 +70,7 @@ public class ExecutionServiceTest {
         task.setTotalNodes(2);
         task.setProcessedNodes(0);
 
-        when(taskService.createTask(any(Graph.class), anyLong()))
+        when(taskService.createTask(any(ExecutionGraph.class), anyLong()))
                 .thenReturn(TaskPayload.fromEntity(task));
 
         when(taskService.findTaskById(taskId)).thenReturn(TaskPayload.fromEntity(task));
@@ -78,10 +78,10 @@ public class ExecutionServiceTest {
 
     @Test
     void startExecution_shouldCreateTaskAndReturnCompletedTask() throws ExecutionException, InterruptedException {
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         TaskPayload result = future.get();
 
-        verify(taskService).createTask(graph, sceneId);
+        verify(taskService).createTask(executionGraph, sceneId);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.RUNNING);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.COMPLETED);
         verify(notificationService, times(3)).sendTaskStatus(any(TaskPayload.class));
@@ -90,10 +90,10 @@ public class ExecutionServiceTest {
 
     @Test
     void startExecutionAsync_shouldCreateTaskAndReturnFuture() throws Exception {
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         TaskPayload result = future.get();
 
-        verify(taskService).createTask(graph, sceneId);
+        verify(taskService).createTask(executionGraph, sceneId);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.RUNNING);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.COMPLETED);
         verify(notificationService, times(3)).sendTaskStatus(any(TaskPayload.class));
@@ -102,7 +102,7 @@ public class ExecutionServiceTest {
 
     @Test
     void executeInternal_shouldProcessAllNodesInOrder() throws Exception {
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         future.get();
 
         InOrder inOrder = inOrder(nodeProcessorService, taskService, notificationService);
@@ -124,12 +124,12 @@ public class ExecutionServiceTest {
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void executeInternal_whenEmpty_shouldCompleteSuccessfully() throws Exception {
-        Graph emptyGraph = mock(Graph.class);
+        ExecutionGraph emptyExecutionGraph = mock(ExecutionGraph.class);
         List<Node> emptyList = new ArrayList<>();
-        when(emptyGraph.getNodes()).thenReturn(emptyList);
-        when(emptyGraph.iterator()).thenReturn(emptyList.iterator());
+        when(emptyExecutionGraph.getNodes()).thenReturn(emptyList);
+        when(emptyExecutionGraph.iterator()).thenReturn(emptyList.iterator());
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(emptyGraph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(emptyExecutionGraph, sceneId);
         TaskPayload result = future.get();
 
         verify(taskService).updateTaskStatus(taskId, TaskStatus.RUNNING);
@@ -145,7 +145,7 @@ public class ExecutionServiceTest {
         doThrow(new RuntimeException(errorMessage))
                 .when(nodeProcessorService).processNode(any(), anyLong(), anyLong());
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
 
         ExecutionException exception = assertThrows(ExecutionException.class, future::get);
         assertInstanceOf(RuntimeException.class, exception.getCause());
@@ -164,9 +164,9 @@ public class ExecutionServiceTest {
             manyNodes.add(mock(Node.class));
         }
 
-        when(graph.iterator()).thenReturn(manyNodes.iterator());
+        when(executionGraph.iterator()).thenReturn(manyNodes.iterator());
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         future.get();
 
         ArgumentCaptor<Integer> progressCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -194,7 +194,7 @@ public class ExecutionServiceTest {
                 .thenThrow(new RuntimeException(errorMessage));
 
         Exception exception = assertThrows(RuntimeException.class, () ->
-                executionService.startExecution(graph, sceneId));
+                executionService.startExecution(executionGraph, sceneId));
 
         assertEquals(errorMessage, exception.getMessage());
     }
@@ -207,7 +207,7 @@ public class ExecutionServiceTest {
                 .thenThrow(new RuntimeException(errorMessage));
 
         Exception exception = assertThrows(RuntimeException.class, () ->
-                executionService.startExecutionAsync(graph, sceneId));
+                executionService.startExecutionAsync(executionGraph, sceneId));
 
         assertEquals(errorMessage, exception.getMessage());
     }
@@ -218,7 +218,7 @@ public class ExecutionServiceTest {
         doThrow(new RuntimeException("Thread interrupted"))
                 .when(nodeProcessorService).processNode(any(), anyLong(), anyLong());
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
 
         ExecutionException exception = assertThrows(ExecutionException.class, future::get);
         assertInstanceOf(RuntimeException.class, exception.getCause());
@@ -234,7 +234,7 @@ public class ExecutionServiceTest {
         doThrow(testException)
                 .when(nodeProcessorService).processNode(any(), anyLong(), anyLong());
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -251,7 +251,7 @@ public class ExecutionServiceTest {
         doThrow(new RuntimeException("Status update failed"))
                 .when(taskService).updateTaskStatus(any(), eq(TaskStatus.RUNNING));
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
 
         ExecutionException exception = assertThrows(ExecutionException.class, future::get);
         assertInstanceOf(RuntimeException.class, exception.getCause());
@@ -270,7 +270,7 @@ public class ExecutionServiceTest {
             return null;
         }).when(notificationService).sendTaskStatus(any(TaskPayload.class));
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(graph, sceneId);
+        CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         TaskPayload result = future.get();
 
         verify(taskService).updateTaskStatus(taskId, TaskStatus.COMPLETED);

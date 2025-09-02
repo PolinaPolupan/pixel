@@ -13,8 +13,8 @@ public class ExecutionController {
     private final ExecutionService executionService;
 
     @PostMapping
-    public ResponseEntity<TaskPayload> execute(@PathVariable Long sceneId, @RequestBody Graph graph) {
-        TaskPayload task = executionService.startExecution(graph, sceneId);
+    public ResponseEntity<TaskPayload> execute(@PathVariable Long sceneId, @RequestBody ExecutionGraph executionGraph) {
+        TaskPayload task = executionService.startExecution(executionGraph, sceneId);
         return ResponseEntity.ok(task);
     }
 }

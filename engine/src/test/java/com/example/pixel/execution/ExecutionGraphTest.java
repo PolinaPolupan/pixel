@@ -15,17 +15,17 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class GraphTest {
+public class ExecutionGraphTest {
 
     private final Long sceneId = 1L;
 
     @Test
     void  constructValidGraph_shouldSucceed() {
-        Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
 
-        assertNotNull(graph);
-        assertEquals(8, graph.getNodes().size());
-        assertEquals(8, graph.getTopologicalOrder().size());
+        assertNotNull(executionGraph);
+        assertEquals(8, executionGraph.getNodes().size());
+        assertEquals(8, executionGraph.getTopologicalOrder().size());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class GraphTest {
         Node floorNode2 = new Node(4L, "Floor", floorParams);
         nodes.add(floorNode2);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(nodes));
         assertTrue(exception.getMessage().contains("duplicate IDs"));
         assertTrue(exception.getMessage().contains("4"));
     }
@@ -48,11 +48,11 @@ public class GraphTest {
     @Test
     void nodeOutputs_shouldBeCorrectlyIdentified() {
         // Create a graph with the template nodes
-        Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
-        List<Node> nodes = graph.getNodes();
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        List<Node> nodes = executionGraph.getNodes();
 
         // Get the node outputs map
-        Map<Node, List<Node>> nodeOutputs = graph.getNodeOutputs();
+        Map<Node, List<Node>> nodeOutputs = executionGraph.getNodeOutputs();
 
         // Reference nodes by their index in the list for clarity
         Node inputNode = nodes.get(0);      // Input node (id: 1)
@@ -97,11 +97,11 @@ public class GraphTest {
 
     @Test
     void topologicalSort_shouldProduceCorrectOrdering() {
-        Graph graph = TestGraphFactory.getDefaultGraph(sceneId);
-        List<Node> nodes = graph.getNodes();
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        List<Node> nodes = executionGraph.getNodes();
 
         // Get the topological ordering
-        List<Node> topologicalOrder = graph.getTopologicalOrder();
+        List<Node> topologicalOrder = executionGraph.getTopologicalOrder();
 
         // Verify the size matches the number of nodes
         assertEquals(8, topologicalOrder.size(), "Topological order should contain all nodes");
@@ -216,7 +216,7 @@ public class GraphTest {
         Node gaussianNode3 = new Node(3L, "GaussianBlur", gaussianParams3);
         nodes.add(gaussianNode3);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
@@ -234,7 +234,7 @@ public class GraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
@@ -252,7 +252,7 @@ public class GraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new Graph(nodes));
+        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new ExecutionGraph(nodes));
         assertTrue(exception.getMessage().contains("Invalid node reference: Node with id 10 is not found"));
     }
 }

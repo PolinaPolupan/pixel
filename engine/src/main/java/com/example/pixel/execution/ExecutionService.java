@@ -24,36 +24,36 @@ public class ExecutionService {
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
 
-    public TaskPayload startExecution(Graph graph, Long sceneId) {
+    public TaskPayload startExecution(ExecutionGraph executionGraph, Long sceneId) {
         log.info("startGraphExecution: Creating task for sceneId={} ...", sceneId);
-        TaskPayload task = taskService.createTask(graph, sceneId);
+        TaskPayload task = taskService.createTask(executionGraph, sceneId);
         Long taskId = task.getId();
         log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", taskId);
-        CompletableFuture.runAsync(() -> execute(graph, taskId, sceneId), graphTaskExecutor);
+        CompletableFuture.runAsync(() -> execute(executionGraph, taskId, sceneId), graphTaskExecutor);
         return task;
     }
 
-    public CompletableFuture<TaskPayload> startExecutionAsync(Graph graph, Long sceneId) {
+    public CompletableFuture<TaskPayload> startExecutionAsync(ExecutionGraph executionGraph, Long sceneId) {
         log.info("startGraphExecutionAsync: Creating task for sceneId={} ...", sceneId);
-        TaskPayload task = taskService.createTask(graph, sceneId);
+        TaskPayload task = taskService.createTask(executionGraph, sceneId);
         log.info("startGraphExecutionAsync: Task created with id={}, starting graph execution ...", task.getId());
-        return CompletableFuture.supplyAsync(() -> execute(graph, task.getId(), sceneId).join(), graphTaskExecutor);
+        return CompletableFuture.supplyAsync(() -> execute(executionGraph, task.getId(), sceneId).join(), graphTaskExecutor);
     }
 
-    public CompletableFuture<TaskPayload> startExecutionSync(Graph graph, Long sceneId) {
+    public CompletableFuture<TaskPayload> startExecutionSync(ExecutionGraph executionGraph, Long sceneId) {
         log.info("startGraphExecutionSync: Creating task for sceneId={} ...", sceneId);
-        TaskPayload task = taskService.createTask(graph, sceneId);
+        TaskPayload task = taskService.createTask(executionGraph, sceneId);
         log.info("startGraphExecutionSync: Task created with id={}, starting graph execution ...", task.getId());
-        return execute(graph, task.getId(), sceneId);
+        return execute(executionGraph, task.getId(), sceneId);
     }
 
-    private CompletableFuture<TaskPayload> execute(Graph graph, Long taskId, Long sceneId) {
+    private CompletableFuture<TaskPayload> execute(ExecutionGraph executionGraph, Long taskId, Long sceneId) {
         log.info("executeGraphInternal: Starting execution for taskId={}, sceneId={}", taskId, sceneId);
         try {
             log.debug("Updating task status to RUNNING for taskId={}", taskId);
             taskService.updateTaskStatus(taskId, TaskStatus.RUNNING);
 
-            Iterator<Node> iterator = graph.iterator();
+            Iterator<Node> iterator = executionGraph.iterator();
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
@@ -63,7 +63,7 @@ public class ExecutionService {
                 nodeProcessorService.processNode(node, sceneId, taskId);
 
                 processedNodes++;
-                log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodes().size());
+                log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, executionGraph.getNodes().size());
 
                 taskService.updateTaskProgress(taskId, processedNodes);
                 notificationService.sendTaskStatus(taskService.findTaskById(taskId));

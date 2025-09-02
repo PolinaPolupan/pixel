@@ -1,7 +1,7 @@
 package com.example.pixel.task;
 
 import com.example.pixel.exception.TaskNotFoundException;
-import com.example.pixel.execution.Graph;
+import com.example.pixel.execution.ExecutionGraph;
 import com.example.pixel.file_system.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +28,12 @@ public class TaskService {
     }
 
     @Transactional
-    public TaskPayload createTask(Graph graph, Long sceneId) {
+    public TaskPayload createTask(ExecutionGraph executionGraph, Long sceneId) {
         log.debug("Creating task for scene {}", sceneId);
         Task task = new Task();
         task.setSceneId(sceneId);
         task.setStatus(TaskStatus.PENDING);
-        task.setTotalNodes(graph.getNodes().size());
+        task.setTotalNodes(executionGraph.getNodes().size());
         task.setProcessedNodes(0);
         return TaskPayload.fromEntity(taskRepository.save(task));
     }

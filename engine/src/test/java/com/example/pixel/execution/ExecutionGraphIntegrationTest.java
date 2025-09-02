@@ -38,7 +38,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(TestcontainersExtension.class)
 @Tag("integration")
-public class GraphIntegrationTest {
+public class ExecutionGraphIntegrationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -113,12 +113,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testGraphExecution() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 TaskPayload.class,
                 sceneId);
 
@@ -160,12 +160,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testInvalidNodeType() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-node-type.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 String.class,
                 sceneId);
 
@@ -175,12 +175,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testInvalidAwsCredentials() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-aws.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 String.class,
                 sceneId);
 
@@ -190,12 +190,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testMissingRequiredInputs() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/missing-required-inputs.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 String.class,
                 sceneId);
 
@@ -205,12 +205,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testInvalidIdLongRange() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-id-long-range.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 String.class,
                 sceneId);
 
@@ -219,12 +219,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testInvalidIdString() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/invalid-id-string.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 String.class,
                 sceneId);
 
@@ -233,12 +233,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testIntegerOverflow() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/integer-overflow.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 String.class,
                 sceneId);
 
@@ -247,12 +247,12 @@ public class GraphIntegrationTest {
 
     @Test
     void testDoubleOverflow() {
-        Graph testGraphJson = TestJsonTemplates.loadGraph(
+        ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/double-overflow.json", sceneId, TestcontainersExtension.getLocalstack());
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
-                testGraphJson,
+                testExecutionGraphJson,
                 String.class,
                 sceneId);
 
@@ -275,12 +275,12 @@ public class GraphIntegrationTest {
                 futures.add(CompletableFuture.supplyAsync(() -> {
                     long requestStart = System.currentTimeMillis();
 
-                     Graph testGraphJson = TestJsonTemplates.loadGraph(
+                     ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                             "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
                     ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
                             "/v1/scene/{sceneId}/exec",
-                            testGraphJson,
+                            testExecutionGraphJson,
                             TaskPayload.class,
                             sceneId);
 
