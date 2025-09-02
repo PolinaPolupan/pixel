@@ -38,7 +38,7 @@ public class TaskServiceTest {
 
     @Test
     void createTask_shouldSetInitialValues() {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId).toExecutionGraph();
 
         taskService.createTask(executionGraph, sceneId);
 

@@ -21,7 +21,7 @@ public class ExecutionGraphTest {
 
     @Test
     void  constructValidGraph_shouldSucceed() {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId).toExecutionGraph();
 
         assertNotNull(executionGraph);
         assertEquals(8, executionGraph.getNodes().size());
@@ -48,7 +48,7 @@ public class ExecutionGraphTest {
     @Test
     void nodeOutputs_shouldBeCorrectlyIdentified() {
         // Create a graph with the template nodes
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId).toExecutionGraph();
         List<Node> nodes = executionGraph.getNodes();
 
         // Get the node outputs map
@@ -97,7 +97,7 @@ public class ExecutionGraphTest {
 
     @Test
     void topologicalSort_shouldProduceCorrectOrdering() {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId).toExecutionGraph();
         List<Node> nodes = executionGraph.getNodes();
 
         // Get the topological ordering

@@ -4,9 +4,6 @@ import com.example.pixel.exception.InvalidGraphException;
 import com.example.pixel.exception.InvalidNodeInputException;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeReference;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,15 +13,11 @@ import java.util.*;
 @Getter
 public class ExecutionGraph {
     private final List<Node> nodes;
-    @JsonIgnore
     private final List<Node> topologicalOrder = new ArrayList<>();
-    @JsonIgnore
     private final Map<Long, Node> nodeMap = new HashMap<>();
-    @JsonIgnore
     private final Map<Node, List<Node>> nodeOutputs = new HashMap<>();
 
-    @JsonCreator
-    public ExecutionGraph(@JsonProperty("nodes") List<Node> nodes) {
+    public ExecutionGraph(List<Node> nodes) {
         this.nodes = nodes;
 
         // First populate the node map

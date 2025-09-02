@@ -24,7 +24,8 @@ public class ExecutionService {
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
 
-    public TaskPayload startExecution(ExecutionGraph executionGraph, Long sceneId) {
+    public TaskPayload startExecution(ExecutionGraphPayload executionGraphPayload, Long sceneId) {
+        ExecutionGraph executionGraph = executionGraphPayload.toExecutionGraph();
         log.info("startGraphExecution: Creating task for sceneId={} ...", sceneId);
         TaskPayload task = taskService.createTask(executionGraph, sceneId);
         Long taskId = task.getId();
@@ -33,14 +34,16 @@ public class ExecutionService {
         return task;
     }
 
-    public CompletableFuture<TaskPayload> startExecutionAsync(ExecutionGraph executionGraph, Long sceneId) {
+    public CompletableFuture<TaskPayload> startExecutionAsync(ExecutionGraphPayload executionGraphPayload, Long sceneId) {
+        ExecutionGraph executionGraph = executionGraphPayload.toExecutionGraph();
         log.info("startGraphExecutionAsync: Creating task for sceneId={} ...", sceneId);
         TaskPayload task = taskService.createTask(executionGraph, sceneId);
         log.info("startGraphExecutionAsync: Task created with id={}, starting graph execution ...", task.getId());
         return CompletableFuture.supplyAsync(() -> execute(executionGraph, task.getId(), sceneId).join(), graphTaskExecutor);
     }
 
-    public CompletableFuture<TaskPayload> startExecutionSync(ExecutionGraph executionGraph, Long sceneId) {
+    public CompletableFuture<TaskPayload> startExecutionSync(ExecutionGraphPayload executionGraphPayload, Long sceneId) {
+        ExecutionGraph executionGraph = executionGraphPayload.toExecutionGraph();
         log.info("startGraphExecutionSync: Creating task for sceneId={} ...", sceneId);
         TaskPayload task = taskService.createTask(executionGraph, sceneId);
         log.info("startGraphExecutionSync: Task created with id={}, starting graph execution ...", task.getId());

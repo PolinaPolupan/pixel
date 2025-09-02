@@ -41,7 +41,7 @@ public class ExecutionServiceTest {
     @InjectMocks
     private ExecutionService executionService;
 
-    private ExecutionGraph executionGraph;
+    private ExecutionGraphPayload executionGraph;
 
     private Task task;
 
@@ -59,9 +59,8 @@ public class ExecutionServiceTest {
         nodes.add(node1);
         nodes.add(node2);
 
-        executionGraph = mock(ExecutionGraph.class);
+        executionGraph = mock(ExecutionGraphPayload.class);
         Iterator<Node> mockIterator = nodes.iterator();
-        when(executionGraph.iterator()).thenReturn(mockIterator);
 
         task = new Task();
         task.setId(taskId);
@@ -81,7 +80,7 @@ public class ExecutionServiceTest {
         CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         TaskPayload result = future.get();
 
-        verify(taskService).createTask(executionGraph, sceneId);
+        verify(taskService).createTask(executionGraph.toExecutionGraph(), sceneId);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.RUNNING);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.COMPLETED);
         verify(notificationService, times(3)).sendTaskStatus(any(TaskPayload.class));
@@ -93,7 +92,7 @@ public class ExecutionServiceTest {
         CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         TaskPayload result = future.get();
 
-        verify(taskService).createTask(executionGraph, sceneId);
+        verify(taskService).createTask(executionGraph.toExecutionGraph(), sceneId);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.RUNNING);
         verify(taskService).updateTaskStatus(taskId, TaskStatus.COMPLETED);
         verify(notificationService, times(3)).sendTaskStatus(any(TaskPayload.class));
@@ -124,10 +123,7 @@ public class ExecutionServiceTest {
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
     void executeInternal_whenEmpty_shouldCompleteSuccessfully() throws Exception {
-        ExecutionGraph emptyExecutionGraph = mock(ExecutionGraph.class);
-        List<Node> emptyList = new ArrayList<>();
-        when(emptyExecutionGraph.getNodes()).thenReturn(emptyList);
-        when(emptyExecutionGraph.iterator()).thenReturn(emptyList.iterator());
+        ExecutionGraphPayload emptyExecutionGraph = mock(ExecutionGraphPayload.class);
 
         CompletableFuture<TaskPayload> future = executionService.startExecutionSync(emptyExecutionGraph, sceneId);
         TaskPayload result = future.get();
@@ -163,8 +159,6 @@ public class ExecutionServiceTest {
         for (int i = 0; i < 5; i++) {
             manyNodes.add(mock(Node.class));
         }
-
-        when(executionGraph.iterator()).thenReturn(manyNodes.iterator());
 
         CompletableFuture<TaskPayload> future = executionService.startExecutionSync(executionGraph, sceneId);
         future.get();

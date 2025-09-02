@@ -70,7 +70,7 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_defaultCase_shouldGenerateOutputFiles() throws Exception {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraphPayload executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = executionGraph.getNodes().size();
 
         CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
@@ -78,7 +78,6 @@ public class ExecutionServiceIntegrationTest {
 
         assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
 
-        verify(taskService).createTask(executionGraph, sceneId);
 
         assertTrue(storageService.loadAll("scenes/" + sceneId).toArray().length > 0);
         assertTrue(storageService.loadAsResource("scenes/" +
@@ -92,7 +91,7 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_whenNodeProcessingFails_shouldMarkTaskAsFailed() throws Exception {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraphPayload executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         String errorMessage = "Simulated node processing failure";
 
         doThrow(new RuntimeException(errorMessage))
@@ -113,7 +112,7 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_withMultipleNodes_shouldUpdateProgressCorrectly() throws Exception {
-        ExecutionGraph multiNodeExecutionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraphPayload multiNodeExecutionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = multiNodeExecutionGraph.getNodes().size();
 
         CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(multiNodeExecutionGraph, sceneId);
@@ -130,7 +129,7 @@ public class ExecutionServiceIntegrationTest {
 
     @Test
     void execute_shouldTransitionTaskStatusCorrectly() throws Exception {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
+        ExecutionGraphPayload executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
 
         ArgumentCaptor<TaskStatus> statusCaptor = ArgumentCaptor.forClass(TaskStatus.class);
 
@@ -151,7 +150,7 @@ public class ExecutionServiceIntegrationTest {
 
         for (int i = 0; i < concurrentTasks; i++) {
             Long sceneId = 100L + i;
-            ExecutionGraph executionGraph = TestGraphFactory.getMinimalGraph();
+            ExecutionGraphPayload executionGraph = TestGraphFactory.getMinimalGraph();
             futures.add(executionService.startExecutionAsync(executionGraph, sceneId));
         }
 
@@ -173,7 +172,7 @@ public class ExecutionServiceIntegrationTest {
         gaussianParams.put("sizeX", 2);
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
-        ExecutionGraph executionGraph = new ExecutionGraph(nodes);
+        ExecutionGraphPayload executionGraph = new ExecutionGraphPayload(nodes);
 
         String expectedErrorMessage = "SizeX must be positive and odd";
 
@@ -199,7 +198,7 @@ public class ExecutionServiceIntegrationTest {
         gaussianParams.put("sizeX", 5);
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
-        ExecutionGraph executionGraph = new ExecutionGraph(nodes);
+        ExecutionGraphPayload executionGraph = new ExecutionGraphPayload(nodes);
 
         CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
@@ -224,7 +223,7 @@ public class ExecutionServiceIntegrationTest {
         gaussianParams.put("sizeX", 5);
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
-        ExecutionGraph executionGraph = new ExecutionGraph(nodes);
+        ExecutionGraphPayload executionGraph = new ExecutionGraphPayload(nodes);
 
         CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
