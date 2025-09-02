@@ -4,12 +4,13 @@ import com.example.pixel.task.TaskPayload;
 import com.example.pixel.task.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@Service
 public class NotificationService {
 
     private final String processingTopic = "/topic/processing/";
@@ -30,7 +31,7 @@ public class NotificationService {
                     task.getProcessedNodes(),
                     task.getTotalNodes());
 
-        } catch (Exception e) {
+        } catch (MessagingException e) {
             log.error("WebSocket notification failed | Task ID: {} | Status: {} | Error: {} | Stack: {}",
                     task.getId(),
                     task.getStatus(),
