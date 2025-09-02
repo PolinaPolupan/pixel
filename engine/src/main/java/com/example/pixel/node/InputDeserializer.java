@@ -1,6 +1,6 @@
 package com.example.pixel.node;
 
-import com.example.pixel.exception.InvalidNodeParameter;
+import com.example.pixel.exception.InvalidNodeInputException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -47,12 +47,12 @@ public class InputDeserializer extends JsonDeserializer<Object> {
             }
 
             if (Double.isInfinite(value) || Double.isNaN(value)) {
-                throw new InvalidNodeParameter("Value too large or not representable for '" +
+                throw new InvalidNodeInputException("Value too large or not representable for '" +
                         fieldName + "': " + originalValue);
             }
 
         } catch (ArithmeticException e) {
-            throw new InvalidNodeParameter("Invalid numeric value for '" + fieldName + "'", e);
+            throw new InvalidNodeInputException("Invalid numeric value for '" + fieldName + "'", e);
         }
     }
 }

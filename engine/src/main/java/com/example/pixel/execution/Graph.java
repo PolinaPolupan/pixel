@@ -1,7 +1,7 @@
 package com.example.pixel.execution;
 
 import com.example.pixel.exception.InvalidGraph;
-import com.example.pixel.exception.InvalidNodeParameter;
+import com.example.pixel.exception.InvalidNodeInputException;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -66,7 +66,7 @@ public class Graph {
                 Long targetNodeId = ((NodeReference) paramValue).getNodeId();
 
                 if (!nodeMap.containsKey(targetNodeId)) {
-                    throw new InvalidNodeParameter("Invalid node reference: Node with id " +
+                    throw new InvalidNodeInputException("Invalid node reference: Node with id " +
                             targetNodeId + " is not found. Please ensure the node id is correct.");
                 }
             }

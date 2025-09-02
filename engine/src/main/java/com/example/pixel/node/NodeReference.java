@@ -1,6 +1,6 @@
 package com.example.pixel.node;
 
-import com.example.pixel.exception.InvalidNodeParameter;
+import com.example.pixel.exception.InvalidNodeInputException;
 import lombok.Getter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +27,7 @@ public class NodeReference {
         this.matcher = nodeRefPattern.matcher(reference);
 
         if (!matcher.matches()) {
-            throw new InvalidNodeParameter("Invalid node reference format: " + reference);
+            throw new InvalidNodeInputException("Invalid node reference format: " + reference);
         }
     }
 
@@ -36,7 +36,7 @@ public class NodeReference {
         if (matcher == null || !matcher.matches()) {
             matcher = NODE_REF_PATTERN.matcher(reference);
             if (!matcher.matches()) {
-                throw new InvalidNodeParameter("Invalid node reference format: " + reference);
+                throw new InvalidNodeInputException("Invalid node reference format: " + reference);
             }
         }
         return Long.parseLong(matcher.group(1));
@@ -47,7 +47,7 @@ public class NodeReference {
         if (matcher == null || !matcher.matches()) {
             matcher = NODE_REF_PATTERN.matcher(reference);
             if (!matcher.matches()) {
-                throw new InvalidNodeParameter("Invalid node reference format: " + reference);
+                throw new InvalidNodeInputException("Invalid node reference format: " + reference);
             }
         }
         return matcher.group(2);

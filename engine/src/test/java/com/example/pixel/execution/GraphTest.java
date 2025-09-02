@@ -1,7 +1,7 @@
 package com.example.pixel.execution;
 
 import com.example.pixel.exception.InvalidGraph;
-import com.example.pixel.exception.InvalidNodeParameter;
+import com.example.pixel.exception.InvalidNodeInputException;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeReference;
 import com.example.pixel.util.TestGraphFactory;
@@ -252,7 +252,7 @@ public class GraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidNodeParameter exception = assertThrows(InvalidNodeParameter.class, () -> new Graph(nodes));
+        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new Graph(nodes));
         assertTrue(exception.getMessage().contains("Invalid node reference: Node with id 10 is not found"));
     }
 }

@@ -2,7 +2,7 @@ package com.example.pixel.execution;
 
 import com.example.pixel.common.NotificationService;
 import com.example.pixel.config.TestCacheConfig;
-import com.example.pixel.exception.InvalidNodeParameter;
+import com.example.pixel.exception.InvalidNodeInputException;
 import com.example.pixel.exception.StorageFileNotFoundException;
 import com.example.pixel.task.TaskService;
 import com.example.pixel.file_system.StorageService;
@@ -183,7 +183,7 @@ public class ExecutionServiceIntegrationTest {
             future.get();
             fail("Should have thrown an exception for invalid GaussianBlur parameters");
         } catch (ExecutionException e) {
-            assertInstanceOf(InvalidNodeParameter.class, e.getCause());
+            assertInstanceOf(InvalidNodeInputException.class, e.getCause());
             assertTrue(e.getCause().getMessage().contains(expectedErrorMessage));
 
             verify(taskService).markTaskFailed(any(), contains(expectedErrorMessage));
@@ -207,7 +207,7 @@ public class ExecutionServiceIntegrationTest {
             future.get();
             fail("Should have thrown an exception for invalid node type");
         } catch (ExecutionException e) {
-            assertInstanceOf(InvalidNodeParameter.class, e.getCause());
+            assertInstanceOf(InvalidNodeInputException.class, e.getCause());
 
             verify(taskService).markTaskFailed(any(), anyString());
             verify(notificationService).sendTaskStatus(any());

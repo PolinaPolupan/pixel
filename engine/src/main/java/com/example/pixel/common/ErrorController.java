@@ -71,17 +71,8 @@ public class ErrorController {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InvalidNode.class)
-    public ResponseEntity<?> handleInvalidNodeType(InvalidNode ex, HttpServletRequest request) {
-        recordExceptionMetric(ex, request, HttpStatus.BAD_REQUEST);
-        String requestUrl = request.getRequestURL().toString();
-        ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InvalidNodeParameter.class)
-    public ResponseEntity<?> handleInvalidNodeParameter(InvalidNodeParameter ex, HttpServletRequest request) {
+    @ExceptionHandler(InvalidNodeInputException.class)
+    public ResponseEntity<?> handleInvalidNodeParameter(InvalidNodeInputException ex, HttpServletRequest request) {
         recordExceptionMetric(ex, request, HttpStatus.BAD_REQUEST);
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
