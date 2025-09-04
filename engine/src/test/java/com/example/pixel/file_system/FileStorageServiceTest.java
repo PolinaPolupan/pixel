@@ -20,22 +20,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class TempStorageServiceTest {
-    private TempStorageService service;
+public class FileStorageServiceTest {
+    private FileStorageService service;
 
     @TempDir
     File tempDir;
 
     @BeforeEach
     public void init() {
-        service = new TempStorageService(tempDir.getAbsolutePath());
+        service = new FileStorageService(tempDir.getAbsolutePath());
         service.init();
     }
 
     @Test
     public void emptyUploadLocation() {
         service = null;
-        assertThrows(StorageException.class, () -> service = new TempStorageService(""));
+        assertThrows(StorageException.class, () -> service = new FileStorageService(""));
     }
 
     @Test

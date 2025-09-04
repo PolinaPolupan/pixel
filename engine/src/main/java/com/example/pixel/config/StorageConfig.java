@@ -1,7 +1,7 @@
 package com.example.pixel.config;
 
 import com.example.pixel.file_system.StorageService;
-import com.example.pixel.file_system.TempStorageService;
+import com.example.pixel.file_system.FileStorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ public class StorageConfig {
 
     @Bean
     public StorageService storageService() {
-        StorageService service = new TempStorageService(location);
+        StorageService service = new FileStorageService(location);
         service.deleteAll();
         service.init();
         return service;

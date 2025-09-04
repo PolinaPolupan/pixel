@@ -19,11 +19,11 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
-public class TempStorageService implements StorageService {
+public class FileStorageService implements StorageService {
 
     private final Path rootLocation;
 
-    public TempStorageService(@NonNull String location) {
+    public FileStorageService(@NonNull String location) {
         if (location.trim().isEmpty()) {
             throw new StorageException("File upload location can not be Empty.");
         }
