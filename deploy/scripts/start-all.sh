@@ -1,4 +1,6 @@
 #!/bin/bash
 cd ..
-docker-compose -f docker-compose.yml -f docker-compose.storage.yml \
-  -f docker-compose.monitoring.yml --profile storage --profile monitoring up -d
+
+export SPRING_PROFILES_ACTIVE=db,cache,monitoring
+docker-compose -f docker-compose.yml -f docker-compose.db.yml \
+  -f docker-compose.monitoring.yml -f docker-compose.cache.yml up -d

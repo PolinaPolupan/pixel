@@ -1,0 +1,17 @@
+services:
+  engine:
+    environment:
+      SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
+      SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
+    depends_on:
+      - redis
+
+  redis:
+    image: "redislabs/redismod"
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

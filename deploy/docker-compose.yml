@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   engine:
     build:
@@ -7,11 +5,13 @@ services:
     ports:
       - '8080:8080'
     environment:
-      APP_NAME: ${APP_NAME:-pixel-engine}
-      STORAGE_DIRECTORY: ${STORAGE_DIRECTORY:-/app/storage}
-      NODE_SERVICE_URL: ${NODE_SERVICE_URL:-http://node:8000}
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
-  
+      APP_NAME: ${APP_NAME}
+      STORAGE_DIRECTORY: ${STORAGE_DIRECTORY}
+      NODE_SERVICE_URL: ${NODE_SERVICE_URL}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      - node
+
   node:
     build:
       context: ../node
@@ -21,7 +21,7 @@ services:
       - ../node:/app
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
-  
+
   frontend:
     build:
       context: ../frontend
@@ -34,7 +34,3 @@ services:
     stdin_open: true
     tty: true
     command: npm run dev
-
-volumes:
-  postgres_data:
-  grafana_data:

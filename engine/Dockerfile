@@ -4,7 +4,8 @@ WORKDIR /build
 
 COPY . .
 
-RUN gradle build -x test --no-daemon
+RUN chmod +x gradlew
+RUN ./gradlew build -x test --no-daemon
 
 FROM eclipse-temurin:17-jdk
 

@@ -1,7 +1,7 @@
 services:
   engine:
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default},monitoring
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}, monitoring
 
   prometheus:
     image: prom/prometheus:v2.44.0
@@ -14,15 +14,10 @@ services:
     image: grafana/grafana:9.5.2
     ports:
       - "3000:3000"
-    restart: unless-stopped
     volumes:
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 
   loki:
     image: grafana/loki
