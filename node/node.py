@@ -1,12 +1,9 @@
 import inspect
 from abc import ABC, abstractmethod
 from inspect import Signature
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, List
 
 from metadata import Metadata
-
-NODE_REGISTRY = {}
-
 
 def map_params(inputs: Dict[str, Any], sig: Signature) -> Dict[str, Any]:
     input_data = inputs.get("inputs", inputs)
@@ -38,9 +35,15 @@ def map_params(inputs: Dict[str, Any], sig: Signature) -> Dict[str, Any]:
 class Node(ABC):
     node_type = None
 
+    required_packages: List[str] = []
+
     @property
     def type(self) -> str:
         return self.__class__.node_type
+
+    @classmethod
+    def get_required_packages(cls) -> List[str]:
+        return cls.required_packages
 
     @abstractmethod
     def get_input_types(self) -> Dict[str, Any]:
@@ -69,15 +72,3 @@ class Node(ABC):
     @abstractmethod
     def validate(self, **kwargs) -> None:
         pass
-
-def get_node_class(node_type: str) -> Optional[Type[Node]]:
-    return NODE_REGISTRY.get(node_type)
-
-def register_node_class(cls):
-    if hasattr(cls, 'node_type') and cls.node_type is not None:
-        NODE_REGISTRY[cls.node_type] = cls
-    else:
-        cls.node_type = cls.__name__
-        NODE_REGISTRY[cls.node_type] = cls
-
-    return cls

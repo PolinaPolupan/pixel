@@ -8,8 +8,8 @@ import socket
 
 from starlette.middleware.cors import CORSMiddleware
 
-from load_nodes import load_nodes_from_directory
-from node import get_node_class, NODE_REGISTRY
+from load_nodes import load_nodes_from_directory, NODE_REGISTRY, get_node
+import sys
 
 logging.basicConfig(
     level=logging.INFO,
@@ -51,26 +51,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-def get_node(data: dict):
-    meta = data.get("meta", {})
-    if not meta:
-        logger.error("Request missing meta information")
-        raise ValueError("Meta information is required")
-
-    node_type = meta.get("type")
-    if not node_type:
-        logger.error("Request missing node type in meta")
-        raise ValueError("Node type is required in meta")
-
-    node_class = get_node_class(node_type)
-    if node_class is None:
-        logger.error(f"Unknown node type requested: {node_type}")
-        raise ValueError(f"Unknown node type: {node_type}")
-
-    logger.info(f"Creating node of type: {node_type}")
-    return node_class()
-
 
 @app.post("/validate")
 async def validate(request: Request):
@@ -123,19 +103,14 @@ async def node_info():
 
 @app.get("/health")
 async def health():
-    """Health check endpoint for monitoring and diagnostics"""
-    from sys import version
-    import socket
-
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
 
-    from node import NODE_REGISTRY
     nodes_count = len(NODE_REGISTRY)
 
     return {
         "status": "healthy",
-        "python_version": version,
+        "python_version": sys.version,
         "hostname": hostname,
         "local_ip": local_ip,
         "registered_nodes_count": nodes_count
