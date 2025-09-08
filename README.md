@@ -93,9 +93,9 @@ print(flow.list_files())
 
 ## Step 1: Create a Docker Compose File
 
-Download **deploy/docker-compose.install.yaml** from the repository
+Download **deploy/docker-compose.install.yaml** and **deploy/.env** from the repository
 
-In a new folder, paste the file
+In a new folder, paste the files
 
 ---
 
@@ -138,6 +138,54 @@ You can interact with pixel using the Python SDK for automation and scripting.
 ```sh
 pip install pixel-sdk
 ```
+
+# Custom Node Creation Guide
+
+You can extend Pixel by adding your own custom nodes. This allows you to implement new functionality and integrate it into the Pixel engine.
+
+## Steps to Create a Custom Node
+
+1. **Create the Custom Nodes Folder**
+
+   Create a directory named `custom_nodes` in the root of your project (next to your `docker-compose` file).
+
+2. **Write a Node Python File**
+
+   Inside `custom_nodes`, create a new Python file (e.g., `my_node.py`). Each file can contain one or more node classes.
+
+3. **Define Your Node Class**
+
+   Your node class should inherit from the base `Node` class and define a unique `node_type`. For example:
+
+   ```python
+   from node import Node
+
+   class MyCustomNode(Node):
+       node_type = "my_custom_node"
+       required_packages = ["numpy"]  # Optional: list any extra pip packages
+
+       def exec(self, data):
+           # Your node logic here
+           return data
+   ```
+
+4. **Optional: Specify Dependencies**
+
+   If your node requires extra Python packages, list them in the `required_packages` attribute. The engine will attempt to install them automatically.
+
+5. **Restart the Node Service**
+
+   If you are using Docker Compose, restart the node service so your new nodes are discovered:
+
+   ```bash
+   docker compose restart node
+   ```
+
+6. **Verify**
+
+   Your custom node should now be available in the Pixel engine.
+   
+---
 
 ## Troubleshooting
 
