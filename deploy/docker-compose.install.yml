@@ -16,7 +16,9 @@ services:
       - '8000:8000'
     environment:
       ENGINE_SERVICE_URL: http://engine:8080
+      CUSTOM_NODES_DIR: ./custom_nodes
     volumes:
+      - ./custom_nodes:/app/custom_nodes
       - ./node-storage:/app/storage
 
   frontend:
