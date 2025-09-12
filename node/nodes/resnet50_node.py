@@ -6,7 +6,7 @@ from node import Node
 class ResNet50Node(Node):
     node_type = "ResNet50"
 
-    required_packages = ["pillow==9.5.0", "numpy==1.24.3"]
+    required_packages = ["numpy==2.3.2", "pillow==11.3.0"]
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {

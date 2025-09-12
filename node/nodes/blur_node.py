@@ -8,7 +8,7 @@ class BlurNode(Node):
 
     node_type = "Blur"
 
-    def get_input_types(self) -> Dict[str, Dict[str, Any]]:
+    def get_input_types(self):
         return {
             "input": {
                 "type": "FILEPATH_ARRAY",
@@ -24,7 +24,7 @@ class BlurNode(Node):
             }
         }
 
-    def get_output_types(self) -> Dict[str, Dict[str, Any]]:
+    def get_output_types(self):
         return {
             "output": {
                 "type": "FILEPATH_ARRAY",
@@ -33,7 +33,7 @@ class BlurNode(Node):
             }
         }
 
-    def get_display_info(self) -> Dict[str, str]:
+    def get_display_info(self):
         return {
             "category": "Filtering",
             "description": "Blurs an image using the specified kernel size",
@@ -41,7 +41,7 @@ class BlurNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, input: List[str], ksize, meta: Metadata) -> Dict[str, Any]:
+    def exec(self, input: List[str], ksize, meta: Metadata):
         output_files = []
 
         for file in input:
@@ -49,7 +49,7 @@ class BlurNode(Node):
 
         return {"output": output_files}
 
-    def validate(self, input: List[str], ksize, meta: Metadata) -> None:
+    def validate(self, input: List[str], ksize, meta: Metadata):
         if isinstance(ksize, dict):
             x = ksize.get("x", 0)
             y = ksize.get("y", 0)
