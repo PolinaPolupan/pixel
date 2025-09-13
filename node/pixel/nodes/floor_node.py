@@ -1,7 +1,7 @@
 from typing import Dict, Any
 import math
 
-from pixel_sdk.models import Node
+from pixel.models import Node
 
 
 class FloorNode(Node):

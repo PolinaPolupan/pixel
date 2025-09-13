@@ -1,12 +1,12 @@
-from typing import Dict, Any, List
+from typing import Dict, Any
 
-from pixel_sdk import StorageClient
-from pixel_sdk.models import Node, Metadata
+from pixel import StorageClient
+from pixel.models import Metadata, Node
 
 
-class BoxFilterNode(Node):
+class MedianBlurNode(Node):
 
-    node_type = "BoxFilter"
+    node_type = "MedianBlur"
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
@@ -16,17 +16,11 @@ class BoxFilterNode(Node):
                 "widget": "LABEL",
                 "default": set()
             },
-            "ddepth": {
+            "ksize": {
                 "type": "INT",
                 "required": True,
                 "widget": "INPUT",
-                "default": 0
-            },
-            "ksize": {
-                "type": "VECTOR2D",
-                "required": True,
-                "widget": "LABEL",
-                "default": {"x": 1, "y": 1}
+                "default": 3
             }
         }
 
@@ -47,27 +41,20 @@ class BoxFilterNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, input: List[str], ksize, ddepth, meta: Metadata) -> Dict[str, Any]:
+    def exec(self, input, ksize, meta: Metadata) -> Dict[str, Any]:
         output_files = []
 
         for file in input:
             output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
 
+
         return {"output": output_files}
 
-    def validate(self, input: List[str], ksize, ddepth, meta: Metadata) -> None:
-        if isinstance(ksize, dict):
-            x = ksize.get("x", 0)
-            y = ksize.get("y", 0)
-        else:
-            x = ksize.x
-            y = ksize.y
-
+    def validate(self, input, ksize, meta) -> None:
         try:
-            x = int(x)
-            y = int(y)
+            ksize = int(ksize)
         except (TypeError, ValueError):
-            raise ValueError("KSize values must be convertible to integers")
+            raise ValueError("ksize must be an integer")
 
-        if x < 1 or y < 1:
-            raise ValueError("KSize must be greater than 0")
+        if ksize < 2 or ksize % 2 == 0:
+            raise ValueError("KSize must be greater than 1 and odd")

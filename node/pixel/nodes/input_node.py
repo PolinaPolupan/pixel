@@ -1,7 +1,7 @@
 from typing import Dict, Any
 
-from pixel_sdk import StorageClient
-from pixel_sdk.models import Metadata, Node
+from pixel import StorageClient
+from pixel.models import Metadata, Node
 
 
 class InputNode(Node):

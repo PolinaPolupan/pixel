@@ -3,7 +3,7 @@ import boto3
 from typing import Dict, Any
 import logging
 
-from pixel_sdkl.models import Node
+from pixel.models import Node
 
 logger = logging.getLogger(__name__)
 
