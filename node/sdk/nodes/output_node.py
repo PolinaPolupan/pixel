@@ -1,8 +1,8 @@
 import os
 from typing import Dict, Any, List
 
-from metadata import Metadata
-from node import Node
+from sdk import StorageClient
+from sdk.types import Node, Metadata
 
 
 class OutputNode(Node):
@@ -44,7 +44,6 @@ class OutputNode(Node):
 
     def exec(self, input: List[str], prefix, folder, meta: Metadata) -> Dict[str, Any]:
         for filepath in input:
-            from storage_client import StorageClient
             StorageClient.store_from_workspace_to_scene(
                 scene_id=meta.scene_id,
                 source=filepath,

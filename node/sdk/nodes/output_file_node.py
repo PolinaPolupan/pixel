@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from node import Node
+from sdk.types import Node
 
 
 class OutputFileNode(Node):

@@ -1,8 +1,7 @@
 from typing import Dict, Any
 
-from metadata import Metadata
-from node import Node
-from storage_client import StorageClient
+from sdk import StorageClient
+from sdk.types import Node, Metadata
 
 class MedianBlurNode(Node):
 

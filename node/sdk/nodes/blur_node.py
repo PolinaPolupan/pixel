@@ -1,15 +1,13 @@
-from typing import Dict, Any, List
+from typing import List
 
-from metadata import Metadata
-from node import Node
-from storage_client import StorageClient
+from sdk import StorageClient
+from sdk.types import Node, Metadata
 
+class BlurNode(Node):
 
-class BoxFilterNode(Node):
+    node_type = "Blur"
 
-    node_type = "BoxFilter"
-
-    def get_input_types(self) -> Dict[str, Dict[str, Any]]:
+    def get_input_types(self):
         return {
             "input": {
                 "type": "FILEPATH_ARRAY",
@@ -17,21 +15,15 @@ class BoxFilterNode(Node):
                 "widget": "LABEL",
                 "default": set()
             },
-            "ddepth": {
-                "type": "INT",
-                "required": True,
-                "widget": "INPUT",
-                "default": 0
-            },
             "ksize": {
                 "type": "VECTOR2D",
                 "required": True,
                 "widget": "LABEL",
-                "default": {"x": 1, "y": 1}
+                "default": {"x": 3, "y": 3}
             }
         }
 
-    def get_output_types(self) -> Dict[str, Dict[str, Any]]:
+    def get_output_types(self):
         return {
             "output": {
                 "type": "FILEPATH_ARRAY",
@@ -40,7 +32,7 @@ class BoxFilterNode(Node):
             }
         }
 
-    def get_display_info(self) -> Dict[str, str]:
+    def get_display_info(self):
         return {
             "category": "Filtering",
             "description": "Blurs an image using the specified kernel size",
@@ -48,7 +40,7 @@ class BoxFilterNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, input: List[str], ksize, ddepth, meta: Metadata) -> Dict[str, Any]:
+    def exec(self, input: List[str], ksize, meta: Metadata):
         output_files = []
 
         for file in input:
@@ -56,7 +48,7 @@ class BoxFilterNode(Node):
 
         return {"output": output_files}
 
-    def validate(self, input: List[str], ksize, ddepth, meta: Metadata) -> None:
+    def validate(self, input: List[str], ksize, meta: Metadata):
         if isinstance(ksize, dict):
             x = ksize.get("x", 0)
             y = ksize.get("y", 0)

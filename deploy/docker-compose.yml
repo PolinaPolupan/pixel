@@ -21,6 +21,7 @@ services:
       - ../node:/app
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
+      CUSTOM_NODES_DIR: ./custom_nodes
 
   frontend:
     build:

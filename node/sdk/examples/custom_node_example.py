@@ -1,11 +1,12 @@
 from typing import Dict, Any
-from node import Node
 import math
 
+from sdk.types import Node
 
-class FloorNode(Node):
 
-    node_type = "Floor"
+class CustomNode(Node):
+
+    node_type = "Custom"
 
     def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {

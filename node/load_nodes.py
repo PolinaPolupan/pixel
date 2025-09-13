@@ -3,8 +3,9 @@ import os
 import logging
 import subprocess
 import sys
-from node import Node
 from typing import Optional, Type
+
+from sdk.types import Node
 
 logger = logging.getLogger(__name__)
 

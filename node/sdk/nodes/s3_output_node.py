@@ -3,7 +3,7 @@ import boto3
 from typing import Dict, Any
 import logging
 
-from node import Node
+from sdk.types import Node
 
 logger = logging.getLogger(__name__)
 

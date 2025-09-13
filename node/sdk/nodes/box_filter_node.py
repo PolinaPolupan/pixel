@@ -1,14 +1,14 @@
 from typing import Dict, Any, List
 
-from metadata import Metadata
-from node import Node
-from storage_client import StorageClient
+from sdk import StorageClient
+from sdk.types import Node, Metadata
 
-class BlurNode(Node):
 
-    node_type = "Blur"
+class BoxFilterNode(Node):
 
-    def get_input_types(self):
+    node_type = "BoxFilter"
+
+    def get_input_types(self) -> Dict[str, Dict[str, Any]]:
         return {
             "input": {
                 "type": "FILEPATH_ARRAY",
@@ -16,15 +16,21 @@ class BlurNode(Node):
                 "widget": "LABEL",
                 "default": set()
             },
+            "ddepth": {
+                "type": "INT",
+                "required": True,
+                "widget": "INPUT",
+                "default": 0
+            },
             "ksize": {
                 "type": "VECTOR2D",
                 "required": True,
                 "widget": "LABEL",
-                "default": {"x": 3, "y": 3}
+                "default": {"x": 1, "y": 1}
             }
         }
 
-    def get_output_types(self):
+    def get_output_types(self) -> Dict[str, Dict[str, Any]]:
         return {
             "output": {
                 "type": "FILEPATH_ARRAY",
@@ -33,7 +39,7 @@ class BlurNode(Node):
             }
         }
 
-    def get_display_info(self):
+    def get_display_info(self) -> Dict[str, str]:
         return {
             "category": "Filtering",
             "description": "Blurs an image using the specified kernel size",
@@ -41,7 +47,7 @@ class BlurNode(Node):
             "icon": "BlurIcon"
         }
 
-    def exec(self, input: List[str], ksize, meta: Metadata):
+    def exec(self, input: List[str], ksize, ddepth, meta: Metadata) -> Dict[str, Any]:
         output_files = []
 
         for file in input:
@@ -49,7 +55,7 @@ class BlurNode(Node):
 
         return {"output": output_files}
 
-    def validate(self, input: List[str], ksize, meta: Metadata):
+    def validate(self, input: List[str], ksize, ddepth, meta: Metadata) -> None:
         if isinstance(ksize, dict):
             x = ksize.get("x", 0)
             y = ksize.get("y", 0)

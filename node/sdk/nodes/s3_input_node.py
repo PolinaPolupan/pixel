@@ -3,8 +3,8 @@ import boto3
 from typing import Dict, Any
 import logging
 
-from metadata import Metadata
-from node import Node
+from sdk import StorageClient
+from sdk.types import Node, Metadata
 
 logger = logging.getLogger(__name__)
 
@@ -84,8 +84,6 @@ class S3InputNode(Node):
 
             if 'Contents' in response:
                 logger.info(f"Found {len(response['Contents'])} objects in bucket")
-
-                from storage_client import StorageClient
 
                 for obj in response['Contents']:
                     filename = obj['Key']

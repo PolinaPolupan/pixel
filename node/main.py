@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting node service and registering node types...")
 
-    load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "nodes"))
+    load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "sdk/nodes"))
     load_nodes_from_directory(os.environ.get('CUSTOM_NODES_DIR'))
 
     hostname = socket.gethostname()
