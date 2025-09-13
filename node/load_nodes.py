@@ -5,7 +5,7 @@ import subprocess
 import sys
 from typing import Optional, Type
 
-from sdk.types import Node
+from sdk.models import Node
 
 logger = logging.getLogger(__name__)
 

@@ -49,7 +49,7 @@ class NodeFlow:
         try:
             return self.client.get_node_info()
         except Exception as e:
-            print(f"Warning: Could not fetch node types from server: {e}")
+            print(f"Warning: Could not fetch node models from server: {e}")
             return {}
 
     def _create_node(self, node_type, kwargs):
@@ -71,7 +71,7 @@ class NodeFlow:
 
     def _register_node_methods(self):
         if not self.available_node_types:
-            print("Warning: No node types available to register")
+            print("Warning: No node models available to register")
             return
         for node_type in self.available_node_types:
             if node_type not in NodeFlow._node_methods:
@@ -87,7 +87,7 @@ class NodeFlow:
             return NodeFlow._node_methods[name].__get__(self, self.__class__)
         raise AttributeError(
             f"Node type '{name}' is not registered or available in this flow. "
-            f"Available node types: {', '.join(self.available_node_types.keys())}"
+            f"Available node models: {', '.join(self.available_node_types.keys())}"
         )
 
     def create_scene(self):

@@ -4,7 +4,7 @@ from typing import Dict, Any
 import logging
 
 from sdk import StorageClient
-from sdk.types import Node, Metadata
+from sdk.models import Node, Metadata
 
 logger = logging.getLogger(__name__)
 

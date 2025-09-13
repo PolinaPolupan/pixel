@@ -1,7 +1,7 @@
 from typing import List
 
 from sdk import StorageClient
-from sdk.types import Node, Metadata
+from sdk.models import Node, Metadata
 
 
 class BilateralFilterNode(Node):

@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting node service and registering node types...")
+    logger.info("Starting node service and registering node models...")
 
     load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "sdk/nodes"))
     load_nodes_from_directory(os.environ.get('CUSTOM_NODES_DIR'))
@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Node Processing Service",
-    description="Service for processing different node types in a graph",
+    description="Service for processing different node models in a graph",
     version="1.0.0",
     lifespan=lifespan
 )

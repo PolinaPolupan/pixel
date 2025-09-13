@@ -1,7 +1,7 @@
 from typing import Dict, Any
 import math
 
-from sdk.types import Node
+from sdk.models import Node
 
 
 class FloorNode(Node):

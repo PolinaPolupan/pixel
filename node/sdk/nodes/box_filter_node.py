@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 
 from sdk import StorageClient
-from sdk.types import Node, Metadata
+from sdk.models import Node, Metadata
 
 
 class BoxFilterNode(Node):

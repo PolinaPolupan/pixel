@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 
 from sdk import StorageClient
-from sdk.types import Node, Metadata
+from sdk.models import Node, Metadata
 
 
 class GaussianBlurNode(Node):
@@ -73,7 +73,7 @@ class GaussianBlurNode(Node):
             sigmaX = float(sigmaX)
             sigmaY = float(sigmaY)
         except (TypeError, ValueError):
-            raise ValueError("Invalid parameter types")
+            raise ValueError("Invalid parameter models")
 
         if sizeX < 0 or sizeX % 2 == 0:
             raise ValueError("SizeX must be positive and odd")

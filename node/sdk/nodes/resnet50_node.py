@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from sdk.types import Node
+from sdk.models import Node
 
 
 class ResNet50Node(Node):
