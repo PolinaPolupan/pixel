@@ -13,5 +13,5 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["nodes", "types"]
+include = ["nodes", "models", "utils"]
 exclude = ["examples", "test_res"]
