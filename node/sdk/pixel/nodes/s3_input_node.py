@@ -3,8 +3,8 @@ import boto3
 from typing import Dict, Any
 import logging
 
-from sdk import StorageClient
-from sdk.models import Node, Metadata
+from sdk.pixel import StorageClient
+from sdk.pixel.models import Node, Metadata
 
 logger = logging.getLogger(__name__)
 

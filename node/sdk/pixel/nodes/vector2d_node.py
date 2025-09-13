@@ -1,7 +1,7 @@
 from numbers import Number
 from typing import Dict, Any
 
-from sdk.models import Node, Vector2D
+from sdk.pixel.models import Node, Vector2D
 
 
 class Vector2DNode(Node):

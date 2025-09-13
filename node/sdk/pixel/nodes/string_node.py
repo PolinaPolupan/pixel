@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from sdk.models import Node
+from sdk.pixel.models import Node
 
 
 class StringNode(Node):

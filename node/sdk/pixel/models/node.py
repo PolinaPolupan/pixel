@@ -2,7 +2,7 @@ import inspect
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
-from sdk.utils import map_input_params
+from sdk.pixel.utils import map_input_params
 
 
 class Node(ABC):
