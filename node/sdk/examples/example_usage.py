@@ -1,4 +1,4 @@
-from sdk import NodeFlow
+from sdk.pixel import NodeFlow
 
 flow = NodeFlow()
 
