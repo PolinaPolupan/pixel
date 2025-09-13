@@ -6,6 +6,7 @@ on:
     tags: [ 'v*' ]
     paths:
       - 'node/sdk/**'
+      - '.github/workflows/sdk-pypi-publishing.yml'
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -29,4 +30,4 @@ jobs:
       - name: Publish to PyPI with Twine
         run: |
           pip install --upgrade twine
-          twine upload --repository pypi sdk/dist/*.whl -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
+          twine upload --repository pypi node/sdk/dist/*.whl -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
