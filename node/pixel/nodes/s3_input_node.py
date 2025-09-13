@@ -1,6 +1,5 @@
 import os
 import boto3
-from typing import Dict, Any
 import logging
 
 from pixel import StorageClient
@@ -11,59 +10,27 @@ logger = logging.getLogger(__name__)
 class S3InputNode(Node):
     node_type = "S3Input"
 
-    def get_input_types(self) -> Dict[str, Dict[str, Any]]:
-        return {
-            "access_key_id": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "secret_access_key": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "region": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "bucket": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "endpoint": {
-                "type": "STRING",
-                "required": False,
-                "widget": "INPUT",
-                "default": ""
-            }
-        }
-
-    def get_output_types(self) -> Dict[str, Dict[str, Any]]:
-        return {
-            "files": {
-                "type": "FILEPATH_ARRAY",
-                "required": True
-            }
-        }
-
-    def get_display_info(self) -> Dict[str, str]:
-        return {
+    metadata = {
+        "inputs": {
+            "access_key_id": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "secret_access_key": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "region": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "bucket": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "endpoint": { "type": "STRING", "required": False, "widget": "INPUT", "default": "" }
+        },
+        "outputs": {
+            "files": { "type": "FILEPATH_ARRAY", "required": True }
+        },
+        "display": {
             "category": "IO",
             "description": "Load files from S3",
             "color": "#AED581",
             "icon": "S3Icon"
         }
+    }
 
-    def exec(self, access_key_id, secret_access_key, region, bucket, meta: Metadata, endpoint=None) -> Dict[str, Any]:
+    def exec(self, access_key_id, secret_access_key, region, bucket, meta: Metadata, endpoint=None):
         logger.info(f"S3 configuration - Region: {region}, Bucket: {bucket}")
-
         files = set()
 
         session = boto3.Session(
@@ -84,10 +51,8 @@ class S3InputNode(Node):
 
             if 'Contents' in response:
                 logger.info(f"Found {len(response['Contents'])} objects in bucket")
-
                 for obj in response['Contents']:
                     filename = obj['Key']
-
                     file_response = s3_client.get_object(Bucket=bucket, Key=filename)
                     content = file_response['Body'].read()
 
@@ -113,7 +78,7 @@ class S3InputNode(Node):
 
         return {"files": files}
 
-    def validate(self, access_key_id, secret_access_key, region, bucket, meta, endpoint=None) -> None:
+    def validate(self, access_key_id, secret_access_key, region, bucket, meta, endpoint=None):
         if not access_key_id:
             raise ValueError("Access key ID cannot be blank.")
         if not secret_access_key:

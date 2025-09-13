@@ -1,6 +1,5 @@
 import os
 import boto3
-from typing import Dict, Any
 import logging
 
 from pixel.models import Node
@@ -10,64 +9,26 @@ logger = logging.getLogger(__name__)
 class S3OutputNode(Node):
     node_type = "S3Output"
 
-    def get_input_types(self) -> Dict[str, Dict[str, Any]]:
-        return {
-            "input": {
-                "type": "FILEPATH_ARRAY",
-                "required": True,
-                "widget": "LABEL",
-                "default": set()
-            },
-            "access_key_id": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "secret_access_key": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "region": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "bucket": {
-                "type": "STRING",
-                "required": True,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "endpoint": {
-                "type": "STRING",
-                "required": False,
-                "widget": "INPUT",
-                "default": ""
-            },
-            "folder": {
-                "type": "STRING",
-                "required": False,
-                "widget": "INPUT",
-                "default": ""
-            }
-        }
-
-    def get_output_types(self) -> Dict[str, Dict[str, Any]]:
-        return {}
-
-    def get_display_info(self) -> Dict[str, str]:
-        return {
+    metadata = {
+        "inputs": {
+            "input": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set() },
+            "access_key_id": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "secret_access_key": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "region": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "bucket": { "type": "STRING", "required": True, "widget": "INPUT", "default": "" },
+            "endpoint": { "type": "STRING", "required": False, "widget": "INPUT", "default": "" },
+            "folder": { "type": "STRING", "required": False, "widget": "INPUT", "default": "" }
+        },
+        "outputs": {},
+        "display": {
             "category": "IO",
             "description": "Output files to S3",
             "color": "#AED581",
             "icon": "OutputIcon"
         }
+    }
 
-    def exec(self, input, access_key_id, secret_access_key, region, bucket, endpoint=None, folder="") -> Dict[str, Any]:
+    def exec(self, input, access_key_id, secret_access_key, region, bucket, endpoint=None, folder=""):
         session = boto3.Session(
             aws_access_key_id=access_key_id,
             aws_secret_access_key=secret_access_key,
@@ -86,14 +47,8 @@ class S3OutputNode(Node):
             if os.path.exists(file_path):
                 filename = os.path.basename(file_path)
                 key = f"{folder}/{filename}" if folder else filename
-
                 with open(file_path, 'rb') as file_data:
-                    s3_client.upload_fileobj(
-                        file_data,
-                        bucket,
-                        key,
-                        ExtraArgs={'Metadata': {}}
-                    )
+                    s3_client.upload_fileobj(file_data, bucket, key, ExtraArgs={'Metadata': {}})
 
         return {}
 

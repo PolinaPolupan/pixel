@@ -94,11 +94,7 @@ async def node_info():
     result = {}
     for node_type, node_cls in NODE_REGISTRY.items():
         node = node_cls()
-        result[node_type] = {
-            "inputs": node.get_input_types() if hasattr(node, "get_input_types") else {},
-            "outputs": node.get_output_types() if hasattr(node, "get_output_types") else {},
-            "display": node.get_display_info() if hasattr(node, "get_display_info") else {}
-        }
+        result[node_type] = node.metadata
     return result
 
 
