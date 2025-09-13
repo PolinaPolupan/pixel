@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from sdk.pixel.models import Node
+from pixel.models import Node
 
 
 class ResNet50Node(Node):

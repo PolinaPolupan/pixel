@@ -5,7 +5,7 @@ import subprocess
 import sys
 from typing import Optional, Type
 
-from sdk.pixel.models import Node
+from pixel.models import Node
 
 logger = logging.getLogger(__name__)
 
