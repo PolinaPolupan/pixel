@@ -30,4 +30,4 @@ jobs:
       - name: Publish to PyPI with Twine
         run: |
           pip install --upgrade twine
-          twine upload --repository pypi node/pixel/dist/*.whl -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
+          twine upload --repository pypi node/dist/*.whl -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
