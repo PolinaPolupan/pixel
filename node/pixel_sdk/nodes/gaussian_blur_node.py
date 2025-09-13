@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 
-from pixel import StorageClient
-from pixel.models import Node, Metadata
+from pixel_sdk import StorageClient
+from pixel_sdk.models import Node, Metadata
 
 
 class GaussianBlurNode(Node):

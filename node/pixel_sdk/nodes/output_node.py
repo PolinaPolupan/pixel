@@ -1,8 +1,8 @@
 import os
 from typing import Dict, Any, List
 
-from pixel import StorageClient
-from pixel.models import Metadata, Node
+from pixel_sdk import StorageClient
+from pixel_sdk.models import Metadata, Node
 
 
 class OutputNode(Node):
