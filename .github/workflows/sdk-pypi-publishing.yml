@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     tags: [ 'v*' ]
     paths:
-      - 'node/pixel/**'
+      - 'node/pixel/sdk/**'
       - '.github/workflows/sdk-pypi-publishing.yml'
 jobs:
   build-and-publish:

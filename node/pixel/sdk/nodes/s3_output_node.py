@@ -2,7 +2,7 @@ import os
 import boto3
 import logging
 
-from pixel.models import Node
+from pixel.core import Node
 
 logger = logging.getLogger(__name__)
 

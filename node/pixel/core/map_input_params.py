@@ -2,7 +2,7 @@ import inspect
 from inspect import Signature
 from typing import Dict, Any
 
-from pixel.models.metadata import Metadata
+from pixel.core.metadata import Metadata
 
 
 def map_input_params(inputs: Dict[str, Any], sig: Signature) -> Dict[str, Any]:

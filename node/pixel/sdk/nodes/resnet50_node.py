@@ -1,4 +1,4 @@
-from pixel.models import Node
+from pixel.core import Node
 
 
 class ResNet50Node(Node):

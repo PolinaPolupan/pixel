@@ -1,16 +1,17 @@
 from typing import List
 
-from pixel import StorageClient
-from pixel.models import Node, Metadata
+from pixel.core import Node, Metadata
+from pixel.sdk import StorageClient
 
 
-class BlurNode(Node):
-    node_type = "Blur"
+class BoxFilterNode(Node):
+    node_type = "BoxFilter"
 
     metadata = {
         "inputs": {
             "input": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set() },
-            "ksize": { "type": "VECTOR2D", "required": True, "widget": "LABEL", "default": {"x": 3, "y": 3} }
+            "ddepth": { "type": "INT", "required": True, "widget": "INPUT", "default": 0 },
+            "ksize": { "type": "VECTOR2D", "required": True, "widget": "LABEL", "default": {"x": 1, "y": 1} }
         },
         "outputs": {
             "output": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL" }
@@ -23,7 +24,7 @@ class BlurNode(Node):
         }
     }
 
-    def exec(self, input: List[str], ksize, meta: Metadata):
+    def exec(self, input: List[str], ksize, ddepth, meta: Metadata):
         output_files = []
         for file in input:
             output_files.append(
@@ -31,7 +32,7 @@ class BlurNode(Node):
             )
         return {"output": output_files}
 
-    def validate(self, input: List[str], ksize, meta: Metadata):
+    def validate(self, input: List[str], ksize, ddepth, meta: Metadata):
         if isinstance(ksize, dict):
             x = ksize.get("x", 0)
             y = ksize.get("y", 0)

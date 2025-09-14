@@ -3,9 +3,8 @@ import os
 import logging
 import subprocess
 import sys
-from typing import Optional, Type
 
-from pixel.models import Node
+from pixel.core import Node
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ def install_package(package: str):
         logger.error(f"Failed to install package {package}: {str(e)}")
 
 
-def install_dependencies(node_class: Type[Node]):
+def install_dependencies(node_class):
     if not hasattr(node_class, 'required_packages') or not node_class.required_packages:
         return None
 
@@ -30,7 +29,7 @@ def install_dependencies(node_class: Type[Node]):
     return None
 
 
-def get_node_class(node_type: str) -> Optional[Type[Node]]:
+def get_node_class(node_type: str):
     node_class = NODE_REGISTRY.get(node_type)
     return node_class
 
@@ -38,11 +37,7 @@ def get_node_class(node_type: str) -> Optional[Type[Node]]:
 def register_node_class(cls):
     if hasattr(cls, 'node_type') and cls.node_type is not None:
         NODE_REGISTRY[cls.node_type] = cls
-    else:
-        cls.node_type = cls.__name__
-        NODE_REGISTRY[cls.node_type] = cls
-
-    install_dependencies(cls)
+        install_dependencies(cls)
 
     return cls
 
@@ -65,7 +60,7 @@ def load_nodes_from_directory(directory: str):
 
                 for attr_name in dir(module):
                     obj = getattr(module, attr_name)
-                    if isinstance(obj, type) and issubclass(obj, Node) and obj is not Node:
+                    if isinstance(obj, type) and issubclass(obj, Node) and obj:
                         register_node_class(obj)
 
                 loaded += 1

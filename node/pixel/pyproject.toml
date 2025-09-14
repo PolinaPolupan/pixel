@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pixel-sdk"
-version = "1.0.18"
+version = "1.0.19"
 description = "Python client library for the pixel app"
 authors = [{ name = "pixel", email = "polina@example.com" }]
 requires-python = ">=3.11"
@@ -14,4 +14,4 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 include = ["pixel*"]
-exclude = ["pixel.examples", "pixel.test_res"]
+exclude = ["pixel.examples", "pixel.test_res", "pixel.server"]

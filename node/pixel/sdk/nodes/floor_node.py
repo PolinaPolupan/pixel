@@ -1,6 +1,6 @@
 import math
 
-from pixel.models import Node, Metadata
+from pixel.core import Metadata, Node
 
 
 class FloorNode(Node):

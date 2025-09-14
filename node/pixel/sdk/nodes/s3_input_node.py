@@ -2,8 +2,7 @@ import os
 import boto3
 import logging
 
-from pixel import StorageClient
-from pixel.models import Node, Metadata
+from pixel.core import Node, Metadata
 
 logger = logging.getLogger(__name__)
 

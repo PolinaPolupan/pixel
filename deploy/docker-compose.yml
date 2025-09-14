@@ -18,7 +18,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../node:/app
+      - ../custom_nodes:/app/custom_nodes
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
       CUSTOM_NODES_DIR: ./custom_nodes

@@ -7,9 +7,9 @@ from fastapi.responses import JSONResponse
 import socket
 
 from starlette.middleware.cors import CORSMiddleware
-
-from load_nodes import load_nodes_from_directory, NODE_REGISTRY, get_node
 import sys
+
+from pixel.core import load_nodes_from_directory, get_node, NODE_REGISTRY
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting node service and registering node models...")
 
-    load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "pixel/nodes"))
+    load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "../sdk/nodes"))
     load_nodes_from_directory(os.environ.get('CUSTOM_NODES_DIR'))
 
     hostname = socket.gethostname()

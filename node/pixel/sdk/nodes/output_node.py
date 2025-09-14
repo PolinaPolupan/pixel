@@ -1,7 +1,7 @@
 from typing import List
 
-from pixel import StorageClient
-from pixel.models import Metadata, Node
+from pixel.core import Metadata, Node
+from pixel.sdk import StorageClient
 
 
 class OutputNode(Node):

@@ -2,7 +2,7 @@ import inspect
 from abc import ABC
 from typing import Any, Dict, List
 
-from pixel.utils import map_input_params
+from pixel.core import map_input_params
 
 
 class Node(ABC):

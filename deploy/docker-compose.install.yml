@@ -19,7 +19,6 @@ services:
       CUSTOM_NODES_DIR: ./custom_nodes
     volumes:
       - ./custom_nodes:/app/custom_nodes
-      - ./node-storage:/app/storage
 
   frontend:
     image: polinapolupan/pixel-frontend:latest

@@ -1,5 +1,7 @@
 from numbers import Number
-from pixel.models import Node, Vector2D
+
+from pixel.core import Node
+from pixel.sdk.models import Vector2D
 
 
 class Vector2DNode(Node):

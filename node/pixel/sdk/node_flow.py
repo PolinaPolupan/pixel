@@ -1,4 +1,4 @@
-from pixel import Client, create_node
+from pixel.sdk import Client, create_node
 
 
 class NodeOutput:
