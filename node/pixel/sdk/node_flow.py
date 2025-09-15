@@ -66,7 +66,7 @@ class NodeFlow:
 
     def _create_node_method(self, node_type):
         def node_method(inner_self, **kwargs):
-            return self._create_node(node_type, kwargs)
+            return inner_self._create_node(node_type, kwargs)
         return node_method
 
     def _register_node_methods(self):

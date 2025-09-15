@@ -3,24 +3,23 @@ import requests
 from typing import List, Dict, Any, Optional
 from urllib.parse import urljoin
 
+from pixel.server.load_nodes import NODE_REGISTRY
+
 
 class Client:
     def __init__(self):
         self.engine_url = "http://engine:8080"
-        self.node_url = "http://node:8000"
         self.session = requests.Session()
 
     def _make_engine_url(self, path: str) -> str:
         return urljoin(self.engine_url, path)
 
-    def _make_node_url(self, path: str) -> str:
-        return urljoin(self.node_url, path)
-
     def get_node_info(self) -> Dict[str, Any]:
-        url = self._make_node_url("/v1/nodes/")  # Adjust endpoint as needed
-        response = self.session.get(url)
-        response.raise_for_status()
-        return response.json()
+        result = {}
+        for node_type, node_cls in NODE_REGISTRY.items():
+            node = node_cls()
+            result[node_type] = node.metadata
+        return result
 
     def create_scene(self) -> str:
         url = self._make_engine_url("/v1/scene/")
