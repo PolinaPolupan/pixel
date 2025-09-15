@@ -19,10 +19,10 @@ services:
       - "8000:8000"
     volumes:
       - ../custom_nodes:/app/custom_nodes
+      - ../node/pixel:/app/pixel
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
-      NODE_SERVICE_URL: ${NODE_SERVICE_URL}
-      CUSTOM_NODES_DIR: ./custom_nodes
+      CUSTOM_NODES_DIR: ${CUSTOM_NODES_DIR}
 
   frontend:
     build:
