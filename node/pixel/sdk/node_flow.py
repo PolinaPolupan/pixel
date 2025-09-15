@@ -36,7 +36,7 @@ class NodeFlow:
     _node_methods = {}
 
     def __init__(self):
-        self.client = Client(engine_url="http://localhost:8080", node_url="http://localhost:8000")
+        self.client = Client()
         self.scene_id = None
         self.nodes = {}
         self.next_id = 1

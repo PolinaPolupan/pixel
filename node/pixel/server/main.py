@@ -1,6 +1,5 @@
 import logging
 import os
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -17,32 +16,10 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 logger = logging.getLogger(__name__)
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("Starting node service and registering node models...")
-
-    load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "../sdk/nodes"))
-    load_nodes_from_directory(os.environ.get('CUSTOM_NODES_DIR'))
-
-    hostname = socket.gethostname()
-    local_ip = socket.gethostbyname(hostname)
-    logger.info(f"Service running on host: {hostname}, IP: {local_ip}")
-
-    logger.info("Node service is ready to accept connections")
-    logger.info("Application startup complete")
-
-    yield
-
-    logger.info("Shutting down node service")
-
-
 app = FastAPI(
     title="Node Processing Service",
     description="Service for processing different node models in a graph",
-    version="1.0.0",
-    lifespan=lifespan
+    version="1.0.0"
 )
 
 app.add_middleware(
@@ -88,6 +65,21 @@ async def exec_node(request: Request):
             content={"error": str(e)},
             status_code=400
         )
+
+@app.post("/load_nodes")
+async def load_nodes_endpoint():
+    try:
+        load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "../sdk/nodes"))
+        if os.environ.get('CUSTOM_NODES_DIR'):
+            load_nodes_from_directory(os.environ.get('CUSTOM_NODES_DIR'))
+        return {"status": "ok", "loaded_nodes": list(NODE_REGISTRY.keys())}
+    except Exception as e:
+        logger.error(f"Error loading nodes: {e}", exc_info=True)
+        return JSONResponse(
+            content={"status": "error", "error": str(e)},
+            status_code=500
+        )
+
 
 @app.get("/info")
 async def node_info():

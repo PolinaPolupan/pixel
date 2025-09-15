@@ -1,30 +1,25 @@
 import os
 import requests
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from urllib.parse import urljoin
+
+from pixel.core import NODE_REGISTRY
 
 
 class Client:
-    def __init__(
-        self,
-        engine_url: Optional[str] = None,
-        node_url: Optional[str] = None,
-    ):
-        self.engine_url = engine_url or os.getenv("ENGINE_SERVICE_URL", "http://engine:8080")
-        self.node_url = node_url or os.getenv("NODE_SERVICE_URL", "http://node:8000")
+    def __init__(self):
+        self.engine_url = "http://engine:8080"
         self.session = requests.Session()
 
     def _make_engine_url(self, path: str) -> str:
         return urljoin(self.engine_url, path)
 
-    def _make_node_url(self, path: str) -> str:
-        return urljoin(self.node_url, path)
-
     def get_node_info(self) -> Dict[str, Any]:
-        url = self._make_node_url("/info")
-        response = self.session.get(url)
-        response.raise_for_status()
-        return response.json()
+        result = {}
+        for node_type, node_cls in NODE_REGISTRY.items():
+            node = node_cls()
+            result[node_type] = node.metadata
+        return result
 
     def create_scene(self) -> str:
         url = self._make_engine_url("/v1/scene/")
