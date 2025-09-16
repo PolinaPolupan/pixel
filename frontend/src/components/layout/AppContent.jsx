@@ -23,7 +23,7 @@ function AppContent() {
     const [contextMenu, setContextMenu] = useState(null);
 
     // Get node configurations
-    const { nodesConfig, nodeReactComponents, getHandleParameterType, canCastType, getDefaultInputs, isLoading } = useNodesApi();
+    const { nodesConfig, nodeReactComponents, getHandleType, canCastType, getDefaultInputs, isLoading } = useNodesApi();
 
     // Graph execution
     const { isProcessing, executeGraph } = useGraphExecution({
@@ -38,13 +38,13 @@ function AppContent() {
         const sourceNode = nodes.find(n => n.id === connection.source);
         const targetNode = nodes.find(n => n.id === connection.target);
 
-        const sourceType = getHandleParameterType(sourceNode?.type, connection.sourceHandle, 'source');
-        const targetType = getHandleParameterType(targetNode?.type, connection.targetHandle, 'target');
+        const sourceType = getHandleType(sourceNode?.type, connection.sourceHandle, 'source');
+        const targetType = getHandleType(targetNode?.type, connection.targetHandle, 'target');
 
-        console.log(`Attempting connection: ${sourceType} -> ${targetType}`);
+        console.log(`Attempting connection: ${sourceNode} -> ${targetType}`);
 
         return sourceType && targetType && canCastType(sourceType, targetType);
-    }, [nodes, getHandleParameterType, canCastType]);
+    }, [nodes, getHandleType, canCastType]);
 
     // Connect nodes
     const onConnect = useCallback((params) => setEdges(els => addEdge(params, els)), []);

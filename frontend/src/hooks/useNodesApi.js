@@ -55,12 +55,11 @@ export function useNodesApi() {
     }, [nodeDisplayInfo]);
 
     const getHandleType = useMemo(() => {
-        return (nodeType, handleId, handleKind) => {
-            if (!nodesConfig?.[nodeType]) return null;
-            if (handleKind === 'input') {
-                return nodesConfig[nodeType]?.inputs?.[handleId]?.type || null;
+        return (nodeType, handleId, handleType) => {
+            if (handleType === 'source') {
+                return nodesConfig[nodeType]?.inputHandles?.[handleId]?.source || null;
             } else {
-                return nodesConfig[nodeType]?.outputs?.[handleId]?.type || null;
+                return nodesConfig[nodeType]?.outputHandles?.[handleId]?.target || null;
             }
         };
     }, [nodesConfig]);
@@ -106,6 +105,7 @@ export function useNodesApi() {
         nodeDisplayInfo,     // mapping nodeType -> { name, category, ... }
         getHandleType,       // get input/output type for a handle
         getDefaultInputs,    // get default input values
+        canCastType,
 
         // grouped for menus
         nodesGroupedByCategory
