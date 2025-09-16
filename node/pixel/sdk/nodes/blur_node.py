@@ -5,7 +5,7 @@ from pixel.sdk import StorageClient
 
 
 class BlurNode(Node):
-    node_type = "Blur"
+    node_type = "blur"
 
     metadata = {
         "inputs": {

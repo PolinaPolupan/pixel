@@ -2,7 +2,7 @@ from pixel.core import Node
 
 
 class OutputFileNode(Node):
-    node_type = "OutputFile"
+    node_type = "output_file"
 
     metadata = {
         "inputs": {

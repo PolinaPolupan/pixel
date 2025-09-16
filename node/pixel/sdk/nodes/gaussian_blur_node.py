@@ -5,7 +5,7 @@ from pixel.sdk import StorageClient
 
 
 class GaussianBlurNode(Node):
-    node_type = "GaussianBlur"
+    node_type = "gaussian_blur"
 
     metadata = {
         "inputs": {

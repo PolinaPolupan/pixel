@@ -5,7 +5,7 @@ from pixel.sdk.models import Vector2D
 
 
 class Vector2DNode(Node):
-    node_type = "Vector2D"
+    node_type = "vector2d"
 
     metadata = {
         "inputs": {

@@ -3,7 +3,7 @@ from pixel.sdk import StorageClient
 
 
 class MedianBlurNode(Node):
-    node_type = "MedianBlur"
+    node_type = "median_blur"
 
     metadata = {
         "inputs": {

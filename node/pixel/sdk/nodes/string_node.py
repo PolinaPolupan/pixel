@@ -2,7 +2,7 @@ from pixel.core import Node
 
 
 class StringNode(Node):
-    node_type = "String"
+    node_type = "string"
 
     metadata = {
         "inputs": {

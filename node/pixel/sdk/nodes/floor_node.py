@@ -4,7 +4,7 @@ from pixel.core import Metadata, Node
 
 
 class FloorNode(Node):
-    node_type = "Floor"
+    node_type = "floor"
 
     metadata = {
         "inputs": {

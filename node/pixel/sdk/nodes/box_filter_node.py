@@ -5,7 +5,7 @@ from pixel.sdk import StorageClient
 
 
 class BoxFilterNode(Node):
-    node_type = "BoxFilter"
+    node_type = "box_filter"
 
     metadata = {
         "inputs": {

@@ -5,7 +5,7 @@ from pixel.sdk import StorageClient
 
 
 class OutputNode(Node):
-    node_type = "Output"
+    node_type = "output"
 
     metadata = {
         "inputs": {

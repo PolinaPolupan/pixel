@@ -7,7 +7,7 @@ from pixel.core import Node
 logger = logging.getLogger(__name__)
 
 class S3OutputNode(Node):
-    node_type = "S3Output"
+    node_type = "s3_output"
 
     metadata = {
         "inputs": {

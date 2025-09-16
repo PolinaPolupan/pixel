@@ -8,7 +8,7 @@ from pixel.sdk import StorageClient
 logger = logging.getLogger(__name__)
 
 class S3InputNode(Node):
-    node_type = "S3Input"
+    node_type = "s3_input"
 
     metadata = {
         "inputs": {

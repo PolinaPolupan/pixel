@@ -2,7 +2,7 @@ from pixel.core import Node
 
 
 class ResNet50Node(Node):
-    node_type = "ResNet50"
+    node_type = "resnet50"
 
     metadata = {
         "inputs": {

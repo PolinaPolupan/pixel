@@ -6,7 +6,7 @@ from pixel.sdk import StorageClient
 
 class BilateralFilterNode(Node):
 
-    node_type = "BilateralFilter"
+    node_type = "bilateral_filter"
 
     metadata = {
         "inputs": {

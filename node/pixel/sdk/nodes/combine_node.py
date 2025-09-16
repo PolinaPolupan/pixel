@@ -3,7 +3,7 @@ from pixel.sdk import StorageClient
 
 
 class CombineNode(Node):
-    node_type = "Combine"
+    node_type = "combine"
 
     metadata = {
         "inputs": {

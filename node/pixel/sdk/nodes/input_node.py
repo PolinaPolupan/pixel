@@ -3,7 +3,7 @@ from pixel.sdk import StorageClient
 
 
 class InputNode(Node):
-    node_type = "Input"
+    node_type = "input"
 
     metadata = {
         "inputs": {
