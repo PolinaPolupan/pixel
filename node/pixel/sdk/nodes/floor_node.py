@@ -14,6 +14,7 @@ class FloorNode(Node):
             "output": { "type": "DOUBLE", "required": True, "widget": "LABEL" }
         },
         "display": {
+            "name": "Floor",
             "category": "Math",
             "description": "Returns the largest integer less than or equal to the input number.",
             "color": "#BA68C8",

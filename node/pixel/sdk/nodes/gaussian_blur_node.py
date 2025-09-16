@@ -19,6 +19,7 @@ class GaussianBlurNode(Node):
             "output": { "type": "FILEPATH_ARRAY", "required": True }
         },
         "display": {
+            "name": "Gaussian Blur",
             "category": "Filtering",
             "description": "Blurs an image using a Gaussian kernel",
             "color": "#FF8A65",

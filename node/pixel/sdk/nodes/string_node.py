@@ -12,6 +12,7 @@ class StringNode(Node):
             "output": { "type": "STRING", "required": True }
         },
         "display": {
+            "name": "String",
             "category": "Types",
             "description": "String",
             "color": "#AED581",

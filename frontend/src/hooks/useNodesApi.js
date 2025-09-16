@@ -22,53 +22,45 @@ export function useNodesApi() {
     }), []);
 
     // Extract node types (component mapping)
-    const nodeTypes = useMemo(() => {
-        if (!nodesConfig || Object.keys(nodesConfig).length === 0) {
-            return {};
-        }
+    const nodeReactComponents = useMemo(() => {
+        if (!nodesConfig) return {};
         return Object.fromEntries(
-            Object.entries(nodesConfig).map(([type]) => [type, Node])
+            Object.keys(nodesConfig).map((nodeType) => [nodeType, Node])
         );
     }, [nodesConfig]);
 
     // Extract node display details
-    const nodeTypeDetails = useMemo(() => {
-        if (!nodesConfig || Object.keys(nodesConfig).length === 0) {
-            return {};
-        }
+    const nodeDisplayInfo = useMemo(() => {
+        if (!nodesConfig) return {};
         return Object.fromEntries(
-            Object.entries(nodesConfig).map(([type, config]) => [type, config.display])
+            Object.entries(nodesConfig).map(([nodeType, config]) => [
+                nodeType,
+                config.display
+            ])
         );
     }, [nodesConfig]);
 
     // Group nodes by category
-    const nodesByCategory = useMemo(() => {
-        if (!nodeTypeDetails || Object.keys(nodeTypeDetails).length === 0) {
-            return {};
-        }
-
-        return Object.entries(nodeTypeDetails).reduce((grouped, [type, details]) => {
-            // Use specified category or "Other" as fallback
-            const category = details.category || 'Other';
-            if (!grouped[category]) {
-                grouped[category] = [];
-            }
-            grouped[category].push({ type, details });
+    const nodesGroupedByCategory = useMemo(() => {
+        if (!nodeDisplayInfo) return {};
+        return Object.entries(nodeDisplayInfo).reduce((grouped, [nodeType, display]) => {
+            const category = display.category || 'Other';
+            if (!grouped[category]) grouped[category] = [];
+            grouped[category].push({
+                type: nodeType,
+                display
+            });
             return grouped;
         }, {});
-    }, [nodeTypeDetails]);
+    }, [nodeDisplayInfo]);
 
-    // Get sorted categories
-    const sortedCategories = useMemo(() => {
-        return Object.keys(nodesByCategory).sort();
-    }, [nodesByCategory]);
-
-    const getHandleParameterType = useMemo(() => {
-        return (nodeType, handleId, handleType) => {
-            if (handleType === 'source') {
-                return nodesConfig[nodeType]?.inputHandles?.[handleId]?.source || null;
+    const getHandleType = useMemo(() => {
+        return (nodeType, handleId, handleKind) => {
+            if (!nodesConfig?.[nodeType]) return null;
+            if (handleKind === 'input') {
+                return nodesConfig[nodeType]?.inputs?.[handleId]?.type || null;
             } else {
-                return nodesConfig[nodeType]?.outputHandles?.[handleId]?.target || null;
+                return nodesConfig[nodeType]?.outputs?.[handleId]?.type || null;
             }
         };
     }, [nodesConfig]);
@@ -90,67 +82,32 @@ export function useNodesApi() {
     }, [typeCastingRules]);
 
     // Get default data for a node type
-    const getDefaultData = useMemo(() => {
+    const getDefaultInputs = useMemo(() => {
         return (nodeType) => {
-            return nodesConfig[nodeType]?.defaultData || {};
+            return Object.fromEntries(
+                Object.entries(nodesConfig?.[nodeType]?.inputs || {}).map(
+                    ([key, val]) => [key, val.default]
+                )
+            );
         };
     }, [nodesConfig]);
 
-    // Filter nodes by search term and category
-    const filterNodes = useMemo(() => {
-        return (searchTerm, activeCategory = 'All') => {
-            // First apply search filter if any
-            let filteredResults = { ...nodesByCategory };
-
-            if (searchTerm && searchTerm.trim() !== '') {
-                const searchLower = searchTerm.toLowerCase();
-                filteredResults = {};
-
-                Object.entries(nodesByCategory).forEach(([category, nodes]) => {
-                    const filteredNodes = nodes.filter(({ type, details }) =>
-                        type.toLowerCase().includes(searchLower) ||
-                        details.description?.toLowerCase().includes(searchLower)
-                    );
-
-                    if (filteredNodes.length > 0) {
-                        filteredResults[category] = filteredNodes;
-                    }
-                });
-            }
-
-            // Then apply category filter if not 'All'
-            if (activeCategory !== 'All') {
-                return {
-                    [activeCategory]: filteredResults[activeCategory] || []
-                };
-            }
-
-            return filteredResults;
-        };
-    }, [nodesByCategory]);
-
-    // Return a comprehensive API
     return {
-        // Core data
+        // raw API
         nodesConfig,
 
-        // Status
+        // status
         isLoading,
         error,
+        isReady: !isLoading && !error && !!nodesConfig,
 
-        // Previously split functionality now combined
-        nodeTypes,
-        nodeTypeDetails,
-        getHandleParameterType,
-        canCastType,
-        getDefaultData,
+        // per-node helpers
+        nodeReactComponents, // mapping nodeType -> React component
+        nodeDisplayInfo,     // mapping nodeType -> { name, category, ... }
+        getHandleType,       // get input/output type for a handle
+        getDefaultInputs,    // get default input values
 
-        // Category organization
-        nodesByCategory,
-        sortedCategories,
-        filterNodes,
-
-        // Utility to check if configs are ready
-        isReady: !isLoading && !error && !!nodesConfig
+        // grouped for menus
+        nodesGroupedByCategory
     };
 }

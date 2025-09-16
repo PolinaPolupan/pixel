@@ -19,6 +19,7 @@ class BilateralFilterNode(Node):
             "output": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL" }
         },
         "display": {
+            "name": "Bilateral Filter",
             "category": "Filtering",
             "description": "Applies a bilateral filter to the input image.",
             "color": "#FF8A65",

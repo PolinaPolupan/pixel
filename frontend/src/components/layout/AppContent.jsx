@@ -23,7 +23,7 @@ function AppContent() {
     const [contextMenu, setContextMenu] = useState(null);
 
     // Get node configurations
-    const { nodesConfig, nodeTypes, getHandleParameterType, canCastType, getDefaultData, isLoading } = useNodesApi();
+    const { nodesConfig, nodeReactComponents, getHandleParameterType, canCastType, getDefaultInputs, isLoading } = useNodesApi();
 
     // Graph execution
     const { isProcessing, executeGraph } = useGraphExecution({
@@ -59,11 +59,11 @@ function AppContent() {
             type,
             position,
             data: {
-                ...getDefaultData(type),
+                ...getDefaultInputs(type),
                 config: nodesConfig[type]
             }
         });
-    }, [getNodes, addNodes, getDefaultData, nodesConfig]);
+    }, [getNodes, addNodes, getDefaultInputs, nodesConfig]);
 
     // Handle right-click context menu
     const onContextMenu = useCallback((event) => {
@@ -87,7 +87,7 @@ function AppContent() {
             <GraphEditor
                 nodes={nodes}
                 edges={edges}
-                nodeTypes={nodeTypes}
+                nodeTypes={nodeReactComponents}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}

@@ -16,6 +16,7 @@ class Vector2DNode(Node):
             "vector2D": { "type": "VECTOR2D", "required": True }
         },
         "display": {
+            "name": "Vector2D",
             "category": "Types",
             "description": "Creates a 2D vector",
             "color": "#FF8A65",

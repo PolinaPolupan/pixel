@@ -15,6 +15,7 @@ class OutputNode(Node):
         },
         "outputs": {},
         "display": {
+            "name": "Output",
             "category": "IO",
             "description": "Output files to a folder",
             "color": "#AED581",

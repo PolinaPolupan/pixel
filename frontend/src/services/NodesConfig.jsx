@@ -92,7 +92,6 @@ export function useNodesConfig() {
                     });
 
                     processedConfig[nodeType] = {
-                        component: nodeType,
                         nodeType: nodeType,
                         // Keep the original handles object for compatibility
                         handles: {

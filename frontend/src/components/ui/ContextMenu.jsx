@@ -7,7 +7,7 @@ const ContextMenu = ({
                          position = { x: 0, y: 0 },
                          createNode
                      }) => {
-    const { nodesByCategory, sortedCategories, isLoading, error } = useNodesApi();
+    const { nodesGroupedByCategory, isLoading, error } = useNodesApi();
     const { setError } = useNotification();
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [subMenuPosition, setSubMenuPosition] = useState({ top: 0, height: 0 });
@@ -121,7 +121,7 @@ const ContextMenu = ({
                 onMouseLeave={handleMouseLeave}
             >
                 {/* Category List */}
-                {sortedCategories.map((category) => (
+                {Object.keys(nodesGroupedByCategory).map((category) => (
                     <div
                         key={category}
                         ref={el => categoryRefs.current[category] = el}
@@ -142,9 +142,7 @@ const ContextMenu = ({
                         }}
                     >
                         <span>{category}</span>
-                        <span style={{ fontSize: '10px' }}>
-              ►
-            </span>
+                        <span style={{ fontSize: '10px' }}>►</span>
                     </div>
                 ))}
             </div>
@@ -173,7 +171,7 @@ const ContextMenu = ({
                     onMouseLeave={handleSubMenuMouseLeave}
                 >
                     {/* Nodes in Selected Category */}
-                    {nodesByCategory[expandedCategory].map(({ type, details }) => (
+                    {nodesGroupedByCategory[expandedCategory].map(({ type, display }) => (
                         <div
                             key={type}
                             onClick={() => handleClick(type)}
@@ -197,11 +195,11 @@ const ContextMenu = ({
               <span style={{
                   display: 'flex',
                   alignItems: 'center',
-                  color: details.color || 'white',
+                  color: display.color || 'white',
               }}>
-                {renderIcon(details.icon)}
+                {renderIcon(display.icon)}
               </span>
-                            <span>{type}</span>
+                            <span>{display.name}</span>
                         </div>
                     ))}
                 </div>

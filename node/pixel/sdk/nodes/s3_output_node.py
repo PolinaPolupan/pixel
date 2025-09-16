@@ -21,6 +21,7 @@ class S3OutputNode(Node):
         },
         "outputs": {},
         "display": {
+            "name": "S3 Output",
             "category": "IO",
             "description": "Output files to S3",
             "color": "#AED581",

@@ -21,6 +21,7 @@ class S3InputNode(Node):
             "files": { "type": "FILEPATH_ARRAY", "required": True }
         },
         "display": {
+            "name": "S3 Input",
             "category": "IO",
             "description": "Load files from S3",
             "color": "#AED581",

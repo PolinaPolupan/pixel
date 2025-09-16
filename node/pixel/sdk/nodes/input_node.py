@@ -13,6 +13,7 @@ class InputNode(Node):
             "output": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL" }
         },
         "display": {
+            "name": "Input",
             "category": "IO",
             "description": "Input files",
             "color": "#AED581",

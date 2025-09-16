@@ -12,6 +12,7 @@ class ResNet50Node(Node):
             "json": { "type": "STRING", "required": True }
         },
         "display": {
+            "name": "ResNet50",
             "category": "ML",
             "description": "Run ResNet50 on images",
             "color": "#81C784",

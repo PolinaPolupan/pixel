@@ -17,6 +17,7 @@ class BoxFilterNode(Node):
             "output": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL" }
         },
         "display": {
+            "name": "Box Filter",
             "category": "Filtering",
             "description": "Blurs an image using the specified kernel size",
             "color": "#FF8A65",

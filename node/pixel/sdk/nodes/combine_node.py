@@ -17,6 +17,7 @@ class CombineNode(Node):
             "output": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL" }
         },
         "display": {
+            "name": "Combine",
             "category": "IO",
             "description": "Combine multiple data sources into a single source",
             "color": "#AED581",

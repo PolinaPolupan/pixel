@@ -6,12 +6,13 @@ import { useReactFlow } from "@xyflow/react";
 import { useEffect } from "react";
 
 export default function Node({ id, data }) {
+    console.log(data)
     const { config } = data;
     const reactFlow = useReactFlow();
 
     if (!config) return <div style={{ color: 'red' }}>Missing config!</div>;
 
-    const { component, inputHandles, outputHandles } = config;
+    const { inputHandles, outputHandles } = config;
 
     // Apply default values when node is created
     useEffect(() => {
@@ -32,7 +33,7 @@ export default function Node({ id, data }) {
 
     return (
         <div style={{ minWidth: '100px' }}>
-            <NodeHeader title={component} />
+            <NodeHeader title={config.display.name} />
 
             {/* Render input handles (those that output FROM the node) */}
             {Object.entries(inputHandles || {}).map(([handleId, handleConfig]) => {
