@@ -25,7 +25,7 @@ class MedianBlurNode(Node):
     def exec(self, input, ksize, meta: Metadata):
         output_files = []
         for file in input:
-            output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file))
+            output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.node_id, file))
         return {"output": output_files}
 
     def validate(self, input, ksize, meta: Metadata):

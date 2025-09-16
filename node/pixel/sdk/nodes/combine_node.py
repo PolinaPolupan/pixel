@@ -36,7 +36,7 @@ class CombineNode(Node):
                 files.update(file_set)
 
         output_files = [
-            StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file)
+            StorageClient.store_from_workspace_to_task(meta.task_id, meta.node_id, file)
             for file in files
         ]
 

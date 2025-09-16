@@ -29,7 +29,7 @@ class BoxFilterNode(Node):
         output_files = []
         for file in input:
             output_files.append(
-                StorageClient.store_from_workspace_to_task(meta.task_id, meta.id, file)
+                StorageClient.store_from_workspace_to_task(meta.task_id, meta.node_id, file)
             )
         return {"output": output_files}
 

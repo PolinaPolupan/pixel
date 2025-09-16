@@ -3,6 +3,7 @@ import boto3
 import logging
 
 from pixel.core import Node, Metadata
+from pixel.sdk import StorageClient
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,7 @@ class S3InputNode(Node):
 
                     file_path = StorageClient.store_to_task(
                         task_id=meta.task_id,
-                        node_id=meta.id,
+                        node_id=meta.node_id,
                         file_path=temp_file_path,
                         target=filename
                     )
