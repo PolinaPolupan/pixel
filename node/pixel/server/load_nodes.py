@@ -35,7 +35,9 @@ def get_node_class(node_type: str):
 
 
 def register_node_class(cls):
+    global NODE_REGISTRY
     if hasattr(cls, 'node_type') and cls.node_type is not None:
+        logger.warning(f"Registering node: {cls.node_type}")
         NODE_REGISTRY[cls.node_type] = cls
         install_dependencies(cls)
 
@@ -51,8 +53,6 @@ def load_nodes_from_directory(directory: str):
     for filename in os.listdir(directory):
         if filename.endswith(".py") and not filename.startswith("__"):
             path = os.path.join(directory, filename)
-            logger.info(f"Loading node: {path}")
-
             try:
                 spec = importlib.util.spec_from_file_location(filename[:-3], path)
                 module = importlib.util.module_from_spec(spec)

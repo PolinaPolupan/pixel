@@ -46,7 +46,7 @@ class Node(ABC):
         return cls.required_packages
 
     def exec_params(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        sig = inspect.signature(self.exec)
+        sig = getattr(self.__class__, "original_signature", inspect.signature(self.exec))
         return self.exec(**map_input_params(inputs, sig))
 
     def exec(self, **kwargs) -> Dict[str, Any]:
