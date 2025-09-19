@@ -53,7 +53,7 @@ class Node(ABC):
         return {}
 
     def validate_params(self, inputs: Dict[str, Any]) -> None:
-        sig = inspect.signature(self.validate)
+        sig = getattr(self.__class__, "original_signature", inspect.signature(self.exec))
         return self.validate(**map_input_params(inputs, sig))
 
     def validate(self, **kwargs) -> None:

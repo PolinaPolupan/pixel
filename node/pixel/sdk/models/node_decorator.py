@@ -1,36 +1,33 @@
 import inspect
 import re
-from typing import List, Callable, Type, Dict, Any, get_type_hints
-
+from typing import List, Callable, Type, Dict
 from pixel.core import Node
 from pixel.server.load_nodes import register_node_class
 
-
-def node(display_name: str = None,
-         category: str = None,
-         description: str = None,
-         color: str = "#808080",
-         icon: str = None,
-         required_packages: List[str] = None):
+def node(
+    display_name: str = None,
+    category: str = None,
+    description: str = None,
+    color: str = "#808080",
+    icon: str = None,
+    required_packages: List[str] = None,
+    tasks: Dict[str, Callable] = None
+):
     def decorator(func: Callable) -> Type[Node]:
         func_node_type = func.__name__.lower()
-
         sig = inspect.signature(func)
 
         inputs = {}
         for param_name, param in sig.parameters.items():
             if param_name == 'meta':
                 continue
-
             has_default = param.default != inspect.Parameter.empty
             default_value = param.default if has_default else None
-
             inputs[param_name] = {
                 "type": "DEFAULT",
                 "required": not has_default,
                 "widget": "LABEL",
             }
-
             if has_default and default_value is not None:
                 inputs[param_name]["default"] = default_value
 
@@ -66,14 +63,21 @@ def node(display_name: str = None,
         class FunctionNode(Node):
             node_type = func_node_type
             metadata = node_metadata
-            original_func = func         
+            original_func = func
             original_signature = sig
 
+            def __get_task_method(self, name: str):
+                if tasks and name in tasks:
+                    return tasks[name]
+                if name == "exec":
+                    return func
+                return lambda **kwargs: None
+
             def exec(self, **kwargs):
-                return func(**kwargs)
+                return self.__get_task_method("exec")(**kwargs)
 
             def validate(self, **kwargs):
-                return None
+                return self.__get_task_method("validate")(**kwargs)
 
         FunctionNode.__name__ = func.__name__.capitalize()
         FunctionNode.__qualname__ = FunctionNode.__name__
@@ -83,8 +87,8 @@ def node(display_name: str = None,
         try:
             register_node_class(FunctionNode)
             print(f"Successfully registered node: {func_node_type}")
-            print(f"Node inputs: {inputs}")
-            print(f"Node outputs: {outputs}")
+            print(f"Inputs: {inputs}")
+            print(f"Outputs: {outputs}")
         except Exception as e:
             print(f"Error registering node: {e}")
 
