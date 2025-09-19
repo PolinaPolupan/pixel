@@ -1,23 +1,16 @@
-from pixel.core import Node
+from pixel.sdk.models.node_decorator import node
 
-
-class OutputFileNode(Node):
-    node_type = "output_file"
-
-    metadata = {
-        "inputs": {
-            "content": { "type": "STRING", "required": False, "widget": "INPUT", "default": "" },
-            "filename": { "type": "STRING", "required": False, "widget": "INPUT", "default": "new.txt" }
-        },
-        "outputs": {},
-        "display": {
-            "name": "Output File",
-            "category": "IO",
-            "description": "Output to a file",
-            "color": "#AED581",
-            "icon": "OutputIcon"
-        }
-    }
-
-    def exec(self, content, filename):
-        return {}
+@node(
+    inputs={
+        "content": {"type": "STRING", "required": False, "widget": "INPUT", "default": ""},
+        "filename": {"type": "STRING", "required": False, "widget": "INPUT", "default": "new.txt"}
+    },
+    outputs={},
+    display_name="Output File",
+    category="IO",
+    description="Output to a file",
+    color="#AED581",
+    icon="OutputIcon"
+)
+def output_file(content: str = "", filename: str = "new.txt", meta=None):
+    return {}

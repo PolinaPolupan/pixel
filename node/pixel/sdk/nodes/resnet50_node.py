@@ -1,25 +1,21 @@
-from pixel.core import Node
+from typing import List
+from pixel.sdk.models.node_decorator import node
+from pixel.core import Metadata
 
 
-class ResNet50Node(Node):
-    node_type = "resnet50"
-
-    metadata = {
-        "inputs": {
-            "input": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set() }
-        },
-        "outputs": {
-            "json": { "type": "STRING", "required": True }
-        },
-        "display": {
-            "name": "ResNet50",
-            "category": "ML",
-            "description": "Run ResNet50 on images",
-            "color": "#81C784",
-            "icon": "ResNet50Icon"
-        }
-    }
-
-    def exec(self, input):
-        outputs = {}
-        return outputs
+@node(
+    inputs={
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()}
+    },
+    outputs={
+        "json": {"type": "STRING", "required": True}
+    },
+    display_name="ResNet50",
+    category="ML",
+    description="Run ResNet50 on images",
+    color="#81C784",
+    icon="ResNet50Icon"
+)
+def resnet50(input: List[str], meta: Metadata = None):
+    outputs = {"json": ""}
+    return outputs

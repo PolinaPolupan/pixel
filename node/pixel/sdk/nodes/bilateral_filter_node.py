@@ -1,37 +1,36 @@
+from pixel.core import Metadata
 from typing import List
 
-from pixel.core import Node, Metadata
 from pixel.sdk import StorageClient
+from pixel.sdk.models.node_decorator import node
 
 
-class BilateralFilterNode(Node):
+def bilateral_exec(input: List[str], d: int, sigmaColor: float, sigmaSpace: float, meta: Metadata):
+    output_files = []
+    for file in input:
+        output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.node_id, file))
+    return {"output": output_files}
 
-    node_type = "bilateral_filter"
+def bilateral_validate(input: List[str], d: int, sigmaColor: float, sigmaSpace: float, meta: Metadata):
+    if d < 1:
+        raise ValueError("d must be greater than 0")
+    if sigmaColor <= 0 or sigmaSpace <= 0:
+        raise ValueError("sigmaColor and sigmaSpace must be positive")
 
-    metadata = {
-        "inputs": {
-            "input": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set() },
-            "d": { "type": "INT", "required": True, "widget": "INPUT", "default": 9 },
-            "sigmaColor": { "type": "DOUBLE", "required": True, "widget": "INPUT", "default": 75.0 },
-            "sigmaSpace": { "type": "DOUBLE", "required": True, "widget": "INPUT", "default": 75.0 }
-        },
-        "outputs": {
-            "output": { "type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL" }
-        },
-        "display": {
-            "name": "Bilateral Filter",
-            "category": "Filtering",
-            "description": "Applies a bilateral filter to the input image.",
-            "color": "#FF8A65",
-            "icon": "BlurIcon"
-        }
-    }
-
-    def exec(self, input: List[str], d: int, sigmaColor: int, sigmaSpace: float, meta: Metadata):
-        output_files = []
-
-        for file in input:
-            output_files.append(StorageClient.store_from_workspace_to_task(meta.task_id, meta.node_id, file))
-
-
-        return {"output": output_files}
+@node(
+    tasks={"exec": bilateral_exec, "validate": bilateral_validate},
+    inputs={
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()},
+        "d": {"type": "INT", "required": True, "widget": "INPUT", "default": 9},
+        "sigmaColor": {"type": "DOUBLE", "required": True, "widget": "INPUT", "default": 75.0},
+        "sigmaSpace": {"type": "DOUBLE", "required": True, "widget": "INPUT", "default": 75.0}
+    },
+    outputs={"output": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL"}},
+    display_name="Bilateral Filter",
+    category="Filtering",
+    description="Applies a bilateral filter to the input image.",
+    color="#FF8A65",
+    icon="BlurIcon"
+)
+def bilateral_filter(input: List[str], d: int = 9, sigmaColor: float = 75.0, sigmaSpace: float = 75.0, meta: Metadata = None):
+    pass
