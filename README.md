@@ -7,62 +7,61 @@ An image processing system designed to proccess images using node-based workflow
 ![image](https://github.com/user-attachments/assets/a4c38118-e976-42d3-b599-abfa7d92621f)
 
 ```
-from src import NodeFlow
+from typing import List
+
+from pixel.sdk import NodeFlow
+from pixel.sdk.models.node_decorator import node
+
+
+@node()
+def custom_blur(input: List[str], ksize):
+    """Blurs an image using the specified kernel size"""
+    print("Hello I'm custom blur")
+    return {"output": input, "sigma": 5, "ksize": ksize, "param": "style"}
 
 flow = NodeFlow()
 
 scene_id = flow.create_scene()
 
-flow.upload_file("test_res/file.jpg")
-flow.upload_file("test_res/scene_1_files.zip")
-
 files = flow.list_files()
 
-access_key_id = flow.String(input="key")
-secret_access_key = flow.String(input="secret")
-bucket = flow.String(input="bucket")
-region = flow.String(input="region")
+access_key_id = flow.string(input="key")
+secret_access_key = flow.string(input="secret")
+bucket = flow.string(input="bucket")
+region = flow.string(input="region")
 
-s3_input = flow.S3Input(
-    access_key_id=access_key_id.output,
-    secret_access_key=secret_access_key.output,
-    bucket=bucket.output,
-    region=region.output
+
+input_node = flow.input(input=files)
+floor_result = flow.floor(input=56)
+
+combined = flow.combine(
+    files_0=input_node.output
 )
 
-input_node = flow.Input(input=files)
-floor_result = flow.Floor(input=56)
-
-combined = flow.Combine(
-    files_0=input_node.output,
-    files_1=s3_input.files
-)
-
-blurred = flow.GaussianBlur(
+blurred = flow.gaussian_blur(
     input=combined.output,
     sigmaX=floor_result.output,
     sizeX=33,
     sizeY=33
 )
 
-output = flow.Output(
+value = flow.floor(input=8)
+
+custom = flow.custom_blur(
+    input=blurred.output,
+    ksize=value.output
+)
+
+output = flow.output(
     input=blurred.output,
     prefix="output1",
     folder="output_1"
 )
 
-s3_output = flow.S3Output(
-    input=blurred.output,
-    access_key_id=access_key_id.output,
-    secret_access_key=secret_access_key.output,
-    bucket=bucket.output,
-    region=region.output,
-    folder="output"
-)
 
 execution_result = flow.execute()
 
-flow.download_file("file.jpg", "test_res/downloaded_result.png")
+print(flow.nodes)
 print(flow.list_files())
 ```
 
