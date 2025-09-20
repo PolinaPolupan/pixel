@@ -1,6 +1,6 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.task.TaskPayload;
+import com.example.pixel.execution_task.ExecutionTaskPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +13,11 @@ public class ExecutionController {
     private final ExecutionService executionService;
 
     @PostMapping
-    public ResponseEntity<TaskPayload> execute(
+    public ResponseEntity<ExecutionTaskPayload> execute(
             @PathVariable Long sceneId,
             @RequestBody ExecutionGraphPayload executionGraphPayload
     ) {
-        TaskPayload task = executionService.startExecution(executionGraphPayload, sceneId);
+        ExecutionTaskPayload task = executionService.startExecution(executionGraphPayload, sceneId);
         return ResponseEntity.ok(task);
     }
 }

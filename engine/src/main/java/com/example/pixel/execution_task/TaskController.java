@@ -1,4 +1,4 @@
-package com.example.pixel.task;
+package com.example.pixel.execution_task;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/v1/task")
 public class TaskController {
 
-    private final TaskService taskService;
+    private final ExecutionTaskService executionTaskService;
 
     @GetMapping("/{taskId}")
-    public ResponseEntity<TaskPayload> getTask(@PathVariable Long taskId) {
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.findTaskById(taskId));
+    public ResponseEntity<ExecutionTaskPayload> getTask(@PathVariable Long taskId) {
+        return ResponseEntity.status(HttpStatus.OK).body(executionTaskService.findTaskById(taskId));
     }
 }

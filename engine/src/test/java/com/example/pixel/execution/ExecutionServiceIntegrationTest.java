@@ -4,10 +4,10 @@ import com.example.pixel.common.NotificationService;
 import com.example.pixel.config.TestCacheConfig;
 import com.example.pixel.exception.InvalidNodeInputException;
 import com.example.pixel.exception.StorageFileNotFoundException;
-import com.example.pixel.task.TaskService;
+import com.example.pixel.execution_task.ExecutionTaskService;
 import com.example.pixel.file_system.StorageService;
-import com.example.pixel.task.TaskPayload;
-import com.example.pixel.task.TaskStatus;
+import com.example.pixel.execution_task.ExecutionTaskPayload;
+import com.example.pixel.execution_task.ExecutionTaskStatus;
 import com.example.pixel.node.Node;
 import com.example.pixel.node.NodeProcessorService;
 import com.example.pixel.util.TestFileUtils;
@@ -49,7 +49,7 @@ public class ExecutionServiceIntegrationTest {
     private StorageService storageService;
 
     @MockitoSpyBean
-    private TaskService taskService;
+    private ExecutionTaskService executionTaskService;
 
     @MockitoSpyBean
     private NodeProcessorService nodeProcessorService;
@@ -73,10 +73,10 @@ public class ExecutionServiceIntegrationTest {
         ExecutionGraphPayload executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = executionGraph.getNodes().size();
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
-        TaskPayload completedTask = future.get();
+        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        ExecutionTaskPayload completedTask = future.get();
 
-        assertEquals(TaskStatus.COMPLETED, completedTask.getStatus());
+        assertEquals(ExecutionTaskStatus.COMPLETED, completedTask.getStatus());
 
 
         assertTrue(storageService.loadAll("scenes/" + sceneId).toArray().length > 0);
@@ -97,7 +97,7 @@ public class ExecutionServiceIntegrationTest {
         doThrow(new RuntimeException(errorMessage))
                 .when(nodeProcessorService).processNode(any(), eq(sceneId), any());
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -106,7 +106,7 @@ public class ExecutionServiceIntegrationTest {
             assertInstanceOf(RuntimeException.class, e.getCause());
         }
 
-        verify(taskService).markTaskFailed(any(), eq(errorMessage));
+        verify(executionTaskService).markTaskFailed(any(), eq(errorMessage));
         verify(notificationService).sendTaskStatus(any());
     }
 
@@ -115,15 +115,15 @@ public class ExecutionServiceIntegrationTest {
         ExecutionGraphPayload multiNodeExecutionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = multiNodeExecutionGraph.getNodes().size();
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(multiNodeExecutionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(multiNodeExecutionGraph, sceneId);
         future.get();
 
         verify(nodeProcessorService, times(nodeCount)).processNode(any(), eq(sceneId), any());
 
-        ArgumentCaptor<TaskPayload> progressCaptor = ArgumentCaptor.forClass(TaskPayload.class);
+        ArgumentCaptor<ExecutionTaskPayload> progressCaptor = ArgumentCaptor.forClass(ExecutionTaskPayload.class);
         verify(notificationService, times(nodeCount + 1)).sendTaskStatus(progressCaptor.capture());
 
-        List<TaskPayload> progressUpdates = progressCaptor.getAllValues();
+        List<ExecutionTaskPayload> progressUpdates = progressCaptor.getAllValues();
         assertEquals(nodeCount + 1, progressUpdates.size());
     }
 
@@ -131,22 +131,22 @@ public class ExecutionServiceIntegrationTest {
     void execute_shouldTransitionTaskStatusCorrectly() throws Exception {
         ExecutionGraphPayload executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
 
-        ArgumentCaptor<TaskStatus> statusCaptor = ArgumentCaptor.forClass(TaskStatus.class);
+        ArgumentCaptor<ExecutionTaskStatus> statusCaptor = ArgumentCaptor.forClass(ExecutionTaskStatus.class);
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
         future.get();
 
-        verify(taskService, atLeastOnce()).updateTaskStatus(any(), statusCaptor.capture());
-        List<TaskStatus> statusUpdates = statusCaptor.getAllValues();
+        verify(executionTaskService, atLeastOnce()).updateTaskStatus(any(), statusCaptor.capture());
+        List<ExecutionTaskStatus> statusUpdates = statusCaptor.getAllValues();
 
-        assertEquals(TaskStatus.RUNNING, statusUpdates.get(0));
-        assertEquals(TaskStatus.COMPLETED, statusUpdates.get(statusUpdates.size()-1));
+        assertEquals(ExecutionTaskStatus.RUNNING, statusUpdates.get(0));
+        assertEquals(ExecutionTaskStatus.COMPLETED, statusUpdates.get(statusUpdates.size()-1));
     }
 
     @Test
     void executeMultipleGraphs_concurrently_shouldAllComplete() throws Exception {
         int concurrentTasks = 3;
-        List<CompletableFuture<TaskPayload>> futures = new ArrayList<>();
+        List<CompletableFuture<ExecutionTaskPayload>> futures = new ArrayList<>();
 
         for (int i = 0; i < concurrentTasks; i++) {
             Long sceneId = 100L + i;
@@ -158,9 +158,9 @@ public class ExecutionServiceIntegrationTest {
                 futures.toArray(new CompletableFuture[0]));
         allDone.get(30, TimeUnit.SECONDS);
 
-        for (CompletableFuture<TaskPayload> future : futures) {
-            TaskPayload task = future.get();
-            assertEquals(TaskStatus.COMPLETED, task.getStatus());
+        for (CompletableFuture<ExecutionTaskPayload> future : futures) {
+            ExecutionTaskPayload task = future.get();
+            assertEquals(ExecutionTaskStatus.COMPLETED, task.getStatus());
         }
     }
 
@@ -176,7 +176,7 @@ public class ExecutionServiceIntegrationTest {
 
         String expectedErrorMessage = "SizeX must be positive and odd";
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -185,7 +185,7 @@ public class ExecutionServiceIntegrationTest {
             assertInstanceOf(InvalidNodeInputException.class, e.getCause());
             assertTrue(e.getCause().getMessage().contains(expectedErrorMessage));
 
-            verify(taskService).markTaskFailed(any(), contains(expectedErrorMessage));
+            verify(executionTaskService).markTaskFailed(any(), contains(expectedErrorMessage));
             verify(notificationService).sendTaskStatus(any());
         }
     }
@@ -200,7 +200,7 @@ public class ExecutionServiceIntegrationTest {
         nodes.add(gaussianNode);
         ExecutionGraphPayload executionGraph = new ExecutionGraphPayload(nodes);
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -208,7 +208,7 @@ public class ExecutionServiceIntegrationTest {
         } catch (ExecutionException e) {
             assertInstanceOf(InvalidNodeInputException.class, e.getCause());
 
-            verify(taskService).markTaskFailed(any(), anyString());
+            verify(executionTaskService).markTaskFailed(any(), anyString());
             verify(notificationService).sendTaskStatus(any());
         }
     }
@@ -225,14 +225,14 @@ public class ExecutionServiceIntegrationTest {
         nodes.add(gaussianNode);
         ExecutionGraphPayload executionGraph = new ExecutionGraphPayload(nodes);
 
-        CompletableFuture<TaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
         } catch (ExecutionException e) {
             assertInstanceOf(StorageFileNotFoundException.class, e.getCause());
 
-            verify(taskService).markTaskFailed(any(), anyString());
+            verify(executionTaskService).markTaskFailed(any(), anyString());
             verify(notificationService).sendTaskStatus(any());
         }
     }

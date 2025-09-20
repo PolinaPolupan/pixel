@@ -1,7 +1,7 @@
 package com.example.pixel.execution;
 
 import com.example.pixel.scene.ScenePayload;
-import com.example.pixel.task.TaskPayload;
+import com.example.pixel.execution_task.ExecutionTaskPayload;
 import com.example.pixel.scene.SceneService;
 import com.example.pixel.file_system.StorageService;
 import com.example.pixel.util.TestFileUtils;
@@ -116,10 +116,10 @@ public class ExecutionGraphIntegrationTest {
         ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                 "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
-        ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
+        ResponseEntity<ExecutionTaskPayload> response = restTemplate.postForEntity(
                 "/v1/scene/{sceneId}/exec",
                 testExecutionGraphJson,
-                TaskPayload.class,
+                ExecutionTaskPayload.class,
                 sceneId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -278,10 +278,10 @@ public class ExecutionGraphIntegrationTest {
                      ExecutionGraph testExecutionGraphJson = TestJsonTemplates.loadGraph(
                             "test-json/graph-template-1.json", sceneId, TestcontainersExtension.getLocalstack());
 
-                    ResponseEntity<TaskPayload> response = restTemplate.postForEntity(
+                    ResponseEntity<ExecutionTaskPayload> response = restTemplate.postForEntity(
                             "/v1/scene/{sceneId}/exec",
                             testExecutionGraphJson,
-                            TaskPayload.class,
+                            ExecutionTaskPayload.class,
                             sceneId);
 
                     assertEquals(HttpStatus.OK, response.getStatusCode());

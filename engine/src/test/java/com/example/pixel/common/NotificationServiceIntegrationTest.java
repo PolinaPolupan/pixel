@@ -1,9 +1,9 @@
 package com.example.pixel.common;
 
 import com.example.pixel.config.TestCacheConfig;
-import com.example.pixel.task.Task;
-import com.example.pixel.task.TaskPayload;
-import com.example.pixel.task.TaskStatus;
+import com.example.pixel.execution_task.ExecutionTask;
+import com.example.pixel.execution_task.ExecutionTaskPayload;
+import com.example.pixel.execution_task.ExecutionTaskStatus;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,11 +50,11 @@ class NotificationServiceIntegrationTest {
     private final Long taskId = 1L;
     private final Long sceneId = 1L;
     private final String processingTopic = "/topic/processing/" + taskId;
-    private Task task;
+    private ExecutionTask executionTask;
 
     @BeforeEach
     void setupConnection() throws ExecutionException, InterruptedException, TimeoutException {
-        task = new Task();
+        executionTask = new ExecutionTask();
         String wsUrl = "ws://localhost:" + port + "/ws";
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
@@ -94,19 +94,19 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        task.setId(taskId);
-        task.setSceneId(sceneId);
-        task.setStatus(TaskStatus.RUNNING);
-        task.setProcessedNodes(7);
-        task.setTotalNodes(10);
+        executionTask.setId(taskId);
+        executionTask.setSceneId(sceneId);
+        executionTask.setStatus(ExecutionTaskStatus.RUNNING);
+        executionTask.setProcessedNodes(7);
+        executionTask.setTotalNodes(10);
 
-        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
         assertNotNull(result);
         assertEquals(sceneId.longValue(), ((Number) result.get("sceneId")).longValue());
-        assertEquals(TaskStatus.RUNNING.toString(), result.get("status"));
+        assertEquals(ExecutionTaskStatus.RUNNING.toString(), result.get("status"));
         assertEquals(7, ((Number) result.get("processedNodes")).intValue());
         assertEquals(10, ((Number) result.get("totalNodes")).intValue());
     }
@@ -131,16 +131,16 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        task.setId(taskId);
-        task.setSceneId(sceneId);
-        task.setStatus(TaskStatus.COMPLETED);
-        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
+        executionTask.setId(taskId);
+        executionTask.setSceneId(sceneId);
+        executionTask.setStatus(ExecutionTaskStatus.COMPLETED);
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
         assertNotNull(result);
         assertEquals(sceneId.longValue(), ((Number) result.get("sceneId")).longValue());
-        assertEquals(TaskStatus.COMPLETED.toString(), result.get("status"));
+        assertEquals(ExecutionTaskStatus.COMPLETED.toString(), result.get("status"));
     }
 
     @Test
@@ -162,17 +162,17 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        task.setId(taskId);
-        task.setSceneId(sceneId);
-        task.setStatus(TaskStatus.FAILED);
-        task.setErrorMessage(errorMessage);
-        notificationService.sendTaskStatus(TaskPayload.fromEntity(task));
+        executionTask.setId(taskId);
+        executionTask.setSceneId(sceneId);
+        executionTask.setStatus(ExecutionTaskStatus.FAILED);
+        executionTask.setErrorMessage(errorMessage);
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
         assertNotNull(result);
         assertEquals(sceneId.longValue(), ((Number) result.get("sceneId")).longValue());
-        assertEquals(TaskStatus.FAILED.toString(), result.get("status"));
+        assertEquals(ExecutionTaskStatus.FAILED.toString(), result.get("status"));
         assertEquals(errorMessage, result.get("errorMessage"));
     }
 }

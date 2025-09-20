@@ -1,6 +1,6 @@
 package com.example.pixel.file_system;
 
-import com.example.pixel.task.TaskService;
+import com.example.pixel.execution_task.ExecutionTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,13 +14,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class FileCleaner {
 
-    private final TaskService taskService;
+    private final ExecutionTaskService executionTaskService;
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     public void cleanupDump() {
         log.info("Dump cleanup started at {}", LocalDate.now());
-        for (var task: taskService.getInactiveTasks()) {
-            taskService.delete(task.getId());
+        for (var task: executionTaskService.getInactiveTasks()) {
+            executionTaskService.delete(task.getId());
         }
     }
 }

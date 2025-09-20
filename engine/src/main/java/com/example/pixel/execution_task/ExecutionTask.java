@@ -1,4 +1,4 @@
-package com.example.pixel.task;
+package com.example.pixel.execution_task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Table(name = "graph_execution_tasks")
-public class Task {
+public class ExecutionTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,7 +19,7 @@ public class Task {
     private Long sceneId;
 
     @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    private ExecutionTaskStatus status;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;

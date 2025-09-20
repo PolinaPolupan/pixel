@@ -1,7 +1,7 @@
 package com.example.pixel.common;
 
-import com.example.pixel.task.TaskPayload;
-import com.example.pixel.task.TaskStatus;
+import com.example.pixel.execution_task.ExecutionTaskPayload;
+import com.example.pixel.execution_task.ExecutionTaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessagingException;
@@ -17,10 +17,10 @@ public class NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    public void sendTaskStatus(TaskPayload task) {
+    public void sendTaskStatus(ExecutionTaskPayload task) {
         try {
             String destination = processingTopic + task.getId();
-            TaskStatus status = task.getStatus();
+            ExecutionTaskStatus status = task.getStatus();
 
             messagingTemplate.convertAndSend(destination, task);
 
