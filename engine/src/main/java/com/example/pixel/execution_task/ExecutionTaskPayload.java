@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ExecutionTaskPayload {
     private Long id;
-    private Long sceneId;
+    private Long graphId;
     private ExecutionTaskStatus status;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -19,17 +19,17 @@ public class ExecutionTaskPayload {
     private Integer processedNodes;
     private String errorMessage;
 
-    public static ExecutionTaskPayload fromEntity(ExecutionTask executionTask) {
-        if (executionTask == null) return null;
+    public static ExecutionTaskPayload fromEntity(ExecutionTaskEntity executionTaskEntity) {
+        if (executionTaskEntity == null) return null;
         return new ExecutionTaskPayload(
-                executionTask.getId(),
-                executionTask.getSceneId(),
-                executionTask.getStatus(),
-                executionTask.getStartTime(),
-                executionTask.getEndTime(),
-                executionTask.getTotalNodes(),
-                executionTask.getProcessedNodes(),
-                executionTask.getErrorMessage()
+                executionTaskEntity.getId(),
+                executionTaskEntity.getGraphId(),
+                executionTaskEntity.getStatus(),
+                executionTaskEntity.getStartTime(),
+                executionTaskEntity.getEndTime(),
+                executionTaskEntity.getTotalNodes(),
+                executionTaskEntity.getProcessedNodes(),
+                executionTaskEntity.getErrorMessage()
         );
     }
 }

@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ExecutionTaskRepository extends JpaRepository<ExecutionTask, Long> {
-    List<ExecutionTask> findByStatusNotIn(List<ExecutionTaskStatus> statuses);
+public interface ExecutionTaskRepository extends JpaRepository<ExecutionTaskEntity, Long> {
+    List<ExecutionTaskEntity> findByStatusNotIn(List<ExecutionTaskStatus> statuses);
 }

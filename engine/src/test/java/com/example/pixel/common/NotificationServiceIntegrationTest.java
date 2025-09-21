@@ -1,7 +1,7 @@
 package com.example.pixel.common;
 
 import com.example.pixel.config.TestCacheConfig;
-import com.example.pixel.execution_task.ExecutionTask;
+import com.example.pixel.execution_task.ExecutionTaskEntity;
 import com.example.pixel.execution_task.ExecutionTaskPayload;
 import com.example.pixel.execution_task.ExecutionTaskStatus;
 import lombok.NonNull;
@@ -50,11 +50,11 @@ class NotificationServiceIntegrationTest {
     private final Long taskId = 1L;
     private final Long sceneId = 1L;
     private final String processingTopic = "/topic/processing/" + taskId;
-    private ExecutionTask executionTask;
+    private ExecutionTaskEntity executionTaskEntity;
 
     @BeforeEach
     void setupConnection() throws ExecutionException, InterruptedException, TimeoutException {
-        executionTask = new ExecutionTask();
+        executionTaskEntity = new ExecutionTaskEntity();
         String wsUrl = "ws://localhost:" + port + "/ws";
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
@@ -94,13 +94,13 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        executionTask.setId(taskId);
-        executionTask.setSceneId(sceneId);
-        executionTask.setStatus(ExecutionTaskStatus.RUNNING);
-        executionTask.setProcessedNodes(7);
-        executionTask.setTotalNodes(10);
+        executionTaskEntity.setId(taskId);
+        executionTaskEntity.setSceneId(sceneId);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.RUNNING);
+        executionTaskEntity.setProcessedNodes(7);
+        executionTaskEntity.setTotalNodes(10);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
@@ -131,10 +131,10 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        executionTask.setId(taskId);
-        executionTask.setSceneId(sceneId);
-        executionTask.setStatus(ExecutionTaskStatus.COMPLETED);
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        executionTaskEntity.setId(taskId);
+        executionTaskEntity.setSceneId(sceneId);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.COMPLETED);
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
@@ -162,11 +162,11 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        executionTask.setId(taskId);
-        executionTask.setSceneId(sceneId);
-        executionTask.setStatus(ExecutionTaskStatus.FAILED);
-        executionTask.setErrorMessage(errorMessage);
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        executionTaskEntity.setId(taskId);
+        executionTaskEntity.setSceneId(sceneId);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.FAILED);
+        executionTaskEntity.setErrorMessage(errorMessage);
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 

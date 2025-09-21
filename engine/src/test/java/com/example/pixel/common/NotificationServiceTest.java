@@ -1,6 +1,6 @@
 package com.example.pixel.common;
 
-import com.example.pixel.execution_task.ExecutionTask;
+import com.example.pixel.execution_task.ExecutionTaskEntity;
 import com.example.pixel.execution_task.ExecutionTaskPayload;
 import com.example.pixel.execution_task.ExecutionTaskStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,13 +33,13 @@ class NotificationServiceTest {
 
     private final Long sceneId = 1L;
     private final Long taskId = 1L;
-    private ExecutionTask executionTask;
+    private ExecutionTaskEntity executionTaskEntity;
 
     @BeforeEach
     void setUp() {
-        executionTask = new ExecutionTask();
-        executionTask.setId(taskId);
-        executionTask.setSceneId(sceneId);
+        executionTaskEntity = new ExecutionTaskEntity();
+        executionTaskEntity.setId(taskId);
+        executionTaskEntity.setSceneId(sceneId);
     }
 
     @Test
@@ -47,11 +47,11 @@ class NotificationServiceTest {
         int processed = 5;
         int total = 10;
 
-        executionTask.setStatus(ExecutionTaskStatus.RUNNING);
-        executionTask.setProcessedNodes(processed);
-        executionTask.setTotalNodes(total);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.RUNNING);
+        executionTaskEntity.setProcessedNodes(processed);
+        executionTaskEntity.setTotalNodes(total);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
@@ -67,11 +67,11 @@ class NotificationServiceTest {
 
     @Test
     void sendProgress_withZeroTotal_shouldHandleZeroDivision() {
-        executionTask.setStatus(ExecutionTaskStatus.RUNNING);
-        executionTask.setProcessedNodes(0);
-        executionTask.setTotalNodes(0);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.RUNNING);
+        executionTaskEntity.setProcessedNodes(0);
+        executionTaskEntity.setTotalNodes(0);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
@@ -82,18 +82,18 @@ class NotificationServiceTest {
 
     @Test
     void sendProgress_whenMessageTemplateThrowsException_shouldNotPropagateException() {
-        executionTask.setStatus(ExecutionTaskStatus.RUNNING);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.RUNNING);
         doThrow(new RuntimeException("Test exception")).when(messagingTemplate)
-                .convertAndSend(anyString(), any(ExecutionTask.class));
+                .convertAndSend(anyString(), any(ExecutionTaskEntity.class));
 
-        assertDoesNotThrow(() -> notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask)));
+        assertDoesNotThrow(() -> notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity)));
     }
 
     @Test
     void sendCompleted_shouldSendCorrectMessage() {
-        executionTask.setStatus(ExecutionTaskStatus.COMPLETED);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.COMPLETED);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
@@ -107,20 +107,20 @@ class NotificationServiceTest {
 
     @Test
     void sendCompleted_whenMessageTemplateThrowsException_shouldNotPropagateException() {
-        executionTask.setStatus(ExecutionTaskStatus.COMPLETED);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.COMPLETED);
         doThrow(new RuntimeException("Test exception")).when(messagingTemplate)
                 .convertAndSend(anyString(), any(ExecutionTaskPayload.class));
 
-        assertDoesNotThrow(() -> notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask)));
+        assertDoesNotThrow(() -> notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity)));
     }
 
     @Test
     void sendError_shouldSendCorrectMessage() {
         String errorMessage = "Test error message";
-        executionTask.setStatus(ExecutionTaskStatus.FAILED);
-        executionTask.setErrorMessage(errorMessage);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.FAILED);
+        executionTaskEntity.setErrorMessage(errorMessage);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
@@ -135,10 +135,10 @@ class NotificationServiceTest {
 
     @Test
     void sendError_withNullErrorMessage_shouldHandleNullValue() {
-        executionTask.setStatus(ExecutionTaskStatus.FAILED);
-        executionTask.setErrorMessage(null);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.FAILED);
+        executionTaskEntity.setErrorMessage(null);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), taskCaptor.capture());
 
@@ -148,20 +148,20 @@ class NotificationServiceTest {
 
     @Test
     void sendError_whenMessageTemplateThrowsException_shouldNotPropagateException() {
-        executionTask.setStatus(ExecutionTaskStatus.FAILED);
-        executionTask.setErrorMessage("Error");
+        executionTaskEntity.setStatus(ExecutionTaskStatus.FAILED);
+        executionTaskEntity.setErrorMessage("Error");
         doThrow(new RuntimeException("Test exception")).when(messagingTemplate)
                 .convertAndSend(anyString(), any(ExecutionTaskPayload.class));
 
-        assertDoesNotThrow(() -> notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask)));
+        assertDoesNotThrow(() -> notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity)));
     }
 
     @Test
     void sendTaskStatus_withNullId_shouldUseNullInDestination() {
-        executionTask.setId(null);
-        executionTask.setStatus(ExecutionTaskStatus.RUNNING);
+        executionTaskEntity.setId(null);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.RUNNING);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTask));
+        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
         verify(messagingTemplate).convertAndSend(destinationCaptor.capture(), any(ExecutionTaskPayload.class));
 

@@ -1,7 +1,7 @@
 package com.example.pixel.execution_task;
 
 import com.example.pixel.exception.TaskNotFoundException;
-import com.example.pixel.execution.ExecutionGraph;
+import com.example.pixel.execution.ExecutionGraphRequest;
 import com.example.pixel.file_system.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,65 +22,65 @@ public class ExecutionTaskService {
 
     @Transactional
     public ExecutionTaskPayload findTaskById(Long taskId) {
-        ExecutionTask executionTask = executionTaskRepository.findById(taskId)
+        ExecutionTaskEntity executionTaskEntity = executionTaskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
-        return ExecutionTaskPayload.fromEntity(executionTask);
+        return ExecutionTaskPayload.fromEntity(executionTaskEntity);
     }
 
     @Transactional
-    public ExecutionTaskPayload createTask(ExecutionGraph executionGraph, Long sceneId) {
-        log.debug("Creating task for scene {}", sceneId);
-        ExecutionTask executionTask = new ExecutionTask();
-        executionTask.setSceneId(sceneId);
-        executionTask.setStatus(ExecutionTaskStatus.PENDING);
-        executionTask.setTotalNodes(executionGraph.getNodes().size());
-        executionTask.setProcessedNodes(0);
-        return ExecutionTaskPayload.fromEntity(executionTaskRepository.save(executionTask));
+    public ExecutionTaskPayload createTask(ExecutionGraphRequest executionGraphRequest) {
+        log.debug("Creating task for graph {}", executionGraphRequest.getId());
+        ExecutionTaskEntity executionTaskEntity = new ExecutionTaskEntity();
+        executionTaskEntity.setGraphId(executionGraphRequest.getId());
+        executionTaskEntity.setStatus(ExecutionTaskStatus.PENDING);
+        executionTaskEntity.setTotalNodes(executionGraphRequest.getNodes().size());
+        executionTaskEntity.setProcessedNodes(0);
+        return ExecutionTaskPayload.fromEntity(executionTaskRepository.save(executionTaskEntity));
     }
 
     @Transactional
     public void updateTaskStatus(Long taskId, ExecutionTaskStatus status) {
-        ExecutionTask executionTask = executionTaskRepository.findById(taskId)
+        ExecutionTaskEntity executionTaskEntity = executionTaskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
-        executionTask.setStatus(status);
-        if (status == ExecutionTaskStatus.RUNNING && executionTask.getStartTime() == null) {
-            executionTask.setStartTime(LocalDateTime.now());
+        executionTaskEntity.setStatus(status);
+        if (status == ExecutionTaskStatus.RUNNING && executionTaskEntity.getStartTime() == null) {
+            executionTaskEntity.setStartTime(LocalDateTime.now());
         } else if ((status == ExecutionTaskStatus.COMPLETED || status == ExecutionTaskStatus.FAILED)
-                && executionTask.getEndTime() == null) {
-            executionTask.setEndTime(LocalDateTime.now());
+                && executionTaskEntity.getEndTime() == null) {
+            executionTaskEntity.setEndTime(LocalDateTime.now());
         }
-        executionTaskRepository.save(executionTask);
+        executionTaskRepository.save(executionTaskEntity);
     }
 
     @Transactional
     public void updateTaskProgress(Long taskId, int processedNodes) {
-        ExecutionTask executionTask = executionTaskRepository.findById(taskId)
+        ExecutionTaskEntity executionTaskEntity = executionTaskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
-        executionTask.setProcessedNodes(processedNodes);
-        executionTaskRepository.save(executionTask);
+        executionTaskEntity.setProcessedNodes(processedNodes);
+        executionTaskRepository.save(executionTaskEntity);
     }
 
     @Transactional
     public void markTaskFailed(Long taskId, String errorMessage) {
-        ExecutionTask executionTask = executionTaskRepository.findById(taskId)
+        ExecutionTaskEntity executionTaskEntity = executionTaskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
-        executionTask.setStatus(ExecutionTaskStatus.FAILED);
-        if (executionTask.getEndTime() == null) executionTask.setEndTime(LocalDateTime.now());
-        executionTask.setErrorMessage(errorMessage);
-        executionTaskRepository.save(executionTask);
+        executionTaskEntity.setStatus(ExecutionTaskStatus.FAILED);
+        if (executionTaskEntity.getEndTime() == null) executionTaskEntity.setEndTime(LocalDateTime.now());
+        executionTaskEntity.setErrorMessage(errorMessage);
+        executionTaskRepository.save(executionTaskEntity);
     }
 
     public void delete(Long taskId) {
-        ExecutionTask executionTask = executionTaskRepository.findById(taskId)
+        ExecutionTaskEntity executionTaskEntity = executionTaskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
         storageService.delete("tasks/" + taskId);
-        executionTaskRepository.delete(executionTask);
+        executionTaskRepository.delete(executionTaskEntity);
     }
 
     public List<ExecutionTaskPayload> getInactiveTasks() {
-        List<ExecutionTask> inactiveExecutionTasks = executionTaskRepository.findByStatusNotIn(List.of(ExecutionTaskStatus.PENDING, ExecutionTaskStatus.RUNNING));
+        List<ExecutionTaskEntity> inactiveExecutionTaskEntities = executionTaskRepository.findByStatusNotIn(List.of(ExecutionTaskStatus.PENDING, ExecutionTaskStatus.RUNNING));
 
-        return inactiveExecutionTasks.stream()
+        return inactiveExecutionTaskEntities.stream()
                 .map(ExecutionTaskPayload::fromEntity)
                 .collect(Collectors.toList());
     }

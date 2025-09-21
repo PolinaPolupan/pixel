@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.*;
 public class ExecutionController {
 
     private final GraphExecutor graphExecutor;
-    private final ExecutionService executionService;
+    private final GraphService graphService;
 
     @PostMapping("/")
     public ResponseEntity<ExecutionGraphPayload> create() {
-        ExecutionGraphPayload scene = executionService.createExecutionGraph();
-        executionService.updateLastAccessed(scene.getId());
+        ExecutionGraphPayload scene = graphService.createExecutionGraph();
+        graphService.updateLastAccessed(scene.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(scene);
     }
 
     @PostMapping("/exec")
     public ResponseEntity<ExecutionTaskPayload> execute(@RequestBody ExecutionGraphRequest executionGraphRequest) {
-        executionService.updateLastAccessed(executionGraphRequest.getId());
+        graphService.updateLastAccessed(executionGraphRequest.getId());
         ExecutionTaskPayload task = graphExecutor.startExecution(executionGraphRequest);
         return ResponseEntity.ok(task);
     }

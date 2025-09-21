@@ -1,9 +1,7 @@
-package com.example.pixel.scene;
+package com.example.pixel.execution_task;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,18 +9,25 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "scenes")
-public class Scene {
+@Table(name = "execution_tasks")
+public class ExecutionTaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime createdAt;
+    private Long graphId;
 
-    private LocalDateTime lastAccessed;
+    @Enumerated(EnumType.STRING)
+    private ExecutionTaskStatus status;
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    private Integer totalNodes;
+    private Integer processedNodes;
+
+    private String errorMessage;
 
     // Version for optimistic locking in distributed environments
     @JsonIgnore

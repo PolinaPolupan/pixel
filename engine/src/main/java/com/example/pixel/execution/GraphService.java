@@ -2,7 +2,6 @@ package com.example.pixel.execution;
 
 import com.example.pixel.exception.SceneNotFoundException;
 import com.example.pixel.file_system.StorageService;
-import com.example.pixel.scene.Scene;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,26 +11,26 @@ import java.util.Collections;
 
 @RequiredArgsConstructor
 @Service
-public class ExecutionService {
+public class GraphService {
 
     private final StorageService storageService;
-    private final ExecutionGraphRepository executionGraphRepository;
+    private final GraphRepository graphRepository;
 
     public ExecutionGraphPayload createExecutionGraph() {
-        Scene scene = Scene
+        GraphEntity graphModel = GraphEntity
                 .builder()
                 .createdAt(LocalDateTime.now())
                 .lastAccessed(LocalDateTime.now())
                 .version(1L)
                 .build();
 
-        scene = executionGraphRepository.save(scene);
+        graphModel = graphRepository.save(graphModel);
 
-        Long sceneId = scene.getId();
+        Long sceneId = graphModel.getId();
         ExecutionGraphPayload executionGraphPayload = new ExecutionGraphPayload(
                 sceneId,
-                scene.getCreatedAt(),
-                scene.getLastAccessed(),
+                graphModel.getCreatedAt(),
+                graphModel.getLastAccessed(),
                 Collections.emptyList()
         );
 
@@ -42,15 +41,15 @@ public class ExecutionService {
 
     @Transactional
     public void updateLastAccessed(Long id) {
-        if (!executionGraphRepository.existsById(id)) {
+        if (!graphRepository.existsById(id)) {
             throw new SceneNotFoundException("Graph with id: " + id + " not found");
         }
 
-        executionGraphRepository.updateLastAccessedTime(id, LocalDateTime.now());
+        graphRepository.updateLastAccessedTime(id, LocalDateTime.now());
     }
 
     public void deleteGraph(Long id) {
         storageService.delete("scenes/" + id.toString());
-        executionGraphRepository.deleteById(id);
+        graphRepository.deleteById(id);
     }
 }

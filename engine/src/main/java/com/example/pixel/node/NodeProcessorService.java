@@ -15,11 +15,11 @@ public class NodeProcessorService {
     private final NodeCommunicationService nodeCommunicationService;
     private final NodeCacheService nodeCacheService;
 
-    public void processNode(Node node, Long sceneId, Long taskId) {
-        log.info("Started node: {} Scene: {} Task: {}", node.getId(), sceneId, taskId);
+    public void processNode(Node node, Long graphId, Long taskId) {
+        log.info("Started node: {} Scene: {} Task: {}", node.getId(), graphId, taskId);
 
         Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
-        Metadata meta = new Metadata(node.getId(), sceneId, taskId, node.getType());
+        Metadata meta = new Metadata(node.getId(), graphId, taskId, node.getType());
         NodeData nodeData = new NodeData(meta, resolvedInputs);
         node.setInputs(resolvedInputs);
 

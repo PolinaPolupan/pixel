@@ -1,4 +1,4 @@
-CREATE TABLE scenes (
+CREATE TABLE graphs (
     id BIGSERIAL PRIMARY KEY,
     created_at TIMESTAMP,
     last_accessed TIMESTAMP,

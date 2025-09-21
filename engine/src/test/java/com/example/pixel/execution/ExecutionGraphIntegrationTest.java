@@ -42,7 +42,7 @@ public class ExecutionGraphIntegrationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private ExecutionService executionService;
+    private GraphService graphService;
 
     @Autowired
     private StorageService storageService;
@@ -51,7 +51,7 @@ public class ExecutionGraphIntegrationTest {
 
     @BeforeEach
     void setupTestFiles() {
-        ExecutionGraphPayload scene = executionService.createExecutionGraph();
+        ExecutionGraphPayload scene = graphService.createExecutionGraph();
         sceneId = scene.getId();
 
         TestcontainersExtension.uploadTestFileToS3(
