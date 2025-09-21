@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class StorageClient:
-    BASE_URL = os.getenv("ENGINE_SERVICE_URL", "http://engine:8080") + "/v1/storage"
+    BASE_URL = "http://engine:8080/v1/storage"
 
     @staticmethod
     def store_from_workspace_to_scene(scene_id: int, source: str, folder: Optional[str] = None,
@@ -46,7 +46,7 @@ class StorageClient:
             raise
 
     @staticmethod
-    def store_to_task(task_id: int, node_id: int, file_path: str, target: str) -> str:
+    def store_to_task(task_id, node_id, file_path: str, target: str) -> str:
         url = f"{StorageClient.BASE_URL}/to-task"
 
         params = {
@@ -55,7 +55,7 @@ class StorageClient:
             "target": target
         }
 
-        logger.info(f"Storing file to task: task_id={task_id}, node_id={node_id}, "
+        logger.info(f"Storing file to executionTask: task_id={task_id}, node_id={node_id}, "
                     f"file_path={file_path}, target={target}")
 
         try:
@@ -69,12 +69,12 @@ class StorageClient:
             response.raise_for_status()
 
             result_path = response.json()["path"]
-            logger.info(f"Successfully stored file to task: {result_path}")
+            logger.info(f"Successfully stored file to executionTask: {result_path}")
 
             return result_path
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error storing file to task: {str(e)}")
+            logger.error(f"Error storing file to executionTask: {str(e)}")
             if hasattr(e, 'response') and e.response:
                 logger.error(f"Response status: {e.response.status_code}, "
                              f"Response body: {e.response.text}")
@@ -85,7 +85,7 @@ class StorageClient:
 
     @staticmethod
     def store_from_workspace_to_task(task_id: int, node_id: int, source: str) -> str:
-        url = f"{StorageClient.BASE_URL}/workspace-to-task"
+        url = "http://engine:8080/v1/storage/workspace"
 
         params = {
             "taskId": task_id,
@@ -93,20 +93,25 @@ class StorageClient:
             "source": source
         }
 
-        logger.info(f"Storing file from workspace to task: task_id={task_id}, "
+        logger.info(f"Storing file from workspace to executionTask: task_id={task_id}, "
                     f"node_id={node_id}, source={source}")
 
         try:
-            response = requests.post(url, params=params)
+            response = requests.post(
+                url,
+                params=params,
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
+
             response.raise_for_status()
 
             result_path = response.json()["path"]
-            logger.info(f"Successfully stored file from workspace to task: {result_path}")
+            logger.info(f"Successfully stored file from workspace to executionTask: {result_path}")
 
             return result_path
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error storing file from workspace to task: {str(e)}")
+            logger.error(f"Error storing file from workspace to executionTask: {str(e)}")
             if hasattr(e, 'response') and e.response:
                 logger.error(f"Response status: {e.response.status_code}, "
                              f"Response body: {e.response.text}")

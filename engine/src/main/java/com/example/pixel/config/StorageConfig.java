@@ -14,9 +14,6 @@ public class StorageConfig {
 
     @Bean
     public StorageService storageService() {
-        StorageService service = new FileStorageService(location);
-        service.deleteAll();
-        service.init();
-        return service;
+        return new FileStorageService(location);
     }
 }
