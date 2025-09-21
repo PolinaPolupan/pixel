@@ -85,7 +85,7 @@ class StorageClient:
 
     @staticmethod
     def store_from_workspace_to_task(task_id: int, node_id: int, source: str) -> str:
-        url = "http://engine:8080/v1/storage/workspace"
+        url = "http://engine:8080/v1/storage/workspace-to-task"
 
         params = {
             "taskId": task_id,
