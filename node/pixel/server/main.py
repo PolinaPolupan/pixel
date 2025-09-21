@@ -79,7 +79,7 @@ async def exec_node(request: Request):
 @app.post("/load_nodes")
 async def load_nodes_endpoint():
     try:
-        load_nodes_from_directory(os.environ.get('CUSTOM_NODES_DIR'))
+        load_nodes_from_directory(os.environ.get('EXECUTION_GRAPH_DIR'))
         return {"status": "ok", "loaded_nodes": list(NODE_REGISTRY.keys())}
     except Exception as e:
         logger.error(f"Error loading nodes: {e}", exc_info=True)

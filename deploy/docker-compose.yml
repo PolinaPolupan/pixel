@@ -24,7 +24,7 @@ services:
       - ../node/pixel:/app/pixel
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
-      CUSTOM_NODES_DIR: ${EXECUTION_GRAPH_DIR}
+      EXECUTION_GRAPH_DIR: ${EXECUTION_GRAPH_DIR}
 
   frontend:
     build:
