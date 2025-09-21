@@ -1,7 +1,6 @@
 package com.example.pixel.execution;
 
 import com.example.pixel.execution_task.ExecutionTaskPayload;
-import com.example.pixel.scene.ScenePayload;
 import com.example.pixel.scene.SceneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,16 +16,16 @@ public class ExecutionController {
     private final SceneService sceneService;
 
     @PostMapping("/")
-    public ResponseEntity<ScenePayload> createScene() {
-        return ResponseEntity.status(HttpStatus.CREATED).body(sceneService.createScene());
+    public ResponseEntity<ExecutionGraphPayload> createScene() {
+        ExecutionGraphPayload scene = sceneService.createScene();
+        sceneService.updateLastAccessed(scene.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(scene);
     }
 
-    @PostMapping("/{sceneId}/exec")
-    public ResponseEntity<ExecutionTaskPayload> execute(
-            @PathVariable Long sceneId,
-            @RequestBody ExecutionGraphPayload executionGraphPayload
-    ) {
-        ExecutionTaskPayload task = executionService.startExecution(executionGraphPayload, sceneId);
+    @PostMapping("/exec")
+    public ResponseEntity<ExecutionTaskPayload> execute(@RequestBody ExecutionGraphRequest executionGraphRequest) {
+        sceneService.updateLastAccessed(executionGraphRequest.getId());
+        ExecutionTaskPayload task = executionService.startExecution(executionGraphRequest);
         return ResponseEntity.ok(task);
     }
 }

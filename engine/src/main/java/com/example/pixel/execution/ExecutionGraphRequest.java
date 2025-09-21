@@ -4,16 +4,12 @@ import com.example.pixel.node.Node;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ExecutionGraphPayload {
+public class ExecutionGraphRequest {
     private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime lastAccessed;
     private List<Node> nodes;
 
     public ExecutionGraph toExecutionGraph() {

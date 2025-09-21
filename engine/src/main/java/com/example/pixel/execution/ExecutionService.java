@@ -24,13 +24,13 @@ public class ExecutionService {
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
 
-    public ExecutionTaskPayload startExecution(ExecutionGraphPayload executionGraphPayload, Long sceneId) {
-        ExecutionGraph executionGraph = executionGraphPayload.toExecutionGraph();
-        log.info("startGraphExecution: Creating task for sceneId={} ...", sceneId);
-        ExecutionTaskPayload task = executionTaskService.createTask(executionGraph, sceneId);
+    public ExecutionTaskPayload startExecution(ExecutionGraphRequest executionGraphRequest) {
+        ExecutionGraph executionGraph = executionGraphRequest.toExecutionGraph();
+        log.info("startGraphExecution: Creating task for sceneId={} ...", executionGraphRequest.getId());
+        ExecutionTaskPayload task = executionTaskService.createTask(executionGraph, executionGraphRequest.getId());
         Long taskId = task.getId();
         log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", taskId);
-        CompletableFuture.runAsync(() -> execute(executionGraph, taskId, sceneId), graphTaskExecutor);
+        CompletableFuture.runAsync(() -> execute(executionGraph, taskId, executionGraphRequest.getId()), graphTaskExecutor);
         return task;
     }
 

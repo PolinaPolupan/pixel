@@ -1,6 +1,5 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.scene.ScenePayload;
 import com.example.pixel.execution_task.ExecutionTaskPayload;
 import com.example.pixel.scene.SceneService;
 import com.example.pixel.file_system.StorageService;
@@ -53,7 +52,7 @@ public class ExecutionGraphIntegrationTest {
 
     @BeforeEach
     void setupTestFiles() {
-        ScenePayload scene = sceneService.createScene();
+        ExecutionGraphPayload scene = sceneService.createScene();
         sceneId = scene.getId();
 
         TestcontainersExtension.uploadTestFileToS3(
