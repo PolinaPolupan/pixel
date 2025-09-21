@@ -52,7 +52,7 @@ public class ExecutionGraphIntegrationTest {
 
     @BeforeEach
     void setupTestFiles() {
-        ExecutionGraphPayload scene = sceneService.createScene();
+        ExecutionGraphPayload scene = sceneService.createExecutionGraph();
         sceneId = scene.getId();
 
         TestcontainersExtension.uploadTestFileToS3(

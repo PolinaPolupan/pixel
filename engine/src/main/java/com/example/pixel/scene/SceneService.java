@@ -2,6 +2,7 @@ package com.example.pixel.scene;
 
 import com.example.pixel.exception.SceneNotFoundException;
 import com.example.pixel.execution.ExecutionGraphPayload;
+import com.example.pixel.execution.ExecutionGraphRepository;
 import com.example.pixel.file_system.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,9 @@ import java.util.Collections;
 public class SceneService {
 
     private final StorageService storageService;
-    private final SceneRepository sceneRepository;
+    private final ExecutionGraphRepository executionGraphRepository;
 
-    public ExecutionGraphPayload createScene() {
+    public ExecutionGraphPayload createExecutionGraph() {
         Scene scene = Scene
                 .builder()
                 .createdAt(LocalDateTime.now())
@@ -25,7 +26,7 @@ public class SceneService {
                 .version(1L)
                 .build();
 
-        scene = sceneRepository.save(scene);
+        scene = executionGraphRepository.save(scene);
 
         Long sceneId = scene.getId();
         ExecutionGraphPayload executionGraphPayload = new ExecutionGraphPayload(
@@ -41,16 +42,16 @@ public class SceneService {
     }
 
     @Transactional
-    public void updateLastAccessed(Long sceneId) {
-        if (!sceneRepository.existsById(sceneId)) {
-            throw new SceneNotFoundException("Scene with id: " + sceneId + " not found");
+    public void updateLastAccessed(Long id) {
+        if (!executionGraphRepository.existsById(id)) {
+            throw new SceneNotFoundException("Graph with id: " + id + " not found");
         }
 
-        sceneRepository.updateLastAccessedTime(sceneId, LocalDateTime.now());
+        executionGraphRepository.updateLastAccessedTime(id, LocalDateTime.now());
     }
 
-    public void deleteScene(Long sceneId) {
-        storageService.delete("scenes/" + sceneId.toString());
-        sceneRepository.deleteById(sceneId);
+    public void deleteGraph(Long id) {
+        storageService.delete("scenes/" + id.toString());
+        executionGraphRepository.deleteById(id);
     }
 }

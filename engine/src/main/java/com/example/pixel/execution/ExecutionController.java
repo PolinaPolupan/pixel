@@ -17,7 +17,7 @@ public class ExecutionController {
 
     @PostMapping("/")
     public ResponseEntity<ExecutionGraphPayload> createScene() {
-        ExecutionGraphPayload scene = sceneService.createScene();
+        ExecutionGraphPayload scene = sceneService.createExecutionGraph();
         sceneService.updateLastAccessed(scene.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(scene);
     }
