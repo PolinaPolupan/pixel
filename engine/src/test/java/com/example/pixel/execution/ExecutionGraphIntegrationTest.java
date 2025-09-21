@@ -1,7 +1,6 @@
 package com.example.pixel.execution;
 
 import com.example.pixel.execution_task.ExecutionTaskPayload;
-import com.example.pixel.scene.SceneService;
 import com.example.pixel.file_system.StorageService;
 import com.example.pixel.util.TestFileUtils;
 import com.example.pixel.util.TestJsonTemplates;
@@ -43,7 +42,7 @@ public class ExecutionGraphIntegrationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private SceneService sceneService;
+    private ExecutionService executionService;
 
     @Autowired
     private StorageService storageService;
@@ -52,7 +51,7 @@ public class ExecutionGraphIntegrationTest {
 
     @BeforeEach
     void setupTestFiles() {
-        ExecutionGraphPayload scene = sceneService.createExecutionGraph();
+        ExecutionGraphPayload scene = executionService.createExecutionGraph();
         sceneId = scene.getId();
 
         TestcontainersExtension.uploadTestFileToS3(

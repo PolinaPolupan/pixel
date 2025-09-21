@@ -1,7 +1,6 @@
 package com.example.pixel.execution;
 
 import com.example.pixel.execution_task.ExecutionTaskPayload;
-import com.example.pixel.scene.SceneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,23 +8,23 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/scene")
+@RequestMapping("/v1/graph")
 public class ExecutionController {
 
+    private final GraphExecutor graphExecutor;
     private final ExecutionService executionService;
-    private final SceneService sceneService;
 
     @PostMapping("/")
-    public ResponseEntity<ExecutionGraphPayload> createScene() {
-        ExecutionGraphPayload scene = sceneService.createExecutionGraph();
-        sceneService.updateLastAccessed(scene.getId());
+    public ResponseEntity<ExecutionGraphPayload> create() {
+        ExecutionGraphPayload scene = executionService.createExecutionGraph();
+        executionService.updateLastAccessed(scene.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(scene);
     }
 
     @PostMapping("/exec")
     public ResponseEntity<ExecutionTaskPayload> execute(@RequestBody ExecutionGraphRequest executionGraphRequest) {
-        sceneService.updateLastAccessed(executionGraphRequest.getId());
-        ExecutionTaskPayload task = executionService.startExecution(executionGraphRequest);
+        executionService.updateLastAccessed(executionGraphRequest.getId());
+        ExecutionTaskPayload task = graphExecutor.startExecution(executionGraphRequest);
         return ResponseEntity.ok(task);
     }
 }

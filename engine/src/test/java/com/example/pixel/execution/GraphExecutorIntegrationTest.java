@@ -40,10 +40,10 @@ import static org.mockito.Mockito.*;
 @Import({TestCacheConfig.class})
 @ActiveProfiles("test")
 @Tag("integration")
-public class ExecutionServiceIntegrationTest {
+public class GraphExecutorIntegrationTest {
 
     @MockitoSpyBean
-    private ExecutionService executionService;
+    private GraphExecutor graphExecutor;
 
     @MockitoSpyBean
     private StorageService storageService;
@@ -73,7 +73,7 @@ public class ExecutionServiceIntegrationTest {
         ExecutionGraphPayload executionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = executionGraph.getNodes().size();
 
-        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = graphExecutor.startExecutionAsync(executionGraph, sceneId);
         ExecutionTaskPayload completedTask = future.get();
 
         assertEquals(ExecutionTaskStatus.COMPLETED, completedTask.getStatus());
@@ -97,7 +97,7 @@ public class ExecutionServiceIntegrationTest {
         doThrow(new RuntimeException(errorMessage))
                 .when(nodeProcessorService).processNode(any(), eq(sceneId), any());
 
-        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = graphExecutor.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -115,7 +115,7 @@ public class ExecutionServiceIntegrationTest {
         ExecutionGraphPayload multiNodeExecutionGraph = TestGraphFactory.getDefaultGraph(sceneId);
         int nodeCount = multiNodeExecutionGraph.getNodes().size();
 
-        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(multiNodeExecutionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = graphExecutor.startExecutionAsync(multiNodeExecutionGraph, sceneId);
         future.get();
 
         verify(nodeProcessorService, times(nodeCount)).processNode(any(), eq(sceneId), any());
@@ -133,7 +133,7 @@ public class ExecutionServiceIntegrationTest {
 
         ArgumentCaptor<ExecutionTaskStatus> statusCaptor = ArgumentCaptor.forClass(ExecutionTaskStatus.class);
 
-        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = graphExecutor.startExecutionAsync(executionGraph, sceneId);
         future.get();
 
         verify(executionTaskService, atLeastOnce()).updateTaskStatus(any(), statusCaptor.capture());
@@ -151,7 +151,7 @@ public class ExecutionServiceIntegrationTest {
         for (int i = 0; i < concurrentTasks; i++) {
             Long sceneId = 100L + i;
             ExecutionGraphPayload executionGraph = TestGraphFactory.getMinimalGraph();
-            futures.add(executionService.startExecutionAsync(executionGraph, sceneId));
+            futures.add(graphExecutor.startExecutionAsync(executionGraph, sceneId));
         }
 
         CompletableFuture<Void> allDone = CompletableFuture.allOf(
@@ -176,7 +176,7 @@ public class ExecutionServiceIntegrationTest {
 
         String expectedErrorMessage = "SizeX must be positive and odd";
 
-        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = graphExecutor.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -200,7 +200,7 @@ public class ExecutionServiceIntegrationTest {
         nodes.add(gaussianNode);
         ExecutionGraphPayload executionGraph = new ExecutionGraphPayload(nodes);
 
-        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = graphExecutor.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
@@ -225,7 +225,7 @@ public class ExecutionServiceIntegrationTest {
         nodes.add(gaussianNode);
         ExecutionGraphPayload executionGraph = new ExecutionGraphPayload(nodes);
 
-        CompletableFuture<ExecutionTaskPayload> future = executionService.startExecutionAsync(executionGraph, sceneId);
+        CompletableFuture<ExecutionTaskPayload> future = graphExecutor.startExecutionAsync(executionGraph, sceneId);
 
         try {
             future.get();
