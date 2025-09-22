@@ -5,6 +5,7 @@ import com.example.pixel.execution.ExecutionGraphRequest;
 import com.example.pixel.file_system.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,9 @@ public class ExecutionTaskService {
 
     private final ExecutionTaskRepository executionTaskRepository;
     private final StorageService storageService;
+
+    @Value("${dump.directory}")
+    private String dumpDir;
 
     @Transactional
     public ExecutionTaskPayload findTaskById(Long taskId) {
@@ -73,7 +77,7 @@ public class ExecutionTaskService {
     public void delete(Long taskId) {
         ExecutionTaskEntity executionTaskEntity = executionTaskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
-        storageService.delete("tasks/" + taskId);
+        storageService.delete(dumpDir + "/" + taskId);
         executionTaskRepository.delete(executionTaskEntity);
     }
 

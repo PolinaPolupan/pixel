@@ -3,6 +3,7 @@ package com.example.pixel.file_system;
 import com.google.common.base.Splitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,9 @@ import java.util.regex.Pattern;
 public class FileHelper {
 
     private final StorageService storageService;
+
+    @Value("${dump.directory}")
+    private String dumpDir;
 
     private final Pattern filenamePattern = Pattern.compile("^(.*?)(\\.[^.]*$|$)");
 
@@ -37,15 +41,15 @@ public class FileHelper {
     }
 
     public String storeToTask(Long taskId, Long nodeId, String source) {
-        String target = getTaskContext(taskId, nodeId) + extractRelativeWorkspacePath(source) + extractFilename(source);
+        String target = getDumpContext(taskId, nodeId) + extractRelativeWorkspacePath(source) + extractFilename(source);
 
         storageService.store(source, target);
 
         return target;
     }
 
-    private String getTaskContext(Long taskId, Long nodeId) {
-        return  "tasks/" + taskId + "/" + nodeId + "/";
+    private String getDumpContext(Long taskId, Long nodeId) {
+        return  dumpDir + "/" + taskId + "/" + nodeId + "/";
     }
 
     public String extractFilename(String path) {
@@ -65,8 +69,8 @@ public class FileHelper {
     public String extractRelativeWorkspacePath(String filepath) {
         List<String> pathSegments = Splitter.on("/").splitToList(filepath);
         int index = -1;
-        // Example: tasks/{taskId}/{nodeId}/folder1/folder2/Picture.jpeg -> folder1/folder2/
-        if (pathSegments.contains("tasks")) index = pathSegments.indexOf("tasks") + 2;
+        // Example: dump/{taskId}/{nodeId}/folder1/folder2/Picture.jpeg -> folder1/folder2/
+        if (pathSegments.contains(dumpDir)) index = pathSegments.indexOf(dumpDir) + 2;
 
         StringBuilder insideInputPathBuilder = new StringBuilder();
         if (index != -1 && index < pathSegments.size() - 1) {

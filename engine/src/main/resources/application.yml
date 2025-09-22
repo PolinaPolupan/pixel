@@ -26,7 +26,8 @@ spring:
   flyway:
     enabled: false
 
-storage.directory: ${STORAGE_DIRECTORY}
+storage.directory: ${DATA_DIR}
+dump.directory: ${DUMP_DIR}
 node.service.url: ${NODE_SERVICE_URL}
 
 logging:
