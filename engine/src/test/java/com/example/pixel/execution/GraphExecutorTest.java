@@ -1,12 +1,12 @@
 //package com.example.pixel.execution;
 //
-//import com.example.pixel.common.NotificationService;
-//import com.example.pixel.execution_task.ExecutionTaskService;
+//import com.example.pixel.common.service.NotificationService;
+//import com.example.pixel.execution_task.service.ExecutionTaskService;
 //import com.example.pixel.execution_task.ExecutionTask;
-//import com.example.pixel.execution_task.ExecutionTaskPayload;
-//import com.example.pixel.execution_task.ExecutionTaskStatus;
-//import com.example.pixel.node.Node;
-//import com.example.pixel.node.NodeProcessorService;
+//import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+//import com.example.pixel.execution_task.model.ExecutionTaskStatus;
+//import com.example.pixel.node.model.Node;
+//import com.example.pixel.node.service.impl.NodeProcessorService;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;

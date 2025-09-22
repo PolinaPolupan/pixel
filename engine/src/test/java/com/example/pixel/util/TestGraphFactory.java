@@ -1,8 +1,8 @@
 package com.example.pixel.util;
 
-import com.example.pixel.execution.ExecutionGraphPayload;
-import com.example.pixel.node.Node;
-import com.example.pixel.node.NodeReference;
+import com.example.pixel.execution.model.ExecutionGraphPayload;
+import com.example.pixel.node.model.Node;
+import com.example.pixel.node.model.NodeReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,6 +1,10 @@
 package com.example.pixel.node;
 
-import com.example.pixel.exception.NodeExecutionException;
+import com.example.pixel.common.exception.NodeExecutionException;
+import com.example.pixel.node.model.*;
+import com.example.pixel.node.service.NodeCacheService;
+import com.example.pixel.node.service.impl.NodeCommunicationService;
+import com.example.pixel.node.service.impl.NodeProcessorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

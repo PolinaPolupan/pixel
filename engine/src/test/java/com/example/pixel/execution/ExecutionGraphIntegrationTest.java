@@ -1,7 +1,10 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.execution_task.ExecutionTaskPayload;
-import com.example.pixel.file_system.StorageService;
+import com.example.pixel.execution.model.ExecutionGraph;
+import com.example.pixel.execution.model.ExecutionGraphPayload;
+import com.example.pixel.execution.service.GraphService;
+import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.file_system.service.StorageService;
 import com.example.pixel.util.TestFileUtils;
 import com.example.pixel.util.TestJsonTemplates;
 import com.example.pixel.util.TestcontainersExtension;

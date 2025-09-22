@@ -1,7 +1,7 @@
 package com.example.pixel.config;
 
-import com.example.pixel.node.NodeCacheService;
-import com.example.pixel.node.SpringCacheNodeService;
+import com.example.pixel.node.service.NodeCacheService;
+import com.example.pixel.node.service.impl.SpringCacheNodeService;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;

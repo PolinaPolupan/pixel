@@ -1,8 +1,9 @@
 package com.example.pixel.common;
 
-import com.example.pixel.execution_task.ExecutionTaskEntity;
-import com.example.pixel.execution_task.ExecutionTaskPayload;
-import com.example.pixel.execution_task.ExecutionTaskStatus;
+import com.example.pixel.common.service.NotificationService;
+import com.example.pixel.execution_task.model.ExecutionTaskEntity;
+import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.execution_task.model.ExecutionTaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,7 @@ class NotificationServiceTest {
     void setUp() {
         executionTaskEntity = new ExecutionTaskEntity();
         executionTaskEntity.setId(taskId);
-        executionTaskEntity.setSceneId(sceneId);
+        executionTaskEntity.setId(sceneId);
     }
 
     @Test
@@ -59,7 +60,7 @@ class NotificationServiceTest {
         ExecutionTaskPayload sentTask = taskCaptor.getValue();
 
         assertEquals("/topic/processing/" + taskId, destination);
-        assertEquals(sceneId, sentTask.getSceneId());
+        assertEquals(sceneId, sentTask.getId());
         assertEquals(ExecutionTaskStatus.RUNNING, sentTask.getStatus());
         assertEquals(processed, sentTask.getProcessedNodes());
         assertEquals(total, sentTask.getTotalNodes());
@@ -101,7 +102,7 @@ class NotificationServiceTest {
         ExecutionTaskPayload sentTask = taskCaptor.getValue();
 
         assertEquals("/topic/processing/" + taskId, destination);
-        assertEquals(sceneId, sentTask.getSceneId());
+        assertEquals(sceneId, sentTask.getId());
         assertEquals(ExecutionTaskStatus.COMPLETED, sentTask.getStatus());
     }
 
@@ -128,7 +129,7 @@ class NotificationServiceTest {
         ExecutionTaskPayload sentTask = taskCaptor.getValue();
 
         assertEquals("/topic/processing/" + taskId, destination);
-        assertEquals(sceneId, sentTask.getSceneId());
+        assertEquals(sceneId, sentTask.getId());
         assertEquals(ExecutionTaskStatus.FAILED, sentTask.getStatus());
         assertEquals(errorMessage, sentTask.getErrorMessage());
     }

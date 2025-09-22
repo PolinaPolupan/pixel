@@ -1,9 +1,10 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.exception.InvalidGraphException;
-import com.example.pixel.exception.InvalidNodeInputException;
-import com.example.pixel.node.Node;
-import com.example.pixel.node.NodeReference;
+import com.example.pixel.common.exception.InvalidGraphException;
+import com.example.pixel.common.exception.InvalidNodeInputException;
+import com.example.pixel.execution.model.ExecutionGraph;
+import com.example.pixel.node.model.Node;
+import com.example.pixel.node.model.NodeReference;
 import com.example.pixel.util.TestGraphFactory;
 import org.junit.jupiter.api.Test;
 

@@ -1,9 +1,10 @@
 package com.example.pixel.common;
 
+import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.config.TestCacheConfig;
-import com.example.pixel.execution_task.ExecutionTaskEntity;
-import com.example.pixel.execution_task.ExecutionTaskPayload;
-import com.example.pixel.execution_task.ExecutionTaskStatus;
+import com.example.pixel.execution_task.model.ExecutionTaskEntity;
+import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.execution_task.model.ExecutionTaskStatus;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,7 +96,7 @@ class NotificationServiceIntegrationTest {
         Thread.sleep(300);
 
         executionTaskEntity.setId(taskId);
-        executionTaskEntity.setSceneId(sceneId);
+        executionTaskEntity.setId(sceneId);
         executionTaskEntity.setStatus(ExecutionTaskStatus.RUNNING);
         executionTaskEntity.setProcessedNodes(7);
         executionTaskEntity.setTotalNodes(10);
@@ -132,7 +133,7 @@ class NotificationServiceIntegrationTest {
         Thread.sleep(300);
 
         executionTaskEntity.setId(taskId);
-        executionTaskEntity.setSceneId(sceneId);
+        executionTaskEntity.setId(sceneId);
         executionTaskEntity.setStatus(ExecutionTaskStatus.COMPLETED);
         notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
 
@@ -163,7 +164,7 @@ class NotificationServiceIntegrationTest {
         Thread.sleep(300);
 
         executionTaskEntity.setId(taskId);
-        executionTaskEntity.setSceneId(sceneId);
+        executionTaskEntity.setId(sceneId);
         executionTaskEntity.setStatus(ExecutionTaskStatus.FAILED);
         executionTaskEntity.setErrorMessage(errorMessage);
         notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
