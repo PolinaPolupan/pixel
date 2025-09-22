@@ -103,10 +103,7 @@ public class FileUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@RequestParam String filepath) {
         Resource file = storageService.loadAsResource(filepath);
-        return getResourceResponseEntity(file);
-    }
 
-    private ResponseEntity<Resource> getResourceResponseEntity(Resource file) {
         if (file == null)
             return ResponseEntity.notFound().build();
 
