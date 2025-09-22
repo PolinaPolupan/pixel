@@ -37,14 +37,6 @@ public class FileHelper {
         return target;
     }
 
-    public String storeToTask(Long taskId, Long nodeId, InputStream in, String target) {
-        String path = getTaskContext(taskId, nodeId) + target;
-
-        storageService.store(in, path);
-
-        return path;
-    }
-
     public String storeFromWorkspaceToTask(Long taskId, Long nodeId, String source) {
         String target = getTaskContext(taskId, nodeId) + extractRelativeWorkspacePath(source) + extractFilename(source);
 

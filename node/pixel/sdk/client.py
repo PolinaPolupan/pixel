@@ -33,20 +33,22 @@ class Client:
         response.raise_for_status()
         return response.json()
 
-    def upload_file(self, scene_id: str, file_path: str) -> Dict[str, Any]:
-        url = self._make_engine_url(f"/v1/scene/{scene_id}/upload")
-        filename = os.path.basename(file_path)
-        content_type = self._guess_content_type(filename)
+    from typing import BinaryIO
 
-        with open(file_path, "rb") as file_content:
-            files = {'file': (filename, file_content, content_type)}
-            response = self.session.post(url, files=files)
-            if response.status_code >= 400:
-                print(f"Upload failed with status code: {response.status_code}")
-                print(f"Response content: {response.text}")
-                print(f"Request details: URL={url}, filename={filename}, content_type={content_type}")
-            response.raise_for_status()
-            return response.json()
+    def upload_file(self, filename: str, file_obj: BinaryIO, content_type: Optional[str] = None) -> Dict[str, Any]:
+        url = self._make_engine_url(f"/v1/storage/upload")
+        if not content_type:
+            content_type = self._guess_content_type(filename)
+
+        files = {'file': (filename, file_obj, content_type)}
+        response = self.session.post(url, files=files)
+
+        if response.status_code >= 400:
+            print(f"Upload failed with status code: {response.status_code}")
+            print(f"Response content: {response.text}")
+            print(f"Request details: URL={url}, filename={filename}, content_type={content_type}")
+        response.raise_for_status()
+        return response.json()
 
     def get_file(self, scene_id: str, file_path: str) -> bytes:
         url = self._make_engine_url(f"/v1/scene/{scene_id}/file")

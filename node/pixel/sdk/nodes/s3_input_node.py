@@ -5,7 +5,7 @@ from typing import Optional
 
 from pixel.sdk.models.node_decorator import node
 from pixel.core import Metadata
-from pixel.sdk import StorageClient
+from pixel.sdk import Client
 
 logger = logging.getLogger(__name__)
 
@@ -38,24 +38,16 @@ def s3_input_exec(
 
         if 'Contents' in response:
             logger.info(f"Found {len(response['Contents'])} objects in bucket")
+            client = Client()
             for obj in response['Contents']:
                 filename = obj['Key']
                 file_response = s3_client.get_object(Bucket=bucket, Key=filename)
-                content = file_response['Body'].read()
+                body_stream = file_response['Body']
 
-                temp_file_path = f"/tmp/{filename}"
-                with open(temp_file_path, 'wb') as f:
-                    f.write(content)
+                upload_result = client.upload_file(filename=filename, file_obj=body_stream)
 
-                file_path = StorageClient.store_to_task(
-                    task_id=meta.task_id,
-                    node_id=meta.node_id,
-                    file_path=temp_file_path,
-                    target=filename
-                )
-                logger.info(f'Saved {file_path}')
-                files.add(file_path)
-                os.remove(temp_file_path)
+                logger.info(f"Uploaded {filename} -> {upload_result}")
+                files.add(filename)
         else:
             logger.info("No files found in bucket")
 

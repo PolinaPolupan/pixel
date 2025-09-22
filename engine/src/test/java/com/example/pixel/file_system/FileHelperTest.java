@@ -162,23 +162,6 @@ public class FileHelperTest {
     }
 
     @Nested
-    @DisplayName("Store To Temp Tests")
-    class StoreToTempTests {
-
-        @Test
-        void shouldStoreFileToTemp() {
-            String filename = "path/temp-file.jpg";
-            String tempPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/" + filename;
-            InputStream inputStream = new ByteArrayInputStream("test data".getBytes());
-
-            String result = fileHelper.storeToTask(TASK_ID, NODE_ID, inputStream, filename);
-
-            verify(storageService).store(inputStream, tempPath);
-            assertEquals(tempPath, result);
-        }
-    }
-
-    @Nested
     @DisplayName("Create Dump Tests")
     class CreateDumpTests {
 

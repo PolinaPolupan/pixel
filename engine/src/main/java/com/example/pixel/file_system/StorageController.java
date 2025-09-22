@@ -38,22 +38,6 @@ public class StorageController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/to-task", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> storeToTask(
-            @RequestParam("taskId") Long taskId,
-            @RequestParam("nodeId") Long nodeId,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("target") String target
-    ) throws IOException {
-        String targetPath = fileHelper.storeToTask(taskId, nodeId, file.getInputStream(), target);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("path", targetPath);
-        response.put("message", "File stored successfully");
-
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/workspace-to-task")
     public ResponseEntity<Map<String, String>> storeFromWorkspaceToTask(
             @RequestParam("taskId") Long taskId,
