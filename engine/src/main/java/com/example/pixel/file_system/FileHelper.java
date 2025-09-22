@@ -62,19 +62,6 @@ public class FileHelper {
         return path;
     }
 
-    public String extractPath(String path) {
-        if (path == null || path.isEmpty()) {
-            return "";
-        }
-
-        int lastSlashIndex = path.lastIndexOf('/');
-        if (lastSlashIndex >= 0 && lastSlashIndex < path.length() - 1) {
-            return path.substring(0, lastSlashIndex + 1);
-        }
-
-        return "";
-    }
-
     public String extractRelativeWorkspacePath(String filepath) {
         List<String> pathSegments = Splitter.on("/").splitToList(filepath);
         int index = -1;

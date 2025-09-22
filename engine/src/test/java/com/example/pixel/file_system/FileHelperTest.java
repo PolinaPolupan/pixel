@@ -70,18 +70,6 @@ public class FileHelperTest {
     class ExtractPathTests {
 
         @Test
-        void shouldExtractPath() {
-            String filepath = "123/input/pic/Picture.jpeg";
-            assertEquals("123/input/pic/", fileHelper.extractPath(filepath));
-        }
-
-        @Test
-        void shouldExtractEmptyPath() {
-            String filepath = "Picture.jpeg";
-            assertEquals("", fileHelper.extractPath(filepath));
-        }
-
-        @Test
         void shouldExtractPathAfterInput() {
             String filepath = "scenes/" + SCENE_ID + "/input/pic/Picture.jpeg";
             assertEquals("pic/", fileHelper.extractRelativeWorkspacePath(filepath));
