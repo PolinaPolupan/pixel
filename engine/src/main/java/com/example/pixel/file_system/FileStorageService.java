@@ -11,23 +11,24 @@ import java.util.stream.Stream;
 
 import com.example.pixel.exception.StorageException;
 import com.example.pixel.exception.StorageFileNotFoundException;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
+@Service
 public class FileStorageService implements StorageService {
 
     private final Path rootLocation;
 
-    public FileStorageService(@NonNull String location) {
-        if (location.trim().isEmpty()) {
+    public FileStorageService(@Value("${storage.directory}") String location) {
+        if (location == null || location.trim().isEmpty()) {
             throw new StorageException("File upload location can not be Empty.");
         }
-
         this.rootLocation = Paths.get(location);
     }
 
