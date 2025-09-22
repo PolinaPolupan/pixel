@@ -6,7 +6,6 @@ class NodeOutput:
     Represents an output from a node that can be passed to other nodes.
     Automatically creates output references using the exact output keys from the server.
     """
-
     def __init__(self, node_id, node_type, flow):
         self.node_id = node_id
         self.node_type = node_type
@@ -37,7 +36,7 @@ class NodeFlow:
 
     def __init__(self):
         self.client = Client()
-        self.scene_id = None
+        self.graph_id = None
         self.nodes = {}
         self.next_id = 1
         self.node_results = {}
@@ -90,38 +89,30 @@ class NodeFlow:
             f"Available node models: {', '.join(self.available_node_types.keys())}"
         )
 
-    def create_scene(self):
-        self.scene_id = self.client.create_scene()
-        print(f"Created new scene with ID: {self.scene_id}")
-        return self.scene_id
-
-    def upload_file(self, file_path: str):
-        if not self.scene_id:
-            self.create_scene()
-        result = self.client.upload_file(scene_id=self.scene_id, file_path=file_path)
-        print(f"Uploaded file: {file_path}")
-        return result
+    def create_graph(self):
+        self.graph_id = self.client.create_graph()
+        return self.graph_id
 
     def list_files(self):
-        if not self.scene_id:
+        if not self.graph_id:
             self.create_scene()
-        return self.client.list_scene_files(self.scene_id).get("locations", [])
+        return self.client.list_scene_files(self.graph_id).get("locations", [])
 
     def execute(self):
-        if not self.scene_id:
-            self.create_scene()
+        if not self.graph_id:
+            self.create_graph()
         nodes_list = list(self.nodes.values())
         print(f"Executing workflow...")
-        print(f"Scene ID: {self.scene_id}")
+        print(f"Scene ID: {self.graph_id}")
         print(f"Number of nodes: {len(nodes_list)}")
-        result = self.client.execute_scene(self.scene_id, nodes_list)
+        result = self.client.execute_scene(self.graph_id, nodes_list)
         print(f"Workflow execution completed")
         return result
 
     def download_file(self, file_path: str, save_to: str):
-        if not self.scene_id:
+        if not self.graph_id:
             raise ValueError("No active scene. Create a scene first.")
-        content = self.client.get_file(self.scene_id, file_path)
+        content = self.client.get_file(self.graph_id, file_path)
         with open(save_to, "wb") as f:
             f.write(content)
         print(f"Downloaded file to: {save_to}")

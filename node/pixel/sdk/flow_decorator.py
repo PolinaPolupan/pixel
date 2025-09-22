@@ -5,7 +5,7 @@ def flow(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         nf = NodeFlow()
-        nf.create_scene()
+        nf.create_graph()
 
         injected = {ntype: getattr(nf, ntype) for ntype in nf.available_node_types}
         original_globals = func.__globals__.copy()
