@@ -1,6 +1,6 @@
 from typing import Optional, Set
 from pixel.core import Metadata
-from pixel.sdk import StorageClient
+from pixel.sdk import Client
 from pixel.sdk.models.node_decorator import node
 
 
@@ -37,7 +37,7 @@ def combine(
             files.update(file_set)
 
     output_files = [
-        StorageClient.store_from_workspace_to_task(meta.task_id, meta.node_id, file)
+        Client.store_task(meta.task_id, meta.node_id, file)
         for file in files
     ]
 

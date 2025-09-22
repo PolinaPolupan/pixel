@@ -1,6 +1,6 @@
 from typing import List
 from pixel.core import Metadata
-from pixel.sdk import StorageClient
+from pixel.sdk import Client
 from pixel.sdk.models.node_decorator import node
 
 
@@ -8,7 +8,7 @@ def box_filter_exec(input: List[str], ksize, ddepth, meta: Metadata):
     output_files = []
     for file in input:
         output_files.append(
-            StorageClient.store_from_workspace_to_task(meta.task_id, meta.node_id, file)
+            Client.store_task(meta.task_id, meta.node_id, file)
         )
     return {"output": output_files}
 

@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 from typing import List, Dict, Any, Optional
@@ -5,6 +6,7 @@ from urllib.parse import urljoin
 
 from pixel.server.load_nodes import NODE_REGISTRY
 
+logger = logging.getLogger(__name__)
 
 class Client:
     def __init__(self):
@@ -75,6 +77,73 @@ class Client:
             return 'image/png'
         else:
             return 'application/octet-stream'
+
+    @staticmethod
+    def store_output(source: str, folder: Optional[str] = None, prefix: Optional[str] = None) -> str:
+        url = "http://engine:8080/v1/storage/output"
+
+        params = {
+            "source": source
+        }
+
+        if folder is not None:
+            params["folder"] = folder
+
+        if prefix is not None:
+            params["prefix"] = prefix
+
+        logger.info(f"Storing file source={source}, "
+                    f"folder={folder}, prefix={prefix}")
+
+        try:
+            response = requests.post(url, params=params)
+            response.raise_for_status()
+
+            result_path = response.json()["path"]
+            logger.info(f"Successfully stored file: {result_path}")
+
+            return result_path
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error storing file: {str(e)}")
+            if hasattr(e, 'response') and e.response:
+                logger.error(f"Response status: {e.response.status_code}, "
+                             f"Response body: {e.response.text}")
+            raise
+
+    @staticmethod
+    def store_task(task_id: int, node_id: int, source: str) -> str:
+        url = "http://engine:8080/v1/storage/task"
+
+        params = {
+            "taskId": task_id,
+            "nodeId": node_id,
+            "source": source
+        }
+
+        logger.info(f"Storing file to task: task_id={task_id}, "
+                    f"node_id={node_id}, source={source}")
+
+        try:
+            response = requests.post(
+                url,
+                params=params,
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
+
+            response.raise_for_status()
+
+            result_path = response.json()["path"]
+            logger.info(f"Successfully stored file from workspace to executionTask: {result_path}")
+
+            return result_path
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error storing file to task: {str(e)}")
+            if hasattr(e, 'response') and e.response:
+                logger.error(f"Response status: {e.response.status_code}, "
+                             f"Response body: {e.response.text}")
+            raise
 
 
 def create_node(node_id: int, node_type: str, inputs: Dict[str, Any]) -> Dict[str, Any]:

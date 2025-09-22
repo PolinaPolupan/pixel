@@ -31,6 +31,37 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadController {
 
     private final StorageService storageService;
+    private final FileHelper fileHelper;
+
+    @PostMapping("/output")
+    public ResponseEntity<Map<String, String>> storeToOutput(
+            @RequestParam("source") String source,
+            @RequestParam(value = "folder", required = false) String folder,
+            @RequestParam(value = "prefix", required = false) String prefix
+    ) {
+        String targetPath = fileHelper.storeToOutput(source, folder, prefix);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("path", targetPath);
+        response.put("message", "File stored successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/task")
+    public ResponseEntity<Map<String, String>> storeToTask(
+            @RequestParam("source") String source,
+            @RequestParam("taskId") Long taskId,
+            @RequestParam("nodeId") Long nodeId
+    ) {
+        String targetPath = fileHelper.storeToTask(taskId, nodeId, source);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("path", targetPath);
+        response.put("message", "File stored successfully");
+
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping(path = "/list", produces = "application/json")
     public FileStatsPayload listUploadedFiles(@RequestParam(required = false, defaultValue = "") String folder) {
@@ -108,7 +139,7 @@ public class FileUploadController {
             if (contentType.equals("application/zip") || contentType.equals("application/x-zip-compressed")) {
                 locations.addAll(storeZip(file));
             } else {
-                storageService.store(file, file.getOriginalFilename());
+                storageService.store(file);
                 locations.add(file.getOriginalFilename());
             }
         }

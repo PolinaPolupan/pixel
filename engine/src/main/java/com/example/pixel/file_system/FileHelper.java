@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +22,7 @@ public class FileHelper {
         this.storageService = storageService;
     }
 
-    public String storeFromWorkspaceToScene(String source, String folder, String prefix) {
+    public String storeToOutput(String source, String folder, String prefix) {
         String filename = extractFilename(source);
         String relativePath = extractRelativeWorkspacePath(source);
 
@@ -37,7 +36,7 @@ public class FileHelper {
         return target;
     }
 
-    public String storeFromWorkspaceToTask(Long taskId, Long nodeId, String source) {
+    public String storeToTask(Long taskId, Long nodeId, String source) {
         String target = getTaskContext(taskId, nodeId) + extractRelativeWorkspacePath(source) + extractFilename(source);
 
         storageService.store(source, target);

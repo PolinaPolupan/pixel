@@ -1,6 +1,6 @@
 from typing import List
 from pixel.core import Metadata
-from pixel.sdk import StorageClient
+from pixel.sdk import Client
 from pixel.sdk.models.node_decorator import node
 
 
@@ -19,8 +19,7 @@ from pixel.sdk.models.node_decorator import node
 )
 def output(input: List[str], prefix: str = "", folder: str = "", meta: Metadata = None):
     for filepath in input:
-        StorageClient.store_from_workspace_to_scene(
-            scene_id=meta.scene_id,
+        Client.store_output(
             source=filepath,
             folder=folder if folder else None,
             prefix=prefix if prefix else None

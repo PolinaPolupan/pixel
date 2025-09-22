@@ -20,9 +20,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 @SpringBootTest
 @Import({TestCacheConfig.class})
 @ActiveProfiles("test")
@@ -141,7 +138,7 @@ public class FileHelperTest {
             String filepath = "scenes/" + SCENE_ID + "/input/picture.jpg";
             String outputPath = "scenes/" + SCENE_ID + "/picture.jpg";
 
-            String result = fileHelper.storeFromWorkspaceToScene(filepath, null, null);
+            String result = fileHelper.storeToOutput(filepath, null, null);
 
             verify(storageService).store(filepath, outputPath);
             assertEquals(outputPath, result);
@@ -154,7 +151,7 @@ public class FileHelperTest {
             String prefix = "edited";
             String outputPath = "scenes/" + SCENE_ID + "/processed/edited_picture.jpg";
 
-            String result = fileHelper.storeFromWorkspaceToScene(filepath, folder, prefix);
+            String result = fileHelper.storeToOutput(filepath, folder, prefix);
 
             verify(storageService).store(filepath, outputPath);
             assertEquals(outputPath, result);
@@ -170,7 +167,7 @@ public class FileHelperTest {
             String filepath = SCENE_ID + "/input/picture.jpg";
             String dumpPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/picture.jpg";
 
-            String result = fileHelper.storeFromWorkspaceToTask(TASK_ID, NODE_ID, filepath);
+            String result = fileHelper.storeToTask(TASK_ID, NODE_ID, filepath);
 
             verify(storageService).store(filepath, dumpPath);
             assertEquals(dumpPath, result);
@@ -181,7 +178,7 @@ public class FileHelperTest {
             String filepath = "tasks/" + "78" + "/" + "768" + "/output/Picture1.png";
             String dumpPath = "tasks/" + TASK_ID + "/" + NODE_ID + "/output/Picture1.png";
 
-            String result = fileHelper.storeFromWorkspaceToTask(TASK_ID, NODE_ID, filepath);
+            String result = fileHelper.storeToTask(TASK_ID, NODE_ID, filepath);
 
             verify(storageService).store(filepath, dumpPath);
             assertEquals(dumpPath, result);
@@ -193,7 +190,7 @@ public class FileHelperTest {
 
             doThrow(RuntimeException.class).when(storageService).store(anyString(), anyString());
 
-            assertThrows(RuntimeException.class, () -> fileHelper.storeFromWorkspaceToTask(TASK_ID, NODE_ID, filepath));
+            assertThrows(RuntimeException.class, () -> fileHelper.storeToTask(TASK_ID, NODE_ID, filepath));
         }
     }
 }
