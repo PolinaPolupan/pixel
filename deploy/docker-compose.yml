@@ -6,11 +6,11 @@ services:
       - '8080:8080'
     environment:
       APP_NAME: ${APP_NAME}
-      STORAGE_DIRECTORY: ${LOCAL_RESOURCES_DIR}
+      STORAGE_DIRECTORY: ${DATA_DIR}
       NODE_SERVICE_URL: ${NODE_SERVICE_URL}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     volumes:
-      - ../pixel/resources:/app/pixel/resources
+      - ../pixel:/app/pixel
     depends_on:
       - node
 

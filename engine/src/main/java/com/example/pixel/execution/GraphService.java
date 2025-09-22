@@ -1,7 +1,6 @@
 package com.example.pixel.execution;
 
-import com.example.pixel.exception.SceneNotFoundException;
-import com.example.pixel.file_system.StorageService;
+import com.example.pixel.exception.GraphNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +11,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Service
 public class GraphService {
-
-    private final StorageService storageService;
     private final GraphRepository graphRepository;
 
     public ExecutionGraphPayload createExecutionGraph() {
@@ -26,30 +23,24 @@ public class GraphService {
 
         graphModel = graphRepository.save(graphModel);
 
-        Long sceneId = graphModel.getId();
-        ExecutionGraphPayload executionGraphPayload = new ExecutionGraphPayload(
-                sceneId,
+        return new ExecutionGraphPayload(
+                graphModel.getId(),
                 graphModel.getCreatedAt(),
                 graphModel.getLastAccessed(),
                 Collections.emptyList()
         );
-
-        storageService.createFolder("scenes/" + sceneId.toString());
-
-        return executionGraphPayload;
     }
 
     @Transactional
     public void updateLastAccessed(Long id) {
         if (!graphRepository.existsById(id)) {
-            throw new SceneNotFoundException("Graph with id: " + id + " not found");
+            throw new GraphNotFoundException("Graph with id: " + id + " not found");
         }
 
         graphRepository.updateLastAccessedTime(id, LocalDateTime.now());
     }
 
     public void deleteGraph(Long id) {
-        storageService.delete("scenes/" + id.toString());
         graphRepository.deleteById(id);
     }
 }

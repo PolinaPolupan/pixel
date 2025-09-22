@@ -141,7 +141,7 @@ public class FileHelperTest {
             String filepath = "scenes/" + SCENE_ID + "/input/picture.jpg";
             String outputPath = "scenes/" + SCENE_ID + "/picture.jpg";
 
-            String result = fileHelper.storeFromWorkspaceToScene(SCENE_ID, filepath, null, null);
+            String result = fileHelper.storeFromWorkspaceToScene(filepath, null, null);
 
             verify(storageService).store(filepath, outputPath);
             assertEquals(outputPath, result);
@@ -154,7 +154,7 @@ public class FileHelperTest {
             String prefix = "edited";
             String outputPath = "scenes/" + SCENE_ID + "/processed/edited_picture.jpg";
 
-            String result = fileHelper.storeFromWorkspaceToScene(SCENE_ID, filepath, folder, prefix);
+            String result = fileHelper.storeFromWorkspaceToScene(filepath, folder, prefix);
 
             verify(storageService).store(filepath, outputPath);
             assertEquals(outputPath, result);

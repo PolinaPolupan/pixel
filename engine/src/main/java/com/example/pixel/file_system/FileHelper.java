@@ -23,14 +23,14 @@ public class FileHelper {
         this.storageService = storageService;
     }
 
-    public String storeFromWorkspaceToScene(Long sceneId, String source, String folder, String prefix) {
+    public String storeFromWorkspaceToScene(String source, String folder, String prefix) {
         String filename = extractFilename(source);
         String relativePath = extractRelativeWorkspacePath(source);
 
         if (prefix != null && !prefix.isBlank()) filename = addPrefixToFilename(source, prefix);
         if (folder != null) relativePath = folder + "/" + relativePath;
 
-        String target = getSceneContext(sceneId) + relativePath + filename;
+        String target = relativePath + filename;
 
         storageService.store(source, target);
 
@@ -55,10 +55,6 @@ public class FileHelper {
 
     private String getTaskContext(Long taskId, Long nodeId) {
         return  "tasks/" + taskId + "/" + nodeId + "/";
-    }
-
-    private String getSceneContext(Long sceneId) {
-        return  "scenes/" + sceneId + "/";
     }
 
     public String extractFilename(String path) {
@@ -91,8 +87,6 @@ public class FileHelper {
     public String extractRelativeWorkspacePath(String filepath) {
         List<String> pathSegments = Splitter.on("/").splitToList(filepath);
         int index = -1;
-        // Example: scenes/{sceneId}/input/folder1/folder2/Picture.jpeg -> folder1/folder2/
-        if (pathSegments.contains("scenes")) index = pathSegments.indexOf("scenes") + 2;
         // Example: tasks/{taskId}/{nodeId}/folder1/folder2/Picture.jpeg -> folder1/folder2/
         if (pathSegments.contains("tasks")) index = pathSegments.indexOf("tasks") + 2;
 

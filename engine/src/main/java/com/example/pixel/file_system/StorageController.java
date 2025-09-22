@@ -25,12 +25,11 @@ public class StorageController {
 
     @PostMapping("/workspace-to-scene")
     public ResponseEntity<Map<String, String>> storeFromWorkspaceToScene(
-            @RequestParam("sceneId") Long sceneId,
             @RequestParam("source") String source,
             @RequestParam(value = "folder", required = false) String folder,
             @RequestParam(value = "prefix", required = false) String prefix
     ) {
-        String targetPath = fileHelper.storeFromWorkspaceToScene(sceneId, source, folder, prefix);
+        String targetPath = fileHelper.storeFromWorkspaceToScene(source, folder, prefix);
 
         Map<String, String> response = new HashMap<>();
         response.put("path", targetPath);

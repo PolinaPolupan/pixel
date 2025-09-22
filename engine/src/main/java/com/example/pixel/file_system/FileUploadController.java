@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/v1/scene/{sceneId}")
+@RequestMapping("/v1/storage")
 @Slf4j
 @RequiredArgsConstructor
 public class FileUploadController {
@@ -33,32 +33,23 @@ public class FileUploadController {
     private final StorageService storageService;
 
     @GetMapping(path = "/list", produces = "application/json")
-    public FileStatsPayload listUploadedFiles(
-            @PathVariable Long sceneId,
-            @RequestParam(required = false, defaultValue = "") String folder
-    ) {
-        String basePath = getSceneContext(sceneId) + folder;
-        List<String> locations = storageService.loadAll(basePath)
-                .map((path) -> basePath + path.toString())
+    public FileStatsPayload listUploadedFiles(@RequestParam(required = false, defaultValue = "") String folder) {
+        List<String> locations = storageService.loadAll(folder)
+                .map((path) -> folder + path.toString())
                 .collect(Collectors.toList());
 
         return calculateFileStats(locations);
     }
 
     @GetMapping(path = "/zip", produces = "application/zip")
-    public byte[] zipUploadedFiles(
-            @PathVariable Long sceneId,
-            @RequestParam(required = false, defaultValue = "") String folder
-    ) throws IOException {
-        String basePath = getSceneContext(sceneId) + folder;
-
-        List<String> relativePaths = storageService.loadAll(basePath)
+    public byte[] zipUploadedFiles(@RequestParam(required = false, defaultValue = "") String folder) throws IOException {
+        List<String> relativePaths = storageService.loadAll(folder)
                 .map(Path::toString)
                 .toList();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-            Path baseDir = this.storageService.getRootLocation().resolve(basePath);
+            Path baseDir = this.storageService.getRootLocation().resolve(folder);
 
             for (String relativePath : relativePaths) {
                 Path absolutePath = baseDir.resolve(relativePath);
@@ -79,8 +70,8 @@ public class FileUploadController {
 
     @GetMapping(path ="/file")
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable Long sceneId, @RequestParam String filepath) {
-        Resource file = storageService.loadAsResource(getSceneContext(sceneId) + filepath);
+    public ResponseEntity<Resource> serveFile(@RequestParam String filepath) {
+        Resource file = storageService.loadAsResource(filepath);
         return getResourceResponseEntity(file);
     }
 
@@ -106,11 +97,7 @@ public class FileUploadController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<FileStatsPayload> handleUpload(
-            @PathVariable Long sceneId,
-            @RequestParam("file") List<MultipartFile> files
-    ) throws IOException {
-
+    public ResponseEntity<FileStatsPayload> handleUpload(@RequestParam("file") List<MultipartFile> files) throws IOException {
         List<String> locations = new ArrayList<>();
 
         for (MultipartFile file: files) {
@@ -119,17 +106,17 @@ public class FileUploadController {
                 throw new InvalidFileFormat("");
             }
             if (contentType.equals("application/zip") || contentType.equals("application/x-zip-compressed")) {
-                locations.addAll(storeZip(sceneId, file));
+                locations.addAll(storeZip(file));
             } else {
-                storageService.store(file, getSceneContext(sceneId) + file.getOriginalFilename());
-                locations.add(getSceneContext(sceneId) + file.getOriginalFilename());
+                storageService.store(file, file.getOriginalFilename());
+                locations.add(file.getOriginalFilename());
             }
         }
 
         return new ResponseEntity<>(calculateFileStats(locations), HttpStatus.CREATED);
     }
 
-    private List<String> storeZip(Long sceneId, MultipartFile file) throws IOException {
+    private List<String> storeZip(MultipartFile file) throws IOException {
         List<String> locations = new ArrayList<>();
         ZipInputStream inputStream = new ZipInputStream(file.getInputStream());
 
@@ -138,14 +125,14 @@ public class FileUploadController {
             zipFolderName = zipFolderName.substring(0, zipFolderName.length() - 4);
         }
 
-        storageService.createFolder(getSceneContext(sceneId) + zipFolderName);
+        storageService.createFolder(zipFolderName);
 
         for (ZipEntry entry; (entry = inputStream.getNextEntry()) != null; ) {
             if (entry.isDirectory()) {
-                storageService.createFolder( getSceneContext(sceneId) + zipFolderName + "/" + entry.getName());
+                storageService.createFolder(zipFolderName + "/" + entry.getName());
             } else {
-                storageService.store(inputStream, getSceneContext(sceneId) + zipFolderName + "/" + entry.getName());
-                locations.add(getSceneContext(sceneId) + zipFolderName + "/" + entry.getName());
+                storageService.store(inputStream, zipFolderName + "/" + entry.getName());
+                locations.add(zipFolderName + "/" + entry.getName());
             }
         }
 
@@ -181,9 +168,5 @@ public class FileUploadController {
                 .imageFiles(imageFiles)
                 .locations(locations)
                 .build();
-    }
-
-    private String getSceneContext(Long sceneId) {
-        return "scenes/" + sceneId + "/";
     }
 }

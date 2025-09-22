@@ -53,8 +53,8 @@ public class ErrorController {
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(SceneNotFoundException.class)
-    public ResponseEntity<?> handleSceneNotFound(SceneNotFoundException ex, HttpServletRequest request) {
+    @ExceptionHandler(GraphNotFoundException.class)
+    public ResponseEntity<?> handleSceneNotFound(GraphNotFoundException ex, HttpServletRequest request) {
         recordExceptionMetric(ex, request, HttpStatus.NOT_FOUND);
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
