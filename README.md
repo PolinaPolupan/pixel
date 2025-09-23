@@ -9,8 +9,15 @@ An image processing system designed to proccess images using node-based workflow
 ```
 from typing import List
 
-from pixel.sdk import NodeFlow
+from pixel.sdk.flow_decorator import flow
 from pixel.sdk.models.node_decorator import node
+from pixel.sdk.nodes.combine_node import combine
+from pixel.sdk.nodes.floor_node import floor
+from pixel.sdk.nodes.gaussian_blur_node import gaussian_blur
+from pixel.sdk.nodes.input_node import input_node
+from pixel.sdk.nodes.output_node import output
+from pixel.sdk.nodes.s3_input_node import s3_input
+from pixel.sdk.nodes.s3_output_node import s3_output
 
 
 @node()
@@ -19,50 +26,56 @@ def custom_blur(input: List[str], ksize):
     print("Hello I'm custom blur")
     return {"output": input, "sigma": 5, "ksize": ksize, "param": "style"}
 
-flow = NodeFlow()
 
-scene_id = flow.create_scene()
+@flow
+def graph_workflow(
+        aws_access: str,
+        aws_secret: str,
+        aws_region: str,
+        aws_bucket: str
+):
+    s3_files = s3_input(
+        access_key_id=aws_access,
+        secret_access_key=aws_secret,
+        region=aws_region,
+        bucket=aws_bucket
+    )
+    files = input_node(input=["file.jpg", "file1.jpg"])
+    combined_files = combine(
+        files_0=files.output,
+        files_1=s3_files.files
+    )
+    floored = floor(input=56)
+    blurred = gaussian_blur(
+        input=combined_files.output,
+        sizeX=33,
+        sizeY=33,
+        sigmaX=floored.output
+    )
+    out1 = output(
+        input=blurred.output,
+        prefix="output1",
+        folder="output_1"
+    )
+    s3_out = s3_output(
+        input=blurred.output,
+        folder="output",
+        access_key_id=aws_access,
+        secret_access_key=aws_secret,
+        region=aws_region,
+        bucket=aws_bucket
+    )
+    custom = custom_blur(
+        input=blurred.output,
+        ksize=5
+    )
 
-files = flow.list_files()
-
-access_key_id = flow.string(input="key")
-secret_access_key = flow.string(input="secret")
-bucket = flow.string(input="bucket")
-region = flow.string(input="region")
-
-
-input_node = flow.input(input=files)
-floor_result = flow.floor(input=56)
-
-combined = flow.combine(
-    files_0=input_node.output
+graph_workflow(
+    aws_access="your-access-key",
+    aws_secret="your-secret-key",
+    aws_region="your-region",
+    aws_bucket="your-bucket"
 )
-
-blurred = flow.gaussian_blur(
-    input=combined.output,
-    sigmaX=floor_result.output,
-    sizeX=33,
-    sizeY=33
-)
-
-value = flow.floor(input=8)
-
-custom = flow.custom_blur(
-    input=blurred.output,
-    ksize=value.output
-)
-
-output = flow.output(
-    input=blurred.output,
-    prefix="output1",
-    folder="output_1"
-)
-
-
-execution_result = flow.execute()
-
-print(flow.nodes)
-print(flow.list_files())
 ```
 
 ## Core Features
