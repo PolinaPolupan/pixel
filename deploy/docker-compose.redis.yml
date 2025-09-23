@@ -9,7 +9,7 @@ services:
   redis:
     image: "redislabs/redismod"
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6379:6379"
     volumes:
       - redis_data:/data
 

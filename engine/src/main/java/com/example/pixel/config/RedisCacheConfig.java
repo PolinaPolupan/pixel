@@ -14,7 +14,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
 @Configuration
-@Profile("cache")
+@Profile("redis")
 public class RedisCacheConfig {
 
     @Bean

@@ -13,7 +13,7 @@ import java.util.Collections;
 
 @Configuration
 @EnableCaching
-@Profile("!cache")
+@Profile("default")
 public class CacheConfig {
 
     @Bean
