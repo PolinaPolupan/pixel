@@ -1,4 +1,4 @@
-package com.example.pixel.node.service.impl;
+package com.example.pixel.node.service;
 
 import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node.model.NodeData;

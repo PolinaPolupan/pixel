@@ -105,7 +105,7 @@ class NodeFlow:
         print(f"Executing workflow...")
         print(f"Scene ID: {self.graph_id}")
         print(f"Number of nodes: {len(nodes_list)}")
-        result = self.client.execute_scene(self.graph_id, nodes_list)
+        result = self.client.execute_graph(self.graph_id, nodes_list)
         print(f"Workflow execution completed")
         return result
 

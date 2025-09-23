@@ -1,7 +1,7 @@
 package com.example.pixel.config;
 
 import com.example.pixel.node.service.NodeCacheService;
-import com.example.pixel.node.service.impl.RedisNodeCacheService;
+import com.example.pixel.node.service.RedisNodeCacheService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

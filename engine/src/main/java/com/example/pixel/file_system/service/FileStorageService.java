@@ -1,4 +1,4 @@
-package com.example.pixel.file_system.service.impl;
+package com.example.pixel.file_system.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 import com.example.pixel.common.exception.StorageException;
 import com.example.pixel.common.exception.StorageFileNotFoundException;
-import com.example.pixel.file_system.service.StorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;

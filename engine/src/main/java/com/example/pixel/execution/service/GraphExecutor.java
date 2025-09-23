@@ -3,7 +3,7 @@ package com.example.pixel.execution.service;
 import com.example.pixel.execution.model.ExecutionGraph;
 import com.example.pixel.execution.model.ExecutionGraphRequest;
 import com.example.pixel.node.model.Node;
-import com.example.pixel.node.service.impl.NodeProcessorService;
+import com.example.pixel.node.service.NodeProcessorService;
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 import com.example.pixel.execution_task.service.ExecutionTaskService;

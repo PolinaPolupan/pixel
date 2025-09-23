@@ -75,9 +75,9 @@ class Client:
         return response.content
 
     @classmethod
-    def execute_scene(cls, scene_id: str, nodes: List[Dict[str, Any]]) -> Dict[str, Any]:
-        url = cls._make_engine_url(f"/v1/scene/{scene_id}/exec")
-        payload = {"nodes": nodes}
+    def execute_graph(cls, graph_id: str, nodes: List[Dict[str, Any]]) -> Dict[str, Any]:
+        url = cls._make_engine_url(f"/v1/graph/exec")
+        payload = {"id": graph_id, "nodes": nodes}
         response = cls.session.post(url, json=payload)
         response.raise_for_status()
         return response.json()

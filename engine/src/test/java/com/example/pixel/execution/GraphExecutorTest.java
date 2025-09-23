@@ -6,7 +6,7 @@
 //import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 //import com.example.pixel.execution_task.model.ExecutionTaskStatus;
 //import com.example.pixel.node.model.Node;
-//import com.example.pixel.node.service.impl.NodeProcessorService;
+//import com.example.pixel.node.service.NodeProcessorService;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;

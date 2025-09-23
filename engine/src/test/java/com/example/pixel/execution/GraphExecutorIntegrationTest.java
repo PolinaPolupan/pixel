@@ -11,7 +11,7 @@ import com.example.pixel.file_system.service.StorageService;
 import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 import com.example.pixel.execution_task.model.ExecutionTaskStatus;
 import com.example.pixel.node.model.Node;
-import com.example.pixel.node.service.impl.NodeProcessorService;
+import com.example.pixel.node.service.NodeProcessorService;
 import com.example.pixel.util.TestFileUtils;
 import com.example.pixel.util.TestGraphFactory;
 import com.example.pixel.util.TestcontainersExtension;
