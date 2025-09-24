@@ -5,16 +5,15 @@ import '@xyflow/react/dist/style.css';
 import DebugPanel from '../ui/Debug.jsx';
 import { NotificationPanel, NotificationKeyframes } from '../ui/NotificationPanel.jsx';
 import ContextMenu from '../ui/ContextMenu.jsx';
-import { useGraphTransformation } from '../../hooks/useGraphTransformation.js';
-import { useScene } from '../../services/contexts/SceneContext.jsx';
 import { useNodesApi } from '../../hooks/useNodesApi.js';
 import { GraphEditor } from "../graph/GraphEditor.jsx";
 import { GraphControls } from "../graph/GraphControls.jsx";
 import { useGraphExecution } from "../../hooks/useGraphExecution.js";
 import { useNotification } from "../../services/contexts/NotificationContext.jsx";
+import {useGraphTransformation} from "../../hooks/useGraphTransformation.js";
+import {useGraph} from "../../services/contexts/GraphContext.jsx";
 
 function AppContent() {
-    const { sceneId } = useScene();
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const reactFlowWrapper = useRef(null);
@@ -26,10 +25,9 @@ function AppContent() {
     const { nodesConfig, nodeReactComponents, getHandleType, canCastType, getDefaultInputs, isLoading } = useNodesApi();
 
     // Graph execution
-    const { isProcessing, executeGraph } = useGraphExecution({
-        sceneId,
-        transformGraphData: useGraphTransformation()
-    });
+    const { graphId } = useGraph();
+    const buildGraphBody = useGraphTransformation(graphId);
+    const { isProcessing, executeGraph } = useGraphExecution(buildGraphBody);
 
     // Check if connection is valid
     const isValidConnection = useCallback((connection) => {
@@ -94,30 +92,6 @@ function AppContent() {
                 isValidConnection={isValidConnection}
                 colorMode="dark"
             />
-
-            {/* Scene Status */}
-            <Panel position="top-center">
-                <div style={{
-                    padding: '8px 12px',
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    borderRadius: '4px',
-                    color: 'white',
-                    fontSize: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <div style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: isLoading ? '#ffc107' : '#4caf50'
-                    }} />
-                    <span>
-                        {isLoading ? 'Loading...' : `Scene: ${sceneId}`}
-                    </span>
-                </div>
-            </Panel>
 
             {/* Controls */}
             <GraphControls

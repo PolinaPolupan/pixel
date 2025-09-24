@@ -4,51 +4,37 @@ import { useProgress } from "../services/contexts/ProgressContext.jsx";
 import { taskManager } from "../services/TaskManager.jsx";
 import {useNotification} from "../services/contexts/NotificationContext.jsx";
 
-export function useGraphExecution({ sceneId, transformGraphData }) {
+export function useGraphExecution(getGraphData) {
     const [isProcessing, setIsProcessing] = useState(false);
     const { initProgress, updateProgress, completeProgress, handleError } = useProgress();
-    // Use notification context directly
     const { setError, setSuccess } = useNotification();
 
     const executeGraph = useCallback(async () => {
-        if (!sceneId) {
-            setError('No active scene');
-            return;
-        }
-
-        // Clear previous errors
         setError(null);
         setIsProcessing(true);
         console.log("Setting processing state to true");
 
-        // Initialize progress bar
         initProgress();
-
         try {
-            // Transform the graph
-            const graphData = transformGraphData();
+            const graphData = getGraphData();
             console.log("Sending graph data to backend:", graphData);
 
-            // Execute the graph
-            const taskData = await graphApi.processGraph(sceneId, graphData);
+            const taskData = await graphApi.processGraph(graphData);
             console.log("Graph processing task created:", taskData);
             console.log("Initial task data received:", taskData);
             console.log("Initial task status:", taskData.status);
 
             taskManager.monitorTask(
-                taskData.id, // Subscribe to the taskId
-                taskData,    // Provide the initial data
-                // Progress callback
+                taskData.id,
+                taskData,
                 (progressData) => {
                     updateProgress(progressData);
                 },
-                // Complete callback
                 (completedData) => {
                     completeProgress(completedData);
                     setSuccess('Graph execution completed successfully');
                     setIsProcessing(false);
                 },
-                // Error callback
                 (errorMessage) => {
                     handleError(errorMessage);
                     setError(errorMessage);
@@ -61,7 +47,7 @@ export function useGraphExecution({ sceneId, transformGraphData }) {
             setError(`Failed to execute graph: ${err.message}`);
             setIsProcessing(false);
         }
-    }, [sceneId, transformGraphData, initProgress, updateProgress, completeProgress, handleError, setError, setSuccess]);
+    }, [initProgress, updateProgress, completeProgress, handleError, setError, setSuccess]);
 
     return { isProcessing, executeGraph };
 }

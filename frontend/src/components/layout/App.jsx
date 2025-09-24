@@ -1,11 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import DockLayout from 'rc-dock';
-import { SceneProvider } from '../../services/contexts/SceneContext.jsx';
+import { GraphProvider } from '../../services/contexts/GraphContext.jsx';
 import AppContent from './AppContent.jsx';
 import FileExplorer from '../file/FileExplorer.jsx';
 import LoadingScreen from '../ui/LoadingScreen.jsx';
-import { useScene } from '../../services/contexts/SceneContext.jsx';
+import { useGraph } from '../../services/contexts/GraphContext.jsx';
 import NodeTypesPanel from '../ui/NodeTypesPanel.jsx';
 import {NotificationProvider, useNotification} from '../../services/contexts/NotificationContext.jsx';
 import {ProgressProvider} from "../../services/contexts/ProgressContext.jsx";
@@ -25,7 +25,7 @@ const defaultLayout = {
                         group: 'canvas',
                     },
                 ],
-                size: 80, // 80% width
+                size: 80,
             },
             {
                 size: 20,
@@ -59,9 +59,8 @@ const defaultLayout = {
     },
 };
 
-// Component for loading and error handling
 function AppWithSceneContext() {
-    const { isSceneLoading, sceneError } = useScene();
+    const { isGraphLoading, graphError } = useGraph();
     const { setError } = useNotification();
     const layoutRef = useRef(null);
 
@@ -89,12 +88,12 @@ function AppWithSceneContext() {
     };
 
     useEffect(() => {
-        if (sceneError) {
-            setError(sceneError);
+        if (graphError) {
+            setError(graphError);
         }
-    }, [sceneError, setError]);
+    }, [graphError, setError]);
 
-    if (isSceneLoading) {
+    if (isGraphLoading) {
         return <LoadingScreen message="Initializing your workspace..." />;
     }
 
@@ -125,11 +124,11 @@ export default function App() {
             <div style={{ height: '100vh', position: 'relative' }}>
                 <ReactFlowProvider>
                     <NotificationProvider>
-                        <SceneProvider>
+                        <GraphProvider>
                             <ProgressProvider>
                                 <AppWithSceneContext />
                             </ProgressProvider>
-                        </SceneProvider>
+                        </GraphProvider>
                     </NotificationProvider>
                 </ReactFlowProvider>
             </div>

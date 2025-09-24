@@ -1,10 +1,10 @@
-import { useCallback } from 'react';
-import { useReactFlow } from '@xyflow/react';
+import {useCallback} from 'react';
+import {useReactFlow} from '@xyflow/react';
 
-export function useGraphTransformation() {
+export function useGraphTransformation(graphId) {
   const { getNodes, getEdges } = useReactFlow();
 
-  const transformGraphData = useCallback(() => {
+  return useCallback(() => {
     const nodes = getNodes();
     const edges = getEdges();
 
@@ -12,7 +12,7 @@ export function useGraphTransformation() {
     const getNodeInputs = (node) => {
       const data = node.data || {};
       // Exclude known config/meta keys
-      const { config, ...inputs } = data;
+      const {config, ...inputs} = data;
       return inputs;
     };
 
@@ -45,8 +45,6 @@ export function useGraphTransformation() {
       };
     });
 
-    return { nodes: transformedNodes };
+    return {id: graphId, nodes: transformedNodes};
   }, [getNodes, getEdges]);
-
-  return transformGraphData;
 }

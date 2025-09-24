@@ -118,8 +118,8 @@ export const graphApi = {
         return await response.blob();
     },
 
-    processGraph: (sceneId, graphData) =>
-        apiRequest(`/scene/${sceneId}/exec`, {
+    processGraph: (graphData) =>
+        apiRequest(`/graph/exec`, {
             method: 'POST',
             body: JSON.stringify(graphData)
         }),

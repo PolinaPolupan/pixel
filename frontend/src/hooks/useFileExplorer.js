@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useScene } from '../services/contexts/SceneContext.jsx';
+import { useGraph } from '../services/contexts/GraphContext.jsx';
 import { saveAs } from 'file-saver';
 import { graphApi } from '../services/api.js';
 import {useNotification} from "../services/contexts/NotificationContext.jsx";
@@ -9,7 +9,7 @@ import {useNotification} from "../services/contexts/NotificationContext.jsx";
  */
 export function useFileExplorer() {
     const { setError } = useNotification();
-    const { sceneId } = useScene();
+    const { sceneId } = useGraph();
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [cacheBuster, setCacheBuster] = useState(Date.now());
