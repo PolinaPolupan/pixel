@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { sceneApi } from '../api.js';
+import { graphApi } from '../api.js';
 
 const SceneContext = createContext();
 
@@ -31,7 +31,7 @@ export function SceneProvider({ children }) {
     setSceneError(null);
 
     try {
-      const sceneData = await sceneApi.create();
+      const sceneData = await graphApi.create();
       console.log('Created new scene:', sceneData.id);
 
       // Store the scene ID in session storage

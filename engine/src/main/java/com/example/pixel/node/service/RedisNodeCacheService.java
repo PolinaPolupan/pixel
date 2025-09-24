@@ -23,12 +23,10 @@ public class RedisNodeCacheService implements NodeCacheService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void put(String key, Map<String, Object> outputs) {
-        log.info("Writing to Redis: key={}, value={}", key, outputs);
         try (Jedis jedis = jedisPool.getResource()) {
             String serializedMap = objectMapper.writeValueAsString(outputs);
 
             jedis.set(key, serializedMap);
-
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error serializing node outputs", e);
         }

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useScene } from '../services/contexts/SceneContext.jsx';
 import { saveAs } from 'file-saver';
-import { sceneApi } from '../services/api.js';
+import { graphApi } from '../services/api.js';
 import {useNotification} from "../services/contexts/NotificationContext.jsx";
 
 /**
@@ -28,7 +28,7 @@ export function useFileExplorer() {
         try {
             setIsLoading(true);
 
-            const response = await sceneApi.listFiles(sceneId, folder);
+            const response = await graphApi.listFiles(folder);
 
             const paths = response.locations || response;
 
@@ -136,7 +136,7 @@ export function useFileExplorer() {
                         fileType: getFileType(path),
                         name: fileName,
                         path: path,
-                        url: sceneApi.getFileUrl(sceneId, path, cacheBuster)
+                        url: graphApi.getFileUrl(path, cacheBuster)
                     });
                 }
             } else if (isFile(path)) {
@@ -146,7 +146,7 @@ export function useFileExplorer() {
                     fileType: getFileType(path),
                     name: path,
                     path: path,
-                    url: sceneApi.getFileUrl(sceneId, path, cacheBuster)
+                    url: graphApi.getFileUrl(path, cacheBuster)
                 });
             } else {
                 // This is a root-level folder
@@ -233,7 +233,7 @@ export function useFileExplorer() {
             setIsLoading(true);
 
             // Use the API method but with the working implementation
-            const zipBlob = await sceneApi.downloadZip(sceneId);
+            const zipBlob = await graphApi.downloadZip(sceneId);
 
             // Use the exact save logic from the working version
             saveAs(zipBlob, `scene_${sceneId}_files.zip`);

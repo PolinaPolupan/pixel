@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useScene } from '../../services/contexts/SceneContext.jsx';
 import { useNotification } from '../../services/contexts/NotificationContext.jsx';
-import { sceneApi } from '../../services/api.js';
+import { graphApi } from '../../services/api.js';
 
 function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) {
-  const { sceneId } = useScene();
   const { setError } = useNotification();
   const [files, setFiles] = useState(initialFiles);
   const [isUploading, setIsUploading] = useState(false);
@@ -26,7 +24,7 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
     }
     setIsUploading(true);
     try {
-      const fileStats = await sceneApi.uploadInput(sceneId, uploadedFiles);
+      const fileStats = await graphApi.uploadInput(uploadedFiles);
 
       console.log(`Uploaded ${fileStats.totalFiles} files`);
 
