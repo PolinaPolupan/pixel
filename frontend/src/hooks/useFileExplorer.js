@@ -9,7 +9,7 @@ import {useNotification} from "../services/contexts/NotificationContext.jsx";
  */
 export function useFileExplorer() {
     const { setError } = useNotification();
-    const { sceneId } = useGraph();
+    const { graphId } = useGraph();
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [cacheBuster, setCacheBuster] = useState(Date.now());
@@ -23,8 +23,6 @@ export function useFileExplorer() {
      * Fetch items from the server
      */
     const fetchItems = useCallback(async (folder = '') => {
-        if (!sceneId) return [];
-
         try {
             setIsLoading(true);
 
@@ -34,14 +32,7 @@ export function useFileExplorer() {
 
             console.log(`FileExplorer fetchItems response (folder=${folder}):`, paths);
 
-            const prefix = `scenes/${sceneId}/`;
-            return paths.map((path) => {
-                const truncatedPath = path.startsWith(prefix)
-                    ? path.substring(prefix.length)
-                    : path;
-
-                return truncatedPath.replace(/\/+$/, ''); // Normalize paths
-            });
+            return paths;
         } catch (err) {
             setError?.(err.message);
             console.error(`FileExplorer fetchItems error (folder=${folder}):`, err);
@@ -49,7 +40,7 @@ export function useFileExplorer() {
         } finally {
             setIsLoading(false);
         }
-    }, [sceneId, setError]);
+    }, [graphId, setError]);
 
     /**
      * Build a tree structure from paths
@@ -179,7 +170,7 @@ export function useFileExplorer() {
 
         // The root of our tree is the '' folder
         return folders[''];
-    }, [sceneId, cacheBuster]);
+    }, [graphId, cacheBuster]);
 
     /**
      * Refresh all items
@@ -231,19 +222,15 @@ export function useFileExplorer() {
     const downloadAsZip = useCallback(async () => {
         try {
             setIsLoading(true);
-
-            // Use the API method but with the working implementation
-            const zipBlob = await graphApi.downloadZip(sceneId);
-
-            // Use the exact save logic from the working version
-            saveAs(zipBlob, `scene_${sceneId}_files.zip`);
+            const zipBlob = await graphApi.downloadZip(graphId);
+            saveAs(zipBlob, `graph_${graphId}_files.zip`);
         } catch (err) {
             console.error('ZIP download error:', err);
             setError?.('Failed to download ZIP: ' + err.message);
         } finally {
             setIsLoading(false);
         }
-    }, [sceneId, setError]);
+    }, [graphId, setError]);
 
     /**
      * Fetch text content for a file
@@ -285,11 +272,11 @@ export function useFileExplorer() {
 
     // Initial load - using useEffect with a ref to prevent infinite loops
     useEffect(() => {
-        if (sceneId && initialMountRef.current) {
+        if (graphId && initialMountRef.current) {
             initialMountRef.current = false;
             refreshItems();
         }
-    }, [sceneId]); // Remove refreshItems from dependencies
+    }, [graphId]); // Remove refreshItems from dependencies
 
     // Expose a manual refresh function that won't trigger re-renders
     const manualRefresh = useCallback(() => {
@@ -301,7 +288,7 @@ export function useFileExplorer() {
         isLoading,
         previewItem,
         previewContent,
-        refreshItems: manualRefresh, // Use manualRefresh instead of refreshItems
+        refreshItems: manualRefresh,
         toggleFolder,
         handleFileClick,
         closePreview,

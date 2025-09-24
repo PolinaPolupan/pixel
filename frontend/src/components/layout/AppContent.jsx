@@ -100,6 +100,12 @@ function AppContent() {
                 configLoading={isLoading}
             />
 
+            <Panel position="top-center">
+                <span>
+                    {isLoading ? 'Loading...' : `Graph: ${graphId}`}
+                </span>
+            </Panel>
+
             {/* Debug Panel */}
             <Panel position="right-center" style={{ margin: '16px' }}>
                 <DebugPanel />
