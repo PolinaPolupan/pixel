@@ -3,7 +3,7 @@ package com.example.pixel.node;
 import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node.model.*;
 import com.example.pixel.node.service.NodeCacheService;
-import com.example.pixel.node.service.NodeCommunicationService;
+import com.example.pixel.node.service.NodeClient;
 import com.example.pixel.node.service.NodeProcessorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class NodeProcessorServiceTest {
     private NodeProcessorService nodeProcessorService;
 
     @Mock
-    private NodeCommunicationService nodeCommunicationService;
+    private NodeClient nodeClient;
 
     @Captor
     private ArgumentCaptor<Map<String, Object>> inputsCaptor;
@@ -67,8 +67,8 @@ class NodeProcessorServiceTest {
 
     @Test
     void processNodeInternal_shouldCacheInputsAndOutputs() {
-        when(nodeCommunicationService.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
-        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
+        when(nodeClient.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
+        when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
         nodeProcessorService.processNode(node,  sceneId, taskId);
 
@@ -103,8 +103,8 @@ class NodeProcessorServiceTest {
 
     @Test
     void processNodeInternal_shouldHandleValidationFailure() {
-        when(nodeCommunicationService.validateNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
-        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
+        when(nodeClient.validateNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
+        when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
         assertThrows(NodeExecutionException.class, () ->
                 nodeProcessorService.processNode(node, sceneId, taskId));
@@ -112,8 +112,8 @@ class NodeProcessorServiceTest {
 
     @Test
     void processNodeInternal_shouldHandleExecutionFailure() {
-        when(nodeCommunicationService.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
-        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
+        when(nodeClient.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
+        when(nodeClient.executeNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
 
         assertThrows(NodeExecutionException.class, () ->
                 nodeProcessorService.processNode(node, sceneId, taskId));
@@ -126,7 +126,7 @@ class NodeProcessorServiceTest {
     void resolveInputs_shouldHandleEmptyInputs() {
         inputs.clear();
 
-        when(nodeCommunicationService.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
+        when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
         nodeProcessorService.processNode(node, sceneId, taskId);
 

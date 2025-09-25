@@ -12,9 +12,9 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-@Service
 @Slf4j
-public class NodeCommunicationService {
+@Service
+public class NodeClient {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${node.service.url}")
@@ -31,10 +31,7 @@ public class NodeCommunicationService {
     private <T> T executeNodeRequest(String endpoint, NodeData nodeData, Class<T> responseType) {
         try {
             log.debug("Executing request to node service: {}", endpoint);
-
-            ResponseEntity<T> response = restTemplate.postForEntity(
-                    nodeBaseUrl + endpoint, nodeData, responseType);
-
+            ResponseEntity<T> response = restTemplate.postForEntity(nodeBaseUrl + endpoint, nodeData, responseType);
             return response.getBody();
 
         } catch (HttpStatusCodeException e) {

@@ -13,25 +13,25 @@ import java.util.*;
 @Slf4j
 public class NodeProcessorService {
 
-    private final NodeCommunicationService nodeCommunicationService;
+    private final NodeClient nodeClient;
     private final NodeCacheService nodeCacheService;
 
     public void processNode(Node node, Long graphId, Long taskId) {
-        log.info("Started node: {} Scene: {} Task: {}", node.getId(), graphId, taskId);
+        log.info("Started node: {} Graph: {} Task: {}", node.getId(), graphId, taskId);
 
         Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
         Metadata meta = new Metadata(node.getId(), graphId, taskId, node.getType());
         NodeData nodeData = new NodeData(meta, resolvedInputs);
         node.setInputs(resolvedInputs);
 
-        NodeValidationResponse validationResponse = nodeCommunicationService.validateNode(nodeData);
+        NodeValidationResponse validationResponse = nodeClient.validateNode(nodeData);
         log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeData, validationResponse);
 
         String inputKey = getInputKey(taskId, node.getId());
         nodeCacheService.put(inputKey, node.getInputs());
 
         String outputKey = getOutputKey(taskId, node.getId());
-        NodeExecutionResponse executionResponse = nodeCommunicationService.executeNode(nodeData);
+        NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeData);
         log.info("Node {} Exec Output JSON | Response: {}", node.getId(), executionResponse);
 
         nodeCacheService.put(outputKey, executionResponse.getOutputs());
