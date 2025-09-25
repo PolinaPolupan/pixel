@@ -6,6 +6,5 @@ import lombok.ToString;
 @Data
 @ToString
 public class NodeValidationResponse {
-    private String status;
     private String error;
 }

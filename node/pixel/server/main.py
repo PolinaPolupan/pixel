@@ -50,11 +50,11 @@ async def validate(request: Request):
         node = get_node(data)
         node.validate_params(inputs)
 
-        return {"status": "ok"}
+        return {}
     except Exception as e:
         logger.error(f"Validation error: {str(e)}", exc_info=True)
         return JSONResponse(
-            content={"status": "not ok", "error": str(e)},
+            content={"error": str(e)},
             status_code=400
         )
 
@@ -68,7 +68,7 @@ async def exec_node(request: Request):
         node = get_node(data)
         outputs = node.exec_params(data)
 
-        return {"status": "ok", "outputs": outputs}
+        return {"outputs": outputs}
     except Exception as e:
         logger.error(f"Execution error: {str(e)}", exc_info=True)
         return JSONResponse(
@@ -80,11 +80,11 @@ async def exec_node(request: Request):
 async def load_nodes_endpoint():
     try:
         load_nodes_from_directory(os.environ.get('EXECUTION_GRAPH_DIR'))
-        return {"status": "ok", "loaded_nodes": list(NODE_REGISTRY.keys())}
+        return {"loaded_nodes": list(NODE_REGISTRY.keys())}
     except Exception as e:
         logger.error(f"Error loading nodes: {e}", exc_info=True)
         return JSONResponse(
-            content={"status": "error", "error": str(e)},
+            content={"error": str(e)},
             status_code=500
         )
 
