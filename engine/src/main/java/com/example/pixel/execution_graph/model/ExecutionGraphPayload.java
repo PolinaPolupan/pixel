@@ -1,4 +1,4 @@
-package com.example.pixel.execution.model;
+package com.example.pixel.execution_graph.model;
 
 import com.example.pixel.node.model.Node;
 import lombok.AllArgsConstructor;

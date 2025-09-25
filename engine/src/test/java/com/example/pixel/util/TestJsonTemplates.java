@@ -1,6 +1,6 @@
 package com.example.pixel.util;
 
-import com.example.pixel.execution.model.ExecutionGraph;
+import com.example.pixel.execution_graph.model.ExecutionGraph;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 

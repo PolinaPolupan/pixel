@@ -1,7 +1,7 @@
-package com.example.pixel.execution.service;
+package com.example.pixel.execution_graph.service;
 
-import com.example.pixel.execution.model.ExecutionGraph;
-import com.example.pixel.execution.model.ExecutionGraphRequest;
+import com.example.pixel.execution_graph.model.ExecutionGraph;
+import com.example.pixel.execution_graph.model.ExecutionGraphRequest;
 import com.example.pixel.node.model.Node;
 import com.example.pixel.node.service.NodeProcessorService;
 import com.example.pixel.common.service.NotificationService;

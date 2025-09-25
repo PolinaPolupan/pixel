@@ -1,8 +1,8 @@
-package com.example.pixel.execution;
+package com.example.pixel.execution_graph;
 
 import com.example.pixel.common.exception.InvalidGraphException;
 import com.example.pixel.common.exception.InvalidNodeInputException;
-import com.example.pixel.execution.model.ExecutionGraph;
+import com.example.pixel.execution_graph.model.ExecutionGraph;
 import com.example.pixel.node.model.Node;
 import com.example.pixel.node.model.NodeReference;
 import com.example.pixel.util.TestGraphFactory;

@@ -1,7 +1,7 @@
 package com.example.pixel.execution_task.service;
 
 import com.example.pixel.common.exception.TaskNotFoundException;
-import com.example.pixel.execution.model.ExecutionGraphRequest;
+import com.example.pixel.execution_graph.model.ExecutionGraphRequest;
 import com.example.pixel.execution_task.model.ExecutionTaskEntity;
 import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 import com.example.pixel.execution_task.repository.ExecutionTaskRepository;

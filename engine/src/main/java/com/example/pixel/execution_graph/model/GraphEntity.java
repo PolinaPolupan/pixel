@@ -1,4 +1,4 @@
-package com.example.pixel.execution.model;
+package com.example.pixel.execution_graph.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

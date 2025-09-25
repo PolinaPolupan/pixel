@@ -1,6 +1,6 @@
 package com.example.pixel.util;
 
-import com.example.pixel.execution.model.ExecutionGraphPayload;
+import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
 import com.example.pixel.node.model.Node;
 import com.example.pixel.node.model.NodeReference;
 
