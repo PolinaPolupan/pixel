@@ -4,6 +4,7 @@ import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 import com.example.pixel.execution_task.model.ExecutionTaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationService {
 
-    private final String processingTopic = "/topic/processing/";
-
+    @Value("${processing.topic}")
+    private String processingTopic;
     private final SimpMessagingTemplate messagingTemplate;
 
     public void sendTaskStatus(ExecutionTaskPayload task) {
