@@ -1,13 +1,17 @@
 package com.example.pixel.execution_graph.model;
 
+import com.example.pixel.node.model.Node;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -23,6 +27,10 @@ public class GraphEntity {
     private LocalDateTime createdAt;
 
     private LocalDateTime lastAccessed;
+
+    @Column(columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<Node> nodes;
 
     // Version for optimistic locking in distributed environments
     @JsonIgnore

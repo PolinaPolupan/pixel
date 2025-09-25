@@ -1,5 +1,6 @@
 package com.example.pixel.execution_graph.controller;
 
+import com.example.pixel.execution_graph.model.CreateExecutionGraphRequest;
 import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
 import com.example.pixel.execution_graph.model.ExecutionGraphRequest;
 import com.example.pixel.execution_graph.service.GraphExecutor;
@@ -19,8 +20,8 @@ public class ExecutionController {
     private final GraphService graphService;
 
     @PostMapping("/")
-    public ResponseEntity<ExecutionGraphPayload> create() {
-        ExecutionGraphPayload scene = graphService.createExecutionGraph();
+    public ResponseEntity<ExecutionGraphPayload> create(@RequestBody CreateExecutionGraphRequest createExecutionGraphRequest) {
+        ExecutionGraphPayload scene = graphService.createExecutionGraph(createExecutionGraphRequest);
         graphService.updateLastAccessed(scene.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(scene);
     }

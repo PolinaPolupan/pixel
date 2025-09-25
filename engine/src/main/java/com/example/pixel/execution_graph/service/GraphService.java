@@ -1,6 +1,7 @@
 package com.example.pixel.execution_graph.service;
 
 import com.example.pixel.common.exception.GraphNotFoundException;
+import com.example.pixel.execution_graph.model.CreateExecutionGraphRequest;
 import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
 import com.example.pixel.execution_graph.model.GraphEntity;
 import com.example.pixel.execution_graph.repository.GraphRepository;
@@ -9,18 +10,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 
 @RequiredArgsConstructor
 @Service
 public class GraphService {
     private final GraphRepository graphRepository;
 
-    public ExecutionGraphPayload createExecutionGraph() {
+    public ExecutionGraphPayload createExecutionGraph(CreateExecutionGraphRequest createExecutionGraphRequest) {
         GraphEntity graphModel = GraphEntity
                 .builder()
                 .createdAt(LocalDateTime.now())
                 .lastAccessed(LocalDateTime.now())
+                .nodes(createExecutionGraphRequest.getNodes())
                 .version(1L)
                 .build();
 
@@ -30,7 +31,7 @@ public class GraphService {
                 graphModel.getId(),
                 graphModel.getCreatedAt(),
                 graphModel.getLastAccessed(),
-                Collections.emptyList()
+                createExecutionGraphRequest.getNodes()
         );
     }
 
