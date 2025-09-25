@@ -46,5 +46,5 @@ export function useGraphTransformation(graphId) {
     });
 
     return {id: graphId, nodes: transformedNodes};
-  }, [getNodes, getEdges]);
+  }, [getNodes, getEdges, graphId]);
 }
