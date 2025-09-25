@@ -11,7 +11,7 @@ services:
       NODE_SERVICE_URL: ${NODE_SERVICE_URL}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     volumes:
-      - ../pixel:/app/pixel
+      - ../${DATA_DIR}:/app/${DATA_DIR}
     depends_on:
       - node
 
@@ -21,7 +21,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../pixel/execution_graph:/app/pixel/execution_graph
+      - ../${EXECUTION_GRAPH_DIR}:/app/${EXECUTION_GRAPH_DIR}
       - ../node/pixel:/app/pixel
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}

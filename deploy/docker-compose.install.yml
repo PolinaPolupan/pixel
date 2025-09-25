@@ -4,21 +4,23 @@ services:
     ports:
       - '8080:8080'
     environment:
-      APP_NAME: pixel-engine
-      STORAGE_DIRECTORY: /app/storage
-      NODE_SERVICE_URL: http://node:8000
+      APP_NAME: ${APP_NAME}
+      DATA_DIR: ${DATA_DIR}
+      DUMP_DIR: ${DUMP_DIR}
+      NODE_SERVICE_URL: ${NODE_SERVICE_URL}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     volumes:
-      - ./engine-storage:/app/storage
+      - ../${DATA_DIR}:/app/${DATA_DIR}
 
   node:
     image: polinapolupan/pixel-node:latest
     ports:
       - '8000:8000'
     environment:
-      ENGINE_SERVICE_URL: http://engine:8080
-      CUSTOM_NODES_DIR: ./custom_nodes
+      ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
+      EXECUTION_GRAPH_DIR: ${EXECUTION_GRAPH_DIR}
     volumes:
-      - ./custom_nodes:/app/custom_nodes
+      - ../${EXECUTION_GRAPH_DIR}:/app/${EXECUTION_GRAPH_DIR}
 
   frontend:
     image: polinapolupan/pixel-frontend:latest
