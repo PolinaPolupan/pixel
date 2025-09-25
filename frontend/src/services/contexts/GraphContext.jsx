@@ -44,10 +44,10 @@ export function GraphProvider({ children }) {
   };
 
   const value = {
-    graphId: graphId,
-    isSceneLoading: isGraphLoading,
-    graphError: graphError,
-    createNewGraph: createNewGraph,
+    graphId,
+    isGraphLoading,
+    graphError,
+    createNewGraph,
   };
 
   return (
