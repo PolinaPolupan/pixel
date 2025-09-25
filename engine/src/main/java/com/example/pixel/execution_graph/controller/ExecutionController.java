@@ -2,8 +2,6 @@ package com.example.pixel.execution_graph.controller;
 
 import com.example.pixel.execution_graph.model.CreateExecutionGraphRequest;
 import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
-import com.example.pixel.execution_graph.model.ExecutionGraphRequest;
-import com.example.pixel.execution_graph.service.GraphExecutor;
 import com.example.pixel.execution_graph.service.GraphService;
 import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 import lombok.RequiredArgsConstructor;
@@ -16,20 +14,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/graph")
 public class ExecutionController {
 
-    private final GraphExecutor graphExecutor;
     private final GraphService graphService;
 
     @PostMapping("/")
     public ResponseEntity<ExecutionGraphPayload> create(@RequestBody CreateExecutionGraphRequest createExecutionGraphRequest) {
-        ExecutionGraphPayload scene = graphService.createExecutionGraph(createExecutionGraphRequest);
-        graphService.updateLastAccessed(scene.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(scene);
+        ExecutionGraphPayload graph = graphService.createExecutionGraph(createExecutionGraphRequest);
+        graphService.updateLastAccessed(graph.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(graph);
     }
 
-    @PostMapping("/exec")
-    public ResponseEntity<ExecutionTaskPayload> execute(@RequestBody ExecutionGraphRequest executionGraphRequest) {
-        graphService.updateLastAccessed(executionGraphRequest.getId());
-        ExecutionTaskPayload task = graphExecutor.startExecution(executionGraphRequest);
+    @PostMapping("/{id}/exec")
+    public ResponseEntity<ExecutionTaskPayload> execute(@PathVariable Long id) {
+        graphService.updateLastAccessed(id);
+        ExecutionTaskPayload task = graphService.executeGraph(id);
         return ResponseEntity.ok(task);
     }
 }

@@ -41,7 +41,7 @@ public class ExecutionGraphTest {
         Node floorNode2 = new Node(4L, "Floor", floorParams);
         nodes.add(floorNode2);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(1L, nodes));
         assertTrue(exception.getMessage().contains("duplicate IDs"));
         assertTrue(exception.getMessage().contains("4"));
     }
@@ -217,7 +217,7 @@ public class ExecutionGraphTest {
         Node gaussianNode3 = new Node(3L, "GaussianBlur", gaussianParams3);
         nodes.add(gaussianNode3);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(1L, nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
@@ -235,7 +235,7 @@ public class ExecutionGraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(1L, nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
@@ -253,7 +253,7 @@ public class ExecutionGraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new ExecutionGraph(nodes));
+        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new ExecutionGraph(1L, nodes));
         assertTrue(exception.getMessage().contains("Invalid node reference: Node with id 10 is not found"));
     }
 }

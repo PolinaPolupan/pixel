@@ -12,12 +12,14 @@ import java.util.*;
 @Slf4j
 @Getter
 public class ExecutionGraph {
+    private final Long id;
     private final List<Node> nodes;
     private final List<Node> topologicalOrder = new ArrayList<>();
     private final Map<Long, Node> nodeMap = new HashMap<>();
     private final Map<Node, List<Node>> nodeOutputs = new HashMap<>();
 
-    public ExecutionGraph(List<Node> nodes) {
+    public ExecutionGraph(Long id, List<Node> nodes) {
+        this.id = id;
         this.nodes = nodes;
 
         // First populate the node map

@@ -1,7 +1,7 @@
 package com.example.pixel.execution_task.service;
 
 import com.example.pixel.common.exception.TaskNotFoundException;
-import com.example.pixel.execution_graph.model.ExecutionGraphRequest;
+import com.example.pixel.execution_graph.model.ExecutionGraph;
 import com.example.pixel.execution_task.model.ExecutionTaskEntity;
 import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 import com.example.pixel.execution_task.repository.ExecutionTaskRepository;
@@ -36,12 +36,12 @@ public class ExecutionTaskService {
     }
 
     @Transactional
-    public ExecutionTaskPayload createTask(ExecutionGraphRequest executionGraphRequest) {
-        log.debug("Creating task for graph {}", executionGraphRequest.getId());
+    public ExecutionTaskPayload createTask(ExecutionGraph executionGraph) {
+        log.debug("Creating task for graph {}", executionGraph.getId());
         ExecutionTaskEntity executionTaskEntity = new ExecutionTaskEntity();
-        executionTaskEntity.setGraphId(executionGraphRequest.getId());
+        executionTaskEntity.setGraphId(executionGraph.getId());
         executionTaskEntity.setStatus(ExecutionTaskStatus.PENDING);
-        executionTaskEntity.setTotalNodes(executionGraphRequest.getNodes().size());
+        executionTaskEntity.setTotalNodes(executionGraph.getNodes().size());
         executionTaskEntity.setProcessedNodes(0);
         return ExecutionTaskPayload.fromEntity(executionTaskRepository.save(executionTaskEntity));
     }

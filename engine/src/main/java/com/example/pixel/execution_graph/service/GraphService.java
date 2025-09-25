@@ -2,9 +2,11 @@ package com.example.pixel.execution_graph.service;
 
 import com.example.pixel.common.exception.GraphNotFoundException;
 import com.example.pixel.execution_graph.model.CreateExecutionGraphRequest;
+import com.example.pixel.execution_graph.model.ExecutionGraph;
 import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
 import com.example.pixel.execution_graph.model.GraphEntity;
 import com.example.pixel.execution_graph.repository.GraphRepository;
+import com.example.pixel.execution_task.model.ExecutionTaskPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Service
 public class GraphService {
+
+    private final GraphExecutor graphExecutor;
     private final GraphRepository graphRepository;
 
     public ExecutionGraphPayload createExecutionGraph(CreateExecutionGraphRequest createExecutionGraphRequest) {
@@ -33,6 +37,14 @@ public class GraphService {
                 graphModel.getLastAccessed(),
                 createExecutionGraphRequest.getNodes()
         );
+    }
+
+    public ExecutionTaskPayload executeGraph(Long id) {
+        GraphEntity graphEntity = graphRepository.findById(id)
+                .orElseThrow(() -> new GraphNotFoundException("Graph with id: " + id + " not found"));
+
+        ExecutionGraph executionGraph = graphEntity.toExecutionGraph();
+        return graphExecutor.startExecution(executionGraph);
     }
 
     @Transactional

@@ -17,6 +17,6 @@ public class ExecutionGraphPayload {
     private List<Node> nodes;
 
     public ExecutionGraph toExecutionGraph() {
-        return new ExecutionGraph(nodes);
+        return new ExecutionGraph(id, nodes);
     }
 }

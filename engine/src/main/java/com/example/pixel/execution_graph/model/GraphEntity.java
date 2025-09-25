@@ -36,4 +36,8 @@ public class GraphEntity {
     @JsonIgnore
     @Version
     private Long version;
+
+    public ExecutionGraph toExecutionGraph() {
+        return new ExecutionGraph(id, nodes);
+    }
 }
