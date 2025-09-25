@@ -2,16 +2,15 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { useReactFlow, useStoreApi } from '@xyflow/react';
 import { useNodesApi } from '../../hooks/useNodesApi.js';
 import '../../styles/App.css';
+import {useCreateNode} from "../../hooks/useCreateNode.js";
 
 const NodeTypesPanel = () => {
     const { getNodes, addNodes, screenToFlowPosition } = useReactFlow();
     const store = useStoreApi();
+    const { createNode } = useCreateNode();
 
-    // Single API call
     const {
         nodesGroupedByCategory,
-        getDefaultInputs,
-        nodesConfig,
         isLoading,
         error
     } = useNodesApi();
@@ -60,28 +59,10 @@ const NodeTypesPanel = () => {
         };
     }, [screenToFlowPosition, store]);
 
-    const createNode = (type) => {
-        const nodeIds = getNodes().map(node => parseInt(node.id));
-        const newId = (Math.max(...nodeIds, 0) + 1).toString();
-        const { position } = getViewportCenterNode();
-
-        addNodes({
-            id: newId,
-            type,
-            position,
-            data: {
-                ...getDefaultInputs(type),
-                config: nodesConfig[type]
-            }
-        });
-    };
-
-    // Loading state
     if (isLoading) {
         return <div className="node-types-panel">Loading node types...</div>;
     }
 
-    // Error state
     if (error) {
         return (
             <div className="node-types-panel" style={{ color: '#ff6b6b' }}>
@@ -126,7 +107,7 @@ const NodeTypesPanel = () => {
                                 return (
                                     <div
                                         key={type}
-                                        onClick={() => createNode(type)}
+                                        onClick={() => createNode(type, getViewportCenterNode().position)}
                                         className="node-item"
                                         style={{
                                             border: `1px solid ${display.color}22`

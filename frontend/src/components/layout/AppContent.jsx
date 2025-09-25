@@ -12,6 +12,7 @@ import { useGraphExecution } from "../../hooks/useGraphExecution.js";
 import { useNotification } from "../../services/contexts/NotificationContext.jsx";
 import {useGraphTransformation} from "../../hooks/useGraphTransformation.js";
 import {useGraph} from "../../services/contexts/GraphContext.jsx";
+import {useCreateNode} from "../../hooks/useCreateNode.js";
 
 function AppContent() {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -20,11 +21,8 @@ function AppContent() {
     const { error, success, clearError, clearSuccess } = useNotification();
     const { screenToFlowPosition, getNodes, addNodes } = useReactFlow();
     const [contextMenu, setContextMenu] = useState(null);
-
-    // Get node configurations
-    const { nodesConfig, nodeReactComponents, getHandleType, canCastType, getDefaultInputs, isLoading } = useNodesApi();
-
-    // Graph execution
+    const { createNode } = useCreateNode();
+    const {  nodeReactComponents, getHandleType, canCastType, isLoading } = useNodesApi();
     const { graphId } = useGraph();
     const buildGraphBody = useGraphTransformation(graphId);
     const { isProcessing, executeGraph } = useGraphExecution(buildGraphBody);
@@ -46,22 +44,6 @@ function AppContent() {
 
     // Connect nodes
     const onConnect = useCallback((params) => setEdges(els => addEdge(params, els)), []);
-
-    // Create new node
-    const createNode = useCallback((type, position) => {
-        const nodeIds = getNodes().map(n => parseInt(n.id));
-        const newId = (Math.max(...nodeIds, 0) + 1).toString();
-
-        addNodes({
-            id: newId,
-            type,
-            position,
-            data: {
-                ...getDefaultInputs(type),
-                config: nodesConfig[type]
-            }
-        });
-    }, [getNodes, addNodes, getDefaultInputs, nodesConfig]);
 
     // Handle right-click context menu
     const onContextMenu = useCallback((event) => {
