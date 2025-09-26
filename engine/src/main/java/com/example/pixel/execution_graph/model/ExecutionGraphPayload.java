@@ -1,6 +1,6 @@
 package com.example.pixel.execution_graph.model;
 
-import com.example.pixel.node.model.Node;
+import com.example.pixel.node.model.NodePayload;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,9 +14,9 @@ public class ExecutionGraphPayload {
     private Long id;
     private LocalDateTime createdAt;
     private LocalDateTime lastAccessed;
-    private List<Node> nodes;
+    private List<NodePayload> nodes;
 
     public ExecutionGraph toExecutionGraph() {
-        return new ExecutionGraph(id, nodes);
+        return new ExecutionGraph(id, nodes.stream().map(NodePayload::toNode).toList());
     }
 }

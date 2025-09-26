@@ -1,6 +1,6 @@
 package com.example.pixel.execution_graph.model;
 
-import com.example.pixel.node.model.Node;
+import com.example.pixel.node.model.NodePayload;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,7 +30,7 @@ public class GraphEntity {
 
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<Node> nodes;
+    private List<NodePayload> nodes;
 
     // Version for optimistic locking in distributed environments
     @JsonIgnore
@@ -38,6 +38,6 @@ public class GraphEntity {
     private Long version;
 
     public ExecutionGraph toExecutionGraph() {
-        return new ExecutionGraph(id, nodes);
+        return new ExecutionGraph(id, nodes.stream().map(NodePayload::toNode).toList());
     }
 }
