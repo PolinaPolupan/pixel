@@ -2,6 +2,7 @@ package com.example.pixel.graph_execution.executor;
 
 import com.example.pixel.graph.model.Graph;
 import com.example.pixel.node.model.Node;
+import com.example.pixel.node_execution.dto.NodeClientData;
 import com.example.pixel.node_execution.executor.NodeExecutor;
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
@@ -52,7 +53,9 @@ public class GraphExecutor {
                 Node node = iterator.next();
                 log.debug("Processing node id={} for taskId={}", node.getId(), taskId);
 
-                nodeExecutor.execute(node, graph.getId(), taskId);
+                NodeClientData data = nodeExecutor.setup(node, taskId);
+                nodeExecutor.validate(data);
+                nodeExecutor.execute(data);
 
                 processedNodes++;
                 log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodes().size());

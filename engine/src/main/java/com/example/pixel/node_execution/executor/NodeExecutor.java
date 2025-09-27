@@ -22,55 +22,60 @@ public class NodeExecutor {
     private final NodeClient nodeClient;
     private final NodeCache nodeCache;
 
-    public void execute(Node node, Long graphId, Long taskId) {
-        log.info("Started node: {} Graph: {} Task: {}", node.getId(), graphId, taskId);
-
-        Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
-        Metadata meta = new Metadata(node.getId(), graphId, taskId, node.getType());
-        NodeClientData nodeClientData = new NodeClientData(meta, resolvedInputs);
+    public NodeClientData setup(Node node, Long graphExecutionId) {
+        Map<String, Object> resolvedInputs = resolveInputs(node, graphExecutionId);
         node.setInputs(resolvedInputs);
 
-        NodeValidationResponse validationResponse = nodeClient.validateNode(nodeClientData);
-        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeClientData, validationResponse);
+        Metadata meta = new Metadata(node.getType(), node.getId(), graphExecutionId);
 
-        String inputKey = getInputKey(taskId, node.getId());
-        nodeCache.put(inputKey, node.getInputs());
-
-        String outputKey = getOutputKey(taskId, node.getId());
-        NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeClientData);
-        log.info("Node {} Exec Output JSON | Response: {}", node.getId(), executionResponse);
-
-        nodeCache.put(outputKey, executionResponse.getOutputs());
+        return new NodeClientData(meta, resolvedInputs);
     }
 
+    public void execute(NodeClientData nodeClientData) {
+        NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeClientData);
 
-    private Map<String, Object> resolveInputs(Node node, Long taskId) {
+        String outputKey = getOutputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
+        nodeCache.put(outputKey, executionResponse.getOutputs());
+
+        log.info("Node {} Exec Output JSON | Response: {}", nodeClientData.getMeta().getNodeId(), executionResponse);
+    }
+
+    public void validate(NodeClientData nodeClientData) {
+        NodeValidationResponse validationResponse = nodeClient.validateNode(nodeClientData);
+
+        String inputKey = getInputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
+        nodeCache.put(inputKey, nodeClientData.getInputs());
+
+        log.info("Node {} Validation Input JSON: {} | Response: {}", nodeClientData.getMeta().getNodeId(), nodeClientData, validationResponse);
+    }
+
+    private Map<String, Object> resolveInputs(Node node, Long graphExecutionId) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
         for (String key: node.getInputs().keySet()) {
-            resolvedInputs.put(key, resolveInput(node, taskId, key));
+            resolvedInputs.put(key, resolveInput(node, graphExecutionId, key));
         }
 
         return resolvedInputs;
     }
 
-    private Object resolveInput(Node node, Long taskId, String key) {
+    private Object resolveInput(Node node, Long graphExecutionId, String key) {
         Object input = node.getInputs().get(key);
 
         if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, taskId);
+            input = resolveReference((NodeReference) input, graphExecutionId);
         }
 
         return input;
     }
 
-    private Object resolveReference(NodeReference reference, Long taskId) {
+    private Object resolveReference(NodeReference reference, Long graphExecutionId) {
         String output = reference.getOutputName();
-        String cacheKey = getOutputKey(taskId, reference.getNodeId());
+        String cacheKey = getOutputKey(graphExecutionId, reference.getNodeId());
 
         if (!nodeCache.exists(cacheKey)) {
             throw new NodeExecutionException(
-                    "Missing cache for node " + reference.getNodeId() + " in task " + taskId
+                    "Missing cache for node " + reference.getNodeId() + " in task " + graphExecutionId
             );
         }
 
@@ -78,18 +83,18 @@ public class NodeExecutor {
 
         if (!outputMap.containsKey(output)) {
             throw new NodeExecutionException(
-                    "Output '" + output + "' not found in node " + reference.getNodeId() + " for task " + taskId
+                    "Output '" + output + "' not found in node " + reference.getNodeId() + " for task " + graphExecutionId
             );
         }
 
         return outputMap.get(output);
     }
 
-    private String getOutputKey(Long taskId, Long nodeId) {
-        return taskId + ":" + nodeId + ":output";
+    private String getOutputKey(Long graphExecutionId, Long nodeId) {
+        return graphExecutionId + ":" + nodeId + ":output";
     }
 
-    private String getInputKey(Long taskId, Long nodeId) {
-        return taskId + ":" + nodeId + ":input";
+    private String getInputKey(Long graphExecutionId, Long nodeId) {
+        return graphExecutionId + ":" + nodeId + ":input";
     }
 }

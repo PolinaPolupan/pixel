@@ -11,8 +11,7 @@ import lombok.ToString;
 @ToString
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Metadata {
-    private Long nodeId;
-    private Long sceneId;
-    private Long taskId;
     private String type;
+    private Long nodeId;
+    private Long graphExecutionId;
 }

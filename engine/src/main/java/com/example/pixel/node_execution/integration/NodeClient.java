@@ -35,12 +35,11 @@ public class NodeClient {
             return response.getBody();
 
         } catch (HttpStatusCodeException e) {
-            log.error("Node execution with id: {} type: {} failed with status {}: {}",
-                    nodeClientData.getMeta().getNodeId(), nodeClientData.getMeta().getType(), e.getStatusCode(), e.getResponseBodyAsString());
+            log.error("Node execution with id: {} failed with status {}: {}",
+                    nodeClientData.getMeta().getNodeId(), e.getStatusCode(), e.getResponseBodyAsString());
 
             throw new NodeExecutionException(
-                    "Node execution with id: " + nodeClientData.getMeta().getNodeId() +  " type: "
-                            + nodeClientData.getMeta().getType() + " failed: " + e.getResponseBodyAsString(), e);
+                    "Node execution with id: " + nodeClientData.getMeta().getNodeId() + " failed: " + e.getResponseBodyAsString(), e);
 
         } catch (ResourceAccessException e) {
             log.error("Connection issue with node service: {}", e.getMessage());
