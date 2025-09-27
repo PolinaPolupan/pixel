@@ -6,7 +6,7 @@ import com.example.pixel.graph.model.Graph;
 import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph.entity.GraphEntity;
 import com.example.pixel.graph.repository.GraphRepository;
-import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
+import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,7 @@ public class GraphService {
         );
     }
 
-    public ExecutionTaskPayload executeGraph(Long id) {
+    public GraphExecutionPayload executeGraph(Long id) {
         GraphEntity graphEntity = graphRepository.findById(id)
                 .orElseThrow(() -> new GraphNotFoundException("Graph with id: " + id + " not found"));
 

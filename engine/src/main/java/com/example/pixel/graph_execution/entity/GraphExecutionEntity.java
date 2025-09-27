@@ -1,6 +1,6 @@
-package com.example.pixel.execution_task.entity;
+package com.example.pixel.graph_execution.entity;
 
-import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
+import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "execution_tasks")
-public class ExecutionTaskEntity {
+@Table(name = "graph_executions")
+public class GraphExecutionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,7 +20,7 @@ public class ExecutionTaskEntity {
     private Long graphId;
 
     @Enumerated(EnumType.STRING)
-    private ExecutionTaskStatus status;
+    private GraphExecutionStatus status;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;

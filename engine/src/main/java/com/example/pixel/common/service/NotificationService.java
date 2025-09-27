@@ -1,7 +1,7 @@
 package com.example.pixel.common.service;
 
-import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
-import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
+import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
+import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +18,10 @@ public class NotificationService {
     private String processingTopic;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public void sendTaskStatus(ExecutionTaskPayload task) {
+    public void sendTaskStatus(GraphExecutionPayload task) {
         try {
             String destination = processingTopic + task.getId();
-            ExecutionTaskStatus status = task.getStatus();
+            GraphExecutionStatus status = task.getStatus();
 
             messagingTemplate.convertAndSend(destination, task);
 

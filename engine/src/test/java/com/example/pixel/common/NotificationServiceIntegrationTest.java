@@ -2,9 +2,9 @@ package com.example.pixel.common;
 
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.config.TestCacheConfig;
-import com.example.pixel.execution_task.entity.ExecutionTaskEntity;
-import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
-import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
+import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
+import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
+import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,11 +51,11 @@ class NotificationServiceIntegrationTest {
     private final Long taskId = 1L;
     private final Long sceneId = 1L;
     private final String processingTopic = "/topic/processing/" + taskId;
-    private ExecutionTaskEntity executionTaskEntity;
+    private GraphExecutionEntity graphExecutionEntity;
 
     @BeforeEach
     void setupConnection() throws ExecutionException, InterruptedException, TimeoutException {
-        executionTaskEntity = new ExecutionTaskEntity();
+        graphExecutionEntity = new GraphExecutionEntity();
         String wsUrl = "ws://localhost:" + port + "/ws";
         WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransportClient()));
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
@@ -95,19 +95,19 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        executionTaskEntity.setId(taskId);
-        executionTaskEntity.setId(sceneId);
-        executionTaskEntity.setStatus(ExecutionTaskStatus.RUNNING);
-        executionTaskEntity.setProcessedNodes(7);
-        executionTaskEntity.setTotalNodes(10);
+        graphExecutionEntity.setId(taskId);
+        graphExecutionEntity.setId(sceneId);
+        graphExecutionEntity.setStatus(GraphExecutionStatus.RUNNING);
+        graphExecutionEntity.setProcessedNodes(7);
+        graphExecutionEntity.setTotalNodes(10);
 
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
+        notificationService.sendTaskStatus(GraphExecutionPayload.fromEntity(graphExecutionEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
         assertNotNull(result);
         assertEquals(sceneId.longValue(), ((Number) result.get("sceneId")).longValue());
-        assertEquals(ExecutionTaskStatus.RUNNING.toString(), result.get("status"));
+        assertEquals(GraphExecutionStatus.RUNNING.toString(), result.get("status"));
         assertEquals(7, ((Number) result.get("processedNodes")).intValue());
         assertEquals(10, ((Number) result.get("totalNodes")).intValue());
     }
@@ -132,16 +132,16 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        executionTaskEntity.setId(taskId);
-        executionTaskEntity.setId(sceneId);
-        executionTaskEntity.setStatus(ExecutionTaskStatus.COMPLETED);
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
+        graphExecutionEntity.setId(taskId);
+        graphExecutionEntity.setId(sceneId);
+        graphExecutionEntity.setStatus(GraphExecutionStatus.COMPLETED);
+        notificationService.sendTaskStatus(GraphExecutionPayload.fromEntity(graphExecutionEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
         assertNotNull(result);
         assertEquals(sceneId.longValue(), ((Number) result.get("sceneId")).longValue());
-        assertEquals(ExecutionTaskStatus.COMPLETED.toString(), result.get("status"));
+        assertEquals(GraphExecutionStatus.COMPLETED.toString(), result.get("status"));
     }
 
     @Test
@@ -163,17 +163,17 @@ class NotificationServiceIntegrationTest {
 
         Thread.sleep(300);
 
-        executionTaskEntity.setId(taskId);
-        executionTaskEntity.setId(sceneId);
-        executionTaskEntity.setStatus(ExecutionTaskStatus.FAILED);
-        executionTaskEntity.setErrorMessage(errorMessage);
-        notificationService.sendTaskStatus(ExecutionTaskPayload.fromEntity(executionTaskEntity));
+        graphExecutionEntity.setId(taskId);
+        graphExecutionEntity.setId(sceneId);
+        graphExecutionEntity.setStatus(GraphExecutionStatus.FAILED);
+        graphExecutionEntity.setErrorMessage(errorMessage);
+        notificationService.sendTaskStatus(GraphExecutionPayload.fromEntity(graphExecutionEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
         assertNotNull(result);
         assertEquals(sceneId.longValue(), ((Number) result.get("sceneId")).longValue());
-        assertEquals(ExecutionTaskStatus.FAILED.toString(), result.get("status"));
+        assertEquals(GraphExecutionStatus.FAILED.toString(), result.get("status"));
         assertEquals(errorMessage, result.get("errorMessage"));
     }
 }
