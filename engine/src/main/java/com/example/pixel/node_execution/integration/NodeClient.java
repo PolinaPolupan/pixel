@@ -1,7 +1,7 @@
 package com.example.pixel.node_execution.integration;
 
 import com.example.pixel.common.exception.NodeExecutionException;
-import com.example.pixel.node.dto.NodeClientData;
+import com.example.pixel.node_execution.dto.NodeClientData;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
 import com.example.pixel.node_execution.dto.NodeValidationResponse;
 import lombok.extern.slf4j.Slf4j;

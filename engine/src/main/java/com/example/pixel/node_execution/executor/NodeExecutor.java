@@ -1,8 +1,8 @@
 package com.example.pixel.node_execution.executor;
 
 import com.example.pixel.common.exception.NodeExecutionException;
-import com.example.pixel.node.dto.Metadata;
-import com.example.pixel.node.dto.NodeClientData;
+import com.example.pixel.node_execution.dto.Metadata;
+import com.example.pixel.node_execution.dto.NodeClientData;
 import com.example.pixel.node_execution.cache.NodeCache;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
 import com.example.pixel.node_execution.dto.NodeValidationResponse;
