@@ -1,6 +1,6 @@
-package com.example.pixel.execution_graph.entity;
+package com.example.pixel.graph.entity;
 
-import com.example.pixel.execution_graph.model.ExecutionGraph;
+import com.example.pixel.graph.model.Graph;
 import com.example.pixel.node.dto.NodePayload;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -38,7 +38,7 @@ public class GraphEntity {
     @Version
     private Long version;
 
-    public ExecutionGraph toExecutionGraph() {
-        return new ExecutionGraph(id, nodes.stream().map(NodePayload::toNode).toList());
+    public Graph toGraph() {
+        return new Graph(id, nodes.stream().map(NodePayload::toNode).toList());
     }
 }

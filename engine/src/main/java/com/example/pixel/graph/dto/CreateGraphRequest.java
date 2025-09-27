@@ -1,4 +1,4 @@
-package com.example.pixel.execution_graph.dto;
+package com.example.pixel.graph.dto;
 
 import com.example.pixel.node.dto.NodePayload;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,6 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class CreateExecutionGraphRequest {
+public class CreateGraphRequest {
     private List<NodePayload> nodes;
 }

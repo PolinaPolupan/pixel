@@ -1,15 +1,15 @@
-package com.example.pixel.execution_graph.model;
+package com.example.pixel.graph.model;
 
 import com.example.pixel.node.model.Node;
 
 import java.util.*;
 
-public class ExecutionGraphIterator implements Iterator<Node> {
+public class GraphIterator implements Iterator<Node> {
     private final List<Node> topologicalOrder;
     private int currentIndex;
 
-    public ExecutionGraphIterator(ExecutionGraph executionGraph) {
-        this.topologicalOrder = executionGraph.getTopologicalOrder();
+    public GraphIterator(Graph graph) {
+        this.topologicalOrder = graph.getTopologicalOrder();
         this.currentIndex = 0;
     }
 

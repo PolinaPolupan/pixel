@@ -1,4 +1,4 @@
-package com.example.pixel.execution_graph.model;
+package com.example.pixel.graph.model;
 
 import com.example.pixel.common.exception.InvalidGraphException;
 import com.example.pixel.common.exception.InvalidNodeInputException;
@@ -11,14 +11,14 @@ import java.util.*;
 
 @Slf4j
 @Getter
-public class ExecutionGraph {
+public class Graph {
     private final Long id;
     private final List<Node> nodes;
     private final List<Node> topologicalOrder = new ArrayList<>();
     private final Map<Long, Node> nodeMap = new HashMap<>();
     private final Map<Node, List<Node>> nodeOutputs = new HashMap<>();
 
-    public ExecutionGraph(Long id, List<Node> nodes) {
+    public Graph(Long id, List<Node> nodes) {
         this.id = id;
         this.nodes = nodes;
 
@@ -36,7 +36,7 @@ public class ExecutionGraph {
     }
 
     public Iterator<Node> iterator() {
-        return new ExecutionGraphIterator(this);
+        return new GraphIterator(this);
     }
 
     private void mapOutputNodes(Node node) {

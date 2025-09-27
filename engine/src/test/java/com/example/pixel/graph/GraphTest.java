@@ -1,8 +1,8 @@
-package com.example.pixel.execution_graph;
+package com.example.pixel.graph;
 
 import com.example.pixel.common.exception.InvalidGraphException;
 import com.example.pixel.common.exception.InvalidNodeInputException;
-import com.example.pixel.execution_graph.model.ExecutionGraph;
+import com.example.pixel.graph.model.Graph;
 import com.example.pixel.node.model.Node;
 import com.example.pixel.node.model.NodeReference;
 import com.example.pixel.util.TestGraphFactory;
@@ -16,17 +16,17 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class ExecutionGraphTest {
+public class GraphTest {
 
     private final Long sceneId = 1L;
 
     @Test
     void  constructValidGraph_shouldSucceed() {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId).toExecutionGraph();
+        Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
 
-        assertNotNull(executionGraph);
-        assertEquals(8, executionGraph.getNodes().size());
-        assertEquals(8, executionGraph.getTopologicalOrder().size());
+        assertNotNull(graph);
+        assertEquals(8, graph.getNodes().size());
+        assertEquals(8, graph.getTopologicalOrder().size());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class ExecutionGraphTest {
         Node floorNode2 = new Node(4L, "Floor", floorParams);
         nodes.add(floorNode2);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(1L, nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodes));
         assertTrue(exception.getMessage().contains("duplicate IDs"));
         assertTrue(exception.getMessage().contains("4"));
     }
@@ -49,11 +49,11 @@ public class ExecutionGraphTest {
     @Test
     void nodeOutputs_shouldBeCorrectlyIdentified() {
         // Create a graph with the template nodes
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId).toExecutionGraph();
-        List<Node> nodes = executionGraph.getNodes();
+        Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
+        List<Node> nodes = graph.getNodes();
 
         // Get the node outputs map
-        Map<Node, List<Node>> nodeOutputs = executionGraph.getNodeOutputs();
+        Map<Node, List<Node>> nodeOutputs = graph.getNodeOutputs();
 
         // Reference nodes by their index in the list for clarity
         Node inputNode = nodes.get(0);      // Input node (id: 1)
@@ -98,11 +98,11 @@ public class ExecutionGraphTest {
 
     @Test
     void topologicalSort_shouldProduceCorrectOrdering() {
-        ExecutionGraph executionGraph = TestGraphFactory.getDefaultGraph(sceneId).toExecutionGraph();
-        List<Node> nodes = executionGraph.getNodes();
+        Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
+        List<Node> nodes = graph.getNodes();
 
         // Get the topological ordering
-        List<Node> topologicalOrder = executionGraph.getTopologicalOrder();
+        List<Node> topologicalOrder = graph.getTopologicalOrder();
 
         // Verify the size matches the number of nodes
         assertEquals(8, topologicalOrder.size(), "Topological order should contain all nodes");
@@ -217,7 +217,7 @@ public class ExecutionGraphTest {
         Node gaussianNode3 = new Node(3L, "GaussianBlur", gaussianParams3);
         nodes.add(gaussianNode3);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(1L, nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
@@ -235,7 +235,7 @@ public class ExecutionGraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new ExecutionGraph(1L, nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodes));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
@@ -253,7 +253,7 @@ public class ExecutionGraphTest {
         Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
         nodes.add(gaussianNode);
 
-        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new ExecutionGraph(1L, nodes));
+        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new Graph(1L, nodes));
         assertTrue(exception.getMessage().contains("Invalid node reference: Node with id 10 is not found"));
     }
 }

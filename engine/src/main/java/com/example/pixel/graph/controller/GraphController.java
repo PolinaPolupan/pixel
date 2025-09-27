@@ -1,8 +1,8 @@
-package com.example.pixel.execution_graph.controller;
+package com.example.pixel.graph.controller;
 
-import com.example.pixel.execution_graph.dto.CreateExecutionGraphRequest;
-import com.example.pixel.execution_graph.dto.ExecutionGraphPayload;
-import com.example.pixel.execution_graph.service.GraphService;
+import com.example.pixel.graph.dto.CreateGraphRequest;
+import com.example.pixel.graph.dto.GraphPayload;
+import com.example.pixel.graph.service.GraphService;
 import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/graph")
-public class ExecutionController {
+public class GraphController {
 
     private final GraphService graphService;
 
     @PostMapping("/")
-    public ResponseEntity<ExecutionGraphPayload> create(@RequestBody CreateExecutionGraphRequest createExecutionGraphRequest) {
-        ExecutionGraphPayload graph = graphService.createExecutionGraph(createExecutionGraphRequest);
+    public ResponseEntity<GraphPayload> create(@RequestBody CreateGraphRequest createGraphRequest) {
+        GraphPayload graph = graphService.createGraph(createGraphRequest);
         graphService.updateLastAccessed(graph.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(graph);
     }

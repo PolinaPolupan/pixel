@@ -1,6 +1,6 @@
 package com.example.pixel.util;
 
-import com.example.pixel.execution_graph.model.ExecutionGraph;
+import com.example.pixel.graph.model.Graph;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 
@@ -69,15 +69,15 @@ public class TestJsonTemplates {
         return applyPlaceholders(template, replacements);
     }
 
-    public static ExecutionGraph deserializeGraphJson(String jsonString) {
+    public static Graph deserializeGraphJson(String jsonString) {
         try {
-            return objectMapper.readValue(jsonString, ExecutionGraph.class);
+            return objectMapper.readValue(jsonString, Graph.class);
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize graph JSON: " + e.getMessage(), e);
         }
     }
 
-    public static ExecutionGraph loadGraph(String templatePath, Long sceneId, LocalStackContainer localstack) {
+    public static Graph loadGraph(String templatePath, Long sceneId, LocalStackContainer localstack) {
         String graphJson = getGraphJsonWithTestCredentials(templatePath, sceneId, localstack);
         return deserializeGraphJson(graphJson);
     }

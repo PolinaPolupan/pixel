@@ -1,6 +1,6 @@
-package com.example.pixel.execution_graph.dto;
+package com.example.pixel.graph.dto;
 
-import com.example.pixel.execution_graph.model.ExecutionGraph;
+import com.example.pixel.graph.model.Graph;
 import com.example.pixel.node.dto.NodePayload;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,13 +11,13 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ExecutionGraphPayload {
+public class GraphPayload {
     private Long id;
     private LocalDateTime createdAt;
     private LocalDateTime lastAccessed;
     private List<NodePayload> nodes;
 
-    public ExecutionGraph toExecutionGraph() {
-        return new ExecutionGraph(id, nodes.stream().map(NodePayload::toNode).toList());
+    public Graph toGraph() {
+        return new Graph(id, nodes.stream().map(NodePayload::toNode).toList());
     }
 }

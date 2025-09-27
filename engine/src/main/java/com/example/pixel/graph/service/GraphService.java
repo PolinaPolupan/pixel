@@ -1,11 +1,11 @@
-package com.example.pixel.execution_graph.service;
+package com.example.pixel.graph.service;
 
 import com.example.pixel.common.exception.GraphNotFoundException;
-import com.example.pixel.execution_graph.dto.CreateExecutionGraphRequest;
-import com.example.pixel.execution_graph.model.ExecutionGraph;
-import com.example.pixel.execution_graph.dto.ExecutionGraphPayload;
-import com.example.pixel.execution_graph.entity.GraphEntity;
-import com.example.pixel.execution_graph.repository.GraphRepository;
+import com.example.pixel.graph.dto.CreateGraphRequest;
+import com.example.pixel.graph.model.Graph;
+import com.example.pixel.graph.dto.GraphPayload;
+import com.example.pixel.graph.entity.GraphEntity;
+import com.example.pixel.graph.repository.GraphRepository;
 import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,21 +20,21 @@ public class GraphService {
     private final GraphExecutor graphExecutor;
     private final GraphRepository graphRepository;
 
-    public ExecutionGraphPayload createExecutionGraph(CreateExecutionGraphRequest createExecutionGraphRequest) {
+    public GraphPayload createGraph(CreateGraphRequest createGraphRequest) {
         GraphEntity graphModel = GraphEntity
                 .builder()
                 .createdAt(LocalDateTime.now())
                 .lastAccessed(LocalDateTime.now())
-                .nodes(createExecutionGraphRequest.getNodes())
+                .nodes(createGraphRequest.getNodes())
                 .build();
 
         graphModel = graphRepository.save(graphModel);
 
-        return new ExecutionGraphPayload(
+        return new GraphPayload(
                 graphModel.getId(),
                 graphModel.getCreatedAt(),
                 graphModel.getLastAccessed(),
-                createExecutionGraphRequest.getNodes()
+                createGraphRequest.getNodes()
         );
     }
 
@@ -42,8 +42,8 @@ public class GraphService {
         GraphEntity graphEntity = graphRepository.findById(id)
                 .orElseThrow(() -> new GraphNotFoundException("Graph with id: " + id + " not found"));
 
-        ExecutionGraph executionGraph = graphEntity.toExecutionGraph();
-        return graphExecutor.startExecution(executionGraph);
+        Graph graph = graphEntity.toGraph();
+        return graphExecutor.startExecution(graph);
     }
 
     @Transactional
