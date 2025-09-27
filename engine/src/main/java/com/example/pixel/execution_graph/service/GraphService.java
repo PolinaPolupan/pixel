@@ -26,7 +26,6 @@ public class GraphService {
                 .createdAt(LocalDateTime.now())
                 .lastAccessed(LocalDateTime.now())
                 .nodes(createExecutionGraphRequest.getNodes())
-                .version(1L)
                 .build();
 
         graphModel = graphRepository.save(graphModel);
