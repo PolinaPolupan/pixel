@@ -1,9 +1,11 @@
 package com.example.pixel.node.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Map;
 
+@AllArgsConstructor
 @Getter
 public class NodeConfiguration {
     private String type;

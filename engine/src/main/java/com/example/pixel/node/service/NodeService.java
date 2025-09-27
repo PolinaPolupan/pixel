@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -35,5 +38,18 @@ public class NodeService {
                 .build();
 
         return repository.save(nodeEntity);
+    }
+
+    public Map<String, NodeConfiguration> getAllActiveNodes() {
+        List<NodeEntity> activeNodes = repository.findByActiveTrue();
+
+        Map<String, NodeConfiguration> result = new HashMap<>();
+        for (NodeEntity node: activeNodes) {
+            result.put(
+                    node.getType(),
+                    new NodeConfiguration(node.getType(), node.getInputs(), node.getOutputs(), node.getDisplay())
+            );
+        }
+        return result;
     }
 }
