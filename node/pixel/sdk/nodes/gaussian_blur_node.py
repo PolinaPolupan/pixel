@@ -46,7 +46,7 @@ def gaussian_blur_validate(
 @node(
     tasks={"exec": gaussian_blur_exec, "validate": gaussian_blur_validate},
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()},
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
         "sizeX": {"type": "INT", "required": True, "widget": "INPUT", "default": 3},
         "sizeY": {"type": "INT", "required": False, "widget": "INPUT", "default": 3},
         "sigmaX": {"type": "DOUBLE", "required": False, "widget": "INPUT", "default": 0.0},

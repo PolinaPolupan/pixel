@@ -32,7 +32,7 @@ def blur_validate(input: List[str], ksize, meta: Metadata):
 @node(
     tasks={"exec": blur_exec, "validate": blur_validate},
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()},
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
         "ksize": {"type": "VECTOR2D", "required": True, "widget": "LABEL", "default": {"x": 3, "y": 3}}
     },
     outputs={

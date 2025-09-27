@@ -28,21 +28,21 @@ def install_dependencies(node_class):
         install_package(package)
     return None
 
-
-def get_node_class(node_type: str):
-    node_class = NODE_REGISTRY.get(node_type)
-    return node_class
-
-
 def register_node_class(cls):
+    from pixel.sdk import Client
+
     global NODE_REGISTRY
     if hasattr(cls, 'node_type') and cls.node_type is not None:
         logger.warning(f"Registering node: {cls.node_type}")
         NODE_REGISTRY[cls.node_type] = cls
+        Client.create_node(cls)
         install_dependencies(cls)
 
     return cls
 
+def get_node_class(node_type: str):
+    node_class = NODE_REGISTRY.get(node_type)
+    return node_class
 
 def load_nodes_from_directory(directory: str):
     loaded = 0

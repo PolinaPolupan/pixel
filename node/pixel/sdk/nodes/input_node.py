@@ -5,7 +5,7 @@ from pixel.sdk.models.node_decorator import node
 
 @node(
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "FILE_PICKER", "default": set()}
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "FILE_PICKER", "default": list()}
     },
     outputs={
         "output": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL"}

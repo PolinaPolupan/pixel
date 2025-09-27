@@ -23,7 +23,7 @@ def median_blur_validate(input: List[str], ksize: int, meta: Metadata = None):
 @node(
     tasks={"exec": median_blur_exec, "validate": median_blur_validate},
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()},
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
         "ksize": {"type": "INT", "required": True, "widget": "INPUT", "default": 3}
     },
     outputs={

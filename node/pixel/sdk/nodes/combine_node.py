@@ -6,11 +6,11 @@ from pixel.sdk.models.node_decorator import node
 
 @node(
     inputs={
-        "files_0": {"type": "FILEPATH_ARRAY", "required": True,  "widget": "LABEL", "default": set()},
-        "files_1": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": set()},
-        "files_2": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": set()},
-        "files_3": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": set()},
-        "files_4": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": set()},
+        "files_0": {"type": "FILEPATH_ARRAY", "required": True,  "widget": "LABEL", "default": list()},
+        "files_1": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": list()},
+        "files_2": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": list()},
+        "files_3": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": list()},
+        "files_4": {"type": "FILEPATH_ARRAY", "required": False, "widget": "LABEL", "default": list()},
     },
     outputs={
         "output": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL"}

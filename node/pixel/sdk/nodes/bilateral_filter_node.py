@@ -20,7 +20,7 @@ def bilateral_validate(input: List[str], d: int, sigmaColor: float, sigmaSpace: 
 @node(
     tasks={"exec": bilateral_exec, "validate": bilateral_validate},
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()},
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
         "d": {"type": "INT", "required": True, "widget": "INPUT", "default": 9},
         "sigmaColor": {"type": "DOUBLE", "required": True, "widget": "INPUT", "default": 75.0},
         "sigmaSpace": {"type": "DOUBLE", "required": True, "widget": "INPUT", "default": 75.0}

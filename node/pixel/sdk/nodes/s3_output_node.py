@@ -65,7 +65,7 @@ def s3_output_validate(
 @node(
     tasks={"exec": s3_output_exec, "validate": s3_output_validate},
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()},
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
         "access_key_id": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
         "secret_access_key": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
         "region": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},

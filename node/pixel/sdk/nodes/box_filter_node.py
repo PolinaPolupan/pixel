@@ -32,7 +32,7 @@ def box_filter_validate(input: List[str], ksize, ddepth, meta: Metadata):
 @node(
     tasks={"exec": box_filter_exec, "validate": box_filter_validate},
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()},
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
         "ddepth": {"type": "INT", "required": True, "widget": "INPUT", "default": 0},
         "ksize": {"type": "VECTOR2D", "required": True, "widget": "LABEL", "default": {"x": 1, "y": 1}}
     },

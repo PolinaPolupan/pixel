@@ -3,6 +3,7 @@ import requests
 from typing import List, Dict, Any, Optional
 from urllib.parse import urljoin
 
+from pixel.core import Node
 from pixel.server.load_nodes import NODE_REGISTRY
 
 logger = logging.getLogger(__name__)
@@ -120,6 +121,12 @@ class Client:
                 logger.error(f"Response status: {e.response.status_code}, body: {e.response.text}")
             raise
 
+    @classmethod
+    def create_node(cls, node: Node):
+        url = cls._make_engine_url("/v1/node")
+        params = {"type": node.node_type, "inputs": node.metadata.get("inputs"), "outputs": node.metadata.get("outputs"), "display": node.metadata.get("display")}
+        response = cls.session.post(url, json=params)
+        response.raise_for_status()
 
 def create_node(node_id: int, node_type: str, inputs: Dict[str, Any]) -> Dict[str, Any]:
     return {"id": node_id, "type": node_type, "inputs": inputs}

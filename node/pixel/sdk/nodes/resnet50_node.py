@@ -5,7 +5,7 @@ from pixel.core import Metadata
 
 @node(
     inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": set()}
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()}
     },
     outputs={
         "json": {"type": "STRING", "required": True}
