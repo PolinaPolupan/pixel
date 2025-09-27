@@ -2,7 +2,7 @@ package com.example.pixel.node_execution.executor;
 
 import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node.dto.Metadata;
-import com.example.pixel.node.dto.NodeData;
+import com.example.pixel.node.dto.NodeClientData;
 import com.example.pixel.node_execution.cache.NodeCache;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
 import com.example.pixel.node_execution.dto.NodeValidationResponse;
@@ -27,17 +27,17 @@ public class NodeExecutor {
 
         Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
         Metadata meta = new Metadata(node.getId(), graphId, taskId, node.getType());
-        NodeData nodeData = new NodeData(meta, resolvedInputs);
+        NodeClientData nodeClientData = new NodeClientData(meta, resolvedInputs);
         node.setInputs(resolvedInputs);
 
-        NodeValidationResponse validationResponse = nodeClient.validateNode(nodeData);
-        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeData, validationResponse);
+        NodeValidationResponse validationResponse = nodeClient.validateNode(nodeClientData);
+        log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeClientData, validationResponse);
 
         String inputKey = getInputKey(taskId, node.getId());
         nodeCache.put(inputKey, node.getInputs());
 
         String outputKey = getOutputKey(taskId, node.getId());
-        NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeData);
+        NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeClientData);
         log.info("Node {} Exec Output JSON | Response: {}", node.getId(), executionResponse);
 
         nodeCache.put(outputKey, executionResponse.getOutputs());

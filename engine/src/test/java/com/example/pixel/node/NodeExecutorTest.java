@@ -1,7 +1,7 @@
 package com.example.pixel.node;
 
 import com.example.pixel.common.exception.NodeExecutionException;
-import com.example.pixel.node.dto.NodeData;
+import com.example.pixel.node.dto.NodeClientData;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
 import com.example.pixel.node_execution.dto.NodeValidationResponse;
 import com.example.pixel.node.model.*;
@@ -70,8 +70,8 @@ class NodeExecutorTest {
 
     @Test
     void executeInternal_shouldCacheInputsAndOutputs() {
-        when(nodeClient.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
-        when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
+        when(nodeClient.validateNode(any(NodeClientData.class))).thenReturn(nodeValidationResponse);
+        when(nodeClient.executeNode(any(NodeClientData.class))).thenReturn(nodeExecutionResponse);
 
         nodeExecutor.execute(node,  sceneId, taskId);
 
@@ -106,8 +106,8 @@ class NodeExecutorTest {
 
     @Test
     void executeInternal_shouldHandleValidationFailure() {
-        when(nodeClient.validateNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
-        when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
+        when(nodeClient.validateNode(any(NodeClientData.class))).thenThrow(NodeExecutionException.class);
+        when(nodeClient.executeNode(any(NodeClientData.class))).thenReturn(nodeExecutionResponse);
 
         assertThrows(NodeExecutionException.class, () ->
                 nodeExecutor.execute(node, sceneId, taskId));
@@ -115,8 +115,8 @@ class NodeExecutorTest {
 
     @Test
     void executeInternal_shouldHandleExecutionFailure() {
-        when(nodeClient.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
-        when(nodeClient.executeNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
+        when(nodeClient.validateNode(any(NodeClientData.class))).thenReturn(nodeValidationResponse);
+        when(nodeClient.executeNode(any(NodeClientData.class))).thenThrow(NodeExecutionException.class);
 
         assertThrows(NodeExecutionException.class, () ->
                 nodeExecutor.execute(node, sceneId, taskId));
@@ -129,7 +129,7 @@ class NodeExecutorTest {
     void resolveInputs_shouldHandleEmptyInputs() {
         inputs.clear();
 
-        when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
+        when(nodeClient.executeNode(any(NodeClientData.class))).thenReturn(nodeExecutionResponse);
 
         nodeExecutor.execute(node, sceneId, taskId);
 

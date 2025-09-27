@@ -9,7 +9,7 @@ import java.util.Map;
 @Getter
 @AllArgsConstructor
 @ToString
-public class NodeData {
+public class NodeClientData {
     private Metadata meta;
     private Map<String, Object> inputs;
 }

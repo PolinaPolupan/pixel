@@ -8,11 +8,12 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(
     name = "nodes",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"nodeType", "version"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"type", "version"})
 )
 @Data
 @NoArgsConstructor
@@ -21,26 +22,26 @@ import java.util.List;
 public class NodeEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String nodeType;
+    private String type;
 
     @Column(nullable = false)
     private Integer version;
 
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
-    private String inputsConfig;
+    private Map<String, Object> inputs;
 
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
-    private String outputsConfig;
+    private Map<String, Object> outputs;
 
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
-    private String displayConfig;
+    private Map<String, Object> display;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
