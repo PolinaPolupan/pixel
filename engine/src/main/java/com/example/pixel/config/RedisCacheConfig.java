@@ -1,7 +1,7 @@
 package com.example.pixel.config;
 
-import com.example.pixel.node.service.NodeCacheService;
-import com.example.pixel.node.service.RedisNodeCacheService;
+import com.example.pixel.node_execution.cache.NodeCache;
+import com.example.pixel.node_execution.cache.RedisNodeCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +37,7 @@ public class RedisCacheConfig {
     }
 
     @Bean
-    public NodeCacheService nodeCacheService(JedisPool jedisPool) {
-        return new RedisNodeCacheService(jedisPool);
+    public NodeCache nodeCacheService(JedisPool jedisPool) {
+        return new RedisNodeCache(jedisPool);
     }
 }

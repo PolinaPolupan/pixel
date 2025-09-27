@@ -1,4 +1,4 @@
-package com.example.pixel.node.service;
+package com.example.pixel.node_execution.cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
-@Service
-@Profile("redis")
 @RequiredArgsConstructor
-public class RedisNodeCacheService implements NodeCacheService {
+@Profile("redis")
+@Component
+public class RedisNodeCache implements NodeCache {
 
     private final JedisPool jedisPool;
     private final ObjectMapper objectMapper = new ObjectMapper();

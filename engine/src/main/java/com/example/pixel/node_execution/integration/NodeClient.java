@@ -1,19 +1,19 @@
-package com.example.pixel.node.integration;
+package com.example.pixel.node_execution.integration;
 
 import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node.dto.NodeData;
-import com.example.pixel.node.dto.NodeExecutionResponse;
-import com.example.pixel.node.dto.NodeValidationResponse;
+import com.example.pixel.node_execution.dto.NodeExecutionResponse;
+import com.example.pixel.node_execution.dto.NodeValidationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
-@Service
+@Component
 public class NodeClient {
     private final RestTemplate restTemplate = new RestTemplate();
 

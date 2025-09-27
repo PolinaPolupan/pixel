@@ -1,6 +1,6 @@
 package com.example.pixel.node;
 
-import com.example.pixel.node.service.NodeCacheService;
+import com.example.pixel.node_execution.cache.NodeCache;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class InMemoryNodeCacheService implements NodeCacheService {
+public class InMemoryNodeCache implements NodeCache {
 
     private final Map<String, Map<String, Object>> cache = new ConcurrentHashMap<>();
 

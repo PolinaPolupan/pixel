@@ -1,5 +1,6 @@
 package com.example.pixel.node.entity;
 
+import com.example.pixel.node_execution.entity.NodeExecutionEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

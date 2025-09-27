@@ -1,19 +1,21 @@
-package com.example.pixel.node.service;
+package com.example.pixel.node_execution.cache;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Slf4j
-@Service
-@Profile("default")
 @RequiredArgsConstructor
-public class SpringCacheNodeService implements NodeCacheService {
+@Primary
+@Profile("default")
+@Component
+public class SpringNodeCache implements NodeCache {
 
     private final CacheManager cacheManager;
     private static final String CACHE_NAME = "nodeCache";

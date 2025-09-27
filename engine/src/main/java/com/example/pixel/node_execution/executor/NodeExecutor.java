@@ -1,11 +1,12 @@
-package com.example.pixel.node.service;
+package com.example.pixel.node_execution.executor;
 
 import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node.dto.Metadata;
 import com.example.pixel.node.dto.NodeData;
-import com.example.pixel.node.dto.NodeExecutionResponse;
-import com.example.pixel.node.dto.NodeValidationResponse;
-import com.example.pixel.node.integration.NodeClient;
+import com.example.pixel.node_execution.cache.NodeCache;
+import com.example.pixel.node_execution.dto.NodeExecutionResponse;
+import com.example.pixel.node_execution.dto.NodeValidationResponse;
+import com.example.pixel.node_execution.integration.NodeClient;
 import com.example.pixel.node.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,15 +14,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
-@Slf4j
-public class NodeProcessorService {
+public class NodeExecutor {
 
     private final NodeClient nodeClient;
-    private final NodeCacheService nodeCacheService;
+    private final NodeCache nodeCache;
 
-    public void processNode(Node node, Long graphId, Long taskId) {
+    public void execute(Node node, Long graphId, Long taskId) {
         log.info("Started node: {} Graph: {} Task: {}", node.getId(), graphId, taskId);
 
         Map<String, Object> resolvedInputs = resolveInputs(node, taskId);
@@ -33,13 +34,13 @@ public class NodeProcessorService {
         log.info("Node {} Validation Input JSON: {} | Response: {}", node.getId(), nodeData, validationResponse);
 
         String inputKey = getInputKey(taskId, node.getId());
-        nodeCacheService.put(inputKey, node.getInputs());
+        nodeCache.put(inputKey, node.getInputs());
 
         String outputKey = getOutputKey(taskId, node.getId());
         NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeData);
         log.info("Node {} Exec Output JSON | Response: {}", node.getId(), executionResponse);
 
-        nodeCacheService.put(outputKey, executionResponse.getOutputs());
+        nodeCache.put(outputKey, executionResponse.getOutputs());
     }
 
 
@@ -67,13 +68,13 @@ public class NodeProcessorService {
         String output = reference.getOutputName();
         String cacheKey = getOutputKey(taskId, reference.getNodeId());
 
-        if (!nodeCacheService.exists(cacheKey)) {
+        if (!nodeCache.exists(cacheKey)) {
             throw new NodeExecutionException(
                     "Missing cache for node " + reference.getNodeId() + " in task " + taskId
             );
         }
 
-        Map<String, Object> outputMap = nodeCacheService.get(cacheKey);
+        Map<String, Object> outputMap = nodeCache.get(cacheKey);
 
         if (!outputMap.containsKey(output)) {
             throw new NodeExecutionException(

@@ -1,4 +1,4 @@
-package com.example.pixel.node.dto;
+package com.example.pixel.node_execution.dto;
 
 import lombok.Data;
 

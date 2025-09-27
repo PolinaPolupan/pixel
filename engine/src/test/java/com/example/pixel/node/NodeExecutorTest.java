@@ -2,12 +2,12 @@ package com.example.pixel.node;
 
 import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node.dto.NodeData;
-import com.example.pixel.node.dto.NodeExecutionResponse;
-import com.example.pixel.node.dto.NodeValidationResponse;
+import com.example.pixel.node_execution.dto.NodeExecutionResponse;
+import com.example.pixel.node_execution.dto.NodeValidationResponse;
 import com.example.pixel.node.model.*;
-import com.example.pixel.node.service.NodeCacheService;
-import com.example.pixel.node.integration.NodeClient;
-import com.example.pixel.node.service.NodeProcessorService;
+import com.example.pixel.node_execution.cache.NodeCache;
+import com.example.pixel.node_execution.integration.NodeClient;
+import com.example.pixel.node_execution.executor.NodeExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,16 +28,16 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class NodeProcessorServiceTest {
+class NodeExecutorTest {
 
     @Mock
-    private NodeCacheService nodeCacheService;
+    private NodeCache nodeCache;
 
     @Mock
     private Node node;
 
     @InjectMocks
-    private NodeProcessorService nodeProcessorService;
+    private NodeExecutor nodeExecutor;
 
     @Mock
     private NodeClient nodeClient;
@@ -69,14 +69,14 @@ class NodeProcessorServiceTest {
     }
 
     @Test
-    void processNodeInternal_shouldCacheInputsAndOutputs() {
+    void executeInternal_shouldCacheInputsAndOutputs() {
         when(nodeClient.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
         when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
-        nodeProcessorService.processNode(node,  sceneId, taskId);
+        nodeExecutor.execute(node,  sceneId, taskId);
 
-        verify(nodeCacheService).put("100:10:input", inputs);
-        verify(nodeCacheService).put("100:10:output", outputs);
+        verify(nodeCache).put("100:10:input", inputs);
+        verify(nodeCache).put("100:10:output", outputs);
     }
 
     @Test
@@ -86,11 +86,11 @@ class NodeProcessorServiceTest {
 
         Map<String, Object> referencedOutput = new HashMap<>();
 
-        when(nodeCacheService.exists(taskId + ":" + nodeId + ":output")).thenReturn(true);
-        when(nodeCacheService.get(taskId + ":" + nodeId + ":output")).thenReturn(referencedOutput);
+        when(nodeCache.exists(taskId + ":" + nodeId + ":output")).thenReturn(true);
+        when(nodeCache.get(taskId + ":" + nodeId + ":output")).thenReturn(referencedOutput);
 
         assertThrows(RuntimeException.class, () ->
-                nodeProcessorService.processNode(node, sceneId, taskId));
+                nodeExecutor.execute(node, sceneId, taskId));
     }
 
     @Test
@@ -98,31 +98,31 @@ class NodeProcessorServiceTest {
         NodeReference reference = new NodeReference("@node:20:result");
         inputs.put("refParam", reference);
 
-        when(nodeCacheService.exists(taskId + ":" + nodeId + ":output")).thenReturn(false);
+        when(nodeCache.exists(taskId + ":" + nodeId + ":output")).thenReturn(false);
 
         assertThrows(NodeExecutionException.class, () ->
-                nodeProcessorService.processNode(node, sceneId, taskId));
+                nodeExecutor.execute(node, sceneId, taskId));
     }
 
     @Test
-    void processNodeInternal_shouldHandleValidationFailure() {
+    void executeInternal_shouldHandleValidationFailure() {
         when(nodeClient.validateNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
         when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
         assertThrows(NodeExecutionException.class, () ->
-                nodeProcessorService.processNode(node, sceneId, taskId));
+                nodeExecutor.execute(node, sceneId, taskId));
     }
 
     @Test
-    void processNodeInternal_shouldHandleExecutionFailure() {
+    void executeInternal_shouldHandleExecutionFailure() {
         when(nodeClient.validateNode(any(NodeData.class))).thenReturn(nodeValidationResponse);
         when(nodeClient.executeNode(any(NodeData.class))).thenThrow(NodeExecutionException.class);
 
         assertThrows(NodeExecutionException.class, () ->
-                nodeProcessorService.processNode(node, sceneId, taskId));
+                nodeExecutor.execute(node, sceneId, taskId));
 
-        verify(nodeCacheService).put(taskId + ":" + nodeId + ":input", inputs);
-        verify(nodeCacheService, never()).put(eq(taskId + ":" + nodeId + ":output"), any());
+        verify(nodeCache).put(taskId + ":" + nodeId + ":input", inputs);
+        verify(nodeCache, never()).put(eq(taskId + ":" + nodeId + ":output"), any());
     }
 
     @Test
@@ -131,7 +131,7 @@ class NodeProcessorServiceTest {
 
         when(nodeClient.executeNode(any(NodeData.class))).thenReturn(nodeExecutionResponse);
 
-        nodeProcessorService.processNode(node, sceneId, taskId);
+        nodeExecutor.execute(node, sceneId, taskId);
 
         verify(node).setInputs(inputsCaptor.capture());
         Map<String, Object> resolvedInputs = inputsCaptor.getValue();

@@ -1,8 +1,8 @@
-package com.example.pixel.node.service;
+package com.example.pixel.node_execution.cache;
 
 import java.util.Map;
 
-public interface NodeCacheService {
+public interface NodeCache {
     void put(String key, Map<String, Object> outputs);
     Map<String, Object> get(String key);
     boolean exists(String key);

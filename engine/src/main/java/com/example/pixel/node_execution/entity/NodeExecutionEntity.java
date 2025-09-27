@@ -1,6 +1,7 @@
-package com.example.pixel.node.entity;
+package com.example.pixel.node_execution.entity;
 
-import com.example.pixel.node.dto.NodeStatus;
+import com.example.pixel.node_execution.dto.NodeStatus;
+import com.example.pixel.node.entity.NodeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

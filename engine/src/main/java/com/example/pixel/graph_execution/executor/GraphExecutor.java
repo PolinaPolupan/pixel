@@ -2,7 +2,7 @@ package com.example.pixel.graph_execution.executor;
 
 import com.example.pixel.graph.model.Graph;
 import com.example.pixel.node.model.Node;
-import com.example.pixel.node.service.NodeProcessorService;
+import com.example.pixel.node_execution.executor.NodeExecutor;
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
@@ -21,7 +21,7 @@ import java.util.concurrent.Executor;
 @Component
 public class GraphExecutor {
 
-    private final NodeProcessorService nodeProcessorService;
+    private final NodeExecutor nodeExecutor;
     private final GraphExecutionService graphExecutionService;
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
@@ -52,7 +52,7 @@ public class GraphExecutor {
                 Node node = iterator.next();
                 log.debug("Processing node id={} for taskId={}", node.getId(), taskId);
 
-                nodeProcessorService.processNode(node, graph.getId(), taskId);
+                nodeExecutor.execute(node, graph.getId(), taskId);
 
                 processedNodes++;
                 log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodes().size());
