@@ -1,4 +1,4 @@
-package com.example.pixel.graph.service;
+package com.example.pixel.graph_execution.executor;
 
 import com.example.pixel.graph.model.Graph;
 import com.example.pixel.node.model.Node;
@@ -9,15 +9,16 @@ import com.example.pixel.graph_execution.service.GraphExecutionService;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-@RequiredArgsConstructor
-@Service
+
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class GraphExecutor {
 
     private final NodeProcessorService nodeProcessorService;
