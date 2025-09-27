@@ -1,6 +1,7 @@
 package com.example.pixel.node.model;
 
 import com.example.pixel.common.exception.InvalidNodeInputException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,7 +10,9 @@ import java.util.regex.Pattern;
 public class NodeReference {
     private static final Pattern NODE_REF_PATTERN = Pattern.compile("@node:(\\d+):(\\w+)");
     private final String reference;
+    @JsonIgnore
     private transient Matcher matcher;
+    @JsonIgnore
     private final transient Pattern nodeRefPattern;
 
     public NodeReference(String reference) {

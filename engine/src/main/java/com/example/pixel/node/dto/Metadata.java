@@ -1,4 +1,4 @@
-package com.example.pixel.node.model;
+package com.example.pixel.node.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

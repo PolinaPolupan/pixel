@@ -1,4 +1,4 @@
-package com.example.pixel.file_system.model;
+package com.example.pixel.file_system.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

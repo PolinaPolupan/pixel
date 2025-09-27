@@ -1,6 +1,6 @@
 package com.example.pixel.execution_task.controller;
 
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
 import com.example.pixel.execution_task.service.ExecutionTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

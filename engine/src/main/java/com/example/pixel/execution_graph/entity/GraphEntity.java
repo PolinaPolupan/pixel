@@ -1,6 +1,7 @@
-package com.example.pixel.execution_graph.model;
+package com.example.pixel.execution_graph.entity;
 
-import com.example.pixel.node.model.NodePayload;
+import com.example.pixel.execution_graph.model.ExecutionGraph;
+import com.example.pixel.node.dto.NodePayload;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

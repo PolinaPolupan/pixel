@@ -1,5 +1,6 @@
-package com.example.pixel.execution_task.model;
+package com.example.pixel.execution_task.dto;
 
+import com.example.pixel.execution_task.entity.ExecutionTaskEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

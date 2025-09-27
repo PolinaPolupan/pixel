@@ -1,5 +1,6 @@
-package com.example.pixel.execution_task.model;
+package com.example.pixel.execution_task.entity;
 
+import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;

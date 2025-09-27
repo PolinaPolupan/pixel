@@ -15,7 +15,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.example.pixel.common.exception.InvalidFileFormat;
 import com.example.pixel.file_system.service.FileHelper;
-import com.example.pixel.file_system.model.FileStatsPayload;
+import com.example.pixel.file_system.dto.FileStatsPayload;
 import com.example.pixel.file_system.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

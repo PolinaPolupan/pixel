@@ -1,9 +1,9 @@
 package com.example.pixel.execution_graph;
 
 import com.example.pixel.execution_graph.model.ExecutionGraph;
-import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
+import com.example.pixel.execution_graph.dto.ExecutionGraphPayload;
 import com.example.pixel.execution_graph.service.GraphService;
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
 import com.example.pixel.file_system.service.StorageService;
 import com.example.pixel.util.TestFileUtils;
 import com.example.pixel.util.TestJsonTemplates;

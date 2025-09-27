@@ -1,9 +1,9 @@
 package com.example.pixel.common;
 
 import com.example.pixel.common.service.NotificationService;
-import com.example.pixel.execution_task.model.ExecutionTaskEntity;
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
-import com.example.pixel.execution_task.model.ExecutionTaskStatus;
+import com.example.pixel.execution_task.entity.ExecutionTaskEntity;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
+import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

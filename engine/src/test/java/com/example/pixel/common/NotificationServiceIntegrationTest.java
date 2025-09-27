@@ -2,9 +2,9 @@ package com.example.pixel.common;
 
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.config.TestCacheConfig;
-import com.example.pixel.execution_task.model.ExecutionTaskEntity;
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
-import com.example.pixel.execution_task.model.ExecutionTaskStatus;
+import com.example.pixel.execution_task.entity.ExecutionTaskEntity;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
+import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,6 +1,6 @@
 package com.example.pixel.execution_graph.repository;
 
-import com.example.pixel.execution_graph.model.GraphEntity;
+import com.example.pixel.execution_graph.entity.GraphEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -1,4 +1,4 @@
-package com.example.pixel.node.model;
+package com.example.pixel.node.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

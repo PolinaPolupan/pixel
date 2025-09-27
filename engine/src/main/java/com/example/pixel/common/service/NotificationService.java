@@ -1,7 +1,7 @@
 package com.example.pixel.common.service;
 
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
-import com.example.pixel.execution_task.model.ExecutionTaskStatus;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
+import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

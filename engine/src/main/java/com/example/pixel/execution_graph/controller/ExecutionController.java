@@ -1,9 +1,9 @@
 package com.example.pixel.execution_graph.controller;
 
-import com.example.pixel.execution_graph.model.CreateExecutionGraphRequest;
-import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
+import com.example.pixel.execution_graph.dto.CreateExecutionGraphRequest;
+import com.example.pixel.execution_graph.dto.ExecutionGraphPayload;
 import com.example.pixel.execution_graph.service.GraphService;
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,9 +1,9 @@
-package com.example.pixel.node.service;
+package com.example.pixel.node.integration;
 
 import com.example.pixel.common.exception.NodeExecutionException;
-import com.example.pixel.node.model.NodeData;
-import com.example.pixel.node.model.NodeExecutionResponse;
-import com.example.pixel.node.model.NodeValidationResponse;
+import com.example.pixel.node.dto.NodeData;
+import com.example.pixel.node.dto.NodeExecutionResponse;
+import com.example.pixel.node.dto.NodeValidationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;

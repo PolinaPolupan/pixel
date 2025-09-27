@@ -1,7 +1,7 @@
 package com.example.pixel.execution_task.repository;
 
-import com.example.pixel.execution_task.model.ExecutionTaskEntity;
-import com.example.pixel.execution_task.model.ExecutionTaskStatus;
+import com.example.pixel.execution_task.entity.ExecutionTaskEntity;
+import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

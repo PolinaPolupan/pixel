@@ -1,9 +1,12 @@
 package com.example.pixel.node;
 
 import com.example.pixel.common.exception.NodeExecutionException;
+import com.example.pixel.node.dto.NodeData;
+import com.example.pixel.node.dto.NodeExecutionResponse;
+import com.example.pixel.node.dto.NodeValidationResponse;
 import com.example.pixel.node.model.*;
 import com.example.pixel.node.service.NodeCacheService;
-import com.example.pixel.node.service.NodeClient;
+import com.example.pixel.node.integration.NodeClient;
 import com.example.pixel.node.service.NodeProcessorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,5 @@
-package com.example.pixel.node.model;
+package com.example.pixel.node.dto;
+import com.example.pixel.node.model.Node;
 import lombok.Data;
 
 import java.util.Map;

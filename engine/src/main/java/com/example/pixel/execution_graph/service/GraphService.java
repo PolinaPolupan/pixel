@@ -1,12 +1,12 @@
 package com.example.pixel.execution_graph.service;
 
 import com.example.pixel.common.exception.GraphNotFoundException;
-import com.example.pixel.execution_graph.model.CreateExecutionGraphRequest;
+import com.example.pixel.execution_graph.dto.CreateExecutionGraphRequest;
 import com.example.pixel.execution_graph.model.ExecutionGraph;
-import com.example.pixel.execution_graph.model.ExecutionGraphPayload;
-import com.example.pixel.execution_graph.model.GraphEntity;
+import com.example.pixel.execution_graph.dto.ExecutionGraphPayload;
+import com.example.pixel.execution_graph.entity.GraphEntity;
 import com.example.pixel.execution_graph.repository.GraphRepository;
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

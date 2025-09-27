@@ -1,6 +1,7 @@
-package com.example.pixel.execution_graph.model;
+package com.example.pixel.execution_graph.dto;
 
-import com.example.pixel.node.model.NodePayload;
+import com.example.pixel.execution_graph.model.ExecutionGraph;
+import com.example.pixel.node.dto.NodePayload;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

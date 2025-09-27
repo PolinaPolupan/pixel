@@ -2,10 +2,10 @@ package com.example.pixel.execution_task.service;
 
 import com.example.pixel.common.exception.TaskNotFoundException;
 import com.example.pixel.execution_graph.model.ExecutionGraph;
-import com.example.pixel.execution_task.model.ExecutionTaskEntity;
-import com.example.pixel.execution_task.model.ExecutionTaskPayload;
+import com.example.pixel.execution_task.entity.ExecutionTaskEntity;
+import com.example.pixel.execution_task.dto.ExecutionTaskPayload;
 import com.example.pixel.execution_task.repository.ExecutionTaskRepository;
-import com.example.pixel.execution_task.model.ExecutionTaskStatus;
+import com.example.pixel.execution_task.dto.ExecutionTaskStatus;
 import com.example.pixel.file_system.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
