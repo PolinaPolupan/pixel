@@ -13,8 +13,10 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
 
+import static com.example.pixel.common.model.Profiles.*;
+
 @Configuration
-@Profile("redis")
+@Profile(REDIS)
 public class RedisCacheConfig {
 
     @Bean
@@ -37,7 +39,7 @@ public class RedisCacheConfig {
     }
 
     @Bean
-    public NodeCache nodeCacheService(JedisPool jedisPool) {
+    public NodeCache nodeCache(JedisPool jedisPool) {
         return new RedisNodeCache(jedisPool);
     }
 }

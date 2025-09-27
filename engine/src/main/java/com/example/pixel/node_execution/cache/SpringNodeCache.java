@@ -10,10 +10,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+import static com.example.pixel.common.model.Profiles.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Primary
-@Profile("default")
+@Profile(DEFAULT)
 @Component
 public class SpringNodeCache implements NodeCache {
 

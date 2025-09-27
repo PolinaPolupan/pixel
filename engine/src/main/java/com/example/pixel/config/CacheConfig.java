@@ -11,9 +11,11 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.Collections;
 
+import static com.example.pixel.common.model.Profiles.*;
+
 @Configuration
 @EnableCaching
-@Profile("default")
+@Profile(DEFAULT)
 public class CacheConfig {
 
     @Bean
@@ -24,7 +26,7 @@ public class CacheConfig {
     }
 
     @Bean
-    public NodeCache nodeCacheService(CacheManager cacheManager) {
+    public NodeCache nodeCache(CacheManager cacheManager) {
         return new SpringNodeCache(cacheManager);
     }
 }

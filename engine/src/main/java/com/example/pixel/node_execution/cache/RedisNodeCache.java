@@ -13,9 +13,11 @@ import redis.clients.jedis.JedisPool;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.example.pixel.common.model.Profiles.*;
+
 @Slf4j
 @RequiredArgsConstructor
-@Profile("redis")
+@Profile(REDIS)
 @Component
 public class RedisNodeCache implements NodeCache {
 

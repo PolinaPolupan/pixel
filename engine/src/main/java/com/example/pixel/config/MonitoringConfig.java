@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import static com.example.pixel.common.model.Profiles.MONITORING;
+
 @Configuration
-@Profile("monitoring")
+@Profile(MONITORING)
 public class MonitoringConfig {
 
     @Bean
