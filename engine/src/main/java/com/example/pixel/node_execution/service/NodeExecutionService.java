@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+import static org.reflections.Reflections.log;
+
 @RequiredArgsConstructor
 @Service
 public class NodeExecutionService {
@@ -20,19 +22,34 @@ public class NodeExecutionService {
     private final NodeExecutor nodeExecutor;
 
     public NodeExecutionEntity execute(NodeExecution nodeExecution, Long graphExecutionId) {
-        NodeClientData data = nodeExecutor.setup(nodeExecution, graphExecutionId);
-        nodeExecutor.validate(data);
         Instant startedAt = Instant.now();
-        NodeExecutionResponse nodeExecutionResponse = nodeExecutor.execute(data);
-
         NodeExecutionEntity nodeExecutionEntity = NodeExecutionEntity
                 .builder()
-                .status(NodeStatus.PENDING)
+                .status(NodeStatus.RUNNING)
                 .inputs(nodeExecution.getInputs())
-                .outputs(nodeExecutionResponse.getOutputs())
                 .startedAt(startedAt)
-                .finishedAt(Instant.now())
                 .build();
+
+        nodeExecutionEntity = repository.save(nodeExecutionEntity);
+
+        try {
+            NodeClientData data = nodeExecutor.setup(nodeExecution, graphExecutionId);
+            nodeExecutor.validate(data);
+            NodeExecutionResponse nodeExecutionResponse = nodeExecutor.execute(data);
+
+            nodeExecutionEntity.setInputs(nodeExecution.getInputs());
+            nodeExecutionEntity.setStatus(NodeStatus.COMPLETED);
+            nodeExecutionEntity.setOutputs(nodeExecutionResponse.getOutputs());
+            repository.save(nodeExecutionEntity);
+        } catch (Exception e) {
+            nodeExecutionEntity.setInputs(nodeExecution.getInputs());
+            nodeExecutionEntity.setStatus(NodeStatus.FAILED);
+            nodeExecutionEntity.setErrorMessage(e.getMessage());
+            log.error("Node execution failed", e);
+            throw e;
+        } finally {
+            nodeExecutionEntity.setFinishedAt(Instant.now());
+        }
 
         return repository.save(nodeExecutionEntity);
     }

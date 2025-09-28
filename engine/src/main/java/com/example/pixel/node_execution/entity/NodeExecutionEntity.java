@@ -39,5 +39,6 @@ public class NodeExecutionEntity {
 
     private Instant startedAt;
     private Instant finishedAt;
+    private String errorMessage;
 }
 

@@ -4,5 +4,6 @@ CREATE TABLE node_executions (
     inputs JSON,
     outputs JSON,
     started_at TIMESTAMP,
-    finished_at TIMESTAMP
+    finished_at TIMESTAMP,
+    error_message TEXT
 );
