@@ -1,13 +1,11 @@
 package com.example.pixel.node.entity;
 
-import com.example.pixel.node_execution.entity.NodeExecutionEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -48,8 +46,5 @@ public class NodeEntity {
 
     @Column(nullable = false)
     private Boolean active;
-
-    @OneToMany(mappedBy = "node", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<NodeExecutionEntity> executions;
 }
 

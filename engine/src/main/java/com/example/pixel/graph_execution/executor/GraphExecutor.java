@@ -1,13 +1,13 @@
 package com.example.pixel.graph_execution.executor;
 
 import com.example.pixel.graph.model.Graph;
+import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.node.model.Node;
-import com.example.pixel.node_execution.dto.NodeClientData;
-import com.example.pixel.node_execution.executor.NodeExecutor;
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
+import com.example.pixel.node_execution.service.NodeExecutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,60 +22,52 @@ import java.util.concurrent.Executor;
 @Component
 public class GraphExecutor {
 
-    private final NodeExecutor nodeExecutor;
+    private final NodeExecutionService nodeExecutionService;
     private final GraphExecutionService graphExecutionService;
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
 
     public GraphExecutionPayload startExecution(Graph graph) {
-        GraphExecutionPayload task = graphExecutionService.create(graph);
-        Long taskId = task.getId();
-        log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", taskId);
-        CompletableFuture.runAsync(() -> execute(graph, taskId), graphTaskExecutor);
-        return task;
+        GraphExecutionEntity graphExecutionEntity = graphExecutionService.create(graph);
+        Long graphExecutionId = graphExecutionEntity.getId();
+        log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", graphExecutionId);
+        CompletableFuture.runAsync(() -> execute(graph, graphExecutionId), graphTaskExecutor);
+        return GraphExecutionPayload.fromEntity(graphExecutionEntity);
     }
 
-    public CompletableFuture<GraphExecutionPayload> startExecutionAsync(Graph graph) {
-        GraphExecutionPayload task = graphExecutionService.create(graph);
-        log.info("startGraphExecutionAsync: Task created with id={}, starting graph execution ...", task.getId());
-        return CompletableFuture.supplyAsync(() -> execute(graph, task.getId()).join(), graphTaskExecutor);
-    }
-
-    private CompletableFuture<GraphExecutionPayload> execute(Graph graph, Long taskId) {
+    private CompletableFuture<GraphExecutionPayload> execute(Graph graph, Long graphExecutionId) {
         try {
-            log.debug("Updating task status to RUNNING for taskId={}", taskId);
-            graphExecutionService.updateStatus(taskId, GraphExecutionStatus.RUNNING);
+            log.debug("Updating task status to RUNNING for graphExecutionId={}", graphExecutionId);
+            graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
             Iterator<Node> iterator = graph.iterator();
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
                 Node node = iterator.next();
-                log.debug("Processing node id={} for taskId={}", node.getId(), taskId);
+                log.debug("Processing node id={} for graphExecutionId={}", node.getId(), graphExecutionId);
 
-                NodeClientData data = nodeExecutor.setup(node, taskId);
-                nodeExecutor.validate(data);
-                nodeExecutor.execute(data);
+                nodeExecutionService.execute(node, graphExecutionId);
 
                 processedNodes++;
                 log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodes().size());
 
-                graphExecutionService.updateProgress(taskId, processedNodes);
-                notificationService.sendTaskStatus(graphExecutionService.findById(taskId));
+                graphExecutionService.updateProgress(graphExecutionId, processedNodes);
+                notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
 
-                log.debug("Node with id: {} is processed (taskId={})", node.getId(), taskId);
+                log.debug("Node with id: {} is processed (graphExecutionId={})", node.getId(), graphExecutionId);
             }
 
-            log.info("All nodes processed for taskId={}, updating status to COMPLETED", taskId);
-            graphExecutionService.updateStatus(taskId, GraphExecutionStatus.COMPLETED);
-            notificationService.sendTaskStatus(graphExecutionService.findById(taskId));
+            log.info("All nodes processed for graphExecutionId={}, updating status to COMPLETED", graphExecutionId);
+            graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.COMPLETED);
+            notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
 
-            return CompletableFuture.completedFuture(graphExecutionService.findById(taskId));
+            return CompletableFuture.completedFuture(graphExecutionService.findById(graphExecutionId));
         } catch (Exception e) {
-            log.error("Error processing graph with id {} (taskId={}): {}", graph.getId(), taskId, e.getMessage(), e);
+            log.error("Error processing graph with id {} (graphExecutionId={}): {}", graph.getId(), graphExecutionId, e.getMessage(), e);
 
-            graphExecutionService.markFailed(taskId, e.getMessage());
-            notificationService.sendTaskStatus(graphExecutionService.findById(taskId));
+            graphExecutionService.markFailed(graphExecutionId, e.getMessage());
+            notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
 
             CompletableFuture<GraphExecutionPayload> failedFuture = new CompletableFuture<>();
             failedFuture.completeExceptionally(e);

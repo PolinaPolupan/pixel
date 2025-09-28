@@ -31,13 +31,14 @@ public class NodeExecutor {
         return new NodeClientData(meta, resolvedInputs);
     }
 
-    public void execute(NodeClientData nodeClientData) {
+    public NodeExecutionResponse execute(NodeClientData nodeClientData) {
         NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeClientData);
 
         String outputKey = getOutputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
         nodeCache.put(outputKey, executionResponse.getOutputs());
 
         log.info("Node {} Exec Output JSON | Response: {}", nodeClientData.getMeta().getNodeId(), executionResponse);
+        return executionResponse;
     }
 
     public void validate(NodeClientData nodeClientData) {

@@ -36,14 +36,15 @@ public class GraphExecutionService {
     }
 
     @Transactional
-    public GraphExecutionPayload create(Graph graph) {
-        log.debug("Creating task for graph {}", graph.getId());
-        GraphExecutionEntity graphExecutionEntity = new GraphExecutionEntity();
-        graphExecutionEntity.setGraphId(graph.getId());
-        graphExecutionEntity.setStatus(GraphExecutionStatus.PENDING);
-        graphExecutionEntity.setTotalNodes(graph.getNodes().size());
-        graphExecutionEntity.setProcessedNodes(0);
-        return GraphExecutionPayload.fromEntity(graphExecutionRepository.save(graphExecutionEntity));
+    public GraphExecutionEntity create(Graph graph) {
+        GraphExecutionEntity graphExecutionEntity = GraphExecutionEntity
+                .builder()
+                .graphId(graph.getId())
+                .status(GraphExecutionStatus.PENDING)
+                .totalNodes(graph.getNodes().size())
+                .processedNodes(0)
+                .build();
+        return graphExecutionRepository.save(graphExecutionEntity);
     }
 
     @Transactional

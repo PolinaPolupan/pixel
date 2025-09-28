@@ -1,14 +1,16 @@
 package com.example.pixel.node_execution.entity;
 
 import com.example.pixel.node_execution.dto.NodeStatus;
-import com.example.pixel.node.entity.NodeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Entity
 @Table(name = "node_executions")
@@ -19,21 +21,21 @@ import java.time.Instant;
 public class NodeExecutionEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "node_id")
-    private NodeEntity node;
 
     @Enumerated(EnumType.STRING)
     private NodeStatus status;
 
     @Lob
-    private String inputValues;
+    @Column(columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> inputs;
 
     @Lob
-    private String outputValues;
+    @Column(columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> outputs;
 
     private Instant startedAt;
     private Instant finishedAt;
