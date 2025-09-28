@@ -2,8 +2,8 @@ package com.example.pixel.graph.model;
 
 import com.example.pixel.common.exception.InvalidGraphException;
 import com.example.pixel.common.exception.InvalidNodeInputException;
-import com.example.pixel.node.model.Node;
-import com.example.pixel.node.model.NodeReference;
+import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.NodeReference;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,49 +13,49 @@ import java.util.*;
 @Getter
 public class Graph {
     private final Long id;
-    private final List<Node> nodes;
-    private final List<Node> topologicalOrder = new ArrayList<>();
-    private final Map<Long, Node> nodeMap = new HashMap<>();
-    private final Map<Node, List<Node>> nodeOutputs = new HashMap<>();
+    private final List<NodeExecution> nodeExecutions;
+    private final List<NodeExecution> topologicalOrder = new ArrayList<>();
+    private final Map<Long, NodeExecution> nodeMap = new HashMap<>();
+    private final Map<NodeExecution, List<NodeExecution>> nodeOutputs = new HashMap<>();
 
-    public Graph(Long id, List<Node> nodes) {
+    public Graph(Long id, List<NodeExecution> nodeExecutions) {
         this.id = id;
-        this.nodes = nodes;
+        this.nodeExecutions = nodeExecutions;
 
         // First populate the node map
-        for (Node node: nodes) nodeMap.put(node.getId(), node);
+        for (NodeExecution nodeExecution : nodeExecutions) nodeMap.put(nodeExecution.getId(), nodeExecution);
 
         // Then process the nodes
-        for (Node node: nodes) {
-            mapOutputNodes(node);
-            validateReferences(node);
+        for (NodeExecution nodeExecution : nodeExecutions) {
+            mapOutputNodes(nodeExecution);
+            validateReferences(nodeExecution);
         }
 
         buildTopologicalOrder();
         verifyGraphIntegrity();
     }
 
-    public Iterator<Node> iterator() {
+    public Iterator<NodeExecution> iterator() {
         return new GraphIterator(this);
     }
 
-    private void mapOutputNodes(Node node) {
-        List<Node> dependentNodes = new ArrayList<>();
-        for (Node potentialDependent: nodes) {
+    private void mapOutputNodes(NodeExecution nodeExecution) {
+        List<NodeExecution> dependentNodeExecutions = new ArrayList<>();
+        for (NodeExecution potentialDependent: nodeExecutions) {
             for (Object param: potentialDependent.getInputs().values()) {
                 if (param instanceof NodeReference) {
-                    if (((NodeReference) param).getNodeId().equals(node.getId())) {
-                        dependentNodes.add(potentialDependent);
+                    if (((NodeReference) param).getNodeId().equals(nodeExecution.getId())) {
+                        dependentNodeExecutions.add(potentialDependent);
                     }
                 }
             }
         }
-        nodeOutputs.put(node, dependentNodes);
+        nodeOutputs.put(nodeExecution, dependentNodeExecutions);
     }
 
-    private void validateReferences(Node node) {
-        for (String paramName: node.getInputs().keySet()) {
-            Object paramValue = node.getInputs().get(paramName);
+    private void validateReferences(NodeExecution nodeExecution) {
+        for (String paramName: nodeExecution.getInputs().keySet()) {
+            Object paramValue = nodeExecution.getInputs().get(paramName);
 
             if (paramValue instanceof NodeReference) {
                 Long targetNodeId = ((NodeReference) paramValue).getNodeId();
@@ -73,10 +73,10 @@ public class Graph {
         Set<Long> seenIds = new HashSet<>();
         List<Long> duplicateIds = new ArrayList<>();
 
-        for (Node node: nodes) {
-            if (!seenIds.add(node.getId())) {
+        for (NodeExecution nodeExecution : nodeExecutions) {
+            if (!seenIds.add(nodeExecution.getId())) {
                 // If we couldn't add to the set, it's a duplicate
-                duplicateIds.add(node.getId());
+                duplicateIds.add(nodeExecution.getId());
             }
         }
 
@@ -85,7 +85,7 @@ public class Graph {
         }
 
         // Check for cycles
-        if (topologicalOrder.size() != nodes.size()) {
+        if (topologicalOrder.size() != nodeExecutions.size()) {
             throw new InvalidGraphException("Graph contains a cycle");
         }
 
@@ -94,16 +94,16 @@ public class Graph {
 
     private void buildTopologicalOrder() {
         Map<Long, Integer> inDegreeMap = new HashMap<>();
-        Queue<Node> zeroInDegreeNodes = new LinkedList<>();
+        Queue<NodeExecution> zeroInDegreeNodeExecutions = new LinkedList<>();
 
         // Initialize inDegreeMap
-        for (Node node: nodes) {
-            inDegreeMap.put(node.getId(), 0);
+        for (NodeExecution nodeExecution : nodeExecutions) {
+            inDegreeMap.put(nodeExecution.getId(), 0);
         }
 
         // Calculate in-degrees
-        for (Node node: nodes) {
-            for (Node dependent: nodeOutputs.get(node)) {
+        for (NodeExecution nodeExecution : nodeExecutions) {
+            for (NodeExecution dependent: nodeOutputs.get(nodeExecution)) {
                 inDegreeMap.put(dependent.getId(), inDegreeMap.get(dependent.getId()) + 1);
             }
         }
@@ -111,20 +111,20 @@ public class Graph {
         // Add nodes with zero in-degree to the queue
         for (Map.Entry<Long, Integer> entry : inDegreeMap.entrySet()) {
             if (entry.getValue() == 0) {
-                zeroInDegreeNodes.add(nodeMap.get(entry.getKey()));
+                zeroInDegreeNodeExecutions.add(nodeMap.get(entry.getKey()));
             }
         }
 
         // Process nodes with zero in-degree
-        while (!zeroInDegreeNodes.isEmpty()) {
-            Node current = zeroInDegreeNodes.poll();
+        while (!zeroInDegreeNodeExecutions.isEmpty()) {
+            NodeExecution current = zeroInDegreeNodeExecutions.poll();
             topologicalOrder.add(current);
 
-            for (Node dependent: nodeOutputs.get(current)) {
+            for (NodeExecution dependent: nodeOutputs.get(current)) {
                 int inDegree = inDegreeMap.get(dependent.getId()) - 1;
                 inDegreeMap.put(dependent.getId(), inDegree);
                 if (inDegree == 0) {
-                    zeroInDegreeNodes.add(nodeMap.get(dependent.getId()));
+                    zeroInDegreeNodeExecutions.add(nodeMap.get(dependent.getId()));
                 }
             }
         }

@@ -7,7 +7,8 @@ import com.example.pixel.node_execution.cache.NodeCache;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
 import com.example.pixel.node_execution.dto.NodeValidationResponse;
 import com.example.pixel.node_execution.integration.NodeClient;
-import com.example.pixel.node.model.*;
+import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.NodeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,11 +23,11 @@ public class NodeExecutor {
     private final NodeClient nodeClient;
     private final NodeCache nodeCache;
 
-    public NodeClientData setup(Node node, Long graphExecutionId) {
-        Map<String, Object> resolvedInputs = resolveInputs(node, graphExecutionId);
-        node.setInputs(resolvedInputs);
+    public NodeClientData setup(NodeExecution nodeExecution, Long graphExecutionId) {
+        Map<String, Object> resolvedInputs = resolveInputs(nodeExecution, graphExecutionId);
+        nodeExecution.setInputs(resolvedInputs);
 
-        Metadata meta = new Metadata(node.getType(), node.getId(), graphExecutionId);
+        Metadata meta = new Metadata(nodeExecution.getType(), nodeExecution.getId(), graphExecutionId);
 
         return new NodeClientData(meta, resolvedInputs);
     }
@@ -50,18 +51,18 @@ public class NodeExecutor {
         log.info("Node {} Validation Input JSON: {} | Response: {}", nodeClientData.getMeta().getNodeId(), nodeClientData, validationResponse);
     }
 
-    private Map<String, Object> resolveInputs(Node node, Long graphExecutionId) {
+    private Map<String, Object> resolveInputs(NodeExecution nodeExecution, Long graphExecutionId) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
-        for (String key: node.getInputs().keySet()) {
-            resolvedInputs.put(key, resolveInput(node, graphExecutionId, key));
+        for (String key: nodeExecution.getInputs().keySet()) {
+            resolvedInputs.put(key, resolveInput(nodeExecution, graphExecutionId, key));
         }
 
         return resolvedInputs;
     }
 
-    private Object resolveInput(Node node, Long graphExecutionId, String key) {
-        Object input = node.getInputs().get(key);
+    private Object resolveInput(NodeExecution nodeExecution, Long graphExecutionId, String key) {
+        Object input = nodeExecution.getInputs().get(key);
 
         if (input instanceof NodeReference) {
             input = resolveReference((NodeReference) input, graphExecutionId);

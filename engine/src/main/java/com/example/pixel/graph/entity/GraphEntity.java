@@ -1,7 +1,7 @@
 package com.example.pixel.graph.entity;
 
 import com.example.pixel.graph.model.Graph;
-import com.example.pixel.node.dto.NodePayload;
+import com.example.pixel.node_execution.dto.NodeExecutionPayload;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class GraphEntity {
 
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<NodePayload> nodes;
+    private List<NodeExecutionPayload> nodes;
 
     // Version for optimistic locking in distributed environments
     @JsonIgnore
@@ -39,6 +39,6 @@ public class GraphEntity {
     private Long version;
 
     public Graph toGraph() {
-        return new Graph(id, nodes.stream().map(NodePayload::toNode).toList());
+        return new Graph(id, nodes.stream().map(NodeExecutionPayload::toNode).toList());
     }
 }

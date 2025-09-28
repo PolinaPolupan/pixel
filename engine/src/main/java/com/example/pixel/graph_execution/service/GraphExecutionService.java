@@ -41,7 +41,7 @@ public class GraphExecutionService {
                 .builder()
                 .graphId(graph.getId())
                 .status(GraphExecutionStatus.PENDING)
-                .totalNodes(graph.getNodes().size())
+                .totalNodes(graph.getNodeExecutions().size())
                 .processedNodes(0)
                 .build();
         return graphExecutionRepository.save(graphExecutionEntity);

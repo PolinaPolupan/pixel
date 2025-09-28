@@ -1,4 +1,4 @@
-package com.example.pixel.node.model;
+package com.example.pixel.node_execution.model;
 
 import com.example.pixel.common.exception.InvalidNodeInputException;
 import com.fasterxml.jackson.annotation.JsonIgnore;

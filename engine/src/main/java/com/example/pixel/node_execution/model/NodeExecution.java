@@ -1,4 +1,4 @@
-package com.example.pixel.node.model;
+package com.example.pixel.node_execution.model;
 
 import lombok.Data;
 import org.springframework.lang.NonNull;
@@ -6,12 +6,12 @@ import org.springframework.lang.NonNull;
 import java.util.Map;
 
 @Data
-public class Node {
+public class NodeExecution {
     private Long id;
     private String type;
     private Map<String, Object> inputs;
 
-    public Node(@NonNull Long id, @NonNull String type, @NonNull Map<String, Object> inputs) {
+    public NodeExecution(@NonNull Long id, @NonNull String type, @NonNull Map<String, Object> inputs) {
         this.id = id;
         this.type = type;
         this.inputs = inputs;

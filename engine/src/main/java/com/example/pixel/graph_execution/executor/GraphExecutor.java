@@ -2,7 +2,7 @@ package com.example.pixel.graph_execution.executor;
 
 import com.example.pixel.graph.model.Graph;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
-import com.example.pixel.node.model.Node;
+import com.example.pixel.node_execution.model.NodeExecution;
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
@@ -40,22 +40,22 @@ public class GraphExecutor {
             log.debug("Updating task status to RUNNING for graphExecutionId={}", graphExecutionId);
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
-            Iterator<Node> iterator = graph.iterator();
+            Iterator<NodeExecution> iterator = graph.iterator();
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
-                Node node = iterator.next();
-                log.debug("Processing node id={} for graphExecutionId={}", node.getId(), graphExecutionId);
+                NodeExecution nodeExecution = iterator.next();
+                log.debug("Processing node id={} for graphExecutionId={}", nodeExecution.getId(), graphExecutionId);
 
-                nodeExecutionService.execute(node, graphExecutionId);
+                nodeExecutionService.execute(nodeExecution, graphExecutionId);
 
                 processedNodes++;
-                log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodes().size());
+                log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodeExecutions().size());
 
                 graphExecutionService.updateProgress(graphExecutionId, processedNodes);
                 notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
 
-                log.debug("Node with id: {} is processed (graphExecutionId={})", node.getId(), graphExecutionId);
+                log.debug("Node with id: {} is processed (graphExecutionId={})", nodeExecution.getId(), graphExecutionId);
             }
 
             log.info("All nodes processed for graphExecutionId={}, updating status to COMPLETED", graphExecutionId);

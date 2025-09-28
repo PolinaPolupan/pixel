@@ -3,8 +3,8 @@ package com.example.pixel.graph;
 import com.example.pixel.common.exception.InvalidGraphException;
 import com.example.pixel.common.exception.InvalidNodeInputException;
 import com.example.pixel.graph.model.Graph;
-import com.example.pixel.node.model.Node;
-import com.example.pixel.node.model.NodeReference;
+import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.NodeReference;
 import com.example.pixel.util.TestGraphFactory;
 import org.junit.jupiter.api.Test;
 
@@ -25,23 +25,23 @@ public class GraphTest {
         Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
 
         assertNotNull(graph);
-        assertEquals(8, graph.getNodes().size());
+        assertEquals(8, graph.getNodeExecutions().size());
         assertEquals(8, graph.getTopologicalOrder().size());
     }
 
     @Test
     void constructGraphWithDuplicateIds_shouldThrowInvalidGraphException() {
-        List<Node> nodes = new ArrayList<>();
+        List<NodeExecution> nodeExecutions = new ArrayList<>();
 
         Map<String, Object> floorParams = new HashMap<>();
         floorParams.put("input", 56);
-        Node floorNode1 = new Node(4L, "Floor", floorParams);
-        nodes.add(floorNode1);
+        NodeExecution floorNodeExecution1 = new NodeExecution(4L, "Floor", floorParams);
+        nodeExecutions.add(floorNodeExecution1);
 
-        Node floorNode2 = new Node(4L, "Floor", floorParams);
-        nodes.add(floorNode2);
+        NodeExecution floorNodeExecution2 = new NodeExecution(4L, "Floor", floorParams);
+        nodeExecutions.add(floorNodeExecution2);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodeExecutions));
         assertTrue(exception.getMessage().contains("duplicate IDs"));
         assertTrue(exception.getMessage().contains("4"));
     }
@@ -50,82 +50,82 @@ public class GraphTest {
     void nodeOutputs_shouldBeCorrectlyIdentified() {
         // Create a graph with the template nodes
         Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
-        List<Node> nodes = graph.getNodes();
+        List<NodeExecution> nodeExecutions = graph.getNodeExecutions();
 
         // Get the node outputs map
-        Map<Node, List<Node>> nodeOutputs = graph.getNodeOutputs();
+        Map<NodeExecution, List<NodeExecution>> nodeOutputs = graph.getNodeOutputs();
 
         // Reference nodes by their index in the list for clarity
-        Node inputNode = nodes.get(0);      // Input node (id: 1)
-        Node vectorNode = nodes.get(1);     // Vector2D node (id: 2)
-        Node floorNode = nodes.get(2);      // Floor node (id: 3)
-        Node blurNode = nodes.get(3);       // Blur node (id: 4)
-        Node gaussianNode = nodes.get(4);   // GaussianBlur node (id: 5)
-        Node bilateralNode = nodes.get(5);  // BilateralFilter node (id: 6)
-        Node stringNode = nodes.get(6);     // String node (id: 7)
-        Node outputNode = nodes.get(7);     // Output node (id: 8)
+        NodeExecution inputNodeExecution = nodeExecutions.get(0);      // Input node (id: 1)
+        NodeExecution vectorNodeExecution = nodeExecutions.get(1);     // Vector2D node (id: 2)
+        NodeExecution floorNodeExecution = nodeExecutions.get(2);      // Floor node (id: 3)
+        NodeExecution blurNodeExecution = nodeExecutions.get(3);       // Blur node (id: 4)
+        NodeExecution gaussianNodeExecution = nodeExecutions.get(4);   // GaussianBlur node (id: 5)
+        NodeExecution bilateralNodeExecution = nodeExecutions.get(5);  // BilateralFilter node (id: 6)
+        NodeExecution stringNodeExecution = nodeExecutions.get(6);     // String node (id: 7)
+        NodeExecution outputNodeExecution = nodeExecutions.get(7);     // Output node (id: 8)
 
         // Verify Input node (1) outputs: should connect to Blur node (4)
-        assertEquals(1, nodeOutputs.get(inputNode).size(), "Input node should have 1 output");
-        assertTrue(nodeOutputs.get(inputNode).contains(blurNode), "Input node should connect to Blur node");
+        assertEquals(1, nodeOutputs.get(inputNodeExecution).size(), "Input node should have 1 output");
+        assertTrue(nodeOutputs.get(inputNodeExecution).contains(blurNodeExecution), "Input node should connect to Blur node");
 
         // Verify Vector2D node (2) outputs: should connect to Blur node (4)
-        assertEquals(1, nodeOutputs.get(vectorNode).size(), "Vector2D node should have 1 output");
-        assertTrue(nodeOutputs.get(vectorNode).contains(blurNode), "Vector2D node should connect to Blur node");
+        assertEquals(1, nodeOutputs.get(vectorNodeExecution).size(), "Vector2D node should have 1 output");
+        assertTrue(nodeOutputs.get(vectorNodeExecution).contains(blurNodeExecution), "Vector2D node should connect to Blur node");
 
         // Verify Floor node (3) outputs: should have no connections
-        assertTrue(nodeOutputs.get(floorNode).isEmpty(), "Floor node should have no outputs");
+        assertTrue(nodeOutputs.get(floorNodeExecution).isEmpty(), "Floor node should have no outputs");
 
         // Verify Blur node (4) outputs: should connect to GaussianBlur node (5)
-        assertEquals(1, nodeOutputs.get(blurNode).size(), "Blur node should have 1 output");
-        assertTrue(nodeOutputs.get(blurNode).contains(gaussianNode), "Blur node should connect to GaussianBlur node");
+        assertEquals(1, nodeOutputs.get(blurNodeExecution).size(), "Blur node should have 1 output");
+        assertTrue(nodeOutputs.get(blurNodeExecution).contains(gaussianNodeExecution), "Blur node should connect to GaussianBlur node");
 
         // Verify GaussianBlur node (5) outputs: should connect to BilateralFilter node (6)
-        assertEquals(1, nodeOutputs.get(gaussianNode).size(), "GaussianBlur node should have 1 output");
-        assertTrue(nodeOutputs.get(gaussianNode).contains(bilateralNode), "GaussianBlur node should connect to BilateralFilter node");
+        assertEquals(1, nodeOutputs.get(gaussianNodeExecution).size(), "GaussianBlur node should have 1 output");
+        assertTrue(nodeOutputs.get(gaussianNodeExecution).contains(bilateralNodeExecution), "GaussianBlur node should connect to BilateralFilter node");
 
         // Verify BilateralFilter node (6) outputs: should connect to Output node (8)
-        assertEquals(1, nodeOutputs.get(bilateralNode).size(), "BilateralFilter node should have 1 output");
-        assertTrue(nodeOutputs.get(bilateralNode).contains(outputNode), "BilateralFilter node should connect to Output node");
+        assertEquals(1, nodeOutputs.get(bilateralNodeExecution).size(), "BilateralFilter node should have 1 output");
+        assertTrue(nodeOutputs.get(bilateralNodeExecution).contains(outputNodeExecution), "BilateralFilter node should connect to Output node");
 
         // Verify String node (7) outputs: should connect to Output node (8)
-        assertEquals(1, nodeOutputs.get(stringNode).size(), "String node should have 1 output");
-        assertTrue(nodeOutputs.get(stringNode).contains(outputNode), "String node should connect to Output node");
+        assertEquals(1, nodeOutputs.get(stringNodeExecution).size(), "String node should have 1 output");
+        assertTrue(nodeOutputs.get(stringNodeExecution).contains(outputNodeExecution), "String node should connect to Output node");
 
         // Verify Output node (8) outputs: should have no connections
-        assertTrue(nodeOutputs.get(outputNode).isEmpty(), "Output node should have no outputs");
+        assertTrue(nodeOutputs.get(outputNodeExecution).isEmpty(), "Output node should have no outputs");
     }
 
     @Test
     void topologicalSort_shouldProduceCorrectOrdering() {
         Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
-        List<Node> nodes = graph.getNodes();
+        List<NodeExecution> nodeExecutions = graph.getNodeExecutions();
 
         // Get the topological ordering
-        List<Node> topologicalOrder = graph.getTopologicalOrder();
+        List<NodeExecution> topologicalOrder = graph.getTopologicalOrder();
 
         // Verify the size matches the number of nodes
         assertEquals(8, topologicalOrder.size(), "Topological order should contain all nodes");
 
         // Get references to all nodes by their index for readability
-        Node inputNode = nodes.get(0);      // Input node (id: 1)
-        Node vectorNode = nodes.get(1);     // Vector2D node (id: 2)
-        Node floorNode = nodes.get(2);      // Floor node (id: 3)
-        Node blurNode = nodes.get(3);       // Blur node (id: 4)
-        Node gaussianNode = nodes.get(4);   // GaussianBlur node (id: 5)
-        Node bilateralNode = nodes.get(5);  // BilateralFilter node (id: 6)
-        Node stringNode = nodes.get(6);     // String node (id: 7)
-        Node outputNode = nodes.get(7);     // Output node (id: 8)
+        NodeExecution inputNodeExecution = nodeExecutions.get(0);      // Input node (id: 1)
+        NodeExecution vectorNodeExecution = nodeExecutions.get(1);     // Vector2D node (id: 2)
+        NodeExecution floorNodeExecution = nodeExecutions.get(2);      // Floor node (id: 3)
+        NodeExecution blurNodeExecution = nodeExecutions.get(3);       // Blur node (id: 4)
+        NodeExecution gaussianNodeExecution = nodeExecutions.get(4);   // GaussianBlur node (id: 5)
+        NodeExecution bilateralNodeExecution = nodeExecutions.get(5);  // BilateralFilter node (id: 6)
+        NodeExecution stringNodeExecution = nodeExecutions.get(6);     // String node (id: 7)
+        NodeExecution outputNodeExecution = nodeExecutions.get(7);     // Output node (id: 8)
 
         // Find positions of each node in the topological order
-        int posInput = topologicalOrder.indexOf(inputNode);
-        int posVector = topologicalOrder.indexOf(vectorNode);
-        int posFloor = topologicalOrder.indexOf(floorNode);
-        int posBlur = topologicalOrder.indexOf(blurNode);
-        int posGaussian = topologicalOrder.indexOf(gaussianNode);
-        int posBilateral = topologicalOrder.indexOf(bilateralNode);
-        int posString = topologicalOrder.indexOf(stringNode);
-        int posOutput = topologicalOrder.indexOf(outputNode);
+        int posInput = topologicalOrder.indexOf(inputNodeExecution);
+        int posVector = topologicalOrder.indexOf(vectorNodeExecution);
+        int posFloor = topologicalOrder.indexOf(floorNodeExecution);
+        int posBlur = topologicalOrder.indexOf(blurNodeExecution);
+        int posGaussian = topologicalOrder.indexOf(gaussianNodeExecution);
+        int posBilateral = topologicalOrder.indexOf(bilateralNodeExecution);
+        int posString = topologicalOrder.indexOf(stringNodeExecution);
+        int posOutput = topologicalOrder.indexOf(outputNodeExecution);
 
         // Verify all nodes are present in the order
         assertNotEquals(-1, posInput, "Input node missing from topological order");
@@ -170,7 +170,7 @@ public class GraphTest {
 
     @Test
     void graphWithCycle_shouldThrowInvalidGraphException() {
-        List<Node> nodes = new ArrayList<>();
+        List<NodeExecution> nodeExecutions = new ArrayList<>();
 
         // Create Input node (id: 10)
         Map<String, Object> inputParams = new HashMap<>();
@@ -178,14 +178,14 @@ public class GraphTest {
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture1.png");
         files.add("upload-image-dir/scenes/" + sceneId + "/input/Picture3.png");
         inputParams.put("input", files);
-        Node inputNode = new Node(10L, "Input", inputParams);
-        nodes.add(inputNode);
+        NodeExecution inputNodeExecution = new NodeExecution(10L, "Input", inputParams);
+        nodeExecutions.add(inputNodeExecution);
 
         // Create Floor node (id: 4)
         Map<String, Object> floorParams = new HashMap<>();
         floorParams.put("input", 56);
-        Node floorNode = new Node(4L, "Floor", floorParams);
-        nodes.add(floorNode);
+        NodeExecution floorNodeExecution = new NodeExecution(4L, "Floor", floorParams);
+        nodeExecutions.add(floorNodeExecution);
 
         // Create GaussianBlur node (id: 1)
         Map<String, Object> gaussianParams = new HashMap<>();
@@ -194,8 +194,8 @@ public class GraphTest {
         gaussianParams.put("sizeY", 33);
         gaussianParams.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
-        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
-        nodes.add(gaussianNode);
+        NodeExecution gaussianNodeExecution = new NodeExecution(1L, "GaussianBlur", gaussianParams);
+        nodeExecutions.add(gaussianNodeExecution);
 
         // Create GaussianBlur node (id: 2)
         Map<String, Object> gaussianParams2 = new HashMap<>();
@@ -204,8 +204,8 @@ public class GraphTest {
         gaussianParams2.put("sizeY", 33);
         gaussianParams2.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams2.put("sigmaY", 1.5); // Not in JSON, using default value
-        Node gaussianNode2 = new Node(2L, "GaussianBlur", gaussianParams2);
-        nodes.add(gaussianNode2);
+        NodeExecution gaussianNodeExecution2 = new NodeExecution(2L, "GaussianBlur", gaussianParams2);
+        nodeExecutions.add(gaussianNodeExecution2);
 
         // Create GaussianBlur node (id: 3)
         Map<String, Object> gaussianParams3 = new HashMap<>();
@@ -214,16 +214,16 @@ public class GraphTest {
         gaussianParams3.put("sizeY", 33);
         gaussianParams3.put("sigmaX", new NodeReference("@node:4:output"));
         gaussianParams3.put("sigmaY", 1.5); // Not in JSON, using default value
-        Node gaussianNode3 = new Node(3L, "GaussianBlur", gaussianParams3);
-        nodes.add(gaussianNode3);
+        NodeExecution gaussianNodeExecution3 = new NodeExecution(3L, "GaussianBlur", gaussianParams3);
+        nodeExecutions.add(gaussianNodeExecution3);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodeExecutions));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
     @Test
     void graphWithSelfReference_shouldThrowInvalidGraphException() {
-        List<Node> nodes = new ArrayList<>();
+        List<NodeExecution> nodeExecutions = new ArrayList<>();
 
         // Create GaussianBlur node (id: 1)
         Map<String, Object> gaussianParams = new HashMap<>();
@@ -232,16 +232,16 @@ public class GraphTest {
         gaussianParams.put("sizeY", 33);
         gaussianParams.put("sigmaX", 5);
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
-        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
-        nodes.add(gaussianNode);
+        NodeExecution gaussianNodeExecution = new NodeExecution(1L, "GaussianBlur", gaussianParams);
+        nodeExecutions.add(gaussianNodeExecution);
 
-        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodes));
+        InvalidGraphException exception = assertThrows(InvalidGraphException.class, () -> new Graph(1L, nodeExecutions));
         assertTrue(exception.getMessage().contains("cycle"));
     }
 
     @Test
     void graphWithInvalidReferenceId_shouldThrowInvalidGraphException() {
-        List<Node> nodes = new ArrayList<>();
+        List<NodeExecution> nodeExecutions = new ArrayList<>();
 
         // Create GaussianBlur node (id: 1)
         Map<String, Object> gaussianParams = new HashMap<>();
@@ -250,10 +250,10 @@ public class GraphTest {
         gaussianParams.put("sizeY", 33);
         gaussianParams.put("sigmaX", 5);
         gaussianParams.put("sigmaY", 1.5); // Not in JSON, using default value
-        Node gaussianNode = new Node(1L, "GaussianBlur", gaussianParams);
-        nodes.add(gaussianNode);
+        NodeExecution gaussianNodeExecution = new NodeExecution(1L, "GaussianBlur", gaussianParams);
+        nodeExecutions.add(gaussianNodeExecution);
 
-        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new Graph(1L, nodes));
+        InvalidNodeInputException exception = assertThrows(InvalidNodeInputException.class, () -> new Graph(1L, nodeExecutions));
         assertTrue(exception.getMessage().contains("Invalid node reference: Node with id 10 is not found"));
     }
 }
