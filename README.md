@@ -162,7 +162,7 @@ You can create your pipelines using pixel sdk
 2. **Write a Python File**
 
    Inside `execution_graph`, create a new Python file (e.g., `my_graph.py`).
- 
+
 ---
 
 ## Contributing

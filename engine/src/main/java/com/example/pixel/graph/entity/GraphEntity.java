@@ -1,6 +1,7 @@
 package com.example.pixel.graph.entity;
 
 import com.example.pixel.graph.model.Graph;
+import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.node_execution.dto.NodeExecutionPayload;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -32,6 +33,9 @@ public class GraphEntity {
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<NodeExecutionPayload> nodes;
+
+    @OneToMany(mappedBy = "graphId", fetch = FetchType.LAZY)
+    private List<GraphExecutionEntity> graphExecutionEntity;
 
     // Version for optimistic locking in distributed environments
     @JsonIgnore

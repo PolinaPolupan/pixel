@@ -5,15 +5,15 @@ from pixel.core import Node
 from pixel.server.load_nodes import register_node_class
 
 def node(
-    display_name: str = None,
-    category: str = None,
-    description: str = None,
-    color: str = "#808080",
-    icon: str = None,
-    required_packages: List[str] = None,
-    inputs: Dict[str, Dict[str, Any]] = None,
-    outputs: Dict[str, Dict[str, Any]] = None,
-    tasks: Dict[str, Callable] = None
+        display_name: str = None,
+        category: str = None,
+        description: str = None,
+        color: str = "#808080",
+        icon: str = None,
+        required_packages: List[str] = None,
+        inputs: Dict[str, Dict[str, Any]] = None,
+        outputs: Dict[str, Dict[str, Any]] = None,
+        tasks: Dict[str, Callable] = None
 ):
     def decorator(func: Callable) -> Type[Node]:
         func_node_type = func.__name__.lower()
