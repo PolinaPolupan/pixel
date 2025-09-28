@@ -2,18 +2,18 @@ package com.example.pixel.graph.service;
 
 import com.example.pixel.common.exception.GraphNotFoundException;
 import com.example.pixel.graph.dto.CreateGraphRequest;
-import com.example.pixel.graph.model.Graph;
-import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph.entity.GraphEntity;
 import com.example.pixel.graph.repository.GraphRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.executor.GraphExecutor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class GraphService {
@@ -21,7 +21,7 @@ public class GraphService {
     private final GraphExecutor graphExecutor;
     private final GraphRepository graphRepository;
 
-    public GraphPayload createGraph(CreateGraphRequest createGraphRequest) {
+    public GraphEntity createGraph(CreateGraphRequest createGraphRequest) {
         GraphEntity graphModel = GraphEntity
                 .builder()
                 .createdAt(LocalDateTime.now())
@@ -29,22 +29,14 @@ public class GraphService {
                 .nodes(createGraphRequest.getNodes())
                 .build();
 
-        graphModel = graphRepository.save(graphModel);
-
-        return new GraphPayload(
-                graphModel.getId(),
-                graphModel.getCreatedAt(),
-                graphModel.getLastAccessed(),
-                createGraphRequest.getNodes()
-        );
+        return graphRepository.save(graphModel);
     }
 
     public GraphExecutionPayload executeGraph(Long id) {
         GraphEntity graphEntity = graphRepository.findById(id)
                 .orElseThrow(() -> new GraphNotFoundException("Graph with id: " + id + " not found"));
 
-        Graph graph = graphEntity.toGraph();
-        return graphExecutor.startExecution(graph);
+        return graphExecutor.startExecution(graphEntity.toPayload());
     }
 
     @Transactional
@@ -54,9 +46,5 @@ public class GraphService {
         }
 
         graphRepository.updateLastAccessedTime(id, LocalDateTime.now());
-    }
-
-    public void deleteGraph(Long id) {
-        graphRepository.deleteById(id);
     }
 }

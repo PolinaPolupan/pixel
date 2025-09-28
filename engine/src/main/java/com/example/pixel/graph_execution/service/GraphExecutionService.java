@@ -1,8 +1,8 @@
 package com.example.pixel.graph_execution.service;
 
 import com.example.pixel.common.exception.TaskNotFoundException;
+import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
-import com.example.pixel.graph.model.Graph;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.repository.GraphExecutionRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
@@ -36,7 +36,7 @@ public class GraphExecutionService {
     }
 
     @Transactional
-    public GraphExecutionEntity create(Graph graph) {
+    public GraphExecutionEntity create(GraphPayload graph) {
         GraphExecutionEntity graphExecutionEntity = GraphExecutionEntity
                 .builder()
                 .graphId(graph.getId())

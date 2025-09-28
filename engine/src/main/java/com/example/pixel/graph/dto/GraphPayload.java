@@ -1,23 +1,14 @@
 package com.example.pixel.graph.dto;
 
-import com.example.pixel.graph.model.Graph;
-import com.example.pixel.node_execution.dto.NodeExecutionPayload;
+import com.example.pixel.node_execution.model.NodeExecution;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class GraphPayload {
-    private Long id;
-    private LocalDateTime createdAt;
-    private LocalDateTime lastAccessed;
-    private List<NodeExecutionPayload> nodes;
-
-    public Graph toGraph() {
-        return new Graph(id, nodes.stream().map(NodeExecutionPayload::toNode).toList());
-    }
+    private final Long id;
+    private final List<NodeExecution> nodeExecutions;
 }

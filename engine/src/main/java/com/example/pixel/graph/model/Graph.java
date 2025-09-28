@@ -20,7 +20,7 @@ public class Graph {
 
     public Graph(Long id, List<NodeExecution> nodeExecutions) {
         this.id = id;
-        this.nodeExecutions = nodeExecutions;
+        this.nodeExecutions = setupReferences(nodeExecutions);
 
         // First populate the node map
         for (NodeExecution nodeExecution : nodeExecutions) nodeMap.put(nodeExecution.getId(), nodeExecution);
@@ -37,6 +37,20 @@ public class Graph {
 
     public Iterator<NodeExecution> iterator() {
         return new GraphIterator(this);
+    }
+
+    private List<NodeExecution> setupReferences(List<NodeExecution> nodeExecutions) {
+        for (NodeExecution nodeExecution: nodeExecutions) {
+            NodeExecution copy = new NodeExecution(nodeExecution.getId(), nodeExecution.getType(), nodeExecution.getInputs());
+            Map<String, Object> inputs = copy.getInputs();
+            for (Map.Entry<String, Object> input: inputs.entrySet()) {
+                Object value = input.getValue();
+                if (value instanceof String && ((String) value).startsWith("@node:")) {
+                    nodeExecution.getInputs().put(input.getKey(), new NodeReference((String) value));
+                }
+            }
+        }
+        return nodeExecutions;
     }
 
     private void mapOutputNodes(NodeExecution nodeExecution) {

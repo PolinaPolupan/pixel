@@ -1,5 +1,6 @@
 package com.example.pixel.graph_execution.executor;
 
+import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph.model.Graph;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.node_execution.model.NodeExecution;
@@ -27,16 +28,17 @@ public class GraphExecutor {
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
 
-    public GraphExecutionPayload startExecution(Graph graph) {
-        GraphExecutionEntity graphExecutionEntity = graphExecutionService.create(graph);
+    public GraphExecutionPayload startExecution(GraphPayload graphPayload) {
+        GraphExecutionEntity graphExecutionEntity = graphExecutionService.create(graphPayload);
         Long graphExecutionId = graphExecutionEntity.getId();
         log.info("startGraphExecution: Task created with id={}, launching async graph execution ...", graphExecutionId);
-        CompletableFuture.runAsync(() -> execute(graph, graphExecutionId), graphTaskExecutor);
+        CompletableFuture.runAsync(() -> execute(graphPayload, graphExecutionId), graphTaskExecutor);
         return GraphExecutionPayload.fromEntity(graphExecutionEntity);
     }
 
-    private CompletableFuture<GraphExecutionPayload> execute(Graph graph, Long graphExecutionId) {
+    private CompletableFuture<GraphExecutionPayload> execute(GraphPayload graphPayload, Long graphExecutionId) {
         try {
+            Graph graph = new Graph(graphPayload.getId(), graphPayload.getNodeExecutions());
             log.debug("Updating task status to RUNNING for graphExecutionId={}", graphExecutionId);
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
@@ -64,7 +66,7 @@ public class GraphExecutor {
 
             return CompletableFuture.completedFuture(graphExecutionService.findById(graphExecutionId));
         } catch (Exception e) {
-            log.error("Error processing graph with id {} (graphExecutionId={}): {}", graph.getId(), graphExecutionId, e.getMessage(), e);
+            log.error("Error processing graph with id {} (graphExecutionId={}): {}", graphPayload.getId(), graphExecutionId, e.getMessage(), e);
 
             graphExecutionService.markFailed(graphExecutionId, e.getMessage());
             notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
