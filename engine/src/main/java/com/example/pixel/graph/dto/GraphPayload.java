@@ -10,5 +10,5 @@ import java.util.List;
 @AllArgsConstructor
 public class GraphPayload {
     private final Long id;
-    private final List<NodeExecution> nodeExecutions;
+    private final List<NodeExecution> nodes;
 }

@@ -25,7 +25,7 @@
 //        Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
 //
 //        assertNotNull(graph);
-//        assertEquals(8, graph.getNodeExecutions().size());
+//        assertEquals(8, graph.getNodes().size());
 //        assertEquals(8, graph.getTopologicalOrder().size());
 //    }
 //
@@ -50,7 +50,7 @@
 //    void nodeOutputs_shouldBeCorrectlyIdentified() {
 //        // Create a graph with the template nodes
 //        Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
-//        List<NodeExecution> nodeExecutions = graph.getNodeExecutions();
+//        List<NodeExecution> nodeExecutions = graph.getNodes();
 //
 //        // Get the node outputs map
 //        Map<NodeExecution, List<NodeExecution>> nodeOutputs = graph.getNodeOutputs();
@@ -99,7 +99,7 @@
 //    @Test
 //    void topologicalSort_shouldProduceCorrectOrdering() {
 //        Graph graph = TestGraphFactory.getDefaultGraph(sceneId).toGraph();
-//        List<NodeExecution> nodeExecutions = graph.getNodeExecutions();
+//        List<NodeExecution> nodeExecutions = graph.getNodes();
 //
 //        // Get the topological ordering
 //        List<NodeExecution> topologicalOrder = graph.getTopologicalOrder();

@@ -1,6 +1,5 @@
 package com.example.pixel.graph.entity;
 
-import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.node_execution.model.NodeExecution;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,8 +38,4 @@ public class GraphEntity {
     @JsonIgnore
     @Version
     private Long version;
-
-    public GraphPayload toPayload() {
-        return new GraphPayload(id, nodes);
-    }
 }

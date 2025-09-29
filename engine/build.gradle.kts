@@ -35,7 +35,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-cache")
 	implementation("com.github.loki4j:loki-logback-appender:1.4.1")
 	implementation("com.h2database:h2:2.3.232")
-	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	implementation("com.google.guava:guava:33.4.0-jre")
 	implementation("org.reflections:reflections:0.10.2")
 	implementation("org.flywaydb:flyway-core")
@@ -45,8 +44,14 @@ dependencies {
 	implementation("software.amazon.awssdk:s3")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("redis.clients:jedis")
+	implementation("org.mapstruct:mapstruct:1.6.3")
+	implementation("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+
 	testImplementation("com.h2database:h2:2.3.232")
 	testImplementation("org.testcontainers:localstack")
 	testImplementation("org.testcontainers:junit-jupiter")

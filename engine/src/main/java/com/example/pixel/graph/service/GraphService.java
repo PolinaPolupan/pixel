@@ -4,6 +4,7 @@ import com.example.pixel.common.exception.GraphNotFoundException;
 import com.example.pixel.graph.dto.CreateGraphRequest;
 import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph.entity.GraphEntity;
+import com.example.pixel.graph.mapper.GraphMapper;
 import com.example.pixel.graph.repository.GraphRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.executor.GraphExecutor;
@@ -22,6 +23,7 @@ public class GraphService {
 
     private static final String GRAPH_NOT_FOUND_MESSAGE = "Graph not found: ";
 
+    private final GraphMapper graphMapper;
     private final GraphExecutor graphExecutor;
     private final GraphExecutionService graphExecutionService;
     private final GraphRepository graphRepository;
@@ -33,7 +35,7 @@ public class GraphService {
                 .nodes(createGraphRequest.getNodes())
                 .build();
 
-        return graphRepository.save(graphModel).toPayload();
+        return graphMapper.toDto(graphRepository.save(graphModel));
     }
 
     @Transactional
@@ -41,7 +43,7 @@ public class GraphService {
         GraphEntity graphEntity = graphRepository.findById(id)
                 .orElseThrow(() -> new GraphNotFoundException(GRAPH_NOT_FOUND_MESSAGE + id));
 
-        return graphEntity.toPayload();
+        return graphMapper.toDto(graphEntity);
     }
 
     public GraphExecutionPayload execute(Long id) {

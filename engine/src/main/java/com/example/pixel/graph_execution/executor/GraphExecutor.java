@@ -35,7 +35,7 @@ public class GraphExecutor {
     private void execute(GraphPayload graphPayload, GraphExecutionPayload graphExecutionPayload) {
         Long graphExecutionId = graphExecutionPayload.getId();
         try {
-            Graph graph = new Graph(graphPayload.getId(), graphPayload.getNodeExecutions());
+            Graph graph = new Graph(graphPayload.getId(), graphPayload.getNodes());
             log.debug("Updating task status to RUNNING for graphExecutionId={}", graphExecutionId);
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
