@@ -3,6 +3,7 @@ package com.example.pixel.graph.controller;
 import com.example.pixel.graph.dto.CreateGraphRequest;
 import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph.service.GraphService;
+import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,11 @@ public class GraphController {
 
     @PostMapping
     public ResponseEntity<GraphPayload> create(@RequestBody CreateGraphRequest createGraphRequest) {
-        GraphPayload graph = graphService.create(createGraphRequest);
-        graphService.updateLastAccessed(graph.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(graph);
+        return ResponseEntity.status(HttpStatus.CREATED).body(graphService.create(createGraphRequest));
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<GraphExecutionPayload> execute(@PathVariable Long id) {
+        return ResponseEntity.ok(graphService.execute(id));
     }
 }

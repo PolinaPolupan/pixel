@@ -30,7 +30,6 @@ public class GraphService {
         GraphEntity graphModel = GraphEntity
                 .builder()
                 .createdAt(LocalDateTime.now())
-                .lastAccessed(LocalDateTime.now())
                 .nodes(createGraphRequest.getNodes())
                 .build();
 
@@ -52,14 +51,5 @@ public class GraphService {
         graphExecutor.startExecution(graphPayload, graphExecutionPayload);
 
         return graphExecutionPayload;
-    }
-
-    @Transactional
-    public void updateLastAccessed(Long id) {
-        if (!graphRepository.existsById(id)) {
-            throw new GraphNotFoundException(GRAPH_NOT_FOUND_MESSAGE + id);
-        }
-
-        graphRepository.updateLastAccessedTime(id, LocalDateTime.now());
     }
 }

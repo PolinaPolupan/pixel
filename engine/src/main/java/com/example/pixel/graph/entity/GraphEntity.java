@@ -28,8 +28,6 @@ public class GraphEntity {
 
     private LocalDateTime createdAt;
 
-    private LocalDateTime lastAccessed;
-
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<NodeExecution> nodes;

@@ -52,21 +52,21 @@ public class GraphExecutor {
                 log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodeExecutions().size());
 
                 graphExecutionService.updateProgress(graphExecutionId, processedNodes);
-                notificationService.sendTaskStatus(graphExecutionPayload);
+                notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
 
                 log.debug("Node with id: {} is processed (graphExecutionId={})", nodeExecution.getId(), graphExecutionId);
             }
 
             log.info("All nodes processed for graphExecutionId={}, updating status to COMPLETED", graphExecutionId);
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.COMPLETED);
-            notificationService.sendTaskStatus(graphExecutionPayload);
+            notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
 
             CompletableFuture.completedFuture(graphExecutionPayload);
         } catch (Exception e) {
             log.error("Error processing graph with id {} (graphExecutionId={}): {}", graphPayload.getId(), graphExecutionId, e.getMessage(), e);
 
             graphExecutionService.markFailed(graphExecutionId, e.getMessage());
-            notificationService.sendTaskStatus(graphExecutionPayload);
+            notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
 
             CompletableFuture<GraphExecutionPayload> failedFuture = new CompletableFuture<>();
             failedFuture.completeExceptionally(e);
