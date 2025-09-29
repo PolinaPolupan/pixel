@@ -1,4 +1,4 @@
-package com.example.pixel.file_system.scheduler;
+package com.example.pixel.graph_execution.scheduler;
 
 import com.example.pixel.graph_execution.service.GraphExecutionService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class FileCleaner {
+public class GraphExecutionCleaner {
 
     private final GraphExecutionService graphExecutionService;
 
