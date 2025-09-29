@@ -4,6 +4,7 @@ import com.example.pixel.common.exception.GraphExecutionNotFoundException;
 import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
+import com.example.pixel.graph_execution.mapper.GraphExecutionMapper;
 import com.example.pixel.graph_execution.repository.GraphExecutionRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import com.example.pixel.file_system.service.StorageService;
@@ -14,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -25,6 +26,7 @@ public class GraphExecutionService {
 
     private static final String GRAPH_EXECUTION_NOT_FOUND_MESSAGE = "Graph execution not found: ";
 
+    private final GraphExecutionMapper  graphExecutionMapper;
     private final GraphExecutionRepository graphExecutionRepository;
     private final StorageService storageService;
 
@@ -35,7 +37,7 @@ public class GraphExecutionService {
     public GraphExecutionPayload findById(Long id) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
                 .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
-        return GraphExecutionPayload.fromEntity(graphExecutionEntity);
+        return graphExecutionMapper.toDto(graphExecutionEntity);
     }
 
     @Transactional
@@ -49,7 +51,7 @@ public class GraphExecutionService {
                 .build();
 
         graphExecutionEntity = graphExecutionRepository.save(graphExecutionEntity);
-        return GraphExecutionPayload.fromEntity(graphExecutionEntity);
+        return graphExecutionMapper.toDto(graphExecutionEntity);
     }
 
     @Transactional
@@ -93,10 +95,14 @@ public class GraphExecutionService {
     }
 
     public List<GraphExecutionPayload> getInactive() {
-        List<GraphExecutionEntity> inactiveExecutionTaskEntities = graphExecutionRepository.findByStatusNotIn(List.of(GraphExecutionStatus.PENDING, GraphExecutionStatus.RUNNING));
+        List<GraphExecutionEntity> inactiveExecutionEntities = graphExecutionRepository.findByStatusNotIn(List.of(GraphExecutionStatus.PENDING, GraphExecutionStatus.RUNNING));
+        List<GraphExecutionPayload> inactiveExecutions = new ArrayList<>();
 
-        return inactiveExecutionTaskEntities.stream()
-                .map(GraphExecutionPayload::fromEntity)
-                .collect(Collectors.toList());
+        for (GraphExecutionEntity graphExecutionEntity : inactiveExecutionEntities) {
+            GraphExecutionPayload graphExecutionPayload = graphExecutionMapper.toDto(graphExecutionEntity);
+            inactiveExecutions.add(graphExecutionPayload);
+        }
+
+        return inactiveExecutions;
     }
 }

@@ -3,8 +3,8 @@ package com.example.pixel.common;
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.config.TestCacheConfig;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
-import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
+import com.example.pixel.graph_execution.mapper.GraphExecutionMapper;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +46,9 @@ class NotificationServiceIntegrationTest {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private GraphExecutionMapper graphExecutionMapper;
 
     private StompSession stompSession;
     private final Long taskId = 1L;
@@ -101,7 +104,7 @@ class NotificationServiceIntegrationTest {
         graphExecutionEntity.setProcessedNodes(7);
         graphExecutionEntity.setTotalNodes(10);
 
-        notificationService.sendTaskStatus(GraphExecutionPayload.fromEntity(graphExecutionEntity));
+        notificationService.sendTaskStatus(graphExecutionMapper.toDto(graphExecutionEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
@@ -135,7 +138,7 @@ class NotificationServiceIntegrationTest {
         graphExecutionEntity.setId(taskId);
         graphExecutionEntity.setId(sceneId);
         graphExecutionEntity.setStatus(GraphExecutionStatus.COMPLETED);
-        notificationService.sendTaskStatus(GraphExecutionPayload.fromEntity(graphExecutionEntity));
+        notificationService.sendTaskStatus(graphExecutionMapper.toDto(graphExecutionEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
@@ -167,7 +170,7 @@ class NotificationServiceIntegrationTest {
         graphExecutionEntity.setId(sceneId);
         graphExecutionEntity.setStatus(GraphExecutionStatus.FAILED);
         graphExecutionEntity.setErrorMessage(errorMessage);
-        notificationService.sendTaskStatus(GraphExecutionPayload.fromEntity(graphExecutionEntity));
+        notificationService.sendTaskStatus(graphExecutionMapper.toDto(graphExecutionEntity));
 
         Map<String, Object> result = completableFuture.get(5, TimeUnit.SECONDS);
 
