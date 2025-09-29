@@ -1,6 +1,6 @@
 package com.example.pixel.graph_execution.service;
 
-import com.example.pixel.common.exception.TaskNotFoundException;
+import com.example.pixel.common.exception.GraphExecutionNotFoundException;
 import com.example.pixel.graph.dto.GraphPayload;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
@@ -17,10 +17,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
+
 @Slf4j
+@RequiredArgsConstructor
+@Service
 public class GraphExecutionService {
+
+    private static final String GRAPH_EXECUTION_NOT_FOUND_MESSAGE = "Graph execution not found: ";
 
     private final GraphExecutionRepository graphExecutionRepository;
     private final StorageService storageService;
@@ -29,9 +32,9 @@ public class GraphExecutionService {
     private String dumpDir;
 
     @Transactional
-    public GraphExecutionPayload findById(Long taskId) {
-        GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + taskId));
+    public GraphExecutionPayload findById(Long id) {
+        GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
+                .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
         return GraphExecutionPayload.fromEntity(graphExecutionEntity);
     }
 
@@ -50,7 +53,7 @@ public class GraphExecutionService {
     @Transactional
     public void updateStatus(Long id, GraphExecutionStatus status) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + id));
+                .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
         graphExecutionEntity.setStatus(status);
         if (status == GraphExecutionStatus.RUNNING && graphExecutionEntity.getStartTime() == null) {
             graphExecutionEntity.setStartTime(LocalDateTime.now());
@@ -64,7 +67,7 @@ public class GraphExecutionService {
     @Transactional
     public void updateProgress(Long id, int processedNodes) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + id));
+                .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
         graphExecutionEntity.setProcessedNodes(processedNodes);
         graphExecutionRepository.save(graphExecutionEntity);
     }
@@ -72,7 +75,7 @@ public class GraphExecutionService {
     @Transactional
     public void markFailed(Long id, String errorMessage) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + id));
+                .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
         graphExecutionEntity.setStatus(GraphExecutionStatus.FAILED);
         if (graphExecutionEntity.getEndTime() == null) graphExecutionEntity.setEndTime(LocalDateTime.now());
         graphExecutionEntity.setErrorMessage(errorMessage);
@@ -81,7 +84,7 @@ public class GraphExecutionService {
 
     public void delete(Long id) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found: " + id));
+                .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
         storageService.delete(dumpDir + "/" + id);
         graphExecutionRepository.delete(graphExecutionEntity);
     }

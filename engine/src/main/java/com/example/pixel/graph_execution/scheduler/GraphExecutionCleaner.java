@@ -19,8 +19,8 @@ public class GraphExecutionCleaner {
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     public void cleanupDump() {
         log.info("Dump cleanup started at {}", LocalDate.now());
-        for (var task: graphExecutionService.getInactive()) {
-            graphExecutionService.delete(task.getId());
+        for (var execution: graphExecutionService.getInactive()) {
+            graphExecutionService.delete(execution.getId());
         }
     }
 }

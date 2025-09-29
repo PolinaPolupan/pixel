@@ -96,7 +96,7 @@ class Client:
         try:
             response = requests.post(url, params=params)
             response.raise_for_status()
-            result_path = response.json()
+            result_path = response.text
             return result_path
         except requests.exceptions.RequestException as e:
             if getattr(e, "response", None):
@@ -110,7 +110,7 @@ class Client:
         try:
             response = requests.post(url, params=params)
             response.raise_for_status()
-            result_path = response.json()
+            result_path = response.text
             return result_path
         except requests.exceptions.RequestException as e:
             if getattr(e, "response", None):
