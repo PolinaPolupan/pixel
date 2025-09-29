@@ -1,13 +1,9 @@
 package com.example.pixel.graph_execution.service;
 
 import com.example.pixel.common.exception.GraphExecutionNotFoundException;
-import com.example.pixel.common.exception.GraphNotFoundException;
 import com.example.pixel.graph.dto.GraphPayload;
-import com.example.pixel.graph.entity.GraphEntity;
-import com.example.pixel.graph.repository.GraphRepository;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
-import com.example.pixel.graph_execution.executor.GraphExecutor;
 import com.example.pixel.graph_execution.repository.GraphExecutionRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import com.example.pixel.file_system.service.StorageService;
@@ -29,8 +25,6 @@ public class GraphExecutionService {
 
     private static final String GRAPH_EXECUTION_NOT_FOUND_MESSAGE = "Graph execution not found: ";
 
-    private final GraphExecutor graphExecutor;
-    private final GraphRepository graphRepository;
     private final GraphExecutionRepository graphExecutionRepository;
     private final StorageService storageService;
 
@@ -45,22 +39,17 @@ public class GraphExecutionService {
     }
 
     @Transactional
-    public GraphExecutionEntity create(GraphPayload graph) {
+    public GraphExecutionPayload create(GraphPayload graphPayload) {
         GraphExecutionEntity graphExecutionEntity = GraphExecutionEntity
                 .builder()
-                .graphId(graph.getId())
+                .graphId(graphPayload.getId())
                 .status(GraphExecutionStatus.PENDING)
-                .totalNodes(graph.getNodeExecutions().size())
+                .totalNodes(graphPayload.getNodeExecutions().size())
                 .processedNodes(0)
                 .build();
-        return graphExecutionRepository.save(graphExecutionEntity);
-    }
 
-    public GraphExecutionPayload executeGraph(Long id) {
-        GraphEntity graphEntity = graphRepository.findById(id)
-                .orElseThrow(() -> new GraphNotFoundException("Graph with id: " + id + " not found"));
-
-        return graphExecutor.startExecution(graphEntity.toPayload());
+        graphExecutionEntity = graphExecutionRepository.save(graphExecutionEntity);
+        return GraphExecutionPayload.fromEntity(graphExecutionEntity);
     }
 
     @Transactional
@@ -95,6 +84,7 @@ public class GraphExecutionService {
         graphExecutionRepository.save(graphExecutionEntity);
     }
 
+    @Transactional
     public void delete(Long id) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
                 .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
