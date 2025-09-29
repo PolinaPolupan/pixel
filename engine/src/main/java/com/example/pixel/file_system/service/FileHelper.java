@@ -40,8 +40,8 @@ public class FileHelper {
         return target;
     }
 
-    public String storeToTask(Long taskId, Long nodeId, String source) {
-        String target = getDumpContext(taskId, nodeId) + extractRelativeWorkspacePath(source) + extractFilename(source);
+    public String storeToDump(Long graphExecutionId, Long nodeId, String source) {
+        String target = getDumpContext(graphExecutionId, nodeId) + extractRelativeWorkspacePath(source) + extractFilename(source);
 
         storageService.store(source, target);
 

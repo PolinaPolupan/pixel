@@ -37,8 +37,7 @@ def combine(
             files.update(file_set)
 
     output_files = [
-        Client.store_task(meta.task_id, meta.node_id, file)
-        for file in files
+        Client.store_dump(meta, file) for file in files
     ]
 
     return {"output": output_files}

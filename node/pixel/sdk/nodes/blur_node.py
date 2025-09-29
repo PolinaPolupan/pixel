@@ -7,9 +7,7 @@ from pixel.sdk.models.node_decorator import node
 def blur_exec(input: List[str], ksize, meta: Metadata):
     output_files = []
     for file in input:
-        output_files.append(
-            Client.store_task(meta.task_id, meta.node_id, file)
-        )
+        output_files.append(Client.store_dump(meta, file))
     return {"output": output_files}
 
 def blur_validate(input: List[str], ksize, meta: Metadata):

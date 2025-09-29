@@ -14,9 +14,7 @@ def gaussian_blur_exec(
 ):
     output_files = []
     for file in input:
-        output_files.append(
-            Client.store_task(meta.task_id, meta.node_id, file)
-        )
+        output_files.append(Client.store_dump(meta, file))
     return {"output": output_files}
 
 def gaussian_blur_validate(

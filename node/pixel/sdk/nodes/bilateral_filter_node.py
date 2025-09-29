@@ -8,7 +8,7 @@ from pixel.sdk.models.node_decorator import node
 def bilateral_exec(input: List[str], d: int, sigmaColor: float, sigmaSpace: float, meta: Metadata):
     output_files = []
     for file in input:
-        output_files.append(Client.store_task(meta.task_id, meta.node_id, file))
+        output_files.append(Client.store_dump(meta, file))
     return {"output": output_files}
 
 def bilateral_validate(input: List[str], d: int, sigmaColor: float, sigmaSpace: float, meta: Metadata):

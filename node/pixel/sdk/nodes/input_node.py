@@ -19,7 +19,5 @@ from pixel.sdk.models.node_decorator import node
 def input_node(input: Set[str] = set(), meta: Metadata = None):
     output_files = []
     for file in input:
-        output_files.append(
-            Client.store_task(meta.task_id, meta.node_id, file)
-        )
+        output_files.append(Client.store_dump(meta, file))
     return {"output": output_files}

@@ -3,7 +3,7 @@ import requests
 from typing import List, Dict, Any, Optional
 from urllib.parse import urljoin
 
-from pixel.core import Node
+from pixel.core import Node, Metadata
 from pixel.server.load_nodes import NODE_REGISTRY
 
 logger = logging.getLogger(__name__)
@@ -96,27 +96,23 @@ class Client:
         try:
             response = requests.post(url, params=params)
             response.raise_for_status()
-            result_path = response.json()["path"]
+            result_path = response.json()
             return result_path
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error storing file: {str(e)}")
             if getattr(e, "response", None):
                 logger.error(f"Response status: {e.response.status_code}, body: {e.response.text}")
             raise
 
     @classmethod
-    def store_task(cls, task_id: int, node_id: int, source: str) -> str:
-        url = cls._make_engine_url("/v1/storage/task")
-        params = {"taskId": task_id, "nodeId": node_id, "source": source}
-
-        logger.info(f"Storing file to task: task_id={task_id}, node_id={node_id}, source={source}")
+    def store_dump(cls, meta: Metadata, source: str) -> str:
+        url = cls._make_engine_url("/v1/storage/dump")
+        params = {"graphExecutionId": meta.task_id, "nodeId": meta.node_id, "source": source}
         try:
             response = requests.post(url, params=params)
             response.raise_for_status()
-            result_path = response.json()["path"]
+            result_path = response.json()
             return result_path
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error storing file to task: {str(e)}")
             if getattr(e, "response", None):
                 logger.error(f"Response status: {e.response.status_code}, body: {e.response.text}")
             raise

@@ -37,33 +37,23 @@ public class FileUploadController {
     private final FileHelper fileHelper;
 
     @PostMapping("/output")
-    public ResponseEntity<Map<String, String>> storeToOutput(
+    public ResponseEntity<String> storeToOutput(
             @RequestParam("source") String source,
             @RequestParam(value = "folder", required = false) String folder,
             @RequestParam(value = "prefix", required = false) String prefix
     ) {
         String targetPath = fileHelper.storeToOutput(source, folder, prefix);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("path", targetPath);
-        response.put("message", "File stored successfully");
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(targetPath);
     }
 
-    @PostMapping("/task")
-    public ResponseEntity<Map<String, String>> storeToTask(
+    @PostMapping("/dump")
+    public ResponseEntity<String> storeToDump(
             @RequestParam("source") String source,
-            @RequestParam("taskId") Long taskId,
+            @RequestParam("graphExecutionId") Long graphExecutionId,
             @RequestParam("nodeId") Long nodeId
     ) {
-        String targetPath = fileHelper.storeToTask(taskId, nodeId, source);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("path", targetPath);
-        response.put("message", "File stored successfully");
-
-        return ResponseEntity.ok(response);
+        String targetPath = fileHelper.storeToDump(graphExecutionId, nodeId, source);
+        return ResponseEntity.ok(targetPath);
     }
 
     @GetMapping(path = "/list", produces = "application/json")

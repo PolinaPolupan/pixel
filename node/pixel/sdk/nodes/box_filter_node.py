@@ -7,9 +7,7 @@ from pixel.sdk.models.node_decorator import node
 def box_filter_exec(input: List[str], ksize, ddepth, meta: Metadata):
     output_files = []
     for file in input:
-        output_files.append(
-            Client.store_task(meta.task_id, meta.node_id, file)
-        )
+        output_files.append(Client.store_dump(meta, file))
     return {"output": output_files}
 
 def box_filter_validate(input: List[str], ksize, ddepth, meta: Metadata):
