@@ -1,17 +1,18 @@
-package com.example.pixel.file_system.service;
+package com.example.pixel.file_system.util;
 
+import com.example.pixel.file_system.service.StorageService;
 import com.google.common.base.Splitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Service
+@Component
 public class FileHelper {
 
     private final StorageService storageService;
