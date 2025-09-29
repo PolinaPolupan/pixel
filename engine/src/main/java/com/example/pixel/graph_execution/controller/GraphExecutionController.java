@@ -15,7 +15,13 @@ public class GraphExecutionController {
     private final GraphExecutionService graphExecutionService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<GraphExecutionPayload> getTask(@PathVariable Long id) {
+    public ResponseEntity<GraphExecutionPayload> get(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(graphExecutionService.findById(id));
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<GraphExecutionPayload> execute(@PathVariable Long id) {
+        GraphExecutionPayload execution = graphExecutionService.executeGraph(id);
+        return ResponseEntity.ok(execution);
     }
 }

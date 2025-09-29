@@ -1,9 +1,13 @@
 package com.example.pixel.graph_execution.service;
 
 import com.example.pixel.common.exception.GraphExecutionNotFoundException;
+import com.example.pixel.common.exception.GraphNotFoundException;
 import com.example.pixel.graph.dto.GraphPayload;
+import com.example.pixel.graph.entity.GraphEntity;
+import com.example.pixel.graph.repository.GraphRepository;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
+import com.example.pixel.graph_execution.executor.GraphExecutor;
 import com.example.pixel.graph_execution.repository.GraphExecutionRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import com.example.pixel.file_system.service.StorageService;
@@ -25,6 +29,8 @@ public class GraphExecutionService {
 
     private static final String GRAPH_EXECUTION_NOT_FOUND_MESSAGE = "Graph execution not found: ";
 
+    private final GraphExecutor graphExecutor;
+    private final GraphRepository graphRepository;
     private final GraphExecutionRepository graphExecutionRepository;
     private final StorageService storageService;
 
@@ -48,6 +54,13 @@ public class GraphExecutionService {
                 .processedNodes(0)
                 .build();
         return graphExecutionRepository.save(graphExecutionEntity);
+    }
+
+    public GraphExecutionPayload executeGraph(Long id) {
+        GraphEntity graphEntity = graphRepository.findById(id)
+                .orElseThrow(() -> new GraphNotFoundException("Graph with id: " + id + " not found"));
+
+        return graphExecutor.startExecution(graphEntity.toPayload());
     }
 
     @Transactional

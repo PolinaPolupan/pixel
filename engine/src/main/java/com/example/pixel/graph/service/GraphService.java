@@ -4,8 +4,6 @@ import com.example.pixel.common.exception.GraphNotFoundException;
 import com.example.pixel.graph.dto.CreateGraphRequest;
 import com.example.pixel.graph.entity.GraphEntity;
 import com.example.pixel.graph.repository.GraphRepository;
-import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
-import com.example.pixel.graph_execution.executor.GraphExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,6 @@ import java.time.LocalDateTime;
 @Service
 public class GraphService {
 
-    private final GraphExecutor graphExecutor;
     private final GraphRepository graphRepository;
 
     public GraphEntity createGraph(CreateGraphRequest createGraphRequest) {
@@ -30,13 +27,6 @@ public class GraphService {
                 .build();
 
         return graphRepository.save(graphModel);
-    }
-
-    public GraphExecutionPayload executeGraph(Long id) {
-        GraphEntity graphEntity = graphRepository.findById(id)
-                .orElseThrow(() -> new GraphNotFoundException("Graph with id: " + id + " not found"));
-
-        return graphExecutor.startExecution(graphEntity.toPayload());
     }
 
     @Transactional
