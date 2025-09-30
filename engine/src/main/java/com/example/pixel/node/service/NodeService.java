@@ -1,7 +1,9 @@
 package com.example.pixel.node.service;
 
 import com.example.pixel.node.dto.NodeConfiguration;
+import com.example.pixel.node.dto.NodePayload;
 import com.example.pixel.node.entity.NodeEntity;
+import com.example.pixel.node.mapper.NodeMapper;
 import com.example.pixel.node.repository.NodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,10 @@ import java.util.Map;
 @Service
 public class NodeService {
 
+    private final NodeMapper nodeMapper;
     private final NodeRepository repository;
 
-    public NodeEntity create(NodeConfiguration nodeConfiguration) {
+    public NodePayload create(NodeConfiguration nodeConfiguration) {
         NodeEntity latest = repository.findLatestByType(nodeConfiguration.getType()).orElse(null);
         int nextVersion = 1;
 
@@ -37,18 +40,17 @@ public class NodeService {
                 .active(true)
                 .build();
 
-        return repository.save(nodeEntity);
+        nodeEntity = repository.save(nodeEntity);
+
+        return nodeMapper.toDto(nodeEntity);
     }
 
-    public Map<String, NodeConfiguration> getAllActiveNodes() {
+    public Map<String, NodePayload> getAllActiveNodes() {
         List<NodeEntity> activeNodes = repository.findByActiveTrue();
 
-        Map<String, NodeConfiguration> result = new HashMap<>();
+        Map<String, NodePayload> result = new HashMap<>();
         for (NodeEntity node: activeNodes) {
-            result.put(
-                    node.getType(),
-                    new NodeConfiguration(node.getType(), node.getInputs(), node.getOutputs(), node.getDisplay())
-            );
+            result.put(node.getType(), nodeMapper.toDto(node));
         }
         return result;
     }
