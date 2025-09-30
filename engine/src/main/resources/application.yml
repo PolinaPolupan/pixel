@@ -29,6 +29,8 @@ spring:
 storage.directory: ${DATA_DIR}
 dump.directory: ${DUMP_DIR}
 node.service.url: ${NODE_SERVICE_URL}
+node.service.execute: /exec
+node.service.validate: /validate
 processing.topic: /topic/processing/
 node.cache: nodeCache
 

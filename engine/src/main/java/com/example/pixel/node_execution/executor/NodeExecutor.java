@@ -33,7 +33,7 @@ public class NodeExecutor {
     }
 
     public NodeExecutionResponse execute(NodeClientData nodeClientData) {
-        NodeExecutionResponse executionResponse = nodeClient.executeNode(nodeClientData);
+        NodeExecutionResponse executionResponse = nodeClient.execute(nodeClientData);
 
         String outputKey = getOutputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
         nodeCache.put(outputKey, executionResponse.getOutputs());
@@ -43,7 +43,7 @@ public class NodeExecutor {
     }
 
     public void validate(NodeClientData nodeClientData) {
-        NodeValidationResponse validationResponse = nodeClient.validateNode(nodeClientData);
+        NodeValidationResponse validationResponse = nodeClient.validate(nodeClientData);
 
         String inputKey = getInputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
         nodeCache.put(inputKey, nodeClientData.getInputs());
