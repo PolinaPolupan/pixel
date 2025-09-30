@@ -28,10 +28,10 @@ public class SpringNodeCache implements NodeCache {
     private String CACHE_NAME;
 
     @Override
-    public void put(String key, Map<String, Object> outputs) {
+    public void put(String key, Map<String, Object> data) {
         Cache cache = cacheManager.getCache(CACHE_NAME);
         if (cache != null) {
-            cache.put(key, outputs);
+            cache.put(key, data);
         } else {
             log.warn(UNABLE_TO_STORE_KEY_MESSAGE, CACHE_NAME, key);
         }

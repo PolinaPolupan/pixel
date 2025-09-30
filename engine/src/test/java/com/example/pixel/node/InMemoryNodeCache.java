@@ -13,8 +13,8 @@ public class InMemoryNodeCache implements NodeCache {
     private final Map<String, Map<String, Object>> cache = new ConcurrentHashMap<>();
 
     @Override
-    public void put(String key, Map<String, Object> outputs) {
-        Map<String, Object> copy = new HashMap<>(outputs);
+    public void put(String key, Map<String, Object> data) {
+        Map<String, Object> copy = new HashMap<>(data);
         cache.put(key, copy);
         log.debug("Stored data in memory cache with key: {}", key);
     }
