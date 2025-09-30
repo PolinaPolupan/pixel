@@ -2,6 +2,7 @@ package com.example.pixel.config;
 
 import com.example.pixel.node_execution.cache.NodeCache;
 import com.example.pixel.node_execution.cache.SpringNodeCache;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -18,10 +19,13 @@ import static com.example.pixel.common.model.Profiles.*;
 @Profile(DEFAULT)
 public class CacheConfig {
 
+    @Value("${node.cache}")
+    private String CACHE_NAME;
+
     @Bean
     public CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-        cacheManager.setCacheNames(Collections.singletonList("nodeCache"));
+        cacheManager.setCacheNames(Collections.singletonList(CACHE_NAME));
         return cacheManager;
     }
 

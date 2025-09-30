@@ -30,6 +30,7 @@ storage.directory: ${DATA_DIR}
 dump.directory: ${DUMP_DIR}
 node.service.url: ${NODE_SERVICE_URL}
 processing.topic: /topic/processing/
+node.cache: nodeCache
 
 logging:
   level:

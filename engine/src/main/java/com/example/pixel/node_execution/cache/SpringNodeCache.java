@@ -2,6 +2,7 @@ package com.example.pixel.node_execution.cache;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Primary;
@@ -18,18 +19,21 @@ import static com.example.pixel.common.model.Profiles.*;
 @Profile(DEFAULT)
 @Component
 public class SpringNodeCache implements NodeCache {
+    private final static String UNABLE_TO_STORE_KEY_MESSAGE = "Cache '{}' not found. Unable to store key: {}";
+    private final static String UNABLE_TO_RETRIEVE_KEY_MESSAGE = "Cache '{}' not found. Unable to retrieve key: {}";
 
     private final CacheManager cacheManager;
-    private static final String CACHE_NAME = "nodeCache";
+
+    @Value("${node.cache}")
+    private String CACHE_NAME;
 
     @Override
     public void put(String key, Map<String, Object> outputs) {
         Cache cache = cacheManager.getCache(CACHE_NAME);
         if (cache != null) {
             cache.put(key, outputs);
-            log.debug("Cached node data with key: {}", key);
         } else {
-            log.warn("Cache '{}' not found. Unable to store key: {}", CACHE_NAME, key);
+            log.warn(UNABLE_TO_STORE_KEY_MESSAGE, CACHE_NAME, key);
         }
     }
 
@@ -37,13 +41,19 @@ public class SpringNodeCache implements NodeCache {
     @SuppressWarnings("unchecked")
     public Map<String, Object> get(String key) {
         Cache cache = cacheManager.getCache(CACHE_NAME);
-        if (cache != null) {
-            Cache.ValueWrapper wrapper = cache.get(key);
-            if (wrapper != null) {
-                return (Map<String, Object>) wrapper.get();
-            }
+        if (cache == null) {
+            log.warn(UNABLE_TO_RETRIEVE_KEY_MESSAGE, CACHE_NAME, key);
+            return null;
         }
-        return null;
+
+        Cache.ValueWrapper wrapper = cache.get(key);
+        if (wrapper == null) {
+            log.warn(UNABLE_TO_RETRIEVE_KEY_MESSAGE, CACHE_NAME, key);
+            return null;
+        }
+
+        Object value = wrapper.get();
+        return (Map<String, Object>) value;
     }
 
     @Override
