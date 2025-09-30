@@ -19,6 +19,8 @@ import java.util.*;
 @RequiredArgsConstructor
 @Component
 public class NodeExecutor {
+    private final static String UNABLE_TO_FIND_NODE_IN_CACHE = "Unable to find node with id %s in cache. Graph execution id: %s";
+    private final static String UNABLE_TO_FIND_OUTPUT_IN_CACHE = "Unable to find output '%s' for node with id %s in cache. Graph execution id: %s";
 
     private final NodeClient nodeClient;
     private final NodeCache nodeCache;
@@ -38,7 +40,7 @@ public class NodeExecutor {
         String outputKey = getOutputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
         nodeCache.put(outputKey, executionResponse.getOutputs());
 
-        log.info("Node {} Exec Output JSON | Response: {}", nodeClientData.getMeta().getNodeId(), executionResponse);
+        log.info("Node {} Exec | Response: {}", nodeClientData.getMeta().getNodeId(), executionResponse);
         return executionResponse;
     }
 
@@ -48,7 +50,7 @@ public class NodeExecutor {
         String inputKey = getInputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
         nodeCache.put(inputKey, nodeClientData.getInputs());
 
-        log.info("Node {} Validation Input JSON: {} | Response: {}", nodeClientData.getMeta().getNodeId(), nodeClientData, validationResponse);
+        log.info("Node {} Validation | Response: {}", nodeClientData.getMeta().getNodeId(), validationResponse);
     }
 
     private Map<String, Object> resolveInputs(NodeExecution nodeExecution, Long graphExecutionId) {
@@ -77,7 +79,7 @@ public class NodeExecutor {
 
         if (!nodeCache.exists(cacheKey)) {
             throw new NodeExecutionException(
-                    "Missing cache for node " + reference.getNodeId() + " in task " + graphExecutionId
+                    String.format(UNABLE_TO_FIND_NODE_IN_CACHE, reference.getNodeId(), graphExecutionId)
             );
         }
 
@@ -85,7 +87,7 @@ public class NodeExecutor {
 
         if (!outputMap.containsKey(output)) {
             throw new NodeExecutionException(
-                    "Output '" + output + "' not found in node " + reference.getNodeId() + " for task " + graphExecutionId
+                    String.format(UNABLE_TO_FIND_OUTPUT_IN_CACHE, output, reference.getNodeId(), graphExecutionId)
             );
         }
 
