@@ -9,40 +9,37 @@ import java.util.regex.Pattern;
 @Getter
 public class NodeReference {
     private static final Pattern NODE_REF_PATTERN = Pattern.compile("@node:(\\d+):(\\w+)");
+    private static final String INVALID_NODE_REFERENCE_FORMAT_MESSAGE = "Invalid node reference format: ";
+
     private final String reference;
     @JsonIgnore
-    private transient Matcher matcher;
-    @JsonIgnore
-    private final transient Pattern nodeRefPattern;
+    private Matcher matcher;
 
     public NodeReference(String reference) {
         this.reference = reference;
-        this.nodeRefPattern = NODE_REF_PATTERN;
-        this.matcher = nodeRefPattern.matcher(reference);
+        this.matcher = NODE_REF_PATTERN.matcher(reference);
 
         if (!matcher.matches()) {
-            throw new InvalidNodeInputException("Invalid node reference format: " + reference);
+            throw new InvalidNodeInputException(INVALID_NODE_REFERENCE_FORMAT_MESSAGE + reference);
         }
     }
 
     public Long getNodeId() {
-        if (matcher == null || !matcher.matches()) {
-            matcher = NODE_REF_PATTERN.matcher(reference);
-            if (!matcher.matches()) {
-                throw new InvalidNodeInputException("Invalid node reference format: " + reference);
-            }
-        }
-        return Long.parseLong(matcher.group(1));
+        return Long.parseLong(getMatcherGroup(1));
     }
 
     public String getOutputName() {
+        return getMatcherGroup(2);
+    }
+
+    private String getMatcherGroup(int group) {
         if (matcher == null || !matcher.matches()) {
             matcher = NODE_REF_PATTERN.matcher(reference);
             if (!matcher.matches()) {
-                throw new InvalidNodeInputException("Invalid node reference format: " + reference);
+                throw new InvalidNodeInputException(INVALID_NODE_REFERENCE_FORMAT_MESSAGE + reference);
             }
         }
-        return matcher.group(2);
+        return matcher.group(group);
     }
 
     @Override
