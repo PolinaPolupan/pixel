@@ -1,5 +1,6 @@
 package com.example.pixel.node_execution.service;
 
+import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node_execution.model.NodeExecution;
 import com.example.pixel.node_execution.dto.NodeClientData;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
@@ -12,16 +13,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
-import static org.reflections.Reflections.log;
 
 @RequiredArgsConstructor
 @Service
 public class NodeExecutionService {
+    private final static String NODE_EXECUTION_FAILED_MESSAGE = "Node execution for node with id %s failed: %s";
 
     private final NodeExecutionRepository repository;
     private final NodeExecutor nodeExecutor;
 
-    public NodeExecutionEntity execute(NodeExecution nodeExecution, Long graphExecutionId) {
+    public void execute(NodeExecution nodeExecution, Long graphExecutionId) {
         Instant startedAt = Instant.now();
         NodeExecutionEntity nodeExecutionEntity = NodeExecutionEntity
                 .builder()
@@ -40,17 +41,15 @@ public class NodeExecutionService {
             nodeExecutionEntity.setInputs(nodeExecution.getInputs());
             nodeExecutionEntity.setStatus(NodeStatus.COMPLETED);
             nodeExecutionEntity.setOutputs(nodeExecutionResponse.getOutputs());
-            repository.save(nodeExecutionEntity);
         } catch (Exception e) {
             nodeExecutionEntity.setInputs(nodeExecution.getInputs());
             nodeExecutionEntity.setStatus(NodeStatus.FAILED);
             nodeExecutionEntity.setErrorMessage(e.getMessage());
-            log.error("Node execution failed", e);
-            throw e;
+
+            throw new NodeExecutionException(String.format(NODE_EXECUTION_FAILED_MESSAGE, nodeExecution.getId(), e.getMessage()), e);
         } finally {
             nodeExecutionEntity.setFinishedAt(Instant.now());
+            repository.save(nodeExecutionEntity);
         }
-
-        return repository.save(nodeExecutionEntity);
     }
 }
