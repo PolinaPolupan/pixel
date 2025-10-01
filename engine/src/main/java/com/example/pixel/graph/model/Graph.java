@@ -22,11 +22,11 @@ public class Graph {
         this.id = id;
         this.nodeExecutions = setupReferences(nodeExecutions);
 
-        // First populate the node map
-        for (NodeExecution nodeExecution : nodeExecutions) nodeMap.put(nodeExecution.getId(), nodeExecution);
+        for (NodeExecution nodeExecution : this.nodeExecutions) {
+            nodeMap.put(nodeExecution.getId(), nodeExecution);
+        }
 
-        // Then process the nodes
-        for (NodeExecution nodeExecution : nodeExecutions) {
+        for (NodeExecution nodeExecution : this.nodeExecutions) {
             mapOutputNodes(nodeExecution);
             validateReferences(nodeExecution);
         }
@@ -40,18 +40,22 @@ public class Graph {
     }
 
     private List<NodeExecution> setupReferences(List<NodeExecution> nodeExecutions) {
-        for (NodeExecution nodeExecution: nodeExecutions) {
-            NodeExecution copy = new NodeExecution(nodeExecution.getId(), nodeExecution.getType(), nodeExecution.getInputs());
-            Map<String, Object> inputs = copy.getInputs();
-            for (Map.Entry<String, Object> input: inputs.entrySet()) {
+        List<NodeExecution> result = new ArrayList<>();
+        for (NodeExecution nodeExecution : nodeExecutions) {
+            Map<String, Object> inputsCopy = new HashMap<>();
+            for (Map.Entry<String, Object> input : nodeExecution.getInputs().entrySet()) {
                 Object value = input.getValue();
                 if (value instanceof String && ((String) value).startsWith("@node:")) {
-                    nodeExecution.getInputs().put(input.getKey(), new NodeReference((String) value));
+                    inputsCopy.put(input.getKey(), new NodeReference((String) value));
+                } else {
+                    inputsCopy.put(input.getKey(), value);
                 }
             }
+            result.add(new NodeExecution(nodeExecution.getId(), nodeExecution.getType(), inputsCopy));
         }
-        return nodeExecutions;
+        return result;
     }
+
 
     private void mapOutputNodes(NodeExecution nodeExecution) {
         List<NodeExecution> dependentNodeExecutions = new ArrayList<>();
