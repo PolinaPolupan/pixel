@@ -37,15 +37,23 @@ class Client:
         return result
 
     @classmethod
-    def create_graph(cls) -> str:
-        url = cls._make_engine_url("/v1/graph/")
-        response = cls.session.post(url)
+    def create_graph(cls, nodes: List[Dict[str, Any]]) -> str:
+        url = cls._make_engine_url("/v1/graph")
+        payload = {"nodes": nodes}
+        response = cls.session.post(url, json=payload)
         response.raise_for_status()
         return response.json().get("id")
 
     @classmethod
-    def list_scene_files(cls, scene_id: str) -> Dict[str, Any]:
-        url = cls._make_engine_url(f"/v1/scene/{scene_id}/list")
+    def execute_graph(cls, id: str) -> Dict[str, Any]:
+        url = cls._make_engine_url(f"/v1/graph/{id}")
+        response = cls.session.post(url)
+        response.raise_for_status()
+        return response.json()
+
+    @classmethod
+    def list_files(cls) -> Dict[str, Any]:
+        url = cls._make_engine_url("/v1/storage/list")
         response = cls.session.get(url)
         response.raise_for_status()
         return response.json()
@@ -68,20 +76,12 @@ class Client:
         return response.json()
 
     @classmethod
-    def get_file(cls, scene_id: str, file_path: str) -> bytes:
-        url = cls._make_engine_url(f"/v1/scene/{scene_id}/file")
+    def get_file(cls, file_path: str) -> bytes:
+        url = cls._make_engine_url(f"/v1/storage/file")
         params = {'filepath': file_path}
         response = cls.session.get(url, params=params)
         response.raise_for_status()
         return response.content
-
-    @classmethod
-    def execute_graph(cls, graph_id: str, nodes: List[Dict[str, Any]]) -> Dict[str, Any]:
-        url = cls._make_engine_url(f"/v1/graph/exec")
-        payload = {"id": graph_id, "nodes": nodes}
-        response = cls.session.post(url, json=payload)
-        response.raise_for_status()
-        return response.json()
 
     @classmethod
     def store_output(cls, source: str, folder: Optional[str] = None, prefix: Optional[str] = None) -> str:

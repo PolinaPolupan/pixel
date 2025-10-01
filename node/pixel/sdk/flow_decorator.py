@@ -1,21 +1,22 @@
-from functools import wraps
 from pixel.sdk import NodeFlow
+
+from functools import wraps
+
 
 def flow(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         nf = NodeFlow()
-        nf.create_graph()
 
-        injected = {ntype: getattr(nf, ntype) for ntype in nf.available_node_types}
-        original_globals = func.__globals__.copy()
-        func.__globals__.update(injected)
+        for ntype in nf.available_node_types:
+            func.__globals__[ntype] = getattr(nf, ntype)
 
-        try:
-            result = func(*args, **kwargs)
-        finally:
-            func.__globals__.update(original_globals)
+        result = func(*args, **kwargs)
 
-        execution_result = nf.execute()
-        return result, execution_result, nf
+        if nf.nodes:
+            nf.create_graph()
+            nf.execute()
+
+        return result
+
     return wrapper

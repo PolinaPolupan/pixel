@@ -90,29 +90,25 @@ class NodeFlow:
         )
 
     def create_graph(self):
-        self.graph_id = self.client.create_graph()
+        self.graph_id = self.client.create_graph(list(self.nodes.values()))
         return self.graph_id
 
     def list_files(self):
         if not self.graph_id:
             self.create_scene()
-        return self.client.list_scene_files(self.graph_id).get("locations", [])
+        return self.client.list_files().get("locations", [])
 
     def execute(self):
         if not self.graph_id:
             self.create_graph()
         nodes_list = list(self.nodes.values())
         print(f"Executing workflow...")
-        print(f"Scene ID: {self.graph_id}")
         print(f"Number of nodes: {len(nodes_list)}")
-        result = self.client.execute_graph(self.graph_id, nodes_list)
-        print(f"Workflow execution completed")
+        result = self.client.execute_graph(self.graph_id)
         return result
 
     def download_file(self, file_path: str, save_to: str):
-        if not self.graph_id:
-            raise ValueError("No active scene. Create a scene first.")
-        content = self.client.get_file(self.graph_id, file_path)
+        content = self.client.get_file(file_path)
         with open(save_to, "wb") as f:
             f.write(content)
         print(f"Downloaded file to: {save_to}")
