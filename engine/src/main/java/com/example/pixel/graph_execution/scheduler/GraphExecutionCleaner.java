@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 
 @RequiredArgsConstructor
 @Component
@@ -17,8 +16,8 @@ public class GraphExecutionCleaner {
 
     @Scheduled(cron = "${cleanup.schedule}")
     public void cleanupDump() {
-        log.info("Dump cleanup started at {}", LocalDate.now());
         for (var execution: graphExecutionService.getInactive()) {
+            log.info("Deleting execution {} with status {}", execution.getId(), execution.getStatus());
             graphExecutionService.delete(execution.getId());
         }
     }

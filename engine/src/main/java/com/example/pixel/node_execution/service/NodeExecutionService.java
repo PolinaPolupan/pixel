@@ -27,6 +27,7 @@ public class NodeExecutionService {
         NodeExecutionEntity nodeExecutionEntity = NodeExecutionEntity
                 .builder()
                 .status(NodeStatus.RUNNING)
+                .graphExecutionId(graphExecutionId)
                 .inputs(nodeExecution.getInputs())
                 .startedAt(startedAt)
                 .build();

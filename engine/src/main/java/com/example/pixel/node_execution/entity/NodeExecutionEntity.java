@@ -24,6 +24,8 @@ public class NodeExecutionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long graphExecutionId;
+
     @Enumerated(EnumType.STRING)
     private NodeStatus status;
 
