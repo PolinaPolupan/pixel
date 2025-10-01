@@ -10,5 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 public class GraphPayload {
     private final Long id;
+    private final String schedule;
     private final List<NodeExecution> nodes;
 }

@@ -9,5 +9,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class CreateGraphRequest {
-    private List<NodeExecution> nodes;
+    private final String schedule;
+    private final List<NodeExecution> nodes;
 }

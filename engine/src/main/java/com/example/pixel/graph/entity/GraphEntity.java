@@ -27,6 +27,8 @@ public class GraphEntity {
 
     private LocalDateTime createdAt;
 
+    private String schedule;
+
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<NodeExecution> nodes;

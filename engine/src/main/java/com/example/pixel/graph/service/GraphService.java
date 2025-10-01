@@ -11,10 +11,12 @@ import com.example.pixel.graph_execution.executor.GraphExecutor;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,22 +25,31 @@ public class GraphService {
 
     private static final String GRAPH_NOT_FOUND_MESSAGE = "Graph not found: ";
 
+    @Value("${default.schedule}")
+    private String defaultSchedule;
+
     private final GraphMapper graphMapper;
     private final GraphExecutor graphExecutor;
     private final GraphExecutionService graphExecutionService;
     private final GraphRepository graphRepository;
 
+    @Transactional
     public GraphPayload create(CreateGraphRequest createGraphRequest) {
-        GraphEntity graphModel = GraphEntity
-                .builder()
+        GraphEntity graphModel = GraphEntity.builder()
                 .createdAt(LocalDateTime.now())
                 .nodes(createGraphRequest.getNodes())
+                .schedule(
+                        createGraphRequest.getSchedule() != null
+                                ? createGraphRequest.getSchedule()
+                                : defaultSchedule
+                )
                 .build();
 
         return graphMapper.toDto(graphRepository.save(graphModel));
     }
 
-    @Transactional
+
+    @Transactional(readOnly = true)
     public GraphPayload findById(Long id) {
         GraphEntity graphEntity = graphRepository.findById(id)
                 .orElseThrow(() -> new GraphNotFoundException(GRAPH_NOT_FOUND_MESSAGE + id));
@@ -46,8 +57,15 @@ public class GraphService {
         return graphMapper.toDto(graphEntity);
     }
 
-    public GraphExecutionPayload execute(Long id) {
-        GraphPayload graphPayload = findById(id);
+    @Transactional(readOnly = true)
+    public List<GraphPayload> findAll() {
+        List<GraphEntity> graphEntities = graphRepository.findAll();
+        return graphEntities.stream()
+                .map(graphMapper::toDto)
+                .toList();
+    }
+
+    public GraphExecutionPayload execute(GraphPayload graphPayload) {
         GraphExecutionPayload graphExecutionPayload = graphExecutionService.create(graphPayload);
 
         graphExecutor.startExecution(graphPayload, graphExecutionPayload);

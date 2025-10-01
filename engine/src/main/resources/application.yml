@@ -33,6 +33,8 @@ node.service.execute: /exec
 node.service.validate: /validate
 processing.topic: /topic/processing/
 node.cache: nodeCache
+default.schedule: 0 */1 * * * *
+scan.schedule: 0 */1 * * * *
 
 logging:
   level:
