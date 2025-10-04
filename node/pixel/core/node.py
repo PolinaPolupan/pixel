@@ -11,7 +11,7 @@ def map_input_params(inputs: Dict[str, Any], sig: inspect.Signature) -> Dict[str
 
     meta = Metadata(
         node_id=meta_data.get("node_id"),
-        task_id=meta_data.get("graph_execution_id")
+        graph_execution_id=meta_data.get("graph_execution_id")
     )
 
     params = {}

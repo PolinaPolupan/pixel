@@ -106,7 +106,8 @@ class Client:
     @classmethod
     def store_dump(cls, meta: Metadata, source: str) -> str:
         url = cls._make_engine_url("/v1/storage/dump")
-        params = {"graphExecutionId": meta.task_id, "nodeId": meta.node_id, "source": source}
+        logger.info(f"Storing file source={source}, meta={meta}")
+        params = {"graphExecutionId": meta.graph_execution_id, "nodeId": meta.node_id, "source": source}
         try:
             response = requests.post(url, params=params)
             response.raise_for_status()

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -39,22 +40,25 @@ public class GraphExecutor {
             log.debug("Updating task status to RUNNING for graphExecutionId={}", graphExecutionId);
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
-            Iterator<NodeExecution> iterator = graph.iterator();
+            Iterator<List<NodeExecution>> levelIterator = graph.levelIterator();
             int processedNodes = 0;
 
-            while (iterator.hasNext()) {
-                NodeExecution nodeExecution = iterator.next();
-                log.debug("Processing node id={} for graphExecutionId={}", nodeExecution.getId(), graphExecutionId);
+            while (levelIterator.hasNext()) {
+                List<NodeExecution> batch = levelIterator.next();
+                log.info("[GraphExecutionId={}] Starting new level with {} nodes", graphExecutionId, batch.size());
 
-                nodeExecutionService.execute(nodeExecution, graphExecutionId);
+                List<CompletableFuture<Void>> futures = batch.stream()
+                        .map(node -> nodeExecutionService.executeAsync(node, graphExecutionId))
+                        .toList();
 
-                processedNodes++;
-                log.debug("Node processed, updating progress: processedNodes={}/{}", processedNodes, graph.getNodeExecutions().size());
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+                processedNodes += batch.size();
+                log.info("[GraphExecutionId={}] Completed level. ProcessedNodes={}/{}",
+                        graphExecutionId, processedNodes, graph.getNodeExecutions().size());
 
                 graphExecutionService.updateProgress(graphExecutionId, processedNodes);
                 notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));
-
-                log.debug("Node with id: {} is processed (graphExecutionId={})", nodeExecution.getId(), graphExecutionId);
             }
 
             log.info("All nodes processed for graphExecutionId={}, updating status to COMPLETED", graphExecutionId);

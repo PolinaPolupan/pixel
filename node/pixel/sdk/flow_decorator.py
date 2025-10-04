@@ -15,7 +15,6 @@ def flow(func):
 
         if nf.nodes:
             nf.create_graph()
-            nf.execute()
 
         return result
 

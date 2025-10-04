@@ -32,8 +32,6 @@ def combine(
     files = set()
     for file_set in [files_0, files_1, files_2, files_3, files_4]:
         if file_set:
-            if not isinstance(file_set, set):
-                file_set = set(file_set) if isinstance(file_set, (list, tuple)) else {file_set}
             files.update(file_set)
 
     output_files = [

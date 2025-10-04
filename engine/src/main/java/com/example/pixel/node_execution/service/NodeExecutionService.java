@@ -12,20 +12,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Service
 public class NodeExecutionService {
-    private final static String NODE_EXECUTION_FAILED_MESSAGE = "Node execution for node with id %s failed: %s";
+
+    private static final String NODE_EXECUTION_FAILED_MESSAGE = "Node execution for node with id %s failed: %s";
 
     private final NodeExecutionRepository repository;
     private final NodeExecutor nodeExecutor;
 
+    public CompletableFuture<Void> executeAsync(NodeExecution nodeExecution, Long graphExecutionId) {
+        return CompletableFuture.runAsync(() -> execute(nodeExecution, graphExecutionId));
+    }
+
     public void execute(NodeExecution nodeExecution, Long graphExecutionId) {
         Instant startedAt = Instant.now();
-        NodeExecutionEntity nodeExecutionEntity = NodeExecutionEntity
-                .builder()
+        NodeExecutionEntity nodeExecutionEntity = NodeExecutionEntity.builder()
                 .status(NodeStatus.RUNNING)
                 .graphExecutionId(graphExecutionId)
                 .inputs(nodeExecution.getInputs())
@@ -47,7 +51,9 @@ public class NodeExecutionService {
             nodeExecutionEntity.setStatus(NodeStatus.FAILED);
             nodeExecutionEntity.setErrorMessage(e.getMessage());
 
-            throw new NodeExecutionException(String.format(NODE_EXECUTION_FAILED_MESSAGE, nodeExecution.getId(), e.getMessage()), e);
+            throw new NodeExecutionException(
+                    String.format(NODE_EXECUTION_FAILED_MESSAGE, nodeExecution.getId(), e.getMessage()), e
+            );
         } finally {
             nodeExecutionEntity.setFinishedAt(Instant.now());
             repository.save(nodeExecutionEntity);

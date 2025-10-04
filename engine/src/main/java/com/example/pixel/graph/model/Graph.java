@@ -17,6 +17,7 @@ public class Graph {
     private final List<NodeExecution> topologicalOrder = new ArrayList<>();
     private final Map<Long, NodeExecution> nodeMap = new HashMap<>();
     private final Map<NodeExecution, List<NodeExecution>> nodeOutputs = new HashMap<>();
+    private final Map<Integer, List<NodeExecution>> levelMap = new TreeMap<>();
 
     public Graph(Long id, List<NodeExecution> nodeExecutions) {
         this.id = id;
@@ -35,8 +36,8 @@ public class Graph {
         verifyGraphIntegrity();
     }
 
-    public Iterator<NodeExecution> iterator() {
-        return new GraphIterator(this);
+    public Iterator<List<NodeExecution>> levelIterator() {
+        return new LevelIterator(this);
     }
 
     private List<NodeExecution> setupReferences(List<NodeExecution> nodeExecutions) {
@@ -121,7 +122,7 @@ public class Graph {
 
         // Calculate in-degrees
         for (NodeExecution nodeExecution : nodeExecutions) {
-            for (NodeExecution dependent: nodeOutputs.get(nodeExecution)) {
+            for (NodeExecution dependent : nodeOutputs.getOrDefault(nodeExecution, List.of())) {
                 inDegreeMap.put(dependent.getId(), inDegreeMap.get(dependent.getId()) + 1);
             }
         }
@@ -133,18 +134,27 @@ public class Graph {
             }
         }
 
-        // Process nodes with zero in-degree
+        int level = 0;
         while (!zeroInDegreeNodeExecutions.isEmpty()) {
-            NodeExecution current = zeroInDegreeNodeExecutions.poll();
-            topologicalOrder.add(current);
+            int size = zeroInDegreeNodeExecutions.size();
+            List<NodeExecution> sameLevelNodes = new ArrayList<>();
 
-            for (NodeExecution dependent: nodeOutputs.get(current)) {
-                int inDegree = inDegreeMap.get(dependent.getId()) - 1;
-                inDegreeMap.put(dependent.getId(), inDegree);
-                if (inDegree == 0) {
-                    zeroInDegreeNodeExecutions.add(nodeMap.get(dependent.getId()));
+            for (int i = 0; i < size; i++) {
+                NodeExecution current = zeroInDegreeNodeExecutions.poll();
+                sameLevelNodes.add(current);
+                topologicalOrder.add(current);
+
+                for (NodeExecution dependent : nodeOutputs.getOrDefault(current, List.of())) {
+                    int inDegree = inDegreeMap.get(dependent.getId()) - 1;
+                    inDegreeMap.put(dependent.getId(), inDegree);
+                    if (inDegree == 0) {
+                        zeroInDegreeNodeExecutions.add(nodeMap.get(dependent.getId()));
+                    }
                 }
             }
+
+            levelMap.put(level, sameLevelNodes);
+            level++;
         }
     }
 }
