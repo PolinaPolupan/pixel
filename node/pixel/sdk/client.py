@@ -37,9 +37,9 @@ class Client:
         return result
 
     @classmethod
-    def create_graph(cls, nodes: List[Dict[str, Any]]) -> str:
+    def create_graph(cls, id: str, nodes: List[Dict[str, Any]]) -> str:
         url = cls._make_engine_url("/v1/graph")
-        payload = {"nodes": nodes}
+        payload = {"nodes": nodes, "id": id}
         response = cls.session.post(url, json=payload)
         response.raise_for_status()
         return response.json().get("id")

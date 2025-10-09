@@ -1,6 +1,6 @@
 package com.example.pixel.node.scheduler;
 
-import com.example.pixel.node_execution.integration.NodeClient;
+import com.example.pixel.common.integration.NodeClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

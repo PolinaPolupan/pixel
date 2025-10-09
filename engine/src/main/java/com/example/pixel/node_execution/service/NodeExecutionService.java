@@ -4,7 +4,7 @@ import com.example.pixel.common.exception.NodeExecutionException;
 import com.example.pixel.node_execution.dto.*;
 import com.example.pixel.node_execution.cache.NodeCache;
 import com.example.pixel.node_execution.entity.NodeExecutionEntity;
-import com.example.pixel.node_execution.integration.NodeClient;
+import com.example.pixel.common.integration.NodeClient;
 import com.example.pixel.node_execution.model.NodeExecution;
 import com.example.pixel.node_execution.model.NodeReference;
 import com.example.pixel.node_execution.repository.NodeExecutionRepository;

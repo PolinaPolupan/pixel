@@ -69,7 +69,7 @@ async def exec_node(request: Request):
         )
 
 @app.post("/load_nodes")
-async def load_nodes_endpoint():
+async def load_nodes():
     try:
         load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "../sdk/nodes"))
         return {"loaded_nodes": list(NODE_REGISTRY.keys())}
@@ -80,6 +80,17 @@ async def load_nodes_endpoint():
             status_code=500
         )
 
+@app.post("/load_graphs")
+async def load_graphs():
+    try:
+        load_nodes_from_directory(os.environ.get('EXECUTION_GRAPH_DIR'))
+        return {"loaded_nodes": list(NODE_REGISTRY.keys())}
+    except Exception as e:
+        logger.error(f"Error loading nodes: {e}", exc_info=True)
+        return JSONResponse(
+            content={"error": str(e)},
+            status_code=500
+        )
 
 @app.get("/info")
 async def node_info():

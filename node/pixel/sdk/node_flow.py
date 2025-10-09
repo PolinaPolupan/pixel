@@ -89,9 +89,8 @@ class NodeFlow:
             f"Available node models: {', '.join(self.available_node_types.keys())}"
         )
 
-    def create_graph(self):
-        self.graph_id = self.client.create_graph(list(self.nodes.values()))
-        return self.graph_id
+    def create_graph(self, id):
+        self.client.create_graph(id, list(self.nodes.values()))
 
     def list_files(self):
         if not self.graph_id:

@@ -1,4 +1,4 @@
-package com.example.pixel.node_execution.integration;
+package com.example.pixel.common.integration;
 
 import com.example.pixel.node_execution.dto.NodeClientData;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
@@ -30,6 +30,13 @@ public class NodeClient {
 
     @Value("${node.service.load_nodes}")
     private String loadNodesEndpoint;
+
+    @Value("${node.service.load_graphs}")
+    private String loadGraphsEndpoint;
+
+    public void loadGraphs() {
+        post(loadGraphsEndpoint, null, Object.class);
+    }
 
     public void loadNodes() {
         post(loadNodesEndpoint, null, Object.class);
