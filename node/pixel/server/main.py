@@ -1,6 +1,5 @@
 import logging
 import os
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -18,18 +17,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "../sdk/nodes"))
-    print(f"Loaded nodes: {list(NODE_REGISTRY.keys())}")
-    yield
-    print("Shutting down")
 
 app = FastAPI(
     title="Node Processing Service",
     description="Service for processing different node models in a graph",
-    version="1.0.0",
-    lifespan=lifespan
+    version="1.0.0"
 )
 
 app.add_middleware(
@@ -79,7 +71,7 @@ async def exec_node(request: Request):
 @app.post("/load_nodes")
 async def load_nodes_endpoint():
     try:
-        load_nodes_from_directory(os.environ.get('EXECUTION_GRAPH_DIR'))
+        load_nodes_from_directory(os.path.join(os.path.dirname(__file__), "../sdk/nodes"))
         return {"loaded_nodes": list(NODE_REGISTRY.keys())}
     except Exception as e:
         logger.error(f"Error loading nodes: {e}", exc_info=True)

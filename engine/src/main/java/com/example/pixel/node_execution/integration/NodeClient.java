@@ -28,6 +28,13 @@ public class NodeClient {
     @Value("${node.service.execute}")
     private String executionEndpoint;
 
+    @Value("${node.service.load_nodes}")
+    private String loadNodesEndpoint;
+
+    public void loadNodes() {
+        post(loadNodesEndpoint, null, Object.class);
+    }
+
     public NodeValidationResponse validate(NodeClientData nodeClientData) {
         return post(validationEndpoint, nodeClientData, NodeValidationResponse.class);
     }
@@ -36,9 +43,9 @@ public class NodeClient {
         return post(executionEndpoint, nodeClientData, NodeExecutionResponse.class);
     }
 
-    private <T> T post(String endpoint, NodeClientData nodeClientData, Class<T> responseType) {
+    private <T> T post(String endpoint, Object requestBody, Class<T> responseType) {
         try {
-            ResponseEntity<T> response = restTemplate.postForEntity(nodeBaseUrl + endpoint, nodeClientData, responseType);
+            ResponseEntity<T> response = restTemplate.postForEntity(nodeBaseUrl + endpoint, requestBody, responseType);
             return response.getBody();
         } catch (HttpStatusCodeException e) {
             throw new RuntimeException(String.format(

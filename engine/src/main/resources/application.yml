@@ -31,6 +31,7 @@ dump.directory: ${DUMP_DIR}
 node.service.url: ${NODE_SERVICE_URL}
 node.service.execute: /exec
 node.service.validate: /validate
+node.service.load_nodes: /load_nodes
 processing.topic: /topic/processing/
 node.cache: nodeCache
 default.schedule: 0 */1 * * * *
