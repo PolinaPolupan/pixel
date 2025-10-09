@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class GraphExecutionPayload {
     private Long id;
-    private Long graphId;
+    private String graphId;
     private GraphExecutionStatus status;
     private LocalDateTime startTime;
     private LocalDateTime endTime;

@@ -1,6 +1,6 @@
 CREATE TABLE graph_executions (
     id BIGSERIAL PRIMARY KEY,
-    graph_id BIGSERIAL NOT NULL,
+    graph_id TEXT NOT NULL,
     status VARCHAR(20) NOT NULL,
     start_time TIMESTAMP,
     end_time TIMESTAMP,

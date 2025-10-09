@@ -1,5 +1,5 @@
 CREATE TABLE graphs (
-    id BIGSERIAL PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     schedule TEXT,
     nodes JSON,

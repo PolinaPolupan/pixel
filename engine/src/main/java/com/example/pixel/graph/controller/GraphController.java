@@ -22,7 +22,7 @@ public class GraphController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<GraphExecutionPayload> execute(@PathVariable Long id) {
+    public ResponseEntity<GraphExecutionPayload> execute(@PathVariable String id) {
         GraphPayload graphPayload = graphService.findById(id);
         return ResponseEntity.ok(graphService.execute(graphPayload));
     }

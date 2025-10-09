@@ -36,6 +36,7 @@ public class GraphService {
     @Transactional
     public GraphPayload create(CreateGraphRequest createGraphRequest) {
         GraphEntity graphModel = GraphEntity.builder()
+                .id(createGraphRequest.getId())
                 .createdAt(LocalDateTime.now())
                 .nodes(createGraphRequest.getNodes())
                 .schedule(
@@ -50,7 +51,7 @@ public class GraphService {
 
 
     @Transactional(readOnly = true)
-    public GraphPayload findById(Long id) {
+    public GraphPayload findById(String id) {
         GraphEntity graphEntity = graphRepository.findById(id)
                 .orElseThrow(() -> new GraphNotFoundException(GRAPH_NOT_FOUND_MESSAGE + id));
 

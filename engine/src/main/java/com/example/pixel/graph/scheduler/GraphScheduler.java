@@ -21,7 +21,7 @@ public class GraphScheduler {
     private final TaskScheduler taskScheduler;
     private final GraphService graphService;
 
-    private final Set<Long> scheduledGraphs = ConcurrentHashMap.newKeySet();
+    private final Set<String> scheduledGraphs = ConcurrentHashMap.newKeySet();
 
     @Scheduled(cron = "${scan.schedule}")
     public void scanAndScheduleGraphs() {

@@ -36,7 +36,7 @@ public class GraphExecutor {
     private void execute(GraphPayload graphPayload, GraphExecutionPayload graphExecutionPayload) {
         Long graphExecutionId = graphExecutionPayload.getId();
         try {
-            Graph graph = new Graph(graphPayload.getId(), graphPayload.getNodes());
+            Graph graph = new Graph(graphPayload.getNodes());
             log.debug("Updating task status to RUNNING for graphExecutionId={}", graphExecutionId);
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
@@ -55,7 +55,7 @@ public class GraphExecutor {
 
                 processedNodes += batch.size();
                 log.info("[GraphExecutionId={}] Completed level. ProcessedNodes={}/{}",
-                        graphExecutionId, processedNodes, graph.getNodeExecutions().size());
+                        graphExecutionId, processedNodes, processedNodes);
 
                 graphExecutionService.updateProgress(graphExecutionId, processedNodes);
                 notificationService.sendTaskStatus(graphExecutionService.findById(graphExecutionId));

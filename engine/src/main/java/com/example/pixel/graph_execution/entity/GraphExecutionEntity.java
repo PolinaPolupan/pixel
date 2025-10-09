@@ -21,7 +21,7 @@ public class GraphExecutionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long graphId;
+    private String graphId;
 
     @Enumerated(EnumType.STRING)
     private GraphExecutionStatus status;

@@ -4,23 +4,19 @@ import com.example.pixel.common.exception.InvalidGraphException;
 import com.example.pixel.common.exception.InvalidNodeInputException;
 import com.example.pixel.node_execution.model.NodeExecution;
 import com.example.pixel.node_execution.model.NodeReference;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
 @Slf4j
-@Getter
 public class Graph {
-    private final Long id;
     private final List<NodeExecution> nodeExecutions;
     private final List<NodeExecution> topologicalOrder = new ArrayList<>();
+    private final List<List<NodeExecution>> levels = new ArrayList<>();
     private final Map<Long, NodeExecution> nodeMap = new HashMap<>();
     private final Map<NodeExecution, List<NodeExecution>> nodeOutputs = new HashMap<>();
-    private final Map<Integer, List<NodeExecution>> levelMap = new TreeMap<>();
 
-    public Graph(Long id, List<NodeExecution> nodeExecutions) {
-        this.id = id;
+    public Graph(List<NodeExecution> nodeExecutions) {
         this.nodeExecutions = setupReferences(nodeExecutions);
 
         for (NodeExecution nodeExecution : this.nodeExecutions) {
@@ -37,7 +33,7 @@ public class Graph {
     }
 
     public Iterator<List<NodeExecution>> levelIterator() {
-        return new LevelIterator(this);
+        return new LevelIterator(levels);
     }
 
     private List<NodeExecution> setupReferences(List<NodeExecution> nodeExecutions) {
@@ -134,7 +130,6 @@ public class Graph {
             }
         }
 
-        int level = 0;
         while (!zeroInDegreeNodeExecutions.isEmpty()) {
             int size = zeroInDegreeNodeExecutions.size();
             List<NodeExecution> sameLevelNodes = new ArrayList<>();
@@ -153,8 +148,7 @@ public class Graph {
                 }
             }
 
-            levelMap.put(level, sameLevelNodes);
-            level++;
+            levels.add(sameLevelNodes);
         }
     }
 }

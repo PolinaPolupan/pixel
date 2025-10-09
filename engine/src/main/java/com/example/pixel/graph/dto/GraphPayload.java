@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class GraphPayload {
-    private final Long id;
+    private final String id;
     private final String schedule;
     private final List<NodeExecution> nodes;
 }

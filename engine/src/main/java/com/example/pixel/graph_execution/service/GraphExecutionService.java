@@ -7,10 +7,8 @@ import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.mapper.GraphExecutionMapper;
 import com.example.pixel.graph_execution.repository.GraphExecutionRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
-import com.example.pixel.file_system.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +26,8 @@ public class GraphExecutionService {
 
     private final GraphExecutionMapper  graphExecutionMapper;
     private final GraphExecutionRepository graphExecutionRepository;
-    private final StorageService storageService;
 
-    @Value("${dump.directory}")
-    private String dumpDir;
-
-    @Transactional
+    @Transactional(readOnly = true)
     public GraphExecutionPayload findById(Long id) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
                 .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
@@ -90,10 +84,10 @@ public class GraphExecutionService {
     public void delete(Long id) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
                 .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
-        storageService.delete(dumpDir + "/" + id);
         graphExecutionRepository.delete(graphExecutionEntity);
     }
 
+    @Transactional(readOnly = true)
     public List<GraphExecutionPayload> getInactive() {
         List<GraphExecutionEntity> inactiveExecutionEntities = graphExecutionRepository.findByStatusNotIn(List.of(GraphExecutionStatus.PENDING, GraphExecutionStatus.RUNNING));
         List<GraphExecutionPayload> inactiveExecutions = new ArrayList<>();

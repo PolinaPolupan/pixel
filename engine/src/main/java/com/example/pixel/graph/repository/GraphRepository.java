@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface GraphRepository extends JpaRepository<GraphEntity, Long> {
+public interface GraphRepository extends JpaRepository<GraphEntity, String> {
 }

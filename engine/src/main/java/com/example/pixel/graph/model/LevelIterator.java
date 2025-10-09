@@ -8,8 +8,8 @@ public class LevelIterator implements Iterator<List<NodeExecution>> {
     private final List<List<NodeExecution>> levels;
     private int currentLevel;
 
-    public LevelIterator(Graph graph) {
-        this.levels = new ArrayList<>(graph.getLevelMap().values());
+    public LevelIterator(List<List<NodeExecution>> levels) {
+        this.levels = levels;
         this.currentLevel = 0;
     }
 
