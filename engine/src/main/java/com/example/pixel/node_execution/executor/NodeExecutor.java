@@ -1,104 +1,43 @@
 package com.example.pixel.node_execution.executor;
 
 import com.example.pixel.common.exception.NodeExecutionException;
-import com.example.pixel.node_execution.dto.Metadata;
-import com.example.pixel.node_execution.dto.NodeClientData;
-import com.example.pixel.node_execution.cache.NodeCache;
-import com.example.pixel.node_execution.dto.NodeExecutionResponse;
-import com.example.pixel.node_execution.dto.NodeValidationResponse;
-import com.example.pixel.node_execution.integration.NodeClient;
 import com.example.pixel.node_execution.model.NodeExecution;
-import com.example.pixel.node_execution.model.NodeReference;
+import com.example.pixel.node_execution.dto.NodeClientData;
+import com.example.pixel.node_execution.dto.NodeExecutionResponse;
+import com.example.pixel.node_execution.entity.NodeExecutionEntity;
+import com.example.pixel.node_execution.service.NodeExecutionService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
-@Slf4j
 @RequiredArgsConstructor
 @Component
 public class NodeExecutor {
-    private final static String UNABLE_TO_FIND_NODE_IN_CACHE = "Unable to find node with id %s in cache. Graph execution id: %s";
-    private final static String UNABLE_TO_FIND_OUTPUT_IN_CACHE = "Unable to find output '%s' for node with id %s in cache. Graph execution id: %s";
 
-    private final NodeClient nodeClient;
-    private final NodeCache nodeCache;
+    private static final String NODE_EXECUTION_FAILED_MESSAGE = "Node execution for node with id %s failed: %s";
 
-    public NodeClientData setup(NodeExecution nodeExecution, Long graphExecutionId) {
-        Map<String, Object> resolvedInputs = resolveInputs(nodeExecution, graphExecutionId);
-        nodeExecution.setInputs(resolvedInputs);
+    private final NodeExecutionService nodeExecutionService;
 
-        Metadata meta = new Metadata(nodeExecution.getType(), nodeExecution.getId(), graphExecutionId);
-
-        return new NodeClientData(meta, resolvedInputs);
+    public CompletableFuture<Void> executeAsync(NodeExecution nodeExecution, Long graphExecutionId) {
+        return CompletableFuture.runAsync(() -> execute(nodeExecution, graphExecutionId));
     }
 
-    public NodeExecutionResponse execute(NodeClientData nodeClientData) {
-        NodeExecutionResponse executionResponse = nodeClient.execute(nodeClientData);
+    public void execute(NodeExecution nodeExecution, Long graphExecutionId) {
+        NodeExecutionEntity nodeExecutionEntity = nodeExecutionService.create(nodeExecution, graphExecutionId);
 
-        String outputKey = getOutputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
-        nodeCache.put(outputKey, executionResponse.getOutputs());
+        try {
+            NodeClientData data = nodeExecutionService.setup(nodeExecution, graphExecutionId);
+            nodeExecutionService.validate(data);
+            NodeExecutionResponse nodeExecutionResponse = nodeExecutionService.execute(data);
 
-        log.info("Node {} Exec | Response: {}", nodeClientData.getMeta().getNodeId(), executionResponse);
-        return executionResponse;
-    }
+            nodeExecutionService.complete(nodeExecutionEntity.getId(), nodeExecution, nodeExecutionResponse);
+        } catch (Exception e) {
+            nodeExecutionService.failed(nodeExecutionEntity.getId(), nodeExecution, e.getMessage());
 
-    public void validate(NodeClientData nodeClientData) {
-        NodeValidationResponse validationResponse = nodeClient.validate(nodeClientData);
-
-        String inputKey = getInputKey(nodeClientData.getMeta().getGraphExecutionId(), nodeClientData.getMeta().getNodeId());
-        nodeCache.put(inputKey, nodeClientData.getInputs());
-
-        log.info("Node {} Validation | Response: {}", nodeClientData.getMeta().getNodeId(), validationResponse);
-    }
-
-    private Map<String, Object> resolveInputs(NodeExecution nodeExecution, Long graphExecutionId) {
-        Map<String, Object> resolvedInputs = new HashMap<>();
-
-        for (String key: nodeExecution.getInputs().keySet()) {
-            resolvedInputs.put(key, resolveInput(nodeExecution, graphExecutionId, key));
-        }
-
-        return resolvedInputs;
-    }
-
-    private Object resolveInput(NodeExecution nodeExecution, Long graphExecutionId, String key) {
-        Object input = nodeExecution.getInputs().get(key);
-
-        if (input instanceof NodeReference) {
-            input = resolveReference((NodeReference) input, graphExecutionId);
-        }
-
-        return input;
-    }
-
-    private Object resolveReference(NodeReference reference, Long graphExecutionId) {
-        String output = reference.getOutputName();
-        String cacheKey = getOutputKey(graphExecutionId, reference.getNodeId());
-
-        if (!nodeCache.exists(cacheKey)) {
             throw new NodeExecutionException(
-                    String.format(UNABLE_TO_FIND_NODE_IN_CACHE, reference.getNodeId(), graphExecutionId)
+                    String.format(NODE_EXECUTION_FAILED_MESSAGE, nodeExecution.getId(), e.getMessage()), e
             );
         }
-
-        Map<String, Object> outputMap = nodeCache.get(cacheKey);
-
-        if (!outputMap.containsKey(output)) {
-            throw new NodeExecutionException(
-                    String.format(UNABLE_TO_FIND_OUTPUT_IN_CACHE, output, reference.getNodeId(), graphExecutionId)
-            );
-        }
-
-        return outputMap.get(output);
-    }
-
-    private String getOutputKey(Long graphExecutionId, Long nodeId) {
-        return graphExecutionId + ":" + nodeId + ":output";
-    }
-
-    private String getInputKey(Long graphExecutionId, Long nodeId) {
-        return graphExecutionId + ":" + nodeId + ":input";
     }
 }

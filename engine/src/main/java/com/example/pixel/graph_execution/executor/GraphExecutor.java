@@ -7,7 +7,7 @@ import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
-import com.example.pixel.node_execution.service.NodeExecutionService;
+import com.example.pixel.node_execution.executor.NodeExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import java.util.concurrent.Executor;
 @Component
 public class GraphExecutor {
 
-    private final NodeExecutionService nodeExecutionService;
+    private final NodeExecutor nodeExecutor;
     private final GraphExecutionService graphExecutionService;
     private final NotificationService notificationService;
     private final Executor graphTaskExecutor;
@@ -48,7 +48,7 @@ public class GraphExecutor {
                 log.info("[GraphExecutionId={}] Starting new level with {} nodes", graphExecutionId, batch.size());
 
                 List<CompletableFuture<Void>> futures = batch.stream()
-                        .map(node -> nodeExecutionService.executeAsync(node, graphExecutionId))
+                        .map(node -> nodeExecutor.executeAsync(node, graphExecutionId))
                         .toList();
 
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
