@@ -35,12 +35,13 @@ public class GraphService {
 
     @Transactional
     public GraphPayload create(CreateGraphRequest createGraphRequest) {
-        if (graphRepository.existsById(createGraphRequest.getId())) {
-            throw new IllegalArgumentException("Graph with id " + createGraphRequest.getId() + " already exists.");
+        if (graphRepository.existsByGraphId(createGraphRequest.getId())) {
+            log.warn("Graph already exists with id: {}", createGraphRequest.getId());
+            return graphMapper.toDto(graphRepository.findByGraphId(createGraphRequest.getId()));
         }
 
         GraphEntity graphModel = GraphEntity.builder()
-                .id(createGraphRequest.getId())
+                .graphId(createGraphRequest.getId())
                 .createdAt(LocalDateTime.now())
                 .nodes(createGraphRequest.getNodes())
                 .schedule(

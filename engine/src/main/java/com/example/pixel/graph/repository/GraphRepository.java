@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GraphRepository extends JpaRepository<GraphEntity, String> {
+    boolean existsByGraphId(String graphId);
+    GraphEntity findByGraphId(String graphId);
 }

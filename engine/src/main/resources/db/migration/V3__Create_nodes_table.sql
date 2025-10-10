@@ -1,6 +1,6 @@
 CREATE TABLE nodes (
    id BIGSERIAL PRIMARY KEY,
-   type TEXT NOT NULL,
+   type VARCHAR(255) NOT NULL,
    version BIGINT NOT NULL DEFAULT 0,
    inputs JSON,
    outputs JSON,

@@ -22,7 +22,10 @@ import java.util.List;
 @Table(name = "graphs")
 public class GraphEntity {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String graphId;
 
     private LocalDateTime createdAt;
 
