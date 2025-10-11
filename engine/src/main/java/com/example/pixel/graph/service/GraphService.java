@@ -11,7 +11,6 @@ import com.example.pixel.graph_execution.executor.GraphExecutor;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +23,6 @@ import java.util.List;
 public class GraphService {
 
     private static final String GRAPH_NOT_FOUND_MESSAGE = "Graph not found: ";
-
-    @Value("${default.schedule}")
-    private String defaultSchedule;
 
     private final GraphMapper graphMapper;
     private final GraphExecutor graphExecutor;
@@ -44,11 +40,7 @@ public class GraphService {
                 .graphId(createGraphRequest.getId())
                 .createdAt(LocalDateTime.now())
                 .nodes(createGraphRequest.getNodes())
-                .schedule(
-                        createGraphRequest.getSchedule() != null
-                                ? createGraphRequest.getSchedule()
-                                : defaultSchedule
-                )
+                .schedule(createGraphRequest.getSchedule())
                 .build();
 
         return graphMapper.toDto(graphRepository.save(graphModel));

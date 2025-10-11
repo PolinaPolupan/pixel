@@ -35,7 +35,6 @@ node.service.load_nodes: /load_nodes
 node.service.load_graphs: /load_graphs
 processing.topic: /topic/processing/
 node.cache: nodeCache
-default.schedule: 0 */1 * * * *
 scan.schedule: 0 */1 * * * *
 cleanup.schedule: 0 */1 * * * *
 scan.directory.schedule: 0 */1 * * * *
