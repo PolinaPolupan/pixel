@@ -1,17 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import DockLayout from 'rc-dock';
-import { GraphProvider } from '../../services/contexts/GraphContext.jsx';
 import AppContent from './AppContent.jsx';
 import FileExplorer from '../file/FileExplorer.jsx';
-import LoadingScreen from '../ui/LoadingScreen.jsx';
-import { useGraph } from '../../services/contexts/GraphContext.jsx';
 import NodeTypesPanel from '../ui/NodeTypesPanel.jsx';
-import {NotificationProvider, useNotification} from '../../services/contexts/NotificationContext.jsx';
+import {NotificationProvider} from '../../services/contexts/NotificationContext.jsx';
 import {ProgressProvider} from "../../services/contexts/ProgressContext.jsx";
 import ErrorBoundary from "../ui/ErrorBoundary.jsx";
 
-// rc-dock layout with Flow Canvas (80%) and File Explorer (20%) split
+
 const defaultLayout = {
     dockbox: {
         mode: 'horizontal',
@@ -60,11 +57,8 @@ const defaultLayout = {
 };
 
 function AppWithSceneContext() {
-    const { isGraphLoading, graphError } = useGraph();
-    const { setError } = useNotification();
     const layoutRef = useRef(null);
 
-    // Persist and debug layout
     useEffect(() => {
         if (layoutRef.current) {
             const saved = localStorage.getItem('dockLayout');
@@ -86,16 +80,6 @@ function AppWithSceneContext() {
             console.log('Saved rc-dock layout:', saved);
         }
     };
-
-    useEffect(() => {
-        if (graphError) {
-            setError(graphError);
-        }
-    }, [graphError, setError]);
-
-    if (isGraphLoading) {
-        return <LoadingScreen message="Initializing your workspace..." />;
-    }
 
     return (
         <DockLayout
@@ -124,11 +108,9 @@ export default function App() {
             <div style={{ height: '100vh', position: 'relative' }}>
                 <ReactFlowProvider>
                     <NotificationProvider>
-                        <GraphProvider>
-                            <ProgressProvider>
-                                <AppWithSceneContext />
-                            </ProgressProvider>
-                        </GraphProvider>
+                        <ProgressProvider>
+                            <AppWithSceneContext />
+                        </ProgressProvider>
                     </NotificationProvider>
                 </ReactFlowProvider>
             </div>

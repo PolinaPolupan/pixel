@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useGraph } from '../services/contexts/GraphContext.jsx';
 import { saveAs } from 'file-saver';
 import { graphApi } from '../services/api.js';
 import {useNotification} from "../services/contexts/NotificationContext.jsx";
@@ -9,7 +8,6 @@ import {useNotification} from "../services/contexts/NotificationContext.jsx";
  */
 export function useFileExplorer() {
     const { setError } = useNotification();
-    const { graphId } = useGraph();
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [cacheBuster, setCacheBuster] = useState(Date.now());
@@ -40,7 +38,7 @@ export function useFileExplorer() {
         } finally {
             setIsLoading(false);
         }
-    }, [graphId, setError]);
+    }, [setError]);
 
     /**
      * Build a tree structure from paths
@@ -170,7 +168,7 @@ export function useFileExplorer() {
 
         // The root of our tree is the '' folder
         return folders[''];
-    }, [graphId, cacheBuster]);
+    }, [cacheBuster]);
 
     /**
      * Refresh all items
@@ -222,15 +220,15 @@ export function useFileExplorer() {
     const downloadAsZip = useCallback(async () => {
         try {
             setIsLoading(true);
-            const zipBlob = await graphApi.downloadZip(graphId);
-            saveAs(zipBlob, `graph_${graphId}_files.zip`);
+            const zipBlob = await graphApi.downloadZip();
+            saveAs(zipBlob, `files.zip`);
         } catch (err) {
             console.error('ZIP download error:', err);
             setError?.('Failed to download ZIP: ' + err.message);
         } finally {
             setIsLoading(false);
         }
-    }, [graphId, setError]);
+    }, [setError]);
 
     /**
      * Fetch text content for a file
@@ -272,11 +270,11 @@ export function useFileExplorer() {
 
     // Initial load - using useEffect with a ref to prevent infinite loops
     useEffect(() => {
-        if (graphId && initialMountRef.current) {
+        if (initialMountRef.current) {
             initialMountRef.current = false;
             refreshItems();
         }
-    }, [graphId]); // Remove refreshItems from dependencies
+    }, []); // Remove refreshItems from dependencies
 
     // Expose a manual refresh function that won't trigger re-renders
     const manualRefresh = useCallback(() => {

@@ -11,7 +11,6 @@ import { GraphControls } from "../graph/GraphControls.jsx";
 import { useGraphExecution } from "../../hooks/useGraphExecution.js";
 import { useNotification } from "../../services/contexts/NotificationContext.jsx";
 import {useGraphTransformation} from "../../hooks/useGraphTransformation.js";
-import {useGraph} from "../../services/contexts/GraphContext.jsx";
 import {useCreateNode} from "../../hooks/useCreateNode.js";
 
 function AppContent() {
@@ -23,8 +22,7 @@ function AppContent() {
     const [contextMenu, setContextMenu] = useState(null);
     const { createNode } = useCreateNode();
     const {  nodeReactComponents, getHandleType, canCastType, isLoading } = useNodesApi();
-    const { graphId } = useGraph();
-    const buildGraphBody = useGraphTransformation(graphId);
+    const buildGraphBody = useGraphTransformation();
     const { isProcessing, executeGraph } = useGraphExecution(buildGraphBody);
 
     // Check if connection is valid
@@ -81,12 +79,6 @@ function AppContent() {
                 isProcessing={isProcessing}
                 configLoading={isLoading}
             />
-
-            <Panel position="top-center">
-                <span>
-                    {isLoading ? 'Loading...' : `Graph: ${graphId}`}
-                </span>
-            </Panel>
 
             {/* Debug Panel */}
             <Panel position="right-center" style={{ margin: '16px' }}>

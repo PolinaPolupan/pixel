@@ -1,7 +1,8 @@
 import {useCallback} from 'react';
 import {useReactFlow} from '@xyflow/react';
 
-export function useGraphTransformation(graphId) {
+export function useGraphTransformation() {
+  const graphId = "graph";
   const { getNodes, getEdges } = useReactFlow();
 
   return useCallback(() => {
