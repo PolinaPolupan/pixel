@@ -37,7 +37,7 @@ public class GraphService {
     public GraphPayload create(CreateGraphRequest createGraphRequest) {
         if (graphRepository.existsByGraphId(createGraphRequest.getId())) {
             log.warn("Graph already exists with id: {}", createGraphRequest.getId());
-            return graphMapper.toDto(graphRepository.findByGraphId(createGraphRequest.getId()));
+            return findById(createGraphRequest.getId());
         }
 
         GraphEntity graphModel = GraphEntity.builder()
@@ -56,7 +56,7 @@ public class GraphService {
 
     @Transactional(readOnly = true)
     public GraphPayload findById(String id) {
-        GraphEntity graphEntity = graphRepository.findById(id)
+        GraphEntity graphEntity = graphRepository.findByGraphId(id)
                 .orElseThrow(() -> new GraphNotFoundException(GRAPH_NOT_FOUND_MESSAGE + id));
 
         return graphMapper.toDto(graphEntity);

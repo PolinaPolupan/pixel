@@ -1,5 +1,6 @@
 package com.example.pixel.connection.controller;
 
+import com.example.pixel.connection.dto.ConnectionPayload;
 import com.example.pixel.connection.dto.ConnectionRequest;
 import com.example.pixel.connection.entity.ConnectionEntity;
 import com.example.pixel.connection.service.ConnectionService;
@@ -22,12 +23,12 @@ public class ConnectionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ConnectionEntity> get(@PathVariable String id) {
+    public ResponseEntity<ConnectionPayload> get(@PathVariable String id) {
         return ResponseEntity.ok(service.get(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ConnectionEntity> delete(@PathVariable String id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         service.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
