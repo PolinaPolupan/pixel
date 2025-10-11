@@ -1,27 +1,39 @@
 import boto3
 import logging
-from typing import Optional
 
+from pixel.sdk.client import get_s3_credentials
 from pixel.sdk.models.node_decorator import node
 from pixel.core import Metadata
 from pixel.sdk import Client
 
 logger = logging.getLogger(__name__)
 
-def s3_input_exec(
-    access_key_id: str,
-    secret_access_key: str,
-    region: str,
-    bucket: str,
+@node(
+    inputs={"conn_id": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""}},
+    outputs={"files": {"type": "FILEPATH_ARRAY", "required": True}},
+    display_name="S3 Input",
+    category="IO",
+    description="Load files from S3",
+    color="#AED581",
+    icon="S3Icon"
+)
+def s3_input(
+    conn_id: str,
     meta: Metadata,
-    endpoint: Optional[str] = None
+    endpoint: str = None
 ):
+    creds = get_s3_credentials(conn_id)
+    bucket = creds["bucket"]
+    access_key = creds["access_key"]
+    secret_key = creds["secret_key"]
+    region = creds["region"]
+
     logger.info(f"S3 configuration - Region: {region}, Bucket: {bucket}")
     files = set()
 
     session = boto3.Session(
-        aws_access_key_id=access_key_id,
-        aws_secret_access_key=secret_access_key,
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
         region_name=region
     )
 
@@ -44,7 +56,6 @@ def s3_input_exec(
                 body_stream = file_response['Body']
 
                 upload_result = client.upload_file(filename=filename, file_obj=body_stream)
-
                 logger.info(f"Uploaded {filename} -> {upload_result}")
                 files.add(filename)
         else:
@@ -55,50 +66,3 @@ def s3_input_exec(
         raise ValueError(f"Failed to connect to S3: {str(e)}")
 
     return {"files": files}
-
-
-def s3_input_validate(
-    access_key_id: str,
-    secret_access_key: str,
-    region: str,
-    bucket: str,
-    meta: Metadata,
-    endpoint: Optional[str] = None
-):
-    if not access_key_id:
-        raise ValueError("Access key ID cannot be blank.")
-    if not secret_access_key:
-        raise ValueError("Secret cannot be blank.")
-    if not region:
-        raise ValueError("Region cannot be blank.")
-    if not bucket:
-        raise ValueError("Bucket cannot be blank.")
-
-
-@node(
-    tasks={"exec": s3_input_exec, "validate": s3_input_validate},
-    inputs={
-        "access_key_id": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "secret_access_key": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "region": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "bucket": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "endpoint": {"type": "STRING", "required": False, "widget": "INPUT", "default": ""}
-    },
-    outputs={
-        "files": {"type": "FILEPATH_ARRAY", "required": True}
-    },
-    display_name="S3 Input",
-    category="IO",
-    description="Load files from S3",
-    color="#AED581",
-    icon="S3Icon"
-)
-def s3_input(
-    access_key_id: str,
-    secret_access_key: str,
-    region: str,
-    bucket: str,
-    meta: Metadata,
-    endpoint: Optional[str] = None
-):
-    pass

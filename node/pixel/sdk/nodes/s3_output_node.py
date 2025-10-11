@@ -3,21 +3,40 @@ import boto3
 import logging
 from typing import List, Optional
 
+from pixel.sdk.client import get_s3_credentials
 from pixel.sdk.models.node_decorator import node
 from pixel.core import Metadata
 
 logger = logging.getLogger(__name__)
 
-def s3_output_exec(
+
+@node(
+    inputs={
+        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
+        "conn_id": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
+        "endpoint": {"type": "STRING", "required": False, "widget": "INPUT", "default": ""},
+        "folder": {"type": "STRING", "required": False, "widget": "INPUT", "default": ""}
+    },
+    outputs={},
+    display_name="S3 Output",
+    category="IO",
+    description="Output files to S3",
+    color="#AED581",
+    icon="OutputIcon"
+)
+def s3_output(
     input: List[str],
-    access_key_id: str,
-    secret_access_key: str,
-    region: str,
-    bucket: str,
+    conn_id: str,
     meta: Metadata,
     endpoint: Optional[str] = None,
     folder: str = ""
 ):
+    creds = get_s3_credentials(conn_id)
+    bucket = creds["bucket"]
+    access_key_id = creds["access_key"]
+    secret_access_key = creds["secret_key"]
+    region = creds["region"]
+
     session = boto3.Session(
         aws_access_key_id=access_key_id,
         aws_secret_access_key=secret_access_key,
@@ -42,52 +61,3 @@ def s3_output_exec(
             logger.info(f"Uploaded {file_path} to s3://{bucket}/{key}")
 
     return {}
-
-def s3_output_validate(
-    input: List[str],
-    access_key_id: str,
-    secret_access_key: str,
-    region: str,
-    bucket: str,
-    meta: Metadata,
-    endpoint: Optional[str] = None,
-    folder: str = ""
-):
-    if not access_key_id:
-        raise ValueError("Access key ID cannot be blank.")
-    if not secret_access_key:
-        raise ValueError("Secret cannot be blank.")
-    if not region:
-        raise ValueError("Region cannot be blank.")
-    if not bucket:
-        raise ValueError("Bucket cannot be blank.")
-
-@node(
-    tasks={"exec": s3_output_exec, "validate": s3_output_validate},
-    inputs={
-        "input": {"type": "FILEPATH_ARRAY", "required": True, "widget": "LABEL", "default": list()},
-        "access_key_id": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "secret_access_key": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "region": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "bucket": {"type": "STRING", "required": True, "widget": "INPUT", "default": ""},
-        "endpoint": {"type": "STRING", "required": False, "widget": "INPUT", "default": ""},
-        "folder": {"type": "STRING", "required": False, "widget": "INPUT", "default": ""}
-    },
-    outputs={},
-    display_name="S3 Output",
-    category="IO",
-    description="Output files to S3",
-    color="#AED581",
-    icon="OutputIcon"
-)
-def s3_output(
-    input: List[str],
-    access_key_id: str,
-    secret_access_key: str,
-    region: str,
-    bucket: str,
-    meta: Metadata,
-    endpoint: Optional[str] = None,
-    folder: str = ""
-):
-    pass

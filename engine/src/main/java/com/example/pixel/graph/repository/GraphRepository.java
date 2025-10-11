@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface GraphRepository extends JpaRepository<GraphEntity, String> {
     boolean existsByGraphId(String graphId);
     GraphEntity findByGraphId(String graphId);
+    void deleteByGraphId(String graphId);
 }

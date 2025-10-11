@@ -1,4 +1,4 @@
-CREATE TABLE connection (
+CREATE TABLE connections (
     id SERIAL PRIMARY KEY,
     conn_id VARCHAR(255) NOT NULL UNIQUE,
     conn_type VARCHAR(255) NOT NULL,
@@ -7,5 +7,6 @@ CREATE TABLE connection (
     login VARCHAR(255),
     password VARCHAR(255),
     port INT,
-    extra TEXT
+    extra TEXT,
+    version BIGINT NOT NULL DEFAULT 0
 );

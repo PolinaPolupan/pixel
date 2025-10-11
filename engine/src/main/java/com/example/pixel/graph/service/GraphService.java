@@ -54,7 +54,6 @@ public class GraphService {
         return graphMapper.toDto(graphRepository.save(graphModel));
     }
 
-
     @Transactional(readOnly = true)
     public GraphPayload findById(String id) {
         GraphEntity graphEntity = graphRepository.findById(id)
@@ -69,6 +68,11 @@ public class GraphService {
         return graphEntities.stream()
                 .map(graphMapper::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public void deleteById(String id) {
+        graphRepository.deleteByGraphId(id);
     }
 
     public GraphExecutionPayload execute(GraphPayload graphPayload) {

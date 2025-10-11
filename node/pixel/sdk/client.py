@@ -125,5 +125,24 @@ class Client:
         response = cls.session.post(url, json=params)
         response.raise_for_status()
 
+    @classmethod
+    def get_connection(cls, conn_id: str) -> dict:
+        url = cls._make_engine_url(f"/v1/connections/{conn_id}")
+        response = cls.session.get(url)
+        response.raise_for_status()
+        return response.json()
+
+
 def create_node(node_id: int, node_type: str, inputs: Dict[str, Any]) -> Dict[str, Any]:
     return {"id": node_id, "type": node_type, "inputs": inputs}
+
+def get_s3_credentials(conn_id: str):
+    conn = Client.get_connection(conn_id)
+    if conn["connType"].lower() != "s3":
+        raise ValueError(f"Connection {conn_id} is not of type S3")
+    return {
+        "bucket": conn["host"],
+        "access_key": conn["login"],
+        "secret_key": conn["password"],
+        "region": conn.get("extra") or "us-east-1"
+    }

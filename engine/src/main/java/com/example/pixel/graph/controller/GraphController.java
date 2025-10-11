@@ -26,4 +26,10 @@ public class GraphController {
         GraphPayload graphPayload = graphService.findById(id);
         return ResponseEntity.ok(graphService.execute(graphPayload));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        graphService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
 }
