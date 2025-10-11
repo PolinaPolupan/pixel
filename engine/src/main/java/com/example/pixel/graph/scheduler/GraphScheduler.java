@@ -37,10 +37,12 @@ public class GraphScheduler {
     }
 
     private void scheduleGraph(GraphPayload graph) {
-        CronTrigger cronTrigger = new CronTrigger(graph.getSchedule());
-        taskScheduler.schedule(() -> graphService.execute(graph), cronTrigger);
-        scheduledGraphs.add(graph.getId());
-        log.info("Scheduled graph id={} with schedule={}", graph.getId(), graph.getSchedule());
+        if (graph.getSchedule() != null) {
+            CronTrigger cronTrigger = new CronTrigger(graph.getSchedule());
+            taskScheduler.schedule(() -> graphService.execute(graph), cronTrigger);
+            scheduledGraphs.add(graph.getId());
+            log.info("Scheduled graph id={} with schedule={}", graph.getId(), graph.getSchedule());
+        }
     }
 }
 
