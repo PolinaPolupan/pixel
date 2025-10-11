@@ -6,7 +6,6 @@ import { useReactFlow } from "@xyflow/react";
 import { useEffect } from "react";
 
 export default function Node({ id, data }) {
-    console.log(data)
     const { config } = data;
     const reactFlow = useReactFlow();
 

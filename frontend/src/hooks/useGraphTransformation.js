@@ -2,7 +2,6 @@ import {useCallback} from 'react';
 import {useReactFlow} from '@xyflow/react';
 
 export function useGraphTransformation() {
-  const graphId = "graph";
   const { getNodes, getEdges } = useReactFlow();
 
   return useCallback(() => {
@@ -46,6 +45,6 @@ export function useGraphTransformation() {
       };
     });
 
-    return {id: graphId, nodes: transformedNodes};
-  }, [getNodes, getEdges, graphId]);
+    return {nodes: transformedNodes};
+  }, [getNodes, getEdges]);
 }

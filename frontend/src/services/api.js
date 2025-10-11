@@ -71,9 +71,6 @@ async function apiRequest(endpoint, options = {}, config = ENGINE_CONFIG) {
  * Engine graph API
  */
 export const graphApi = {
-    create: () =>
-        apiRequest('/graph/', { method: 'POST' }),
-
     getFileUrl: (filePath, cacheBuster = Date.now()) =>
         `${ENGINE_CONFIG.BASE_URL}/storage/file?filepath=${encodeURIComponent(filePath)}${cacheBuster ? `&_cb=${cacheBuster}` : ''}`,
 
@@ -118,11 +115,14 @@ export const graphApi = {
         return await response.blob();
     },
 
-    processGraph: (graphData) =>
-        apiRequest(`/graph/exec`, {
-            method: 'POST',
-            body: JSON.stringify(graphData)
-        }),
+    processGraph: (graphId) =>
+        apiRequest(`/graph/${graphId}`, {method: 'POST'}),
+
+    create: (graphData) =>
+        apiRequest(`/graph`, {
+                method: 'POST',
+                body: JSON.stringify(graphData)
+            }),
 
     getTaskStatus: (taskId) =>
         apiRequest(`/task/${taskId}/status`)

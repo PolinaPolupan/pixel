@@ -16,20 +16,21 @@ export function useGraphExecution(getGraphData) {
 
         initProgress();
         try {
-            const graphData = getGraphData();
+            let graphData = getGraphData();
+
+            graphData.id = 'graph_' + Math.random().toString(36).substring(2, 10);
+            graphData.schedule = null;
+
             console.log("Sending graph data to backend:", graphData);
 
-            const taskData = await graphApi.processGraph(graphData);
+            await graphApi.create(graphData);
+            const taskData = await graphApi.processGraph(graphData.id);
             console.log("Graph processing task created:", taskData);
-            console.log("Initial task data received:", taskData);
-            console.log("Initial task status:", taskData.status);
 
             taskManager.monitorTask(
                 taskData.id,
                 taskData,
-                (progressData) => {
-                    updateProgress(progressData);
-                },
+                (progressData) => updateProgress(progressData),
                 (completedData) => {
                     completeProgress(completedData);
                     setSuccess('Graph execution completed successfully');
@@ -48,6 +49,7 @@ export function useGraphExecution(getGraphData) {
             setIsProcessing(false);
         }
     }, [initProgress, updateProgress, completeProgress, handleError, setError, setSuccess]);
+
 
     return { isProcessing, executeGraph };
 }
