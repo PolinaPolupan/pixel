@@ -22,8 +22,13 @@ public class ConnectionEntity {
     private String connType;
     private String host;
     private String schema;
-    private String login;
-    private String password;
+
+    @Column(columnDefinition = "BYTEA")
+    private byte[] login;
+
+    @Column(columnDefinition = "BYTEA")
+    private byte[] password;
+
     private int port;
     private String extra;
 

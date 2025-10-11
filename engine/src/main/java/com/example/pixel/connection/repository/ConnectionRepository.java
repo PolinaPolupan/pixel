@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ConnectionRepository extends JpaRepository<ConnectionEntity, Long> {
     Optional<ConnectionEntity> findByConnId(String connId);
+    void deleteByConnId(String connId);
 }

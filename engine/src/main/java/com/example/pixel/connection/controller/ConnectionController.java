@@ -18,11 +18,17 @@ public class ConnectionController {
 
     @PostMapping
     public ResponseEntity<ConnectionEntity> create(@RequestBody ConnectionRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.createConnection(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ConnectionEntity> get(@PathVariable String id) {
-        return ResponseEntity.ok(service.getConnection(id));
+        return ResponseEntity.ok(service.get(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ConnectionEntity> delete(@PathVariable String id) {
+        service.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 }

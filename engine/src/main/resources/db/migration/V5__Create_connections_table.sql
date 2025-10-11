@@ -4,8 +4,8 @@ CREATE TABLE connections (
     conn_type VARCHAR(255) NOT NULL,
     host VARCHAR(255),
     schema VARCHAR(255),
-    login VARCHAR(255),
-    password VARCHAR(255),
+    login BYTEA,
+    password BYTEA,
     port INT,
     extra TEXT,
     version BIGINT NOT NULL DEFAULT 0
