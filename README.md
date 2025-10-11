@@ -28,18 +28,8 @@ def custom_blur(input: List[str], ksize):
 
 
 @flow
-def graph_workflow(
-        aws_access: str,
-        aws_secret: str,
-        aws_region: str,
-        aws_bucket: str
-):
-    s3_files = s3_input(
-        access_key_id=aws_access,
-        secret_access_key=aws_secret,
-        region=aws_region,
-        bucket=aws_bucket
-    )
+def graph_workflow():
+    s3_files = s3_input(conn_id="my_s3")
     files = input_node(input=["file.jpg", "file1.jpg"])
     combined_files = combine(
         files_0=files.output,
@@ -58,24 +48,16 @@ def graph_workflow(
         folder="output_1"
     )
     s3_out = s3_output(
+        conn_id="my_s3",
         input=blurred.output,
-        folder="output",
-        access_key_id=aws_access,
-        secret_access_key=aws_secret,
-        region=aws_region,
-        bucket=aws_bucket
+        folder="output"
     )
     custom = custom_blur(
         input=blurred.output,
         ksize=5
     )
 
-graph_workflow(
-    aws_access="your-access-key",
-    aws_secret="your-secret-key",
-    aws_region="your-region",
-    aws_bucket="your-bucket"
-)
+graph_workflow(id="my-custom-pipeline")
 ```
 
 ## Core Features
