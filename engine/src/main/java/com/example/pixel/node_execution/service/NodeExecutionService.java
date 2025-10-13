@@ -5,6 +5,7 @@ import com.example.pixel.node_execution.dto.*;
 import com.example.pixel.node_execution.cache.NodeCache;
 import com.example.pixel.node_execution.entity.NodeExecutionEntity;
 import com.example.pixel.common.integration.NodeClient;
+import com.example.pixel.node_execution.mapper.NodeExecutionMapper;
 import com.example.pixel.node_execution.model.NodeExecution;
 import com.example.pixel.node_execution.model.NodeReference;
 import com.example.pixel.node_execution.repository.NodeExecutionRepository;
@@ -27,6 +28,7 @@ public class NodeExecutionService {
     private final NodeClient nodeClient;
     private final NodeCache nodeCache;
     private final NodeExecutionRepository repository;
+    private final NodeExecutionMapper mapper;
 
     @Transactional
     public NodeExecutionEntity create(NodeExecution nodeExecution, Long graphExecutionId) {
@@ -42,14 +44,16 @@ public class NodeExecutionService {
     }
 
     @Transactional(readOnly = true)
-    public NodeExecutionEntity findById(Long id) {
-        return repository.findById(id)
+    public NodeExecutionPayload findById(Long id) {
+        NodeExecutionEntity executionEntity = repository.findById(id)
                 .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
+        return mapper.toDto(executionEntity);
     }
 
     @Transactional
     public void complete(Long id, NodeExecution nodeExecution, NodeExecutionResponse nodeExecutionResponse) {
-        NodeExecutionEntity nodeExecutionEntity = findById(id);
+        NodeExecutionEntity nodeExecutionEntity = repository.findById(id)
+                .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
 
         nodeExecutionEntity.setInputs(nodeExecution.getInputs());
         nodeExecutionEntity.setStatus(NodeStatus.COMPLETED);
@@ -61,7 +65,8 @@ public class NodeExecutionService {
 
     @Transactional
     public void failed(Long id, NodeExecution nodeExecution, String message) {
-        NodeExecutionEntity nodeExecutionEntity = findById(id);
+        NodeExecutionEntity nodeExecutionEntity = repository.findById(id)
+                .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
 
         nodeExecutionEntity.setInputs(nodeExecution.getInputs());
         nodeExecutionEntity.setStatus(NodeStatus.FAILED);

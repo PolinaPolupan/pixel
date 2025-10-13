@@ -70,7 +70,7 @@ public class GraphService {
     public GraphExecutionPayload execute(GraphPayload graphPayload) {
         GraphExecutionPayload graphExecutionPayload = graphExecutionService.create(graphPayload);
 
-        graphExecutor.startExecution(graphPayload, graphExecutionPayload);
+        graphExecutor.launchExecution(graphPayload, graphExecutionPayload);
 
         return graphExecutionPayload;
     }

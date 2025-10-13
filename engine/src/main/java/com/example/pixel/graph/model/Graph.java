@@ -36,6 +36,10 @@ public class Graph {
         return new LevelIterator(levels);
     }
 
+    public Iterator<NodeExecution> nodeIterator() {
+        return new NodeIterator(topologicalOrder);
+    }
+
     private List<NodeExecution> setupReferences(List<NodeExecution> nodeExecutions) {
         List<NodeExecution> result = new ArrayList<>();
         for (NodeExecution nodeExecution : nodeExecutions) {
