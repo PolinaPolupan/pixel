@@ -3,9 +3,7 @@ import { saveAs } from 'file-saver';
 import { graphApi } from '../services/api.js';
 import {useNotification} from "../services/contexts/NotificationContext.jsx";
 
-/**
- * Custom hook for file explorer operations
- */
+
 export function useFileExplorer() {
     const { setError } = useNotification();
     const [items, setItems] = useState([]);
@@ -14,12 +12,8 @@ export function useFileExplorer() {
     const [previewItem, setPreviewItem] = useState(null);
     const [previewContent, setPreviewContent] = useState(null);
 
-    // Use a ref to track initial mount to prevent duplicate fetching
     const initialMountRef = useRef(true);
 
-    /**
-     * Fetch items from the server
-     */
     const fetchItems = useCallback(async (folder = '') => {
         try {
             setIsLoading(true);
@@ -40,29 +34,23 @@ export function useFileExplorer() {
         }
     }, [setError]);
 
-    /**
-     * Build a tree structure from paths
-     */
+
     const buildTree = useCallback((paths) => {
-        // Helper function to check if a path is a file
         const isFile = path => {
             const segments = path.split('/');
             const lastSegment = segments[segments.length - 1];
             return /\.(png|jpeg|jpg|gif|txt|json|md)$/i.test(lastSegment);
         };
 
-        // Helper function to get file type
         const getFileType = path => {
             if (/\.(png|jpeg|jpg|gif)$/i.test(path)) return 'image';
             if (/\.(txt|json|md)$/i.test(path)) return 'text';
             return 'binary';
         };
 
-        // First, separate folders and root files
         const rootFiles = [];
         const folders = {};
 
-        // Add root folder first
         folders[''] = {
             type: 'folder',
             name: 'root',
@@ -72,22 +60,17 @@ export function useFileExplorer() {
             isOpen: true
         };
 
-        // Create a record of all folders and their parent paths
         paths.forEach(path => {
             if (path.includes('/')) {
-                // This is a nested path, get all folder segments
                 const segments = path.split('/');
                 let currentPath = '';
 
-                // Process each segment to build folder hierarchy
                 for (let i = 0; i < segments.length - 1; i++) {
                     const segment = segments[i];
                     const parentPath = currentPath;
 
-                    // Build the current path
                     currentPath = currentPath ? `${currentPath}/${segment}` : segment;
 
-                    // Create folder if it doesn't exist
                     if (!folders[currentPath]) {
                         folders[currentPath] = {
                             type: 'folder',
@@ -101,13 +84,11 @@ export function useFileExplorer() {
                     }
                 }
 
-                // If it's a file, add it to its parent folder
                 if (isFile(path)) {
                     const lastSlash = path.lastIndexOf('/');
                     const fileName = path.substring(lastSlash + 1);
                     const folderPath = path.substring(0, lastSlash);
 
-                    // Make sure the parent folder exists
                     if (!folders[folderPath]) {
                         folders[folderPath] = {
                             type: 'folder',
@@ -119,7 +100,6 @@ export function useFileExplorer() {
                         };
                     }
 
-                    // Add file to its parent folder
                     folders[folderPath].files.push({
                         type: 'file',
                         fileType: getFileType(path),
@@ -129,7 +109,6 @@ export function useFileExplorer() {
                     });
                 }
             } else if (isFile(path)) {
-                // This is a root-level file
                 rootFiles.push({
                     type: 'file',
                     fileType: getFileType(path),
@@ -138,7 +117,6 @@ export function useFileExplorer() {
                     url: graphApi.getFileUrl(path, cacheBuster)
                 });
             } else {
-                // This is a root-level folder
                 if (!folders[path]) {
                     folders[path] = {
                         type: 'folder',
@@ -153,10 +131,8 @@ export function useFileExplorer() {
             }
         });
 
-        // Add all files to the root folder
         folders[''].files = rootFiles;
 
-        // Now connect all folders to their parents
         Object.values(folders).forEach(folder => {
             if (folder.path && folder.parentPath !== undefined) {
                 const parent = folders[folder.parentPath];
@@ -166,13 +142,9 @@ export function useFileExplorer() {
             }
         });
 
-        // The root of our tree is the '' folder
         return folders[''];
     }, [cacheBuster]);
 
-    /**
-     * Refresh all items
-     */
     const refreshItems = useCallback(async () => {
         const newCacheBuster = Date.now();
         setCacheBuster(newCacheBuster);
@@ -180,18 +152,13 @@ export function useFileExplorer() {
         const paths = await fetchItems('');
         const root = buildTree(paths);
 
-        // Set the children of the root as our top-level items
         setItems([...root.folders, ...root.files]);
 
         return root;
     }, [fetchItems, buildTree]);
 
-    /**
-     * Toggle folder open/closed state
-     */
     const toggleFolder = useCallback((path) => {
         setItems(prev => {
-            // Create a deep copy to avoid mutation
             const updateNode = (nodes) => {
                 return nodes.map(node => {
                     if (node.path === path) {
@@ -214,9 +181,6 @@ export function useFileExplorer() {
         });
     }, []);
 
-    /**
-     * Download all files as a ZIP
-     */
     const downloadAsZip = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -230,9 +194,6 @@ export function useFileExplorer() {
         }
     }, [setError]);
 
-    /**
-     * Fetch text content for a file
-     */
     const fetchTextContent = useCallback(async (url) => {
         try {
             const response = await fetch(url);
@@ -246,9 +207,6 @@ export function useFileExplorer() {
         }
     }, [setError]);
 
-    /**
-     * Handle file click - opens preview
-     */
     const handleFileClick = useCallback(async (item) => {
         setPreviewItem(item);
 
@@ -260,23 +218,18 @@ export function useFileExplorer() {
         }
     }, [fetchTextContent]);
 
-    /**
-     * Close file preview
-     */
     const closePreview = useCallback(() => {
         setPreviewItem(null);
         setPreviewContent(null);
     }, []);
 
-    // Initial load - using useEffect with a ref to prevent infinite loops
     useEffect(() => {
         if (initialMountRef.current) {
             initialMountRef.current = false;
             refreshItems();
         }
-    }, []); // Remove refreshItems from dependencies
+    }, []);
 
-    // Expose a manual refresh function that won't trigger re-renders
     const manualRefresh = useCallback(() => {
         refreshItems();
     }, [refreshItems]);

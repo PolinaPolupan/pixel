@@ -64,7 +64,6 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
     }
   };
 
-  // Format file size
   const formatSize = (bytes) => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -80,7 +79,6 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
         background: 'rgba(0, 0, 0, 0)',
         maxWidth: '250px',
       }}>
-        {/* Header with count and clear button */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -106,7 +104,6 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
             Clear
           </button>
         </div>
-        {/* Stats display */}
         <div style={{
           marginBottom: '8px',
           padding: '8px 10px',
@@ -134,7 +131,6 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
             <span style={{ color: '#569cd6' }}>other_files</span>: {stats.totalFiles - stats.imageFiles - stats.zipFiles}
           </div>
         </div>
-        {/* Upload button */}
         <div style={{
           display: 'flex',
           gap: '6px',
@@ -162,8 +158,6 @@ function FileUpload({ onFilesSelected, maxFiles = 1000000, initialFiles = [] }) 
             />
           </label>
         </div>
-
-        {/* Keyframe animation for fade-in */}
         <style>
           {`
           @keyframes fadeIn {

@@ -5,7 +5,6 @@ import GraphDataTransformer from '../graph/GraphDataTransformer.jsx';
 const DebugPanel = () => {
     const { getNodes, getEdges } = useReactFlow();
 
-    // Get current nodes and edges
     const nodes = getNodes();
     const edges = getEdges();
 

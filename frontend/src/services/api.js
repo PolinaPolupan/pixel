@@ -18,7 +18,6 @@ async function apiRequest(endpoint, options = {}, config = ENGINE_CONFIG) {
     const url = `${config.BASE_URL}${endpoint}`;
 
     try {
-        // Prepare request options with defaults
         const requestOptions = {
             ...options,
             credentials: config.CREDENTIALS,
@@ -28,7 +27,6 @@ async function apiRequest(endpoint, options = {}, config = ENGINE_CONFIG) {
             },
         };
 
-        // Only set Content-Type for JSON requests, not for multipart/form-data (file uploads)
         if (!options.body || !(options.body instanceof FormData)) {
             requestOptions.headers['Content-Type'] = 'application/json';
         }
@@ -67,9 +65,6 @@ async function apiRequest(endpoint, options = {}, config = ENGINE_CONFIG) {
     }
 }
 
-/**
- * Engine graph API
- */
 export const graphApi = {
     getFileUrl: (filePath, cacheBuster = Date.now()) =>
         `${ENGINE_CONFIG.BASE_URL}/storage/file?filepath=${encodeURIComponent(filePath)}${cacheBuster ? `&_cb=${cacheBuster}` : ''}`,
@@ -128,10 +123,6 @@ export const graphApi = {
         apiRequest(`/task/${taskId}/status`)
 };
 
-
-/**
- * Node service API
- */
 export const nodeApi = {
     getNodeConfig: () =>
         apiRequest('/info', {}, NODE_CONFIG),

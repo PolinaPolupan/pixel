@@ -4,7 +4,6 @@ import { useProgress } from '../../services/contexts/ProgressContext.jsx';
 export default function ProgressBar() {
     const { progressState } = useProgress();
 
-    // Render the progress bar
     return (
         <div
             style={{

@@ -8,15 +8,12 @@ export function useGraphTransformation() {
     const nodes = getNodes();
     const edges = getEdges();
 
-    // Helper: get only input fields from node data (exclude config fields)
     const getNodeInputs = (node) => {
       const data = node.data || {};
-      // Exclude known config/meta keys
       const {config, ...inputs} = data;
       return inputs;
     };
 
-    // Map for quick lookup of edges by target node and handle
     const edgesByTarget = {};
     edges.forEach(edge => {
       if (!edgesByTarget[edge.target]) edgesByTarget[edge.target] = {};
@@ -30,7 +27,6 @@ export function useGraphTransformation() {
     const transformedNodes = nodes.map(node => {
       const inputs = getNodeInputs(node);
 
-      // Replace each input field if there's an incoming edge
       Object.keys(inputs).forEach(inputKey => {
         const edgeInfo = edgesByTarget[node.id]?.[inputKey];
         if (edgeInfo) {

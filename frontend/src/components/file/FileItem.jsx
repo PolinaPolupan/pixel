@@ -1,9 +1,6 @@
 import React from 'react';
 import { IoDocumentOutline, IoImage, IoFolderOutline, IoFolderOpenOutline } from 'react-icons/io5';
 
-/**
- * Renders a file or folder item in the file explorer
- */
 export const FileItem = ({
                              item,
                              depth,
@@ -24,7 +21,7 @@ export const FileItem = ({
                     marginBottom: '4px',
                 }}
                 onClick={(e) => {
-                    e.stopPropagation(); // Prevent event bubbling
+                    e.stopPropagation();
                     onToggleFolder(item.path);
                 }}
             >
@@ -48,7 +45,7 @@ export const FileItem = ({
                 marginBottom: '4px',
             }}
             onClick={(e) => {
-                e.stopPropagation(); // Prevent event bubbling
+                e.stopPropagation();
                 onFileClick(item);
             }}
         >

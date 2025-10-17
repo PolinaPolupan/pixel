@@ -25,7 +25,6 @@ function AppContent() {
     const buildGraphBody = useGraphTransformation();
     const { isProcessing, executeGraph } = useGraphExecution(buildGraphBody);
 
-    // Check if connection is valid
     const isValidConnection = useCallback((connection) => {
         if (connection.source === connection.target) return false;
 
@@ -40,10 +39,8 @@ function AppContent() {
         return sourceType && targetType && canCastType(sourceType, targetType);
     }, [nodes, getHandleType, canCastType]);
 
-    // Connect nodes
     const onConnect = useCallback((params) => setEdges(els => addEdge(params, els)), []);
 
-    // Handle right-click context menu
     const onContextMenu = useCallback((event) => {
         event.preventDefault();
         const rect = reactFlowWrapper.current.getBoundingClientRect();
@@ -73,19 +70,16 @@ function AppContent() {
                 colorMode="dark"
             />
 
-            {/* Controls */}
             <GraphControls
                 handlePlay={executeGraph}
                 isProcessing={isProcessing}
                 configLoading={isLoading}
             />
 
-            {/* Debug Panel */}
             <Panel position="right-center" style={{ margin: '16px' }}>
                 <DebugPanel />
             </Panel>
 
-            {/* Notifications */}
             {error && (
                 <Panel position="top-center">
                     <NotificationPanel type="error" message={error} onDismiss={clearError} />
@@ -97,7 +91,6 @@ function AppContent() {
                 </Panel>
             )}
 
-            {/* Context Menu */}
             {contextMenu && (
                 <ContextMenu
                     position={contextMenu.position}

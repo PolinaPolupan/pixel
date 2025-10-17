@@ -13,9 +13,7 @@ export default function Node({ id, data }) {
 
     const { inputHandles, outputHandles } = config;
 
-    // Apply default values when node is created
     useEffect(() => {
-        // Find handles with default values
         const defaultValues = Object.entries(outputHandles || {})
             .filter(([_, h]) => h.default !== undefined)
             .reduce((acc, [handleId, handleConfig]) => {
@@ -33,8 +31,6 @@ export default function Node({ id, data }) {
     return (
         <div style={{ minWidth: '100px' }}>
             <NodeHeader title={config.display.name} />
-
-            {/* Render input handles (those that output FROM the node) */}
             {Object.entries(inputHandles || {}).map(([handleId, handleConfig]) => {
                 if (handleConfig.widget === "LABEL") {
                     return (
@@ -51,8 +47,6 @@ export default function Node({ id, data }) {
                 }
                 return null;
             })}
-
-            {/* Render output handles (those that input TO the node) */}
             {Object.entries(outputHandles || {}).map(([handleId, handleConfig]) => {
                 if (handleConfig.widget === "LABEL") {
                     return (

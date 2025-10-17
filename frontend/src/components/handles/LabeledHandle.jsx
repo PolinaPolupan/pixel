@@ -53,7 +53,6 @@ const LabeledHandle = (props) => {
     handleType: type,
   });
 
-  // Default handle style with parameter type color
   const defaultHandleStyle = {
     width: '10px',
     height: '10px',
@@ -67,7 +66,7 @@ const LabeledHandle = (props) => {
         type={type}
         position={position}
         id={id}
-        style={{ ...defaultHandleStyle, ...style }} // Merge default with custom styles
+        style={{ ...defaultHandleStyle, ...style }}
         isConnectable={connections.length < connectionCount}
         {...rest}
       />

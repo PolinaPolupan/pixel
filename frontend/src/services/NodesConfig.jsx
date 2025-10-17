@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline } from 'react-icons/io5';
 import { nodeApi } from "./api.js";
 
-// Define icon components
 const iconComponents = {
     InputIcon: ({ theme }) => (
         <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -63,16 +62,13 @@ export function useNodesConfig() {
                 setIsLoading(true);
                 setError(null);
 
-                // Use the centralized API client
                 const data = await nodeApi.getNodeConfig();
 
-                // Transform the data to match expected structure
                 const processedConfig = {};
 
                 Object.entries(data).forEach(([nodeType, config]) => {
                     const IconComponent = iconComponents[config.display?.icon] || iconComponents.DefaultIcon;
 
-                    // Create separate input and output handle collections
                     const inputHandles = {};
                     const outputHandles = {};
 
@@ -93,12 +89,10 @@ export function useNodesConfig() {
 
                     processedConfig[nodeType] = {
                         nodeType: nodeType,
-                        // Keep the original handles object for compatibility
                         handles: {
                             ...inputHandles,
                             ...outputHandles
                         },
-                        // Add pre-filtered collections
                         inputHandles,
                         outputHandles,
                         display: {
@@ -125,13 +119,13 @@ export function useNodesConfig() {
 
 export const getParameterColor = (parameterType) => {
     const colorMap = {
-        FLOAT: '#ff6b6b', // Reddish
-        INT: '#4ecdc4', // Turquoise
-        DOUBLE: '#45b7d1', // Blue
-        STRING: '#96ceb4', // Greenish
-        STRING_ARRAY: '#ffeead', // Yellowish
-        FILEPATH_ARRAY: '#d4a5a5', // Pinkish
-        VECTOR2D: '#f7a072' // Orange
+        FLOAT: '#ff6b6b',
+        INT: '#4ecdc4',
+        DOUBLE: '#45b7d1',
+        STRING: '#96ceb4',
+        STRING_ARRAY: '#ffeead',
+        FILEPATH_ARRAY: '#d4a5a5',
+        VECTOR2D: '#f7a072'
     };
-    return colorMap[parameterType] || '#cccccc'; // Default gray if unknown
+    return colorMap[parameterType] || '#cccccc';
 };

@@ -1,9 +1,7 @@
 import React from 'react';
 import { IoClose } from 'react-icons/io5';
 
-/**
- * File preview modal component
- */
+
 export const FilePreview = ({ item, content, onClose }) => {
     if (!item) return null;
 

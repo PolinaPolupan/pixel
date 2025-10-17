@@ -4,9 +4,6 @@ import { FileTree } from './FileTree.jsx';
 import { FilePreview } from './FilePreview.jsx';
 import { useFileExplorer } from '../../hooks/useFileExplorer.js';
 
-/**
- * File Explorer component with improved modular structure
- */
 const FileExplorer = () => {
     const {
         items,
@@ -32,7 +29,6 @@ const FileExplorer = () => {
                     overflow: 'auto',
                 }}
             >
-                {/* Header with refresh icon - cursor remains pointer even during loading */}
                 <div style={{ marginBottom: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <IoReload
@@ -48,8 +44,6 @@ const FileExplorer = () => {
                         />
                     </div>
                 </div>
-
-                {/* File tree */}
                 <div style={{ flex: 1, overflowY: 'auto', marginBottom: '12px' }}>
                     <FileTree
                         nodes={items}
@@ -57,8 +51,6 @@ const FileExplorer = () => {
                         onFileClick={handleFileClick}
                     />
                 </div>
-
-                {/* Download button */}
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '30px' }}>
                     <button
                         onClick={downloadAsZip}
@@ -68,8 +60,6 @@ const FileExplorer = () => {
                     </button>
                 </div>
             </div>
-
-            {/* File preview modal */}
             <FilePreview
                 item={previewItem}
                 content={previewContent}

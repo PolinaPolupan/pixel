@@ -46,7 +46,6 @@ const ContextMenu = ({
     };
 
     const handleSubMenuMouseLeave = (e) => {
-        // Check if we're leaving to the main menu or outside entirely
         const relatedTarget = e.relatedTarget;
         if (!relatedTarget ||
             (!relatedTarget.closest('.main-context-menu') &&
@@ -60,20 +59,17 @@ const ContextMenu = ({
         onClose();
     }, [createNode, position, onClose]);
 
-    // Close menu if user clicks outside
     useEffect(() => {
         const handleClickOutside = () => onClose();
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, [onClose]);
 
-    // Helper function to render node icons
     const renderIcon = (IconComponent) => {
         if (!IconComponent) return null;
         return <IconComponent theme={{ colors: { onSurface: 'white' } }} />;
     };
 
-    // Show loading indicator
     if (isLoading) {
         return (
             <div
@@ -98,14 +94,12 @@ const ContextMenu = ({
         );
     }
 
-    // Handle error state
     if (error) {
         return null;
     }
 
     return (
         <div style={{ position: 'absolute', top: position.y, left: position.x, zIndex: 10 }}>
-            {/* Main Menu */}
             <div
                 className="main-context-menu"
                 ref={mainMenuRef}
@@ -120,7 +114,6 @@ const ContextMenu = ({
                 onClick={(e) => e.stopPropagation()}
                 onMouseLeave={handleMouseLeave}
             >
-                {/* Category List */}
                 {Object.keys(nodesGroupedByCategory).map((category) => (
                     <div
                         key={category}
@@ -147,15 +140,14 @@ const ContextMenu = ({
                 ))}
             </div>
 
-            {/* Submenu (appears when a category is hovered) */}
             {expandedCategory && (
                 <div
                     id="submenu"
                     className="context-submenu"
                     style={{
                         position: 'absolute',
-                        top: Math.max(0, subMenuPosition.top - 5), // Align with hovered category
-                        left: '100%', // Position to the right of main menu
+                        top: Math.max(0, subMenuPosition.top - 5),
+                        left: '100%',
                         marginLeft: '2px',
                         background: 'rgba(35,35,40,0.49)',
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
@@ -170,7 +162,6 @@ const ContextMenu = ({
                     }}
                     onMouseLeave={handleSubMenuMouseLeave}
                 >
-                    {/* Nodes in Selected Category */}
                     {nodesGroupedByCategory[expandedCategory].map(({ type, display }) => (
                         <div
                             key={type}

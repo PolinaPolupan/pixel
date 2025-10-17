@@ -15,10 +15,8 @@ const NodeTypesPanel = () => {
         error
     } = useNodesApi();
 
-    // Track expanded categories
     const [expandedCategories, setExpandedCategories] = useState({});
 
-    // Initialize expanded state for categories
     useEffect(() => {
         if (Object.keys(nodesGroupedByCategory).length > 0) {
             const initialExpanded = Object.fromEntries(
@@ -81,7 +79,6 @@ const NodeTypesPanel = () => {
 
                 return (
                     <div key={category} style={{ marginBottom: '8px' }}>
-                        {/* Category Header */}
                         <div
                             onClick={() => toggleCategory(category)}
                             className="node-category"
@@ -100,7 +97,6 @@ const NodeTypesPanel = () => {
                             </span>
                         </div>
 
-                        {/* Node items */}
                         <div className={`node-items-container ${expandedCategories[category] ? 'expanded' : ''}`}>
                             {nodesGroupedByCategory[category].map(({ type, display }) => {
                                 const IconComponent = display.icon;

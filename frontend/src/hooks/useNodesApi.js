@@ -2,15 +2,9 @@ import { useMemo } from 'react';
 import { useNodesConfig } from '../services/NodesConfig.jsx';
 import Node from "../components/graph/Node.jsx";
 
-/**
- * Unified hook for accessing node configurations and related utilities
- * Consolidates functionality from multiple hooks into a single API
- */
 export function useNodesApi() {
-    // Get base node configurations
     const { nodesConfig, isLoading, error } = useNodesConfig();
 
-    // Type casting rules defined once
     const typeCastingRules = useMemo(() => ({
         'INT': ['FLOAT', 'DOUBLE'],
         'FLOAT': ['DOUBLE', 'INT'],
@@ -21,7 +15,6 @@ export function useNodesApi() {
         'VECTOR2D': []
     }), []);
 
-    // Extract node types (component mapping)
     const nodeReactComponents = useMemo(() => {
         if (!nodesConfig) return {};
         return Object.fromEntries(
@@ -29,7 +22,6 @@ export function useNodesApi() {
         );
     }, [nodesConfig]);
 
-    // Extract node display details
     const nodeDisplayInfo = useMemo(() => {
         if (!nodesConfig) return {};
         return Object.fromEntries(
@@ -40,7 +32,6 @@ export function useNodesApi() {
         );
     }, [nodesConfig]);
 
-    // Group nodes by category
     const nodesGroupedByCategory = useMemo(() => {
         if (!nodeDisplayInfo) return {};
         return Object.entries(nodeDisplayInfo).reduce((grouped, [nodeType, display]) => {
@@ -64,7 +55,6 @@ export function useNodesApi() {
         };
     }, [nodesConfig]);
 
-    // Type casting utility
     const canCastType = useMemo(() => {
         return (sourceType, targetType) => {
             if (sourceType === targetType) return true;
@@ -80,7 +70,6 @@ export function useNodesApi() {
         };
     }, [typeCastingRules]);
 
-    // Get default data for a node type
     const getDefaultInputs = useMemo(() => {
         return (nodeType) => {
             return Object.fromEntries(
@@ -92,22 +81,18 @@ export function useNodesApi() {
     }, [nodesConfig]);
 
     return {
-        // raw API
         nodesConfig,
 
-        // status
         isLoading,
         error,
         isReady: !isLoading && !error && !!nodesConfig,
 
-        // per-node helpers
-        nodeReactComponents, // mapping nodeType -> React component
-        nodeDisplayInfo,     // mapping nodeType -> { name, category, ... }
-        getHandleType,       // get input/output type for a handle
-        getDefaultInputs,    // get default input values
+        nodeReactComponents,
+        nodeDisplayInfo,
+        getHandleType,
+        getDefaultInputs,
         canCastType,
 
-        // grouped for menus
         nodesGroupedByCategory
     };
 }

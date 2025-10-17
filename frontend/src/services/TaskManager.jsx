@@ -8,7 +8,7 @@ export class TaskManager {
         this.isConnected = false;
         this.currentTaskId = null;
         this.connectingPromise = null;
-        this.taskStatuses = {}; // Track last known status per task
+        this.taskStatuses = {};
         this.initializeConnection();
     }
 
@@ -82,16 +82,13 @@ export class TaskManager {
         this.setCurrentTask(taskId);
         console.log(`[${new Date().toISOString()}] User PolinaPolupan monitoring task ${taskId}`);
 
-        // First subscribe to WebSocket
         this.subscribeToTask(taskId, onProgress, onComplete, onError);
 
-        // Then handle initial data
         if (initialData) {
             const status = initialData.status.toUpperCase();
             console.log(`Initial task status: ${status}`);
             this.taskStatuses[taskId] = status.toLowerCase();
 
-            // Update UI with initial data
             if (status === 'COMPLETED' || status === 'RUNNING' || status === 'PROCESSING') {
                 if (onProgress) {
                     const current = initialData.processedNodes || 0;
@@ -100,9 +97,7 @@ export class TaskManager {
                     onProgress({ current, total, percent });
                 }
 
-                // If already completed, trigger completion callback
                 if (status === 'COMPLETED') {
-                    // Delay the completion to ensure subscription is established
                     setTimeout(() => {
                         if (onComplete) onComplete(initialData);
                     }, 100);
@@ -131,10 +126,6 @@ export class TaskManager {
 
                         const status = taskData.status?.toLowerCase();
 
-                        // Always process updates, even if we've seen a completed status
-                        // This ensures we display all progress information
-
-                        // Update current known status
                         this.taskStatuses[taskId] = status;
 
                         if (status === 'processing' || status === 'running') {
@@ -153,11 +144,9 @@ export class TaskManager {
                                 onProgress({ current: total, total, percent: 100 });
                             }
 
-                            // Delay to allow for any additional messages
                             setTimeout(() => {
                                 if (onComplete) onComplete(taskData);
 
-                                // Keep subscription open a bit longer to catch any late messages
                                 setTimeout(() => {
                                     this.unsubscribeFromTask(taskId);
                                 }, 2000);
@@ -166,7 +155,6 @@ export class TaskManager {
                         else if (status === 'failed') {
                             if (onError) onError(taskData.errorMessage || 'Task failed');
 
-                            // Keep subscription open a bit to catch any additional details
                             setTimeout(() => {
                                 this.unsubscribeFromTask(taskId);
                             }, 1000);

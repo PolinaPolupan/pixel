@@ -1,9 +1,6 @@
 import React from 'react';
 import { FileItem } from './FileItem';
 
-/**
- * Recursive file tree component
- */
 export const FileTree = ({ nodes, depth = 0, onToggleFolder, onFileClick }) => {
     return (
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
