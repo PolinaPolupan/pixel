@@ -27,6 +27,7 @@ public class NodeLoader {
                 try { Thread.sleep(delayMs); } catch (InterruptedException ignored) {}
             }
         }
-        throw new IllegalStateException("Node service not accessible after waiting.");
+
+        log.error("Failed to load nodes");
     }
 }
