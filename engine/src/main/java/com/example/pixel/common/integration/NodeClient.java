@@ -14,8 +14,8 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 public class NodeClient {
-    private final static String REQUEST_FAILED_MESSAGE = "Request to %s failed with status %s: %s";
-    private final static String CONNECTION_FAILED_MESSAGE = "Connection issue with service %s: %s";
+    private final static String REQUEST_FAILED_MESSAGE = "Request to {} failed with status {}: {}";
+    private final static String CONNECTION_FAILED_MESSAGE = "Connection issue with service {}: {}";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -55,11 +55,10 @@ public class NodeClient {
             ResponseEntity<T> response = restTemplate.postForEntity(nodeBaseUrl + endpoint, requestBody, responseType);
             return response.getBody();
         } catch (HttpStatusCodeException e) {
-            throw new RuntimeException(String.format(
-                    REQUEST_FAILED_MESSAGE, nodeBaseUrl + endpoint, e.getStatusCode(), e.getResponseBodyAsString()
-            ), e);
+            log.error(REQUEST_FAILED_MESSAGE, nodeBaseUrl + endpoint, e.getStatusCode(), e.getResponseBodyAsString());
         } catch (ResourceAccessException e) {
-            throw new RuntimeException(String.format(CONNECTION_FAILED_MESSAGE, nodeBaseUrl, e.getMessage()), e);
+            log.error(CONNECTION_FAILED_MESSAGE, nodeBaseUrl, e.getMessage());
         }
+        return null;
     }
 }
