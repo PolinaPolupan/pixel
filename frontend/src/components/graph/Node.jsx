@@ -1,15 +1,22 @@
+import { useReactFlow } from "@xyflow/react";
+import { useEffect } from "react";
 import NodeHeader from "../ui/NodeHeader.jsx";
 import FileUpload from "../file/FileUpload.jsx";
 import LabeledHandle from "../handles/LabeledHandle.jsx";
 import InputHandle from "../handles/InputHandle.jsx";
-import { useReactFlow } from "@xyflow/react";
-import { useEffect } from "react";
+import './Node.css';
 
 export default function Node({ id, data }) {
     const { config } = data;
     const reactFlow = useReactFlow();
 
-    if (!config) return <div style={{ color: 'red' }}>Missing config!</div>;
+    if (!config) {
+        return (
+            <div className="custom-node-error">
+                Missing config!
+            </div>
+        );
+    }
 
     const { inputHandles, outputHandles } = config;
 
@@ -28,77 +35,88 @@ export default function Node({ id, data }) {
         }
     }, [id, outputHandles, data, reactFlow]);
 
+    const renderInputHandle = (handleId, handleConfig) => {
+        if (handleConfig.widget === "LABEL") {
+            return (
+                <LabeledHandle
+                    key={handleId}
+                    id={handleId}
+                    label={handleId}
+                    type="source"
+                    position="right"
+                    parameterType={handleConfig.source}
+                    connectionCount="10"
+                />
+            );
+        }
+        return null;
+    };
+
+    const renderOutputHandle = (handleId, handleConfig) => {
+        if (handleConfig.widget === "LABEL") {
+            return (
+                <LabeledHandle
+                    key={handleId}
+                    id={handleId}
+                    label={handleId}
+                    type="target"
+                    position="left"
+                    parameterType={handleConfig. target}
+                />
+            );
+        }
+
+        if (handleConfig.widget === "INPUT") {
+            return (
+                <InputHandle
+                    key={handleId}
+                    id={id}
+                    data={data}
+                    handleId={handleId}
+                    handleLabel={handleId}
+                    parameterType={handleConfig.target}
+                    defaultValue={handleConfig.default}
+                />
+            );
+        }
+
+        if (handleConfig.widget === "FILE_PICKER") {
+            const handleImagesSelected = (filePaths) => {
+                reactFlow. updateNodeData(id, { [handleId]: filePaths });
+            };
+
+            return (
+                <div key={handleId} className="custom-node-file-picker-wrapper">
+                    <FileUpload
+                        onFilesSelected={handleImagesSelected}
+                        defaultFiles={handleConfig.default}
+                    />
+                    <LabeledHandle
+                        id={handleId}
+                        label={handleId}
+                        type="target"
+                        position="left"
+                        connectionCount="10"
+                        parameterType={handleConfig.target}
+                    />
+                </div>
+            );
+        }
+
+        return null;
+    };
+
     return (
-        <div style={{ minWidth: '100px' }}>
-            <NodeHeader title={config.display.name} />
-            {Object.entries(inputHandles || {}).map(([handleId, handleConfig]) => {
-                if (handleConfig.widget === "LABEL") {
-                    return (
-                        <LabeledHandle
-                            key={handleId}
-                            id={handleId}
-                            label={handleId}
-                            type="source"
-                            position="right"
-                            parameterType={handleConfig.source}
-                            connectionCount="10"
-                        />
-                    );
-                }
-                return null;
-            })}
-            {Object.entries(outputHandles || {}).map(([handleId, handleConfig]) => {
-                if (handleConfig.widget === "LABEL") {
-                    return (
-                        <LabeledHandle
-                            key={handleId}
-                            id={handleId}
-                            label={handleId}
-                            type="target"
-                            position="left"
-                            parameterType={handleConfig.target}
-                        />
-                    );
-                }
-                if (handleConfig.widget === "INPUT") {
-                    return (
-                        <InputHandle
-                            key={handleId}
-                            id={id}
-                            data={data}
-                            handleId={handleId}
-                            handleLabel={handleId}
-                            parameterType={handleConfig.target}
-                            defaultValue={handleConfig.default}
-                        />
-                    );
-                }
-                if (handleConfig.widget === "FILE_PICKER") {
-                    const { updateNodeData } = useReactFlow();
+        <div className="custom-node">
+            <NodeHeader title={config.display. name} />
 
-                    const handleImagesSelected = (filePaths) => {
-                        updateNodeData(id, { [handleId]: filePaths });
-                    };
+            {Object.entries(inputHandles || {}).map(([handleId, handleConfig]) =>
+                renderInputHandle(handleId, handleConfig)
+            )}
 
-                    return (
-                        <div key={handleId}>
-                            <FileUpload
-                                onFilesSelected={handleImagesSelected}
-                                defaultFiles={handleConfig.default}
-                            />
-                            <LabeledHandle
-                                id={handleId}
-                                label={handleId}
-                                type="target"
-                                position="left"
-                                connectionCount="10"
-                                parameterType={handleConfig.target}
-                            />
-                        </div>
-                    );
-                }
-                return null;
-            })}
+            {Object.entries(outputHandles || {}).map(([handleId, handleConfig]) =>
+                renderOutputHandle(handleId, handleConfig)
+            )}
         </div>
     );
 }

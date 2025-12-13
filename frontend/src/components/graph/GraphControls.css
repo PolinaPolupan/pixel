@@ -1,0 +1,23 @@
+.graph-controls-panel {
+    margin: 16px;
+}
+
+.graph-controls-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    max-width: 400px;
+    min-height: 74px;
+}
+
+.graph-controls-play-wrapper {
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.graph-controls-progress-wrapper {
+    height: 26px;
+    width: 300px;
+}

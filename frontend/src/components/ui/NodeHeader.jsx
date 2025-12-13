@@ -1,19 +1,12 @@
 import React from 'react';
+import './NodeHeader.css';
 
-const NodeHeader = ({ title, ...props }) => {
-  const headerStyle = {
-    fontWeight: 'bold',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    margin: '5px'
-  };
-
-  return (
-    <div style={headerStyle} {...props}>
-      <span>{title}</span>
-    </div>
-  );
+const NodeHeader = ({ title, ... props }) => {
+    return (
+        <div className="node-header" {...props}>
+            <span>{title}</span>
+        </div>
+    );
 };
 
 export default NodeHeader;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Panel } from '@xyflow/react';
 import { PlayButton } from '../ui/PlayButton.jsx';
 import ProgressBar from '../ui/ProgressBar.jsx';
+import './GraphControls.css';
 
 export function GraphControls({
                                   handlePlay,
@@ -9,23 +10,16 @@ export function GraphControls({
                                   configLoading
                               }) {
     return (
-        <Panel position="bottom-center" style={{ margin: '16px' }}>
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '12px',
-                maxWidth: '400px',
-                minHeight: '74px',
-            }}>
-                <div style={{ height: '40px', display: 'flex', alignItems: 'center' }}>
+        <Panel position="bottom-center" className="graph-controls-panel">
+            <div className="graph-controls-container">
+                <div className="graph-controls-play-wrapper">
                     <PlayButton
                         onClick={handlePlay}
                         isProcessing={isProcessing}
                         disabled={configLoading}
                     />
                 </div>
-                <div style={{ height: '26px', width: '300px' }}>
+                <div className="graph-controls-progress-wrapper">
                     <ProgressBar />
                 </div>
             </div>
