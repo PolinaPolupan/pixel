@@ -1,9 +1,9 @@
 package com.example.pixel.graph_execution.service;
 
 import com.example.pixel.common.exception.GraphExecutionNotFoundException;
-import com.example.pixel.graph.dto.GraphPayload;
+import com.example.pixel.graph.dto.GraphDto;
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
-import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
+import com.example.pixel.graph_execution.dto.GraphExecutionDto;
 import com.example.pixel.graph_execution.mapper.GraphExecutionMapper;
 import com.example.pixel.graph_execution.repository.GraphExecutionRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
@@ -32,14 +32,14 @@ public class GraphExecutionService {
     private int retentionMonths;
 
     @Transactional(readOnly = true)
-    public GraphExecutionPayload findById(Long id) {
+    public GraphExecutionDto findById(Long id) {
         GraphExecutionEntity graphExecutionEntity = graphExecutionRepository.findById(id)
                 .orElseThrow(() -> new GraphExecutionNotFoundException(GRAPH_EXECUTION_NOT_FOUND_MESSAGE + id));
         return graphExecutionMapper.toDto(graphExecutionEntity);
     }
 
     @Transactional(readOnly = true)
-    public List<GraphExecutionPayload> findAll() {
+    public List<GraphExecutionDto> findAll() {
         List<GraphExecutionEntity> graphExecutionEntities = graphExecutionRepository.findAll();
         return graphExecutionEntities.stream()
                 .map(graphExecutionMapper::toDto)
@@ -47,7 +47,7 @@ public class GraphExecutionService {
     }
 
     @Transactional(readOnly = true)
-    public List<GraphExecutionPayload> findByGraphId(String graphId) {
+    public List<GraphExecutionDto> findByGraphId(String graphId) {
         List<GraphExecutionEntity> graphExecutionEntities = graphExecutionRepository.findByGraphId(graphId);
         return graphExecutionEntities.stream()
                 .map(graphExecutionMapper::toDto)
@@ -55,12 +55,12 @@ public class GraphExecutionService {
     }
 
     @Transactional
-    public GraphExecutionPayload create(GraphPayload graphPayload) {
+    public GraphExecutionDto create(GraphDto graphDto) {
         GraphExecutionEntity graphExecutionEntity = GraphExecutionEntity
                 .builder()
-                .graphId(graphPayload.getId())
+                .graphId(graphDto.getId())
                 .status(GraphExecutionStatus.PENDING)
-                .totalNodes(graphPayload.getNodes().size())
+                .totalNodes(graphDto.getNodes().size())
                 .processedNodes(0)
                 .build();
 
@@ -108,7 +108,7 @@ public class GraphExecutionService {
     }
 
     @Transactional(readOnly = true)
-    public List<GraphExecutionPayload> getInactive() {
+    public List<GraphExecutionDto> getInactive() {
         LocalDateTime retentionMonths = LocalDate.now().minusMonths(this.retentionMonths).atStartOfDay();
 
         List<GraphExecutionEntity> inactiveExecutionEntities = graphExecutionRepository.findByEndTimeBefore(retentionMonths);

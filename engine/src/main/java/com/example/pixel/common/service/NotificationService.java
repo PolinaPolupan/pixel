@@ -1,6 +1,6 @@
 package com.example.pixel.common.service;
 
-import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
+import com.example.pixel.graph_execution.dto.GraphExecutionDto;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class NotificationService {
     private String processingTopic;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public void sendTaskStatus(GraphExecutionPayload task) {
+    public void sendTaskStatus(GraphExecutionDto task) {
         try {
             String destination = processingTopic + task.getId();
             GraphExecutionStatus status = task.getStatus();

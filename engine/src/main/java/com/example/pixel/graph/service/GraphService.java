@@ -2,11 +2,11 @@ package com.example.pixel.graph.service;
 
 import com.example.pixel.common.exception.GraphNotFoundException;
 import com.example.pixel.graph.dto.CreateGraphRequest;
-import com.example.pixel.graph.dto.GraphPayload;
+import com.example.pixel.graph.dto.GraphDto;
 import com.example.pixel.graph.entity.GraphEntity;
 import com.example.pixel.graph.mapper.GraphMapper;
 import com.example.pixel.graph.repository.GraphRepository;
-import com.example.pixel.graph_execution.dto.GraphExecutionPayload;
+import com.example.pixel.graph_execution.dto.GraphExecutionDto;
 import com.example.pixel.graph_execution.executor.GraphExecutor;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class GraphService {
     private final GraphRepository graphRepository;
 
     @Transactional
-    public GraphPayload create(CreateGraphRequest createGraphRequest) {
+    public GraphDto create(CreateGraphRequest createGraphRequest) {
         if (graphRepository.existsByGraphId(createGraphRequest.getId())) {
             log.warn("Graph already exists with id: {}", createGraphRequest.getId());
             return findById(createGraphRequest.getId());
@@ -47,7 +47,7 @@ public class GraphService {
     }
 
     @Transactional(readOnly = true)
-    public GraphPayload findById(String id) {
+    public GraphDto findById(String id) {
         GraphEntity graphEntity = graphRepository.findByGraphId(id)
                 .orElseThrow(() -> new GraphNotFoundException(GRAPH_NOT_FOUND_MESSAGE + id));
 
@@ -55,7 +55,7 @@ public class GraphService {
     }
 
     @Transactional(readOnly = true)
-    public List<GraphPayload> findAll() {
+    public List<GraphDto> findAll() {
         List<GraphEntity> graphEntities = graphRepository.findAll();
         return graphEntities.stream()
                 .map(graphMapper::toDto)
@@ -67,11 +67,11 @@ public class GraphService {
         graphRepository.deleteByGraphId(id);
     }
 
-    public GraphExecutionPayload execute(GraphPayload graphPayload) {
-        GraphExecutionPayload graphExecutionPayload = graphExecutionService.create(graphPayload);
+    public GraphExecutionDto execute(GraphDto graphDto) {
+        GraphExecutionDto graphExecutionDto = graphExecutionService.create(graphDto);
 
-        graphExecutor.launchExecution(graphPayload, graphExecutionPayload);
+        graphExecutor.launchExecution(graphDto, graphExecutionDto);
 
-        return graphExecutionPayload;
+        return graphExecutionDto;
     }
 }

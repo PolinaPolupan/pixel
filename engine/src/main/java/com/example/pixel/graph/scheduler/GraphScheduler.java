@@ -1,6 +1,6 @@
 package com.example.pixel.graph.scheduler;
 
-import com.example.pixel.graph.dto.GraphPayload;
+import com.example.pixel.graph.dto.GraphDto;
 import com.example.pixel.graph.service.GraphService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,14 +29,14 @@ public class GraphScheduler {
         graphService.findAll().forEach(this::maybeScheduleGraph);
     }
 
-    private void maybeScheduleGraph(GraphPayload graph) {
+    private void maybeScheduleGraph(GraphDto graph) {
         if (scheduledGraphs.contains(graph.getId())) {
             return;
         }
         scheduleGraph(graph);
     }
 
-    private void scheduleGraph(GraphPayload graph) {
+    private void scheduleGraph(GraphDto graph) {
         if (graph.getSchedule() != null) {
             CronTrigger cronTrigger = new CronTrigger(graph.getSchedule());
             taskScheduler.schedule(() -> graphService.execute(graph), cronTrigger);

@@ -1,7 +1,7 @@
 package com.example.pixel.connection.mapper;
 
 import com.example.pixel.common.exception.ConnectionCreationFailedException;
-import com.example.pixel.connection.dto.ConnectionPayload;
+import com.example.pixel.connection.dto.ConnectionDto;
 import com.example.pixel.connection.dto.ConnectionRequest;
 import com.example.pixel.connection.entity.ConnectionEntity;
 import org.mapstruct.Mapper;
@@ -21,7 +21,7 @@ public abstract class ConnectionMapper {
 
     @Mapping(target = "login", source = "login", qualifiedByName = "decrypt")
     @Mapping(target = "password", source = "password", qualifiedByName = "decrypt")
-    public abstract ConnectionPayload toDto(ConnectionEntity entity);
+    public abstract ConnectionDto toDto(ConnectionEntity entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "version", ignore = true)

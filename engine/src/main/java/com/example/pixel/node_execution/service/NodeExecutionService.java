@@ -44,7 +44,7 @@ public class NodeExecutionService {
     }
 
     @Transactional(readOnly = true)
-    public NodeExecutionPayload findById(Long id) {
+    public NodeExecutionDto findById(Long id) {
         NodeExecutionEntity executionEntity = repository.findById(id)
                 .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
         return mapper.toDto(executionEntity);

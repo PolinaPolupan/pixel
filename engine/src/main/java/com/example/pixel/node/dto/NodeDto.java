@@ -1,5 +1,4 @@
-package com.example.pixel.node_execution.dto;
-
+package com.example.pixel.node.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,13 +10,13 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NodeExecutionPayload {
+public class NodeDto {
     private Long id;
-    private Long graphExecutionId;
-    private NodeStatus status;
+    private String type;
+    private Integer version;
     private Map<String, Object> inputs;
     private Map<String, Object> outputs;
-    private Instant startedAt;
-    private Instant finishedAt;
-    private String errorMessage;
+    private Map<String, Object> display;
+    private Instant createdAt;
+    private Boolean active;
 }

@@ -1,7 +1,7 @@
 package com.example.pixel.connection.service;
 
 import com.example.pixel.common.exception.ConnectionNotFoundException;
-import com.example.pixel.connection.dto.ConnectionPayload;
+import com.example.pixel.connection.dto.ConnectionDto;
 import com.example.pixel.connection.dto.ConnectionRequest;
 import com.example.pixel.connection.entity.ConnectionEntity;
 import com.example.pixel.connection.mapper.ConnectionMapper;
@@ -20,13 +20,13 @@ public class ConnectionService {
     private final ConnectionMapper connectionMapper;
 
     @Transactional
-    public ConnectionPayload create(ConnectionRequest request) {
+    public ConnectionDto create(ConnectionRequest request) {
         ConnectionEntity connectionEntity = repository.save(connectionMapper.toEntity(request));
         return connectionMapper.toDto(connectionEntity);
     }
 
     @Transactional(readOnly = true)
-    public ConnectionPayload findByConnId(String connId) {
+    public ConnectionDto findByConnId(String connId) {
         ConnectionEntity conn = repository
                 .findByConnId(connId)
                 .orElseThrow(() -> new ConnectionNotFoundException("Connection not found: " + connId));
@@ -35,7 +35,7 @@ public class ConnectionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ConnectionPayload> findAll() {
+    public List<ConnectionDto> findAll() {
         List<ConnectionEntity> connectionEntities = repository.findAll();
         return connectionEntities.stream()
                 .map(connectionMapper::toDto)

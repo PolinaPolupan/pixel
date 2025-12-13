@@ -15,7 +15,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.example.pixel.common.exception.InvalidFileFormat;
 import com.example.pixel.file_system.util.FileHelper;
-import com.example.pixel.file_system.dto.FileStatsPayload;
+import com.example.pixel.file_system.dto.FileStats;
 import com.example.pixel.file_system.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +57,7 @@ public class FileUploadController {
     }
 
     @GetMapping(path = "/list", produces = "application/json")
-    public FileStatsPayload listUploadedFiles(@RequestParam(required = false, defaultValue = "") String folder) {
+    public FileStats listUploadedFiles(@RequestParam(required = false, defaultValue = "") String folder) {
         List<String> locations = storageService.loadAll(folder)
                 .map((path) -> folder + path.toString())
                 .collect(Collectors.toList());
@@ -118,7 +118,7 @@ public class FileUploadController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<FileStatsPayload> handleUpload(@RequestParam("file") List<MultipartFile> files) throws IOException {
+    public ResponseEntity<FileStats> handleUpload(@RequestParam("file") List<MultipartFile> files) throws IOException {
         List<String> locations = new ArrayList<>();
 
         for (MultipartFile file: files) {
@@ -160,7 +160,7 @@ public class FileUploadController {
         return locations;
     }
 
-    private FileStatsPayload calculateFileStats(List<String> locations) {
+    private FileStats calculateFileStats(List<String> locations) {
         int zipFiles = 0;
         int imageFiles = 0;
         long totalSize = 0;
@@ -182,7 +182,7 @@ public class FileUploadController {
             }
         }
 
-        return FileStatsPayload.builder()
+        return FileStats.builder()
                 .totalFiles(locations.size())
                 .totalSize(totalSize)
                 .zipFiles(zipFiles)

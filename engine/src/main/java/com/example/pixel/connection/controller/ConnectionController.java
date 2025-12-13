@@ -1,6 +1,6 @@
 package com.example.pixel.connection.controller;
 
-import com.example.pixel.connection.dto.ConnectionPayload;
+import com.example.pixel.connection.dto.ConnectionDto;
 import com.example.pixel.connection.dto.ConnectionRequest;
 import com.example.pixel.connection.service.ConnectionService;
 import lombok.RequiredArgsConstructor;
@@ -19,17 +19,17 @@ public class ConnectionController {
     private final ConnectionService service;
 
     @PostMapping
-    public ResponseEntity<ConnectionPayload> create(@RequestBody ConnectionRequest request) {
+    public ResponseEntity<ConnectionDto> create(@RequestBody ConnectionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ConnectionPayload> get(@PathVariable String id) {
+    public ResponseEntity<ConnectionDto> get(@PathVariable String id) {
         return ResponseEntity.ok(service.findByConnId(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<ConnectionPayload>> getAll() {
+    public ResponseEntity<List<ConnectionDto>> getAll() {
         return ResponseEntity.ok(service.findAll());
     }
 

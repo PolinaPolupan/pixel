@@ -1,7 +1,7 @@
 package com.example.pixel.node.service;
 
 import com.example.pixel.node.dto.NodeConfiguration;
-import com.example.pixel.node.dto.NodePayload;
+import com.example.pixel.node.dto.NodeDto;
 import com.example.pixel.node.entity.NodeEntity;
 import com.example.pixel.node.mapper.NodeMapper;
 import com.example.pixel.node.repository.NodeRepository;
@@ -20,7 +20,7 @@ public class NodeService {
     private final NodeMapper nodeMapper;
     private final NodeRepository repository;
 
-    public NodePayload create(NodeConfiguration nodeConfiguration) {
+    public NodeDto create(NodeConfiguration nodeConfiguration) {
         NodeEntity latest = repository.findLatestByType(nodeConfiguration.getType()).orElse(null);
         int nextVersion = 1;
 
@@ -45,10 +45,10 @@ public class NodeService {
         return nodeMapper.toDto(nodeEntity);
     }
 
-    public Map<String, NodePayload> getAllActiveNodes() {
+    public Map<String, NodeDto> getAllActiveNodes() {
         List<NodeEntity> activeNodes = repository.findByActiveTrue();
 
-        Map<String, NodePayload> result = new HashMap<>();
+        Map<String, NodeDto> result = new HashMap<>();
         for (NodeEntity node: activeNodes) {
             result.put(node.getType(), nodeMapper.toDto(node));
         }

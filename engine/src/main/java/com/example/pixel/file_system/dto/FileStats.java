@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileStatsPayload {
+public class FileStats {
     private int totalFiles;
     private long totalSize;
     private int zipFiles;

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class GraphPayload {
+public class GraphDto {
     private final String id;
     private final String schedule;
     private final List<NodeExecution> nodes;

@@ -1,7 +1,7 @@
 package com.example.pixel.node_execution.executor;
 
 import com.example.pixel.common.exception.NodeExecutionException;
-import com.example.pixel.node_execution.dto.NodeExecutionPayload;
+import com.example.pixel.node_execution.dto.NodeExecutionDto;
 import com.example.pixel.node_execution.model.NodeExecution;
 import com.example.pixel.node_execution.dto.NodeClientData;
 import com.example.pixel.node_execution.dto.NodeExecutionResponse;
@@ -18,11 +18,11 @@ public class AsyncNodeExecutor implements NodeExecutor {
 
     private final NodeExecutionService nodeExecutionService;
 
-    public CompletableFuture<NodeExecutionPayload> launchExecution(NodeExecution nodeExecution, Long graphExecutionId) {
+    public CompletableFuture<NodeExecutionDto> launchExecution(NodeExecution nodeExecution, Long graphExecutionId) {
         return CompletableFuture.supplyAsync(() -> execute(nodeExecution, graphExecutionId));
     }
 
-    public NodeExecutionPayload execute(NodeExecution nodeExecution, Long graphExecutionId) {
+    public NodeExecutionDto execute(NodeExecution nodeExecution, Long graphExecutionId) {
         NodeExecutionEntity nodeExecutionEntity = nodeExecutionService.create(nodeExecution, graphExecutionId);
 
         try {
