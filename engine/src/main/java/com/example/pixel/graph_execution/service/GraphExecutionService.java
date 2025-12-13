@@ -9,11 +9,12 @@ import com.example.pixel.graph_execution.repository.GraphExecutionRepository;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,6 +27,9 @@ public class GraphExecutionService {
 
     private final GraphExecutionMapper  graphExecutionMapper;
     private final GraphExecutionRepository graphExecutionRepository;
+
+    @Value("${retention-months}")
+    private int retentionMonths;
 
     @Transactional(readOnly = true)
     public GraphExecutionPayload findById(Long id) {
@@ -97,14 +101,12 @@ public class GraphExecutionService {
 
     @Transactional(readOnly = true)
     public List<GraphExecutionPayload> getInactive() {
-        List<GraphExecutionEntity> inactiveExecutionEntities = graphExecutionRepository.findByStatusNotIn(List.of(GraphExecutionStatus.PENDING, GraphExecutionStatus.RUNNING));
-        List<GraphExecutionPayload> inactiveExecutions = new ArrayList<>();
+        LocalDateTime sixMonthsAgo = LocalDate.now().minusMonths(retentionMonths).atStartOfDay();
 
-        for (GraphExecutionEntity graphExecutionEntity : inactiveExecutionEntities) {
-            GraphExecutionPayload graphExecutionPayload = graphExecutionMapper.toDto(graphExecutionEntity);
-            inactiveExecutions.add(graphExecutionPayload);
-        }
+        List<GraphExecutionEntity> inactiveExecutionEntities = graphExecutionRepository.findByEndTimeBefore(sixMonthsAgo);
 
-        return inactiveExecutions;
+        return inactiveExecutionEntities.stream()
+                .map(graphExecutionMapper:: toDto)
+                .toList();
     }
 }
