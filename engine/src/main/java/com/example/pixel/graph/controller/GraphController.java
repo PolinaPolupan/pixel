@@ -9,12 +9,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/graph")
 public class GraphController {
 
     private final GraphService graphService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GraphPayload> get(@PathVariable String id) {
+        return ResponseEntity.ok(graphService.findById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<GraphPayload>> getAll() {
+        return ResponseEntity.ok(graphService.findAll());
+    }
 
     @PostMapping
     public ResponseEntity<GraphPayload> create(@RequestBody CreateGraphRequest createGraphRequest) {

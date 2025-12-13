@@ -21,7 +21,10 @@ public class GraphExecutionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GraphExecutionPayload>> getByGraphId(@RequestParam String graphId) {
-        return ResponseEntity.ok(graphExecutionService.findByGraphId(graphId));
+    public ResponseEntity<List<GraphExecutionPayload>> getAll(@RequestParam(required = false) String graphId) {
+        if (graphId != null) {
+            return ResponseEntity.ok(graphExecutionService.findByGraphId(graphId));
+        }
+        return ResponseEntity.ok(graphExecutionService.findAll());
     }
 }

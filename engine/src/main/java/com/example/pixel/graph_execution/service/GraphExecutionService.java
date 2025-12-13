@@ -39,6 +39,14 @@ public class GraphExecutionService {
     }
 
     @Transactional(readOnly = true)
+    public List<GraphExecutionPayload> findAll() {
+        List<GraphExecutionEntity> graphExecutionEntities = graphExecutionRepository.findAll();
+        return graphExecutionEntities.stream()
+                .map(graphExecutionMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<GraphExecutionPayload> findByGraphId(String graphId) {
         List<GraphExecutionEntity> graphExecutionEntities = graphExecutionRepository.findByGraphId(graphId);
         return graphExecutionEntities.stream()

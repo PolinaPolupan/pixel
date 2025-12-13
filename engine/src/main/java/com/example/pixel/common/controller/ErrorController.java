@@ -25,9 +25,10 @@ public class ErrorController {
             StorageFileNotFoundException.class,
             GraphNotFoundException.class,
             NoSuchBucketException.class,
-            GraphExecutionNotFoundException.class
+            GraphExecutionNotFoundException.class,
+            ConnectionNotFoundException.class
     })
-    public ResponseEntity<? > handleNotFound(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<?> handleNotFound(Exception ex, HttpServletRequest request) {
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorInfo);
@@ -49,8 +50,11 @@ public class ErrorController {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(StorageException.class)
-    public ResponseEntity<?> handleStorageException(StorageException ex, HttpServletRequest request) {
+    @ExceptionHandler({
+            StorageException.class,
+            ConnectionCreationFailedException.class
+    })
+    public ResponseEntity<?> handleInternalServerError(Exception ex, HttpServletRequest request) {
         String requestUrl = request.getRequestURL().toString();
         ErrorInfo errorInfo = new ErrorInfo(requestUrl, ex);
         return ResponseEntity. status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorInfo);
