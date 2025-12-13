@@ -1,77 +1,77 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Handle, Position, useNodeConnections } from '@xyflow/react';
-import { memo } from 'react';
-import {getParameterColor} from "../../services/NodesConfig.jsx";
+import { getParameterColor } from "../../services/NodesConfig.jsx";
+import './Node.css';
 
 const LabeledHandle = (props) => {
-  const {
-    label,
-    type = 'source',
-    position = Position.Right,
-    id,
-    style = {},
-    labelStyle = {},
-    containerStyle = {},
-    color = 'rgba(255, 255, 255, 0.6)',
-    fontSize = '8px',
-    connectionCount = 1,
-    parameterType,
-    ...rest
-  } = props;
+    const {
+        label,
+        type = 'source',
+        position = Position. Right,
+        id,
+        style = {},
+        labelStyle = {},
+        containerStyle = {},
+        color = 'rgba(255, 255, 255, 0.6)',
+        fontSize = '8px',
+        connectionCount = 1,
+        parameterType,
+        ...rest
+    } = props;
 
-  const defaultLabelStyle = {
-    position: 'absolute',
-    fontSize: fontSize,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    fontWeight: '600',
-    color: color
-  };
+    const connections = useNodeConnections({
+        handleId: id,
+        handleType: type,
+    });
 
-  if (position === Position.Right) {
-    defaultLabelStyle.right = '8px';
-  } else if (position === Position.Left) {
-    defaultLabelStyle.left = '8px';
-  } else if (position === Position.Top) {
-    defaultLabelStyle.top = 'auto';
-    defaultLabelStyle.bottom = '15px';
-    defaultLabelStyle.left = '50%';
-    defaultLabelStyle.transform = 'translateX(-50%)';
-  } else if (position === Position.Bottom) {
-    defaultLabelStyle.top = '15px';
-    defaultLabelStyle.left = '50%';
-    defaultLabelStyle.transform = 'translateX(-50%)';
-  }
+    const getPositionClass = () => {
+        switch (position) {
+            case Position.Right:
+                return 'labeled-handle-label-right';
+            case Position.Left:
+                return 'labeled-handle-label-left';
+            case Position.Top:
+                return 'labeled-handle-label-top';
+            case Position.Bottom:
+                return 'labeled-handle-label-bottom';
+            default:
+                return 'labeled-handle-label-right';
+        }
+    };
 
-  const defaultContainerStyle = {
-    position: 'relative',
-    height: '15px',
-  };
+    const handleStyle = {
+        background: parameterType ? getParameterColor(parameterType) : '#cccccc',
+        ... style
+    };
 
-  const connections = useNodeConnections({
-    handleId: id,
-    handleType: type,
-  });
+    const computedLabelStyle = {
+        color,
+        fontSize,
+        ...labelStyle
+    };
 
-  const defaultHandleStyle = {
-    width: '10px',
-    height: '10px',
-    background: parameterType ? getParameterColor(parameterType) : '#cccccc',
-  };
-
-  return (
-    <div style={{ ...defaultContainerStyle, ...containerStyle }}>
-      <div style={{ ...defaultLabelStyle, ...labelStyle }}>{label}</div>
-      <Handle
-        type={type}
-        position={position}
-        id={id}
-        style={{ ...defaultHandleStyle, ...style }}
-        isConnectable={connections.length < connectionCount}
-        {...rest}
-      />
-    </div>
-  );
+    return (
+        <div
+            className="labeled-handle-container"
+            style={containerStyle}
+        >
+            <div
+                className={`labeled-handle-label ${getPositionClass()}`}
+                style={computedLabelStyle}
+            >
+                {label}
+            </div>
+            <Handle
+                type={type}
+                position={position}
+                id={id}
+                className="labeled-handle"
+                style={handleStyle}
+                isConnectable={connections.length < connectionCount}
+                {...rest}
+            />
+        </div>
+    );
 };
 
 export default memo(LabeledHandle);

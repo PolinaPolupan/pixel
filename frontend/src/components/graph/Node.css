@@ -29,3 +29,85 @@
     font-size: 13px;
     color: #e0e0e0;
 }
+
+.input-handle-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-handle-input {
+    display: block;
+    width: 100px;
+    height: 15px;
+    padding: 5px;
+    box-sizing: border-box;
+    margin: auto 5px 5px;
+    border-radius: 3px;
+    font-size: 8px;
+    outline: none;
+    background: rgba(0, 0, 0, 0);
+    color: #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.15s;
+    -moz-appearance: textfield;
+}
+
+.input-handle-input::-webkit-outer-spin-button,
+.input-handle-input::-webkit-inner-spin-button {
+    -webkit-appearance:  none;
+    margin: 0;
+}
+
+.input-handle-input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.input-handle-input:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
+.labeled-handle-container {
+    position: relative;
+    height: 15px;
+}
+
+.labeled-handle-label {
+    position: absolute;
+    font-size: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color:  rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+    user-select: none;
+}
+
+.labeled-handle-label-right {
+    right: 8px;
+}
+
+.labeled-handle-label-left {
+    left: 8px;
+}
+
+.labeled-handle-label-top {
+    top: auto;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.labeled-handle-label-bottom {
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.labeled-handle {
+    width: 10px;
+    height: 10px;
+    background: #cccccc;
+}
