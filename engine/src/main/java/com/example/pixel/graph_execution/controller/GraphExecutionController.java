@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/v1/graph_execution")
@@ -16,5 +18,10 @@ public class GraphExecutionController {
     @GetMapping("/{id}")
     public ResponseEntity<GraphExecutionPayload> get(@PathVariable Long id) {
         return ResponseEntity.ok(graphExecutionService.findById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<GraphExecutionPayload>> getByGraphId(@RequestParam String graphId) {
+        return ResponseEntity.ok(graphExecutionService.findByGraphId(graphId));
     }
 }

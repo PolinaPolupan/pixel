@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface GraphExecutionRepository extends JpaRepository<GraphExecutionEntity, Long> {
     List<GraphExecutionEntity> findByStatusNotIn(List<GraphExecutionStatus> statuses);
+    List<GraphExecutionEntity> findByGraphId(String graphId);
 }
