@@ -34,6 +34,7 @@ public class ConnectionService {
         return connectionMapper.toDto(conn);
     }
 
+    @Transactional(readOnly = true)
     public List<ConnectionPayload> findAll() {
         List<ConnectionEntity> connectionEntities = repository.findAll();
         return connectionEntities.stream()

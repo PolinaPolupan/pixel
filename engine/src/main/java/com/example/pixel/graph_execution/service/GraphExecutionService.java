@@ -109,9 +109,9 @@ public class GraphExecutionService {
 
     @Transactional(readOnly = true)
     public List<GraphExecutionPayload> getInactive() {
-        LocalDateTime sixMonthsAgo = LocalDate.now().minusMonths(retentionMonths).atStartOfDay();
+        LocalDateTime retentionMonths = LocalDate.now().minusMonths(this.retentionMonths).atStartOfDay();
 
-        List<GraphExecutionEntity> inactiveExecutionEntities = graphExecutionRepository.findByEndTimeBefore(sixMonthsAgo);
+        List<GraphExecutionEntity> inactiveExecutionEntities = graphExecutionRepository.findByEndTimeBefore(retentionMonths);
 
         return inactiveExecutionEntities.stream()
                 .map(graphExecutionMapper:: toDto)
