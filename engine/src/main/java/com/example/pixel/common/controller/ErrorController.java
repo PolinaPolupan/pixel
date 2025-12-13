@@ -37,8 +37,8 @@ public class ErrorController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({
             InvalidFileFormat.class,
-            InvalidNodeInputException. class,
-            InvalidGraphException. class,
+            InvalidNodeInputException.class,
+            InvalidGraphException.class,
             JsonMappingException.class,
             JsonParseException.class,
             SdkClientException.class
