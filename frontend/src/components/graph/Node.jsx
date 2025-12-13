@@ -1,9 +1,8 @@
 import { useReactFlow } from "@xyflow/react";
-import { useEffect } from "react";
-import NodeHeader from "../ui/NodeHeader.jsx";
+import React, { useEffect } from "react";
 import FileUpload from "../file/FileUpload.jsx";
-import LabeledHandle from "../handles/LabeledHandle.jsx";
-import InputHandle from "../handles/InputHandle.jsx";
+import LabeledHandle from "./LabeledHandle.jsx";
+import InputHandle from "./InputHandle.jsx";
 import './Node.css';
 
 export default function Node({ id, data }) {
@@ -108,7 +107,9 @@ export default function Node({ id, data }) {
 
     return (
         <div className="custom-node">
-            <NodeHeader title={config.display. name} />
+            <div className="node-header">
+                <span>{config.display.name}</span>
+            </div>
 
             {Object.entries(inputHandles || {}).map(([handleId, handleConfig]) =>
                 renderInputHandle(handleId, handleConfig)

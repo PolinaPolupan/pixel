@@ -1,26 +1,43 @@
 import React from 'react';
 import { Panel } from '@xyflow/react';
-import { PlayButton } from '../ui/PlayButton.jsx';
-import ProgressBar from '../ui/ProgressBar.jsx';
 import './GraphControls.css';
+import {useProgress} from "../../services/contexts/ProgressContext.jsx";
 
 export function GraphControls({
                                   handlePlay,
-                                  isProcessing,
-                                  configLoading
+                                  isProcessing
                               }) {
+    const { progressState } = useProgress();
     return (
         <Panel position="bottom-center" className="graph-controls-panel">
             <div className="graph-controls-container">
                 <div className="graph-controls-play-wrapper">
-                    <PlayButton
+                    <button
                         onClick={handlePlay}
-                        isProcessing={isProcessing}
-                        disabled={configLoading}
-                    />
+                        disabled={isProcessing}
+                        className="play-button"
+                    >
+                        {isProcessing ?  '⏳' : '▶'}
+                    </button>
                 </div>
                 <div className="graph-controls-progress-wrapper">
-                    <ProgressBar />
+                    <div className="progress-bar-container">
+                        {progressState.visible ?  (
+                            <div className={`progress-bar-wrapper ${progressState.fadeOut ? 'fade-out' : ''}`}>
+                                <div
+                                    className="progress-bar-fill"
+                                    style={{ width: `${progressState.percent}%` }}
+                                />
+                                <div className="progress-bar-text">
+                                    {progressState.current} / {progressState.total} nodes processed ({progressState.percent}%)
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="progress-bar-ready">
+                                Ready for processing
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </Panel>

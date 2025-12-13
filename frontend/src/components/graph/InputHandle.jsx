@@ -1,5 +1,5 @@
 import { useReactFlow, useNodeConnections } from '@xyflow/react';
-import LabeledHandle from './LabeledHandle';
+import LabeledHandle from './LabeledHandle.jsx';
 import { getParameterColor } from "../../services/NodesConfig.jsx";
 
 const InputHandle = ({
