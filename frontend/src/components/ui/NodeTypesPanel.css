@@ -1,0 +1,131 @@
+.node-types-panel {
+    height: 100%;
+    padding: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #e0e0e0;
+    overflow-y: auto;
+    background: #1e1e1e;
+}
+
+.node-category {
+    padding: 8px 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.node-category:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.node-category-title {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    font-weight:  500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.arrow-icon {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 9px;
+    transition: transform 0.2s;
+}
+
+.arrow-icon.expanded {
+    transform: rotate(90deg);
+}
+
+.node-items-container {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:  max-height 0.25s ease, opacity 0.25s ease;
+}
+
+.node-items-container.expanded {
+    max-height: 800px;
+    opacity: 1;
+    padding:  4px 0;
+}
+
+.node-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    margin:  2px 0;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+    transition: background 0.15s;
+    border-left: 2px solid transparent;
+}
+
+.node-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.node-item-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.node-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.node-item-name {
+    font-size: 11px;
+    color: #e0e0e0;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.node-item-description {
+    font-size: 10px;
+    color: #888;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.node-types-panel-loading,
+.node-types-panel-error {
+    padding: 20px;
+    text-align:  center;
+    font-size: 12px;
+}
+
+.node-types-panel-loading {
+    color: #999;
+}
+
+.node-types-panel-error {
+    color: #ff6b6b;
+}
+
+/* Scrollbar */
+.node-types-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.node-types-panel::-webkit-scrollbar-track {
+    background:  #1e1e1e;
+}
+
+.node-types-panel::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius:  3px;
+}
+
+.node-types-panel::-webkit-scrollbar-thumb:hover {
+    background: #4a4a4a;
+}
