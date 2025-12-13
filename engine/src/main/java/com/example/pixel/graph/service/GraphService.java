@@ -28,6 +28,7 @@ public class GraphService {
     private final GraphExecutor graphExecutor;
     private final GraphExecutionService graphExecutionService;
     private final GraphRepository graphRepository;
+    private final GraphValidator graphValidator;
 
     @Transactional
     public GraphDto create(CreateGraphRequest createGraphRequest) {
@@ -35,6 +36,8 @@ public class GraphService {
             log.warn("Graph already exists with id: {}", createGraphRequest.getId());
             return findById(createGraphRequest.getId());
         }
+
+        graphValidator.validateGraphIntegrity(createGraphRequest);
 
         GraphEntity graphModel = GraphEntity.builder()
                 .graphId(createGraphRequest.getId())

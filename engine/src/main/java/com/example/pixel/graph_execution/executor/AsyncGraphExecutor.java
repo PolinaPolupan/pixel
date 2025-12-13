@@ -33,7 +33,7 @@ public class AsyncGraphExecutor implements GraphExecutor {
     private GraphExecutionDto execute(GraphDto graphDto, GraphExecutionDto graphExecutionDto) {
         Long graphExecutionId = graphExecutionDto.getId();
         try {
-            Graph graph = new Graph(graphDto.getNodes());
+            Graph graph = new Graph(graphDto);
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
             Iterator<Node> iterator = graph.nodeIterator();
