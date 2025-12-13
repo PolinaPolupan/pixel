@@ -1,14 +1,32 @@
 from pixel.core import Metadata
 from typing import List
-
+import cv2
 from pixel.sdk import Client
 from pixel.sdk.models.node_decorator import node
 
 
-def bilateral_exec(input: List[str], d: int, sigmaColor: float, sigmaSpace: float, meta: Metadata):
+def bilateral_exec(
+    input: List[str],
+    d: int,
+    sigmaColor: float,
+    sigmaSpace: float,
+    meta: Metadata
+):
     output_files = []
+
     for file in input:
-        output_files.append(Client.store_dump(meta, file))
+        img = Client.load_image(file)
+
+        filtered = cv2.bilateralFilter(
+            img,
+            d=int(d),
+            sigmaColor=float(sigmaColor),
+            sigmaSpace=float(sigmaSpace)
+        )
+
+        out_path = Client.store_image(meta, filtered, path=file)
+        output_files.append(out_path)
+
     return {"output": output_files}
 
 def bilateral_validate(input: List[str], d: int, sigmaColor: float, sigmaSpace: float, meta: Metadata):

@@ -1,4 +1,9 @@
 import logging
+import uuid
+from io import BytesIO
+
+import cv2
+import numpy as np
 import requests
 from typing import List, Dict, Any, Optional
 from urllib.parse import urljoin
@@ -131,6 +136,35 @@ class Client:
         response = cls.session.get(url)
         response.raise_for_status()
         return response.json()
+
+    @classmethod
+    def load_image(cls, file_path: str):
+        """
+        Load image from Pixel storage into numpy array (BGR, OpenCV format)
+        """
+        data = cls.get_file(file_path)
+        arr = np.frombuffer(data, dtype=np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
+
+        if img is None:
+            raise ValueError(f"Failed to decode image: {file_path}")
+
+        return img
+
+    @classmethod
+    def store_image(cls, meta: Metadata, image, path: str, ext: str = ".png") -> str:
+        """
+        Store numpy image as a file in Pixel storage at the specified path
+        """
+        ok, buf = cv2.imencode(ext, image)
+        if not ok:
+            raise ValueError("Failed to encode image")
+
+        file_obj = BytesIO(buf.tobytes())
+        upload = cls.upload_file(path, file_obj)
+
+        stored_path = upload["locations"][0]
+        return cls.store_dump(meta, stored_path)
 
 
 def create_node(node_id: int, node_type: str, inputs: Dict[str, Any]) -> Dict[str, Any]:
