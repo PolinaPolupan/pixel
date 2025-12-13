@@ -1,52 +1,61 @@
+// Update your App.jsx
 import React, { useRef, useEffect } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import DockLayout from 'rc-dock';
 import AppContent from './AppContent.jsx';
 import FileExplorer from '../file/FileExplorer.jsx';
 import NodeTypesPanel from '../ui/NodeTypesPanel.jsx';
+import ExecutionsPanel from '../execution/ExecutionPanel.jsx'; // Add this
 import {NotificationProvider} from '../../services/contexts/NotificationContext.jsx';
 import {ProgressProvider} from "../../services/contexts/ProgressContext.jsx";
 import ErrorBoundary from "../ui/ErrorBoundary.jsx";
 
-
 const defaultLayout = {
     dockbox: {
-        mode: 'horizontal',
-        children: [
+        mode:  'horizontal',
+        children:  [
             {
-                tabs: [
+                tabs:  [
                     {
                         id: 'flowCanvas',
                         title: 'Flow Canvas',
                         content: <AppContent />,
-                        group: 'canvas',
+                        group:  'canvas',
                     },
                 ],
-                size: 80,
+                size: 70, // Reduced from 80
             },
             {
-                size: 20,
+                size: 30, // Increased from 20
                 mode: 'vertical',
                 children: [
                     {
-                        size: 50,
+                        size: 33, // Split into 3 equal parts
                         tabs: [
                             {
-                                id: 'fileExplorer',
+                                id:  'fileExplorer',
                                 title: 'File Explorer',
                                 content: <FileExplorer />,
                             },
                         ],
                     },
                     {
-                        size: 50,
+                        size: 33,
                         tabs: [
                             {
                                 id: 'nodeTypes',
                                 title: 'Node Types',
-                                content: (
-                                    <NodeTypesPanel />
-                                ),
+                                content:  <NodeTypesPanel />,
+                            },
+                        ],
+                    },
+                    {
+                        size: 34, // Add executions panel
+                        tabs: [
+                            {
+                                id: 'executions',
+                                title: 'Executions',
+                                content: <ExecutionsPanel />,
                             },
                         ],
                     },
@@ -60,7 +69,7 @@ function AppWithSceneContext() {
     const layoutRef = useRef(null);
 
     useEffect(() => {
-        if (layoutRef.current) {
+        if (layoutRef. current) {
             const saved = localStorage.getItem('dockLayout');
             if (saved) {
                 try {
@@ -69,7 +78,6 @@ function AppWithSceneContext() {
                     console.error('Failed to load saved layout:', e);
                 }
             }
-            console.log('Initial rc-dock layout:', layoutRef.current.saveLayout());
         }
     }, []);
 
@@ -77,7 +85,6 @@ function AppWithSceneContext() {
         if (layoutRef.current) {
             const saved = layoutRef.current.saveLayout();
             localStorage.setItem('dockLayout', JSON.stringify(saved));
-            console.log('Saved rc-dock layout:', saved);
         }
     };
 
@@ -93,8 +100,8 @@ function AppWithSceneContext() {
                 bottom: 0,
             }}
             groups={{
-                canvas: { floatable: true, maximizable: true },
-                explorer: { floatable: true, maximizable: true },
+                canvas:  { floatable: true, maximizable: true },
+                explorer: { floatable: true, maximizable:  true },
             }}
             dropMode="all"
             onLayoutChange={saveLayout}
@@ -105,7 +112,7 @@ function AppWithSceneContext() {
 export default function App() {
     return (
         <ErrorBoundary>
-            <div style={{ height: '100vh', position: 'relative' }}>
+            <div style={{ height:  '100vh', position: 'relative' }}>
                 <ReactFlowProvider>
                     <NotificationProvider>
                         <ProgressProvider>

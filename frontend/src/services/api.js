@@ -11,7 +11,7 @@ const NODE_CONFIG = {
     DEFAULT_HEADERS: {
         'Accept': 'application/json'
     },
-    CREDENTIALS: 'include'
+    CREDENTIALS: 'omit'
 };
 
 async function apiRequest(endpoint, options = {}, config = ENGINE_CONFIG) {
@@ -126,4 +126,27 @@ export const graphApi = {
 export const nodeApi = {
     getNodeConfig: () =>
         apiRequest('/info', {}, NODE_CONFIG),
+};
+
+export const executionApi = {
+    /**
+     * Get all executions or filter by graphId
+     * @param {string} graphId - Optional graph ID to filter by
+     * @returns {Promise<Array>} Array of execution objects
+     */
+    getAll: async (graphId = null) => {
+        const endpoint = graphId
+            ?  `/graph_execution?graphId=${encodeURIComponent(graphId)}`
+            : '/graph_execution';
+        return apiRequest(endpoint);
+    },
+
+    /**
+     * Get a specific execution by ID
+     * @param {number} id - Execution ID
+     * @returns {Promise<Object>} Execution object
+     */
+    getById: async (id) => {
+        return apiRequest(`/graph_execution/${id}`);
+    },
 };
