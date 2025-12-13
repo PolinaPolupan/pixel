@@ -1,7 +1,7 @@
 package com.example.pixel.node.controller;
 
-import com.example.pixel.node.dto.NodeConfiguration;
-import com.example.pixel.node.dto.NodeDto;
+import com.example.pixel.node.dto.NodeConfigurationRequest;
+import com.example.pixel.node.dto.NodeConfigurationDto;
 import com.example.pixel.node.service.NodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +17,12 @@ public class NodeController {
     private final NodeService nodeService;
 
     @PostMapping
-    public ResponseEntity<NodeDto> create(@RequestBody NodeConfiguration nodeConfiguration) {
-        return ResponseEntity.ok(nodeService.create(nodeConfiguration));
+    public ResponseEntity<NodeConfigurationDto> create(@RequestBody NodeConfigurationRequest nodeConfigurationRequest) {
+        return ResponseEntity.ok(nodeService.create(nodeConfigurationRequest));
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, NodeDto>> getAllNodes() {
+    public ResponseEntity<Map<String, NodeConfigurationDto>> getAllNodes() {
         return ResponseEntity.ok(nodeService.getAllActiveNodes());
     }
 }

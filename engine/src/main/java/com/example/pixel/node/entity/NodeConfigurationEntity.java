@@ -17,7 +17,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NodeEntity {
+public class NodeConfigurationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -10,7 +10,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NodeDto {
+public class NodeConfigurationDto {
     private Long id;
     private String type;
     private Integer version;

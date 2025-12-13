@@ -1,7 +1,7 @@
 package com.example.pixel.graph.entity;
 
 import com.example.pixel.graph_execution.entity.GraphExecutionEntity;
-import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.Node;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,7 @@ public class GraphEntity {
 
     @Column(columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<NodeExecution> nodes;
+    private List<Node> nodes;
 
     @OneToMany(mappedBy = "graphId", fetch = FetchType.LAZY)
     private List<GraphExecutionEntity> graphExecutionEntity;

@@ -7,7 +7,7 @@ import java.util.Map;
 
 @AllArgsConstructor
 @Data
-public class NodeExecution {
+public class Node {
     private Long id;
     private String type;
     private Map<String, Object> inputs;

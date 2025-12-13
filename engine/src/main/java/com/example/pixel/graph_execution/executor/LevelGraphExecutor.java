@@ -5,7 +5,7 @@ import com.example.pixel.graph.dto.GraphDto;
 import com.example.pixel.graph.model.Graph;
 import com.example.pixel.node_execution.dto.NodeExecutionDto;
 import com.example.pixel.node_execution.executor.NodeExecutor;
-import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.Node;
 import com.example.pixel.common.service.NotificationService;
 import com.example.pixel.graph_execution.dto.GraphExecutionDto;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
@@ -42,11 +42,11 @@ public class LevelGraphExecutor implements GraphExecutor {
             Graph graph = new Graph(graphDto.getNodes());
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
-            Iterator<List<NodeExecution>> iterator = graph.levelIterator();
+            Iterator<List<Node>> iterator = graph.levelIterator();
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
-                List<NodeExecution> batch = iterator.next();
+                List<Node> batch = iterator.next();
                 List<CompletableFuture<NodeExecutionDto>> futures = batch.stream()
                         .map(node -> nodeExecutor.launchExecution(node, graphExecutionId))
                         .toList();

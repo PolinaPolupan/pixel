@@ -1,17 +1,17 @@
 package com.example.pixel.graph.model;
 
 
-import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.Node;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class NodeIterator implements Iterator<NodeExecution> {
-    private final List<NodeExecution> topologicalOrder;
+public class NodeIterator implements Iterator<Node> {
+    private final List<Node> topologicalOrder;
     private int currentIndex;
 
-    public NodeIterator(List<NodeExecution> topologicalOrder) {
+    public NodeIterator(List<Node> topologicalOrder) {
         this.topologicalOrder = topologicalOrder;
         this.currentIndex = 0;
     }
@@ -22,7 +22,7 @@ public class NodeIterator implements Iterator<NodeExecution> {
     }
 
     @Override
-    public NodeExecution next() {
+    public Node next() {
         if (!hasNext()) {
             throw new NoSuchElementException("No more nodes to traverse");
         }

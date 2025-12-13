@@ -8,7 +8,7 @@ import com.example.pixel.graph_execution.dto.GraphExecutionDto;
 import com.example.pixel.graph_execution.dto.GraphExecutionStatus;
 import com.example.pixel.graph_execution.service.GraphExecutionService;
 import com.example.pixel.node_execution.executor.NodeExecutor;
-import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.Node;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,11 +36,11 @@ public class AsyncGraphExecutor implements GraphExecutor {
             Graph graph = new Graph(graphDto.getNodes());
             graphExecutionService.updateStatus(graphExecutionId, GraphExecutionStatus.RUNNING);
 
-            Iterator<NodeExecution> iterator = graph.nodeIterator();
+            Iterator<Node> iterator = graph.nodeIterator();
             int processedNodes = 0;
 
             while (iterator.hasNext()) {
-                NodeExecution node = iterator.next();
+                Node node = iterator.next();
                 nodeExecutor.launchExecution(node, graphExecutionId).join();
 
                 processedNodes += 1;

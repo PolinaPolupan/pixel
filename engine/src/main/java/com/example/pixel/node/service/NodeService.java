@@ -1,8 +1,8 @@
 package com.example.pixel.node.service;
 
-import com.example.pixel.node.dto.NodeConfiguration;
-import com.example.pixel.node.dto.NodeDto;
-import com.example.pixel.node.entity.NodeEntity;
+import com.example.pixel.node.dto.NodeConfigurationRequest;
+import com.example.pixel.node.dto.NodeConfigurationDto;
+import com.example.pixel.node.entity.NodeConfigurationEntity;
 import com.example.pixel.node.mapper.NodeMapper;
 import com.example.pixel.node.repository.NodeRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class NodeService {
     private final NodeMapper nodeMapper;
     private final NodeRepository repository;
 
-    public NodeDto create(NodeConfiguration nodeConfiguration) {
-        NodeEntity latest = repository.findLatestByType(nodeConfiguration.getType()).orElse(null);
+    public NodeConfigurationDto create(NodeConfigurationRequest nodeConfigurationRequest) {
+        NodeConfigurationEntity latest = repository.findLatestByType(nodeConfigurationRequest.getType()).orElse(null);
         int nextVersion = 1;
 
         if (latest != null) {
@@ -30,26 +30,26 @@ public class NodeService {
             repository.save(latest);
         }
 
-        NodeEntity nodeEntity = NodeEntity.builder()
-                .type(nodeConfiguration.getType())
-                .inputs(nodeConfiguration.getInputs())
-                .outputs(nodeConfiguration.getOutputs())
-                .display(nodeConfiguration.getDisplay())
+        NodeConfigurationEntity nodeConfigurationEntity = NodeConfigurationEntity.builder()
+                .type(nodeConfigurationRequest.getType())
+                .inputs(nodeConfigurationRequest.getInputs())
+                .outputs(nodeConfigurationRequest.getOutputs())
+                .display(nodeConfigurationRequest.getDisplay())
                 .createdAt(Instant.now())
                 .version(nextVersion)
                 .active(true)
                 .build();
 
-        nodeEntity = repository.save(nodeEntity);
+        nodeConfigurationEntity = repository.save(nodeConfigurationEntity);
 
-        return nodeMapper.toDto(nodeEntity);
+        return nodeMapper.toDto(nodeConfigurationEntity);
     }
 
-    public Map<String, NodeDto> getAllActiveNodes() {
-        List<NodeEntity> activeNodes = repository.findByActiveTrue();
+    public Map<String, NodeConfigurationDto> getAllActiveNodes() {
+        List<NodeConfigurationEntity> activeNodes = repository.findByActiveTrue();
 
-        Map<String, NodeDto> result = new HashMap<>();
-        for (NodeEntity node: activeNodes) {
+        Map<String, NodeConfigurationDto> result = new HashMap<>();
+        for (NodeConfigurationEntity node: activeNodes) {
             result.put(node.getType(), nodeMapper.toDto(node));
         }
         return result;

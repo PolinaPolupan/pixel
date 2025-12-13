@@ -7,7 +7,7 @@ import java.util.Map;
 
 @AllArgsConstructor
 @Getter
-public class NodeConfiguration {
+public class NodeConfigurationRequest {
     private String type;
     private Map<String, Object> inputs;
     private Map<String, Object>  outputs;

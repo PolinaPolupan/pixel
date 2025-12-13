@@ -1,10 +1,10 @@
 package com.example.pixel.node.mapper;
 
-import com.example.pixel.node.dto.NodeDto;
-import com.example.pixel.node.entity.NodeEntity;
+import com.example.pixel.node.dto.NodeConfigurationDto;
+import com.example.pixel.node.entity.NodeConfigurationEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface NodeMapper {
-    NodeDto toDto(NodeEntity node);
+    NodeConfigurationDto toDto(NodeConfigurationEntity node);
 }

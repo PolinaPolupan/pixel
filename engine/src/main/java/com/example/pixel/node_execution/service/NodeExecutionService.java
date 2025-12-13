@@ -6,7 +6,7 @@ import com.example.pixel.node_execution.cache.NodeCache;
 import com.example.pixel.node_execution.entity.NodeExecutionEntity;
 import com.example.pixel.common.integration.NodeClient;
 import com.example.pixel.node_execution.mapper.NodeExecutionMapper;
-import com.example.pixel.node_execution.model.NodeExecution;
+import com.example.pixel.node_execution.model.Node;
 import com.example.pixel.node_execution.model.NodeReference;
 import com.example.pixel.node_execution.repository.NodeExecutionRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +31,12 @@ public class NodeExecutionService {
     private final NodeExecutionMapper mapper;
 
     @Transactional
-    public NodeExecutionEntity create(NodeExecution nodeExecution, Long graphExecutionId) {
+    public NodeExecutionEntity create(Node node, Long graphExecutionId) {
         Instant startedAt = Instant.now();
         NodeExecutionEntity nodeExecutionEntity = NodeExecutionEntity.builder()
                 .status(NodeStatus.RUNNING)
                 .graphExecutionId(graphExecutionId)
-                .inputs(nodeExecution.getInputs())
+                .inputs(node.getInputs())
                 .startedAt(startedAt)
                 .build();
 
@@ -51,11 +51,11 @@ public class NodeExecutionService {
     }
 
     @Transactional
-    public void complete(Long id, NodeExecution nodeExecution, NodeExecutionResponse nodeExecutionResponse) {
+    public void complete(Long id, Node node, NodeExecutionResponse nodeExecutionResponse) {
         NodeExecutionEntity nodeExecutionEntity = repository.findById(id)
                 .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
 
-        nodeExecutionEntity.setInputs(nodeExecution.getInputs());
+        nodeExecutionEntity.setInputs(node.getInputs());
         nodeExecutionEntity.setStatus(NodeStatus.COMPLETED);
         nodeExecutionEntity.setOutputs(nodeExecutionResponse.getOutputs());
         nodeExecutionEntity.setFinishedAt(Instant.now());
@@ -64,11 +64,11 @@ public class NodeExecutionService {
     }
 
     @Transactional
-    public void failed(Long id, NodeExecution nodeExecution, String message) {
+    public void failed(Long id, Node node, String message) {
         NodeExecutionEntity nodeExecutionEntity = repository.findById(id)
                 .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
 
-        nodeExecutionEntity.setInputs(nodeExecution.getInputs());
+        nodeExecutionEntity.setInputs(node.getInputs());
         nodeExecutionEntity.setStatus(NodeStatus.FAILED);
         nodeExecutionEntity.setErrorMessage(message);
         nodeExecutionEntity.setFinishedAt(Instant.now());
@@ -76,11 +76,11 @@ public class NodeExecutionService {
         repository.save(nodeExecutionEntity);
     }
 
-    public NodeClientData setup(NodeExecution nodeExecution, Long graphExecutionId) {
-        Map<String, Object> resolvedInputs = resolveInputs(nodeExecution, graphExecutionId);
-        nodeExecution.setInputs(resolvedInputs);
+    public NodeClientData setup(Node node, Long graphExecutionId) {
+        Map<String, Object> resolvedInputs = resolveInputs(node, graphExecutionId);
+        node.setInputs(resolvedInputs);
 
-        Metadata meta = new Metadata(nodeExecution.getType(), nodeExecution.getId(), graphExecutionId);
+        Metadata meta = new Metadata(node.getType(), node.getId(), graphExecutionId);
 
         return new NodeClientData(meta, resolvedInputs);
     }
@@ -104,18 +104,18 @@ public class NodeExecutionService {
         log.info("Node {} Validation | Response: {}", nodeClientData.getMeta().getNodeId(), validationResponse);
     }
 
-    private Map<String, Object> resolveInputs(NodeExecution nodeExecution, Long graphExecutionId) {
+    private Map<String, Object> resolveInputs(Node node, Long graphExecutionId) {
         Map<String, Object> resolvedInputs = new HashMap<>();
 
-        for (String key: nodeExecution.getInputs().keySet()) {
-            resolvedInputs.put(key, resolveInput(nodeExecution, graphExecutionId, key));
+        for (String key: node.getInputs().keySet()) {
+            resolvedInputs.put(key, resolveInput(node, graphExecutionId, key));
         }
 
         return resolvedInputs;
     }
 
-    private Object resolveInput(NodeExecution nodeExecution, Long graphExecutionId, String key) {
-        Object input = nodeExecution.getInputs().get(key);
+    private Object resolveInput(Node node, Long graphExecutionId, String key) {
+        Object input = node.getInputs().get(key);
 
         if (input instanceof NodeReference) {
             input = resolveReference((NodeReference) input, graphExecutionId);
