@@ -1,96 +1,238 @@
 /* src/components/file/FileExplorer.css */
 .file-explorer {
     height: 100%;
-    padding:  16px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: #e0e0e0;
     display: flex;
     flex-direction: column;
-    overflow:  auto;
-    background:  #1e1e1e;
+    background: #1e1e1e;
 }
 
-.file-explorer-header {
-    margin-bottom: 12px;
+.file-explorer-horizontal {
+    overflow:  hidden;
 }
 
-.file-explorer-actions {
+.file-explorer-toolbar {
+    display:  flex;
+    justify-content:  space-between;
+    align-items: center;
+    padding:  8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: #252525;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+/* Breadcrumbs */
+.file-explorer-breadcrumbs {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    flex:  1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0;
 }
 
-.file-explorer-refresh {
+.file-explorer-breadcrumbs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.file-explorer-breadcrumbs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.file-explorer-breadcrumbs::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.breadcrumb-item {
+    background: rgba(255, 255, 255, 0.05);
+    border:  1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 4px 10px;
+    border-radius:  3px;
     cursor: pointer;
-    transition: transform 0.2s;
-    color: #e0e0e0;
-}
-
-.file-explorer-refresh:hover {
-    transform: scale(1.05);
-}
-
-.file-explorer-tree {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 12px;
-}
-
-.file-explorer-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
-}
-
-/* File Tree */
-.file-tree {
-    list-style: none;
-    padding: 0;
-    margin:  0;
-}
-
-.file-tree-item {
-    /* No specific styles needed, handled by file-item */
-}
-
-.file-tree-children {
-    margin:  8px 0;
-}
-
-/* File Item */
-.file-item {
+    font-size: 11px;
+    white-space: nowrap;
+    transition: all 0.15s;
     display: flex;
     align-items: center;
-    padding: 8px;
+    gap:  4px;
+}
+
+.breadcrumb-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.breadcrumb-item.active {
+    background: rgba(66, 135, 245, 0.2);
+    border-color: rgba(66, 135, 245, 0.4);
+    color: #4287f5;
+}
+
+.breadcrumb-separator {
+    color: rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+}
+
+/* Toolbar */
+.file-explorer-toolbar-right {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.file-explorer-toolbar-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e0e0e0;
+    padding: 4px 8px;
+    border-radius:  3px;
+    cursor:  pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.15s;
+}
+
+.file-explorer-toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Content Area */
+.file-explorer-content-horizontal {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+/* File Grid */
+.file-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+}
+
+.file-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px;
+    min-width: 80px;
+    max-width: 100px;
     cursor: pointer;
     border-radius: 4px;
-    margin-bottom: 4px;
-    transition: background 0.2s;
-    font-size: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.15s;
 }
 
-.file-item:hover {
-    background: rgba(60, 60, 60, 0.5);
+.file-grid-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
 }
 
-.file-item-folder {
-    composes: file-item;
+.file-grid-item.folder.file-grid-item-icon {
+    color: #ffd700;
 }
 
-.file-item-folder.open {
-    background: rgba(60, 60, 60, 0.5);
+.file-grid-item.file.file-grid-item-icon {
+    color: #4287f5;
 }
 
-.file-item-icon {
-    margin-right: 8px;
+.file-grid-item-icon {
     display: flex;
     align-items: center;
-    color: #e0e0e0;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
 }
 
-.file-item-name {
-    font-size: 14px;
+.file-grid-item-name {
+    font-size:  11px;
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.3;
+    max-width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp:  2;
+    -webkit-box-orient: vertical;
+}
+
+.file-grid-empty {
+    padding: 40px;
+    text-align:  center;
+    color: #666;
+    font-size: 12px;
+}
+
+.file-preview-container {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    background: rgba(40, 40, 40, 0.95);
+    padding: 32px;
+    border-radius:  8px;
+    border:  1px solid #333;
+}
+
+.file-preview-image {
+    max-width: 100%;
+    max-height:  70vh;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.file-preview-close:hover {
+    background:  rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+/* Scrollbars */
+.file-explorer-content-horizontal::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.file-explorer-content-horizontal::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.file-explorer-content-horizontal::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius:  4px;
+}
+
+.file-explorer-content-horizontal::-webkit-scrollbar-thumb:hover {
+    background: #4a4a4a;
+}
+
+.file-preview-text::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-preview-text::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.file-preview-text::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 4px;
+}
+
+.file-preview-text::-webkit-scrollbar-thumb:hover {
+    background:  #4a4a4a;
 }
 
 /* File Preview Modal */
@@ -113,15 +255,15 @@
     max-height: 90%;
     background: rgba(40, 40, 40, 0.95);
     padding: 32px;
-    border-radius: 8px;
+    border-radius:  8px;
     border: 1px solid #333;
 }
 
 .file-preview-image {
     max-width: 100%;
     max-height:  70vh;
-    object-fit: contain;
-    border-radius: 4px;
+    object-fit:  contain;
+    border-radius:  4px;
 }
 
 .file-preview-text {
@@ -129,8 +271,8 @@
     padding: 20px;
     border-radius:  4px;
     max-width: 800px;
-    max-height: 70vh;
-    overflow-y: auto;
+    max-height:  70vh;
+    overflow-y:  auto;
     font-family: 'Monaco', 'Courier New', monospace;
     white-space: pre-wrap;
     word-break: break-all;
@@ -157,28 +299,41 @@
 }
 
 .file-preview-close:hover {
-    background: rgba(0, 0, 0, 0.7);
+    background:  rgba(0, 0, 0, 0.7);
     transform: scale(1.1);
 }
 
-/* Scrollbar styling (matching ExecutionPanel) */
-.file-explorer-tree::-webkit-scrollbar,
-.file-preview-text::-webkit-scrollbar {
-    width: 8px;
+/* Scrollbar styling */
+.file-explorer-content-horizontal::-webkit-scrollbar {
+    height: 8px;
 }
 
-.file-explorer-tree::-webkit-scrollbar-track,
-.file-preview-text::-webkit-scrollbar-track {
+.file-explorer-content-horizontal::-webkit-scrollbar-track {
     background: #1e1e1e;
 }
 
-.file-explorer-tree::-webkit-scrollbar-thumb,
-.file-preview-text::-webkit-scrollbar-thumb {
+.file-explorer-content-horizontal::-webkit-scrollbar-thumb {
     background: #404040;
     border-radius:  4px;
 }
 
-.file-explorer-tree::-webkit-scrollbar-thumb:hover,
+.file-explorer-content-horizontal::-webkit-scrollbar-thumb:hover {
+    background: #4a4a4a;
+}
+
+.file-preview-text::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-preview-text::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+.file-preview-text::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 4px;
+}
+
 .file-preview-text::-webkit-scrollbar-thumb:hover {
     background: #4a4a4a;
 }
@@ -201,7 +356,6 @@
 
 .file-upload-clear-btn {
     padding: 2px 6px;
-    fontSize: 10px;
     background: rgba(0, 0, 0, 0);
     color: #d9534f;
     border: 1px solid rgba(217, 83, 79, 0.5);
