@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -56,13 +55,14 @@ public class FileUploadController {
         return ResponseEntity.ok(targetPath);
     }
 
-    @GetMapping(path = "/list", produces = "application/json")
-    public FileStats listUploadedFiles(@RequestParam(required = false, defaultValue = "") String folder) {
-        List<String> locations = storageService.loadAll(folder)
-                .map((path) -> folder + path.toString())
-                .collect(Collectors.toList());
-
-        return calculateFileStats(locations);
+    @GetMapping(path = "/list")
+    public List<String> listFiles(
+            @RequestParam(required = false, defaultValue = "") String folder,
+            @RequestParam(required = false) Long graphExecutionId,
+            @RequestParam(required = false) Long nodeId
+    ) {
+        if (graphExecutionId != null && nodeId != null) return fileHelper.getDump(graphExecutionId, nodeId);
+        else return fileHelper.getFilePaths(folder);
     }
 
     @GetMapping(path = "/zip", produces = "application/zip")

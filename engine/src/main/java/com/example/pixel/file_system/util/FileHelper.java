@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -47,6 +48,16 @@ public class FileHelper {
         storageService.store(source, target);
 
         return target;
+    }
+
+    public List<String> getDump(Long graphExecutionId, Long nodeId) {
+        return getFilePaths(getDumpContext(graphExecutionId, nodeId));
+    }
+
+    public List<String> getFilePaths(String folder) {
+        return storageService.loadAll(folder)
+                .map((path) -> folder + path.toString())
+                .collect(Collectors.toList());
     }
 
     private String getDumpContext(Long taskId, Long nodeId) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoReload, IoDownload, IoChevronForward, IoHome } from 'react-icons/io5';
 import { FileGrid } from './FileGrid.jsx';
 import { FilePreview } from './FilePreview.jsx';
@@ -17,35 +17,29 @@ const FileExplorer = () => {
     } = useFileExplorer();
 
     const [currentPath, setCurrentPath] = useState([]);
-    const [currentItems, setCurrentItems] = useState(items);
+    const [currentItems, setCurrentItems] = useState([]);
 
-    // Update current items when items change
-    React.useEffect(() => {
+    // Update current items when items or path changes
+    useEffect(() => {
         if (currentPath.length === 0) {
             setCurrentItems(items);
         } else {
-            navigateToPath(currentPath);
-        }
-    }, [items]);
-
-    const navigateToPath = (pathArray) => {
-        let current = items;
-        for (const segment of pathArray) {
-            const folder = current.find(item => item.path === segment && item.type === 'folder');
-            if (folder) {
-                current = [... folder.folders, ...folder.files];
-            } else {
-                break;
+            let current = items;
+            for (const segment of currentPath) {
+                const folder = current.find(item => item.path === segment && item.type === 'folder');
+                if (folder) {
+                    current = [... folder.folders, ...folder.files];
+                } else {
+                    break;
+                }
             }
+            setCurrentItems(current);
         }
-        setCurrentItems(current);
-    };
+    }, [items, currentPath]);
 
     const handleItemClick = (item) => {
         if (item. type === 'folder') {
-            const newPath = [...currentPath, item.path];
-            setCurrentPath(newPath);
-            setCurrentItems([...item.folders, ...item.files]);
+            setCurrentPath(prev => [...prev, item.path]);
         } else {
             handleFileClick(item);
         }
@@ -53,19 +47,15 @@ const FileExplorer = () => {
 
     const navigateToBreadcrumb = (index) => {
         if (index === -1) {
-            // Home
             setCurrentPath([]);
-            setCurrentItems(items);
         } else {
-            const newPath = currentPath.slice(0, index + 1);
-            setCurrentPath(newPath);
-            navigateToPath(newPath);
+            setCurrentPath(prev => prev.slice(0, index + 1));
         }
     };
 
     const getBreadcrumbs = () => {
         return currentPath.map(path => {
-            const parts = path.split('/');
+            const parts = path. split('/');
             return parts[parts.length - 1] || path;
         });
     };

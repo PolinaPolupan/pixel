@@ -1,4 +1,6 @@
-/* src/components/execution/ExecutionsPanel.css */
+/* ========================================
+   EXECUTIONS PANEL
+   ======================================== */
 .executions-panel {
     display: flex;
     flex-direction: column;
@@ -6,9 +8,10 @@
     background: #1e1e1e;
     color: #e0e0e0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    overflow:  hidden;
+    overflow: hidden;
 }
 
+/* Header */
 .executions-header {
     display: flex;
     justify-content: space-between;
@@ -25,34 +28,59 @@
     font-weight: 600;
 }
 
-.refresh-btn {
-    background: #333;
-    border: none;
+.executions-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex:  1;
+    margin-left: 12px;
+}
+
+.executions-subtitle {
+    font-size: 11px;
+    color: #999;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-weight: normal;
+}
+
+/* Buttons */
+.refresh-btn,
+.back-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #e0e0e0;
-    padding: 6px 10px;
-    border-radius:  4px;
-    cursor:  pointer;
-    font-size:  14px;
-    transition: all 0.2s;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 32px;
-    height: 32px;
+    transition: all 0.2s;
 }
 
-.refresh-btn:hover:not(:disabled) {
-    background: #404040;
+.refresh-btn {
+    background: #333;
+    padding: 6px 10px;
+    min-width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.refresh-btn:hover:not(:disabled),
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .refresh-btn:disabled {
-    opacity:  0.5;
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
+/* Filters */
 .executions-filters {
-    display: flex;
-    gap:  4px;
+    display:  flex;
+    gap: 4px;
     padding: 8px;
     background: #252525;
     border-bottom: 1px solid #333;
@@ -84,6 +112,7 @@
     color: #fff;
 }
 
+/* Error Banner */
 .executions-error {
     padding: 12px 16px;
     background: #f443361a;
@@ -93,6 +122,7 @@
     flex-shrink: 0;
 }
 
+/* List */
 .executions-list {
     flex: 1;
     overflow-y: auto;
@@ -106,9 +136,12 @@
     font-size:  13px;
 }
 
+/* ========================================
+   EXECUTION ITEMS
+   ======================================== */
 .execution-item {
     background: #252525;
-    border: 1px solid #333;
+    border:  1px solid #333;
     border-radius: 6px;
     margin-bottom: 8px;
     padding: 12px;
@@ -120,11 +153,39 @@
     background: #2a2a2a;
 }
 
+.execution-item-clickable {
+    cursor: pointer;
+}
+
+.execution-item-clickable:hover {
+    border-color: #4287f5;
+    box-shadow: 0 2px 8px rgba(66, 135, 245, 0.2);
+}
+
+/* Node Execution Specific */
+.node-execution-item {
+    border-left: 3px solid #4287f5 !important;
+    background: #262626 !important;
+}
+
+.node-execution-item:hover {
+    border-left-color: #87c3ff !important;
+    background: #2c2c2c !important;
+}
+
+/* Header Row */
 .execution-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+}
+
+.execution-header-left {
+    display: flex ! important;
+    align-items: center ! important;
+    gap: 8px ! important;
+    flex-wrap: wrap ! important;
 }
 
 .execution-status {
@@ -147,6 +208,24 @@
     font-family: 'Monaco', 'Courier New', monospace;
 }
 
+/* Node Type Badge */
+.execution-node-type-badge {
+    font-family: 'Monaco', 'Courier New', monospace ! important;
+    font-size:  10px !important;
+    font-weight: 600 !important;
+    padding: 4px 10px !important;
+    background: rgba(66, 135, 245, 0.25) !important;
+    border:  1px solid rgba(66, 135, 245, 0.6) !important;
+    border-radius: 12px !important;
+    color: #87c3ff !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    line-height: 1.2 !important;
+}
+
+/* Info Section */
 .execution-info {
     display: flex;
     flex-direction: column;
@@ -174,15 +253,24 @@
     white-space: nowrap;
 }
 
-.execution-graph-id {
+.execution-graph-id,
+.execution-time {
     font-family: 'Monaco', 'Courier New', monospace;
     font-size: 10px;
 }
 
-.execution-time {
+.execution-node-type {
+    font-family: 'Monaco', 'Courier New', monospace;
     font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    background:  rgba(66, 135, 245, 0.15);
+    border: 1px solid rgba(66, 135, 245, 0.4);
+    border-radius: 3px;
+    color: #87c3ff;
 }
 
+/* Progress Bar */
 .execution-progress-bar {
     height: 4px;
     background: #333;
@@ -197,6 +285,7 @@
     border-radius: 2px;
 }
 
+/* Error Message */
 .execution-error-message {
     margin-top: 6px;
     padding: 8px;
@@ -211,321 +300,15 @@
 }
 
 .execution-error-message strong {
-    color:  #f44336;
+    color: #f44336;
     display: block;
     margin-bottom: 4px;
 }
 
-/* Scrollbar styling */
-.executions-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.executions-list::-webkit-scrollbar-track {
-    background: #1e1e1e;
-}
-
-.executions-list::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius:  4px;
-}
-
-.executions-list::-webkit-scrollbar-thumb:hover {
-    background: #4a4a4a;
-}
-
-.executions-filters::-webkit-scrollbar {
-    height: 4px;
-}
-
-.executions-filters::-webkit-scrollbar-track {
-    background: #252525;
-}
-
-.executions-filters::-webkit-scrollbar-thumb {
-    background:  #404040;
-    border-radius:  2px;
-}
-
-/* src/components/execution/NodeExecutionModal.css */
-.node-execution-modal-overlay {
-    position: fixed;
-    top:  0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.node-execution-modal {
-    background: #1e1e1e;
-    border-radius: 8px;
-    border: 1px solid #333;
-    max-width: 900px;
-    width: 100%;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.node-execution-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items:  center;
-    padding: 16px 20px;
-    border-bottom:  1px solid #333;
-    background: #252525;
-    border-radius: 8px 8px 0 0;
-}
-
-.node-execution-modal-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #e0e0e0;
-}
-
-.node-execution-modal-subtitle {
-    font-size: 12px;
-    color: #999;
-    font-family: 'Monaco', 'Courier New', monospace;
-}
-
-.node-execution-modal-close {
-    background: transparent;
-    border: none;
-    color: #e0e0e0;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: background 0.2s;
-}
-
-.node-execution-modal-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.node-execution-modal-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-}
-
-.node-execution-modal-loading,
-.node-execution-modal-error,
-.node-execution-modal-empty {
-    padding: 40px;
-    text-align:  center;
-    font-size: 13px;
-}
-
-.node-execution-modal-loading {
-    color: #999;
-}
-
-.node-execution-modal-error {
-    color: #ff6b6b;
-}
-
-.node-execution-modal-empty {
-    color: #757575;
-}
-
-.node-execution-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.node-execution-card {
-    background: #252525;
-    border:  1px solid #333;
-    border-radius: 6px;
-    padding: 12px;
-    transition: all 0.2s;
-}
-
-.node-execution-card:hover {
-    border-color: #404040;
-    background: #2a2a2a;
-}
-
-.node-execution-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items:  center;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #333;
-}
-
-.node-execution-status {
-    font-weight: 600;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.node-execution-id {
-    font-size: 11px;
-    color: #757575;
-    font-family: 'Monaco', 'Courier New', monospace;
-}
-
-.node-execution-details {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.node-execution-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-}
-
-.node-execution-label {
-    color: #999;
-}
-
-.node-execution-value {
-    color: #e0e0e0;
-    font-family: 'Monaco', 'Courier New', monospace;
-    font-size: 10px;
-}
-
-.node-execution-error {
-    margin-top: 8px;
-    padding: 8px;
-    background: #f443361a;
-    border-left: 3px solid #f44336;
-    font-size: 10px;
-    color: #ff6b6b;
-    border-radius: 3px;
-    line-height: 1.4;
-}
-
-.node-execution-error strong {
-    color: #f44336;
-}
-
-.node-execution-details-section {
-    margin-top: 8px;
-    border:  1px solid #333;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.node-execution-details-section summary {
-    padding: 8px 12px;
-    background: #2a2a2a;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 500;
-    color: #e0e0e0;
-    user-select: none;
-}
-
-.node-execution-details-section summary:hover {
-    background:  #333;
-}
-
-.node-execution-json {
-    margin:  0;
-    padding: 12px;
-    background: #1a1a1a;
-    font-family: 'Monaco', 'Courier New', monospace;
-    font-size: 10px;
-    color: #f8f8f2;
-    overflow-x: auto;
-    line-height: 1.5;
-}
-
-/* Scrollbar */
-.node-execution-modal-content::-webkit-scrollbar,
-.node-execution-json::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.node-execution-modal-content::-webkit-scrollbar-track,
-.node-execution-json::-webkit-scrollbar-track {
-    background: #1e1e1e;
-}
-
-.node-execution-modal-content::-webkit-scrollbar-thumb,
-.node-execution-json::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius:  4px;
-}
-
-.node-execution-modal-content::-webkit-scrollbar-thumb:hover,
-.node-execution-json::-webkit-scrollbar-thumb:hover {
-    background:  #4a4a4a;
-}
-
-.execution-item-clickable {
-    cursor: pointer;
-}
-
-.execution-item-clickable:hover {
-    border-color: #4287f5;
-    box-shadow: 0 2px 8px rgba(66, 135, 245, 0.2);
-}
-
-/* Back button */
-.back-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #e0e0e0;
-    padding: 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.executions-header-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex:  1;
-    margin-left: 12px;
-}
-
-.executions-subtitle {
-    font-size: 11px;
-    color: #999;
-    font-family: 'Monaco', 'Courier New', monospace;
-    font-weight: normal;
-}
-
-.node-execution-item {
-    /* Optional: different styling for node executions */
-}
-
+/* Details Section */
 .execution-details-section {
-    margin-top: 8px;
-    border: 1px solid #333;
+    margin-top:  8px;
+    border:  1px solid #333;
     border-radius: 4px;
     overflow: hidden;
 }
@@ -556,20 +339,34 @@
     line-height: 1.5;
 }
 
+/* ========================================
+   SCROLLBARS
+   ======================================== */
+.executions-list::-webkit-scrollbar,
+.executions-filters::-webkit-scrollbar,
 .execution-json::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
     height: 6px;
 }
 
+.executions-list::-webkit-scrollbar-track,
 .execution-json::-webkit-scrollbar-track {
     background: #1e1e1e;
 }
 
-.execution-json::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius:  3px;
+.executions-filters::-webkit-scrollbar-track {
+    background: #252525;
 }
 
+.executions-list::-webkit-scrollbar-thumb,
+.executions-filters::-webkit-scrollbar-thumb,
+.execution-json::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius:  4px;
+}
+
+.executions-list::-webkit-scrollbar-thumb:hover,
+.executions-filters::-webkit-scrollbar-thumb:hover,
 .execution-json::-webkit-scrollbar-thumb:hover {
     background: #4a4a4a;
 }

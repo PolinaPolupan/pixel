@@ -1,8 +1,7 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { saveAs } from 'file-saver';
-import { graphApi } from '../services/api.js';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {saveAs} from 'file-saver';
+import {graphApi} from '../services/api.js';
 import {useNotification} from "../services/contexts/NotificationContext.jsx";
-
 
 export function useFileExplorer() {
     const { setError } = useNotification();
@@ -14,26 +13,18 @@ export function useFileExplorer() {
 
     const initialMountRef = useRef(true);
 
-    const fetchItems = useCallback(async (folder = '') => {
+    const fetchItems = useCallback(async () => {
         try {
             setIsLoading(true);
-
-            const response = await graphApi.listFiles(folder);
-
-            const paths = response.locations || response;
-
-            console.log(`FileExplorer fetchItems response (folder=${folder}):`, paths);
-
-            return paths;
+            return await graphApi.listFiles('');
         } catch (err) {
             setError?.(err.message);
-            console.error(`FileExplorer fetchItems error (folder=${folder}):`, err);
+            console.error('FileExplorer fetchItems error:', err);
             return [];
         } finally {
             setIsLoading(false);
         }
     }, [setError]);
-
 
     const buildTree = useCallback((paths) => {
         const isFile = path => {
@@ -56,8 +47,7 @@ export function useFileExplorer() {
             name: 'root',
             path: '',
             files: [],
-            folders: [],
-            isOpen: true
+            folders:  []
         };
 
         paths.forEach(path => {
@@ -68,8 +58,7 @@ export function useFileExplorer() {
                 for (let i = 0; i < segments.length - 1; i++) {
                     const segment = segments[i];
                     const parentPath = currentPath;
-
-                    currentPath = currentPath ? `${currentPath}/${segment}` : segment;
+                    currentPath = currentPath ?  `${currentPath}/${segment}` : segment;
 
                     if (!folders[currentPath]) {
                         folders[currentPath] = {
@@ -78,16 +67,15 @@ export function useFileExplorer() {
                             path: currentPath,
                             files: [],
                             folders: [],
-                            isOpen: false,
                             parentPath
                         };
                     }
                 }
 
                 if (isFile(path)) {
-                    const lastSlash = path.lastIndexOf('/');
+                    const lastSlash = path. lastIndexOf('/');
                     const fileName = path.substring(lastSlash + 1);
-                    const folderPath = path.substring(0, lastSlash);
+                    const folderPath = path. substring(0, lastSlash);
 
                     if (!folders[folderPath]) {
                         folders[folderPath] = {
@@ -95,8 +83,7 @@ export function useFileExplorer() {
                             name: folderPath.split('/').pop(),
                             path: folderPath,
                             files: [],
-                            folders: [],
-                            isOpen: false
+                            folders: []
                         };
                     }
 
@@ -105,7 +92,7 @@ export function useFileExplorer() {
                         fileType: getFileType(path),
                         name: fileName,
                         path: path,
-                        url: graphApi.getFileUrl(path, cacheBuster)
+                        url: graphApi. getFileUrl(path, cacheBuster)
                     });
                 }
             } else if (isFile(path)) {
@@ -119,12 +106,11 @@ export function useFileExplorer() {
             } else {
                 if (!folders[path]) {
                     folders[path] = {
-                        type: 'folder',
+                        type:  'folder',
                         name: path,
-                        path: path,
+                        path:  path,
                         files: [],
                         folders: [],
-                        isOpen: false,
                         parentPath: ''
                     };
                 }
@@ -136,7 +122,7 @@ export function useFileExplorer() {
         Object.values(folders).forEach(folder => {
             if (folder.path && folder.parentPath !== undefined) {
                 const parent = folders[folder.parentPath];
-                if (parent && !parent.folders.some(f => f.path === folder.path)) {
+                if (parent && !parent. folders.some(f => f. path === folder.path)) {
                     parent.folders.push(folder);
                 }
             }
@@ -149,46 +135,21 @@ export function useFileExplorer() {
         const newCacheBuster = Date.now();
         setCacheBuster(newCacheBuster);
 
-        const paths = await fetchItems('');
+        const paths = await fetchItems();
         const root = buildTree(paths);
 
-        setItems([...root.folders, ...root.files]);
-
+        setItems([... root.folders, ...root.files]);
         return root;
     }, [fetchItems, buildTree]);
-
-    const toggleFolder = useCallback((path) => {
-        setItems(prev => {
-            const updateNode = (nodes) => {
-                return nodes.map(node => {
-                    if (node.path === path) {
-                        return { ...node, isOpen: !node.isOpen };
-                    }
-
-                    if (node.type === 'folder') {
-                        return {
-                            ...node,
-                            folders: updateNode(node.folders),
-                            files: [...node.files]
-                        };
-                    }
-
-                    return node;
-                });
-            };
-
-            return updateNode(prev);
-        });
-    }, []);
 
     const downloadAsZip = useCallback(async () => {
         try {
             setIsLoading(true);
             const zipBlob = await graphApi.downloadZip();
-            saveAs(zipBlob, `files.zip`);
+            saveAs(zipBlob, 'files.zip');
         } catch (err) {
             console.error('ZIP download error:', err);
-            setError?.('Failed to download ZIP: ' + err.message);
+            setError?.('Failed to download ZIP: ' + err. message);
         } finally {
             setIsLoading(false);
         }
@@ -197,7 +158,7 @@ export function useFileExplorer() {
     const fetchTextContent = useCallback(async (url) => {
         try {
             const response = await fetch(url);
-            if (!response.ok) {
+            if (!response. ok) {
                 throw new Error(`Failed to fetch text: ${response.statusText}`);
             }
             return await response.text();
@@ -210,7 +171,7 @@ export function useFileExplorer() {
     const handleFileClick = useCallback(async (item) => {
         setPreviewItem(item);
 
-        if (item.fileType === 'text') {
+        if (item. fileType === 'text') {
             const content = await fetchTextContent(item.url);
             setPreviewContent(content);
         } else {
@@ -228,10 +189,6 @@ export function useFileExplorer() {
             initialMountRef.current = false;
             refreshItems();
         }
-    }, []);
-
-    const manualRefresh = useCallback(() => {
-        refreshItems();
     }, [refreshItems]);
 
     return {
@@ -239,8 +196,7 @@ export function useFileExplorer() {
         isLoading,
         previewItem,
         previewContent,
-        refreshItems: manualRefresh,
-        toggleFolder,
+        refreshItems,
         handleFileClick,
         closePreview,
         downloadAsZip

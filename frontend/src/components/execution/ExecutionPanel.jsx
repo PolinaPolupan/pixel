@@ -23,11 +23,11 @@ const ExecutionsPanel = () => {
         setLoading(true);
         setError(null);
         try {
-            const data = await executionApi. getAll();
+            const data = await executionApi.getAll();
             setExecutions(data);
         } catch (err) {
             console.error('Error fetching executions:', err);
-            setError(err. message);
+            setError(err.message);
         } finally {
             setLoading(false);
         }
@@ -61,7 +61,7 @@ const ExecutionsPanel = () => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'COMPLETED':  return '#4caf50';
-            case 'RUNNING':  return '#2196f3';
+            case 'RUNNING': return '#2196f3';
             case 'FAILED': return '#f44336';
             case 'PENDING': return '#ff9800';
             default: return '#757575';
@@ -70,11 +70,11 @@ const ExecutionsPanel = () => {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'COMPLETED':  return '✓';
+            case 'COMPLETED': return '✓';
             case 'RUNNING': return '⟳';
             case 'FAILED': return '✗';
-            case 'PENDING':   return '○';
-            default:  return '? ';
+            case 'PENDING': return '○';
+            default: return '? ';
         }
     };
 
@@ -86,7 +86,7 @@ const ExecutionsPanel = () => {
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
-                minute:  '2-digit',
+                minute: '2-digit',
                 second: '2-digit'
             });
         } catch (e) {
@@ -111,7 +111,7 @@ const ExecutionsPanel = () => {
 
     const calculateDuration = (start, end) => {
         if (!start) return '-';
-        if (! end) return 'Running...';
+        if (!end) return 'Running... ';
         try {
             const duration = new Date(end) - new Date(start);
             const seconds = Math.floor(duration / 1000);
@@ -138,9 +138,9 @@ const ExecutionsPanel = () => {
 
     const truncateError = (error, maxLength = 100) => {
         if (!error) return null;
-        const parts = error.split(': ');
+        const parts = error.split(':  ');
         const message = parts[parts.length - 1]. trim();
-        if (message. length <= maxLength) return message;
+        if (message.length <= maxLength) return message;
         return message.substring(0, maxLength) + '...';
     };
 
@@ -155,7 +155,7 @@ const ExecutionsPanel = () => {
         RUNNING:  executions.filter(e => e.status === 'RUNNING').length,
     };
 
-    // Show node executions view
+    // Render node executions view
     if (selectedExecution) {
         return (
             <div className="executions-panel">
@@ -182,7 +182,7 @@ const ExecutionsPanel = () => {
                 )}
 
                 <div className="executions-list">
-                    {nodeLoading ? (
+                    {nodeLoading ?  (
                         <div className="executions-empty">
                             Loading node executions...
                         </div>
@@ -194,17 +194,31 @@ const ExecutionsPanel = () => {
                         nodeExecutions.map((node) => (
                             <div key={node.id} className="execution-item node-execution-item">
                                 <div className="execution-header-row">
-                                    <span
-                                        className="execution-status"
-                                        style={{ color: getStatusColor(node. status) }}
-                                    >
-                                        <span className="status-icon">{getStatusIcon(node.status)}</span>
-                                        {node.status}
-                                    </span>
+                                    <div className="execution-header-left">
+                                        <span
+                                            className="execution-status"
+                                            style={{ color: getStatusColor(node.status) }}
+                                        >
+                                            <span className="status-icon">{getStatusIcon(node.status)}</span>
+                                            {node.status}
+                                        </span>
+                                        {node.nodeType && (
+                                            <span className="execution-node-type-badge">
+                                                {node.nodeType}
+                                            </span>
+                                        )}
+                                    </div>
                                     <span className="execution-id">Node #{node.id}</span>
                                 </div>
 
                                 <div className="execution-info">
+                                    <div className="execution-row">
+                                        <span className="execution-label">Type:</span>
+                                        <span className="execution-value execution-node-type">
+                                            {node.nodeType || '-'}
+                                        </span>
+                                    </div>
+
                                     <div className="execution-row">
                                         <span className="execution-label">Started:</span>
                                         <span className="execution-value execution-time">
@@ -228,7 +242,7 @@ const ExecutionsPanel = () => {
 
                                     {node.errorMessage && (
                                         <div className="execution-error-message" title={node.errorMessage}>
-                                            <strong>Error: </strong> {truncateError(node.errorMessage)}
+                                            <strong>Error:</strong> {truncateError(node.errorMessage)}
                                         </div>
                                     )}
 
@@ -236,7 +250,7 @@ const ExecutionsPanel = () => {
                                         <details className="execution-details-section">
                                             <summary>Inputs ({Object.keys(node.inputs).length})</summary>
                                             <pre className="execution-json">
-                                                {JSON.stringify(node.inputs, null, 2)}
+                                                {JSON. stringify(node.inputs, null, 2)}
                                             </pre>
                                         </details>
                                     )}
@@ -258,7 +272,7 @@ const ExecutionsPanel = () => {
         );
     }
 
-    // Show graph executions list
+    // Render graph executions list
     return (
         <div className="executions-panel">
             <div className="executions-header">
@@ -309,7 +323,7 @@ const ExecutionsPanel = () => {
                                     style={{ color: getStatusColor(execution.status) }}
                                 >
                                     <span className="status-icon">{getStatusIcon(execution.status)}</span>
-                                    {execution. status}
+                                    {execution.status}
                                 </span>
                                 <span className="execution-id">#{execution.id}</span>
                             </div>
@@ -357,7 +371,7 @@ const ExecutionsPanel = () => {
 
                                 {execution.errorMessage && (
                                     <div className="execution-error-message" title={execution.errorMessage}>
-                                        <strong>Error:</strong> {truncateError(execution.errorMessage)}
+                                        <strong>Error:</strong> {truncateError(execution. errorMessage)}
                                     </div>
                                 )}
                             </div>
