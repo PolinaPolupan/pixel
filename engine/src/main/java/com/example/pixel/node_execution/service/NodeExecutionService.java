@@ -27,8 +27,8 @@ public class NodeExecutionService {
 
     private final NodeClient nodeClient;
     private final NodeCache nodeCache;
-    private final NodeExecutionRepository repository;
-    private final NodeExecutionMapper mapper;
+    private final NodeExecutionRepository nodeExecutionRepository;
+    private final NodeExecutionMapper nodeExecutionMapper;
 
     @Transactional
     public NodeExecutionEntity create(Node node, Long graphExecutionId) {
@@ -40,19 +40,35 @@ public class NodeExecutionService {
                 .startedAt(startedAt)
                 .build();
 
-        return repository.save(nodeExecutionEntity);
+        return nodeExecutionRepository.save(nodeExecutionEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<NodeExecutionDto> findAll() {
+        List<NodeExecutionEntity> nodeExecutionEntities = nodeExecutionRepository.findAll();
+        return nodeExecutionEntities.stream()
+                .map(nodeExecutionMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<NodeExecutionDto> findByGraphExecutionId(Long graphExecutionId) {
+        List<NodeExecutionEntity> nodeExecutionEntities = nodeExecutionRepository.findByGraphExecutionId(graphExecutionId);
+        return nodeExecutionEntities.stream()
+                .map(nodeExecutionMapper::toDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public NodeExecutionDto findById(Long id) {
-        NodeExecutionEntity executionEntity = repository.findById(id)
+        NodeExecutionEntity executionEntity = nodeExecutionRepository.findById(id)
                 .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
-        return mapper.toDto(executionEntity);
+        return nodeExecutionMapper.toDto(executionEntity);
     }
 
     @Transactional
     public void complete(Long id, Node node, NodeExecutionResponse nodeExecutionResponse) {
-        NodeExecutionEntity nodeExecutionEntity = repository.findById(id)
+        NodeExecutionEntity nodeExecutionEntity = nodeExecutionRepository.findById(id)
                 .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
 
         nodeExecutionEntity.setInputs(node.getInputs());
@@ -60,12 +76,12 @@ public class NodeExecutionService {
         nodeExecutionEntity.setOutputs(nodeExecutionResponse.getOutputs());
         nodeExecutionEntity.setFinishedAt(Instant.now());
 
-        repository.save(nodeExecutionEntity);
+        nodeExecutionRepository.save(nodeExecutionEntity);
     }
 
     @Transactional
     public void failed(Long id, Node node, String message) {
-        NodeExecutionEntity nodeExecutionEntity = repository.findById(id)
+        NodeExecutionEntity nodeExecutionEntity = nodeExecutionRepository.findById(id)
                 .orElseThrow(() -> new NodeExecutionException(NODE_EXECUTION_NOT_FOUND_MESSAGE + id));
 
         nodeExecutionEntity.setInputs(node.getInputs());
@@ -73,7 +89,7 @@ public class NodeExecutionService {
         nodeExecutionEntity.setErrorMessage(message);
         nodeExecutionEntity.setFinishedAt(Instant.now());
 
-        repository.save(nodeExecutionEntity);
+        nodeExecutionRepository.save(nodeExecutionEntity);
     }
 
     public NodeClientData setup(Node node, Long graphExecutionId) {

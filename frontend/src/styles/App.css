@@ -1,244 +1,327 @@
+/* src/styles/App.css */
 @import url("index.css");
 @import url("rc-dock/dist/rc-dock-dark.css");
 
+/* ========================================
+   CSS VARIABLES - Design System
+   ======================================== */
+:root {
+    /* Colors */
+    --color-bg-primary: #1e1e1e;
+    --color-bg-secondary: #252525;
+    --color-bg-tertiary: #2a2a2a;
+
+    --color-border-subtle: rgba(255, 255, 255, 0.08);
+    --color-border-medium: rgba(255, 255, 255, 0.15);
+    --color-border-strong: rgba(255, 255, 255, 0.25);
+
+    --color-text-primary: #e0e0e0;
+    --color-text-secondary: rgba(255, 255, 255, 0.7);
+    --color-text-tertiary: rgba(255, 255, 255, 0.5);
+
+    --color-accent: #656565;
+    --color-accent-light: #b1b1b1;
+    --color-accent-rgb: 66, 135, 245;
+
+    --color-success: #4caf50;
+    --color-error: #ff6b6b;
+    --color-warning: #ff9800;
+
+    /* Spacing */
+    --spacing-xs:  4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+
+    /* Typography */
+    --font-family:  -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    --font-size-xs: 10px;
+    --font-size-sm: 11px;
+    --font-size-base: 12px;
+    --font-size-md: 13px;
+    --font-size-lg: 14px;
+
+    /* Borders & Radius */
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+
+    /* Transitions */
+    --transition-fast:  0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   DOCK LAYOUT
+   ======================================== */
 .dock-divider {
     box-sizing: border-box;
-    flex:
-  0 0 1px;
-    background:
-  rgb(29, 29, 29);
+    flex: 0 0 1px;
+    background: var(--color-bg-primary);
     z-index: 1;
 }
 
-.dock-tab-active, .dock-tab-active:hover {
-  color: rgb(185, 211, 236);
-  cursor: default;
+.dock-tab {
+    text-align: center;
+    font-weight: 550;
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast);
 }
 
-.dock-tab {
-  text-align: center;
-  font-weight: 550;
-  cursor: pointer;
+.dock-tab:hover {
+    color: var(--color-text-primary);
+}
+
+.dock-tab-active,
+.dock-tab-active:hover {
+    color: var(--color-accent-light);
+    cursor: default;
 }
 
 .dock-ink-bar {
-  position: absolute;
-  box-sizing: border-box;
-  margin-top: -3px;
-  background-color: rgb(185, 211, 236);
-  transform-origin: 0 0;
-  width: 0;
-  height: 0;
+    position: absolute;
+    box-sizing: border-box;
+    margin-top: -3px;
+    background-color: var(--color-accent);
+    transform-origin: 0 0;
+    width: 0;
+    height: 0;
 }
 
+/* ========================================
+   BUTTONS
+   ======================================== */
 .button {
-  background: rgba(90, 100, 110, 0);
-  border: 1px solid rgba(135, 195, 255, 0.404);
-  border-radius: 50px;
-  padding: 8px 12px;
-  color:  rgba(255, 255, 255, 0.884);
-  font-family: 'Inter', 'Roboto', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  outline: none;
+    background: transparent;
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    outline: none;
 }
 
 .button:hover {
-  background: rgba(90, 100, 110, 0.2);
-  border-color: rgb(190, 222, 255);
-  color:rgb(190, 222, 255);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-  opacity: 0.95;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-md);
 }
 
 .button:active {
-  background: rgba(90, 100, 110, 0.3);
-  border-color: rgba(130, 150, 170, 0.7);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transform: translateY(1px);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .button:focus {
-  box-shadow: 0 0 0 2px rgba(100, 150, 200, 0.4);
+    box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), 0.4);
 }
-  
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   TEXT INPUTS
+   ======================================== */
+.text-field,
+.search-input {
+    background: transparent;
+    border: 1px solid var(--color-border-medium);
+    border-radius:  var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-base);
+    outline: none;
+}
+
+.text-field:hover,
+.search-input:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--color-border-strong);
+}
+
+.text-field:focus,
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), 0.2);
+}
+
 .text-field {
-  background: rgba(90, 100, 110, 0);
-  border: 1px solid rgba(161, 207, 255, 0.6);
-  border-radius: 50px;
-  padding: 4px 8px;
-  color: rgba(255, 255, 255, 0.884);
-  font-family: 'Inter', 'Roboto', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  outline: none;
-  
-  /* These properties make the field adjust to content */
-  width: auto;
-  min-width: 2ch;
-  max-width: max-content;
-  display: inline-block;
-  box-sizing: border-box;
-}
-  
-.text-field:hover {
-  background: rgba(90, 100, 110, 0.2);
-  border-color: rgb(190, 222, 255);
-  color: rgb(190, 222, 255);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-  opacity: 0.95;
-}
-  
-.text-field:active {
-  background: rgba(90, 100, 110, 0.3);
-  border-color: rgba(130, 150, 170, 0.7);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transform: translateY(1px);
-}
-  
-.text-field:focus {
-  box-shadow: 0 0 0 2px rgba(100, 150, 200, 0.4);
+    width: auto;
+    min-width: 2ch;
+    max-width: max-content;
+    display: inline-block;
+    box-sizing: border-box;
 }
 
+.search-input {
+    width: 100%;
+}
 
+/* Alternative text field style */
 .text-field-alternative {
-  background: rgba(90, 100, 110, 0);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 2px;
-  padding: 8px 8px;
-  color: rgb(255, 255, 255);
-  font-family: 'Inter', 'Roboto', sans-serif;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  outline: none;
-  width: 100%;
+    background: transparent;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-base);
+    outline: none;
+    width: 100%;
 }
 
 .text-field-alternative:hover {
-  background: rgba(90, 100, 110, 0.08);
-  border-color: rgba(207, 207, 207, 0.37);
-  color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-  opacity: 0.95;
+    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--color-border-medium);
 }
 
-/* Category styling */
+.text-field-alternative:focus {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--color-border-strong);
+}
+
+/* ========================================
+   NODE TYPES PANEL
+   ======================================== */
+.node-types-panel {
+    padding: var(--spacing-lg);
+    font-family: var(--font-family);
+    color: var(--color-text-primary);
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    height: 100%;
+    background: var(--color-bg-primary);
+}
+
+/* Category Header */
 .node-category {
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Inter', 'Roboto', sans-serif;
-  padding: 8px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    font-family: var(--font-family);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    transition: background var(--transition-fast);
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .node-category:hover {
-
-  transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.05);
 }
 
-/* Node items container */
-.node-items-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 0 4px;
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height 0.3s ease-in-out, opacity 0.2s ease-in-out;
-}
-
-.node-items-container.expanded {
-  max-height: 1000px; /* Arbitrarily large value that will be animated to */
-  opacity: 1;
-}
-
-/* Individual node item styling */
-.node-item {
-  border-radius: 6px;
-  padding: 10px 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #ffffff;
-  font-size: 13px;
-  font-family: 'Inter', 'Roboto', sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 12px;
-}
-
-.node-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Search input styling */
-.search-input {
-  width: 100%;
-  padding: 8px 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  color: white;
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.search-input:focus {
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-/* Animation for arrow icon */
+/* Arrow Icon */
 .arrow-icon {
-  font-size: 12px;
-  font-weight: normal;
-  transition: transform 0.2s;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    transition: transform var(--transition-base);
 }
 
 .arrow-icon.expanded {
-  transform: rotate(90deg);
+    transform: rotate(90deg);
 }
 
-/* Panel container */
-.node-types-panel {
-  padding: 16px;
-  font-family: 'Inter', 'Roboto', sans-serif;
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  height: 100%
+/* Node Items Container */
+.node-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height var(--transition-slow), opacity var(--transition-base);
 }
 
-/* Empty state */
+.node-items-container.expanded {
+    max-height: 800px;
+    opacity: 1;
+}
+
+/* Individual Node Item */
+.node-item {
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 2px solid transparent;
+}
+
+.node-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
 .empty-state {
-  color: rgba(255, 255, 255, 0.5);
-  text-align: center;
-  padding: 20px 0;
+    color: var(--color-text-tertiary);
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    font-size: var(--font-size-base);
 }
 
-/* Footer tip */
 .panel-footer {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
-  text-align: center;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: auto;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+    text-align: center;
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border-subtle);
+    margin-top: auto;
+}
+
+/* ========================================
+   SCROLLBARS
+   ======================================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius:  var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background:  #4a4a4a;
 }
