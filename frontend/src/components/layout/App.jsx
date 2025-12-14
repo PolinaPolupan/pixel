@@ -5,6 +5,7 @@ import AppContent from './AppContent.jsx';
 import FileExplorer from '../file/FileExplorer.jsx';
 import NodeTypesPanel from '../ui/NodeTypesPanel.jsx';
 import ExecutionsPanel from '../execution/ExecutionPanel.jsx';
+import ConnectionsPanel from '../connection/ConnectionsPanel.jsx';  // ← Import
 import {NotificationProvider} from '../../services/contexts/NotificationContext.jsx';
 import {ProgressProvider} from "../../services/contexts/ProgressContext.jsx";
 import ErrorBoundary from "../ui/ErrorBoundary.jsx";
@@ -18,14 +19,12 @@ function AppWithSceneContext() {
         const tabId = `node-files-${graphExecutionId}-${nodeId}`;
         const tabTitle = `Node #${nodeId} Files`;
 
-        // Check if tab already exists
-        const existingTab = layoutRef.current. find(tabId);
+        const existingTab = layoutRef.current.find(tabId);
         if (existingTab) {
-            layoutRef.current. dockMove(existingTab, null, 'front');
+            layoutRef.current.dockMove(existingTab, null, 'front');
             return;
         }
 
-        // Create new tab
         const newTab = {
             id: tabId,
             title: tabTitle,
@@ -39,8 +38,7 @@ function AppWithSceneContext() {
             closable: true,
         };
 
-        // Add tab to file explorer panel
-        layoutRef.current. dockMove(newTab, 'fileExplorer', 'after-tab');
+        layoutRef.current.dockMove(newTab, 'fileExplorer', 'after-tab');
     }, []);
 
     const defaultLayout = {
@@ -52,7 +50,7 @@ function AppWithSceneContext() {
                     size: 70,
                     children: [
                         {
-                            tabs: [
+                            tabs:  [
                                 {
                                     id: 'flowCanvas',
                                     title: 'Flow Canvas',
@@ -67,7 +65,7 @@ function AppWithSceneContext() {
                             mode: 'vertical',
                             children: [
                                 {
-                                    size: 50,
+                                    size: 33,  // ← Changed from 50 to make room
                                     tabs: [
                                         {
                                             id: 'nodeTypes',
@@ -77,12 +75,22 @@ function AppWithSceneContext() {
                                     ],
                                 },
                                 {
-                                    size: 50,
-                                    tabs:  [
+                                    size: 33,  // ← Changed from 50
+                                    tabs: [
                                         {
                                             id: 'executions',
                                             title: 'Executions',
-                                            content: <ExecutionsPanel onViewFiles={openNodeFiles} />,
+                                            content:  <ExecutionsPanel onViewFiles={openNodeFiles} />,
+                                        },
+                                    ],
+                                },
+                                {
+                                    size: 34,  // ← New section for Connections
+                                    tabs: [
+                                        {
+                                            id: 'connections',
+                                            title: 'Connections',
+                                            content:  <ConnectionsPanel />,
                                         },
                                     ],
                                 },
@@ -131,7 +139,7 @@ function AppWithSceneContext() {
             style={{
                 position: 'absolute',
                 left: 0,
-                top:  0,
+                top: 0,
                 right: 0,
                 bottom: 0,
             }}
@@ -148,7 +156,7 @@ function AppWithSceneContext() {
 export default function App() {
     return (
         <ErrorBoundary>
-            <div style={{ height: '100vh', position: 'relative' }}>
+            <div style={{ height: '100vh', position:  'relative' }}>
                 <ReactFlowProvider>
                     <NotificationProvider>
                         <ProgressProvider>
