@@ -26,6 +26,8 @@ public class NodeExecutionEntity {
 
     private Long graphExecutionId;
 
+    private String nodeType;
+
     @Enumerated(EnumType.STRING)
     private NodeStatus status;
 

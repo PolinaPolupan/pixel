@@ -14,6 +14,7 @@ import java.util.Map;
 public class NodeExecutionDto {
     private Long id;
     private Long graphExecutionId;
+    private String nodeType;
     private NodeStatus status;
     private Map<String, Object> inputs;
     private Map<String, Object> outputs;
