@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { executionApi } from '../../services/api.js';
+import { IoChevronBack } from 'react-icons/io5';
 import './ExecutionPanel.css';
 
 const ExecutionsPanel = () => {
@@ -7,6 +8,10 @@ const ExecutionsPanel = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [filterStatus, setFilterStatus] = useState('ALL');
+    const [selectedExecution, setSelectedExecution] = useState(null);
+    const [nodeExecutions, setNodeExecutions] = useState([]);
+    const [nodeLoading, setNodeLoading] = useState(false);
+    const [nodeError, setNodeError] = useState(null);
 
     useEffect(() => {
         fetchExecutions();
@@ -18,14 +23,39 @@ const ExecutionsPanel = () => {
         setLoading(true);
         setError(null);
         try {
-            const data = await executionApi.getAll();
+            const data = await executionApi. getAll();
             setExecutions(data);
         } catch (err) {
             console.error('Error fetching executions:', err);
-            setError(err.message);
+            setError(err. message);
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchNodeExecutions = async (graphExecutionId) => {
+        setNodeLoading(true);
+        setNodeError(null);
+        try {
+            const data = await executionApi.getNodeExecutions(graphExecutionId);
+            setNodeExecutions(data);
+        } catch (err) {
+            console.error('Error fetching node executions:', err);
+            setNodeError(err.message);
+        } finally {
+            setNodeLoading(false);
+        }
+    };
+
+    const handleExecutionClick = (execution) => {
+        setSelectedExecution(execution);
+        fetchNodeExecutions(execution.id);
+    };
+
+    const handleBackClick = () => {
+        setSelectedExecution(null);
+        setNodeExecutions([]);
+        setNodeError(null);
     };
 
     const getStatusColor = (status) => {
@@ -43,7 +73,7 @@ const ExecutionsPanel = () => {
             case 'COMPLETED':  return '✓';
             case 'RUNNING': return '⟳';
             case 'FAILED': return '✗';
-            case 'PENDING':  return '○';
+            case 'PENDING':   return '○';
             default:  return '? ';
         }
     };
@@ -64,6 +94,21 @@ const ExecutionsPanel = () => {
         }
     };
 
+    const formatDateTime = (dateString) => {
+        if (!dateString) return '-';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                fractionalSecondDigits: 3
+            });
+        } catch (e) {
+            return dateString;
+        }
+    };
+
     const calculateDuration = (start, end) => {
         if (!start) return '-';
         if (! end) return 'Running...';
@@ -74,6 +119,18 @@ const ExecutionsPanel = () => {
             const minutes = Math.floor(seconds / 60);
             const remainingSeconds = seconds % 60;
             return `${minutes}m ${remainingSeconds}s`;
+        } catch (e) {
+            return '-';
+        }
+    };
+
+    const formatNodeDuration = (start, end) => {
+        if (!start || !end) return '-';
+        try {
+            const duration = new Date(end) - new Date(start);
+            const ms = duration % 1000;
+            const seconds = Math.floor(duration / 1000);
+            return `${seconds}.${ms.toString().padStart(3, '0')}s`;
         } catch (e) {
             return '-';
         }
@@ -98,6 +155,110 @@ const ExecutionsPanel = () => {
         RUNNING:  executions.filter(e => e.status === 'RUNNING').length,
     };
 
+    // Show node executions view
+    if (selectedExecution) {
+        return (
+            <div className="executions-panel">
+                <div className="executions-header">
+                    <button
+                        onClick={handleBackClick}
+                        className="back-btn"
+                        title="Back to executions"
+                    >
+                        <IoChevronBack size={20} />
+                    </button>
+                    <div className="executions-header-info">
+                        <h3>Node Executions</h3>
+                        <span className="executions-subtitle">
+                            #{selectedExecution.id} - {selectedExecution.graphId}
+                        </span>
+                    </div>
+                </div>
+
+                {nodeError && (
+                    <div className="executions-error">
+                        ⚠ {nodeError}
+                    </div>
+                )}
+
+                <div className="executions-list">
+                    {nodeLoading ? (
+                        <div className="executions-empty">
+                            Loading node executions...
+                        </div>
+                    ) : nodeExecutions.length === 0 ? (
+                        <div className="executions-empty">
+                            No node executions found
+                        </div>
+                    ) : (
+                        nodeExecutions.map((node) => (
+                            <div key={node.id} className="execution-item node-execution-item">
+                                <div className="execution-header-row">
+                                    <span
+                                        className="execution-status"
+                                        style={{ color: getStatusColor(node. status) }}
+                                    >
+                                        <span className="status-icon">{getStatusIcon(node.status)}</span>
+                                        {node.status}
+                                    </span>
+                                    <span className="execution-id">Node #{node.id}</span>
+                                </div>
+
+                                <div className="execution-info">
+                                    <div className="execution-row">
+                                        <span className="execution-label">Started:</span>
+                                        <span className="execution-value execution-time">
+                                            {formatDateTime(node.startedAt)}
+                                        </span>
+                                    </div>
+
+                                    <div className="execution-row">
+                                        <span className="execution-label">Finished:</span>
+                                        <span className="execution-value execution-time">
+                                            {formatDateTime(node.finishedAt)}
+                                        </span>
+                                    </div>
+
+                                    <div className="execution-row">
+                                        <span className="execution-label">Duration:</span>
+                                        <span className="execution-value">
+                                            {formatNodeDuration(node.startedAt, node.finishedAt)}
+                                        </span>
+                                    </div>
+
+                                    {node.errorMessage && (
+                                        <div className="execution-error-message" title={node.errorMessage}>
+                                            <strong>Error: </strong> {truncateError(node.errorMessage)}
+                                        </div>
+                                    )}
+
+                                    {node.inputs && Object.keys(node.inputs).length > 0 && (
+                                        <details className="execution-details-section">
+                                            <summary>Inputs ({Object.keys(node.inputs).length})</summary>
+                                            <pre className="execution-json">
+                                                {JSON.stringify(node.inputs, null, 2)}
+                                            </pre>
+                                        </details>
+                                    )}
+
+                                    {node.outputs && Object.keys(node.outputs).length > 0 && (
+                                        <details className="execution-details-section">
+                                            <summary>Outputs ({Object.keys(node.outputs).length})</summary>
+                                            <pre className="execution-json">
+                                                {JSON.stringify(node.outputs, null, 2)}
+                                            </pre>
+                                        </details>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // Show graph executions list
     return (
         <div className="executions-panel">
             <div className="executions-header">
@@ -113,10 +274,10 @@ const ExecutionsPanel = () => {
             </div>
 
             <div className="executions-filters">
-                {['ALL', 'COMPLETED', 'FAILED', 'RUNNING']. map(status => (
+                {['ALL', 'COMPLETED', 'FAILED', 'RUNNING'].map(status => (
                     <button
                         key={status}
-                        className={`filter-btn ${filterStatus === status ?  'active' : ''}`}
+                        className={`filter-btn ${filterStatus === status ? 'active' :  ''}`}
                         onClick={() => setFilterStatus(status)}
                     >
                         {status} ({statusCounts[status] || 0})
@@ -133,18 +294,22 @@ const ExecutionsPanel = () => {
             <div className="executions-list">
                 {filteredExecutions.length === 0 ? (
                     <div className="executions-empty">
-                        {loading ?  'Loading...' : 'No executions found'}
+                        {loading ? 'Loading.. .' : 'No executions found'}
                     </div>
                 ) : (
-                    filteredExecutions. map((execution) => (
-                        <div key={execution.id} className="execution-item">
+                    filteredExecutions.map((execution) => (
+                        <div
+                            key={execution.id}
+                            className="execution-item execution-item-clickable"
+                            onClick={() => handleExecutionClick(execution)}
+                        >
                             <div className="execution-header-row">
                                 <span
                                     className="execution-status"
                                     style={{ color: getStatusColor(execution.status) }}
                                 >
                                     <span className="status-icon">{getStatusIcon(execution.status)}</span>
-                                    {execution.status}
+                                    {execution. status}
                                 </span>
                                 <span className="execution-id">#{execution.id}</span>
                             </div>
@@ -186,13 +351,13 @@ const ExecutionsPanel = () => {
                                 <div className="execution-row">
                                     <span className="execution-label">Duration:</span>
                                     <span className="execution-value">
-                                        {calculateDuration(execution.startTime, execution. endTime)}
+                                        {calculateDuration(execution.startTime, execution.endTime)}
                                     </span>
                                 </div>
 
                                 {execution.errorMessage && (
                                     <div className="execution-error-message" title={execution.errorMessage}>
-                                        <strong>Error: </strong> {truncateError(execution.errorMessage)}
+                                        <strong>Error:</strong> {truncateError(execution.errorMessage)}
                                     </div>
                                 )}
                             </div>

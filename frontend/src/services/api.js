@@ -149,4 +149,11 @@ export const executionApi = {
     getById: async (id) => {
         return apiRequest(`/graph_execution/${id}`);
     },
+
+    /**
+     * Get node executions for a graph execution
+     */
+    getNodeExecutions: async (graphExecutionId) => {
+        return apiRequest(`/node_execution?graphExecutionId=${graphExecutionId}`);
+    },
 };
