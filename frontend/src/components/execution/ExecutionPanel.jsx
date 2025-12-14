@@ -227,7 +227,7 @@ const ExecutionsPanel = ({ onViewFiles }) => {
 
                                     <button
                                         className="view-files-btn"
-                                        onClick={() => handleViewFiles(selectedExecution.id, node.id)}
+                                        onClick={() => handleViewFiles(selectedExecution.id, node.nodeId)}
                                     >
                                         📁 View Files
                                     </button>

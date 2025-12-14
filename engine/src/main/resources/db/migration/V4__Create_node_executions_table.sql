@@ -1,6 +1,7 @@
 CREATE TABLE node_executions (
     id BIGSERIAL PRIMARY KEY,
     graph_execution_id BIGINT NOT NULL,
+    node_id BIGINT NOT NULL,
     node_type VARCHAR(255) NOT NULL,
     status VARCHAR(20) NOT NULL,
     inputs JSON,

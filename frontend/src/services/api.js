@@ -102,6 +102,7 @@ export const graphApi = {
             url += `&graphExecutionId=${graphExecutionId}&nodeId=${nodeId}`;
         }
 
+        console.log('Generated file URL:', url);
         return url;
     },
 

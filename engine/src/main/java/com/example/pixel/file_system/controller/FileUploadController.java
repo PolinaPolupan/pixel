@@ -4,7 +4,6 @@ import java. io.*;
 import java.net. URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file. Paths;
 import java.util.*;
 import java.util.zip. ZipEntry;
 import java. util.zip.ZipInputStream;
@@ -127,35 +126,23 @@ public class FileUploadController {
 
     @GetMapping(path = "/files")
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(
-            @RequestParam String filepath,
-            @RequestParam(required = false) Long graphExecutionId,
-            @RequestParam(required = false) Long nodeId
-    ) {
-        Resource file;
+    public ResponseEntity<Resource> serveFile(@RequestParam String filepath) {
+        log.info("Serving file: {}", filepath);
 
-        if (graphExecutionId != null && nodeId != null) {
-            Path dumpBase = fileHelper.getDumpBasePath(graphExecutionId, nodeId);
-            Path filePath = dumpBase.resolve(filepath);
+        Path filePath = storageService.getRootLocation().resolve(filepath);
 
-            if (! Files.exists(filePath)) {
-                return ResponseEntity.notFound().build();
-            }
-
-            file = new FileSystemResource(filePath);
-        } else {
-            file = storageService.loadAsResource(filepath);
-
-            if (file == null) {
-                return ResponseEntity.notFound().build();
-            }
+        if (!Files.exists(filePath)) {
+            log.warn("File not found: {}", filePath);
+            return ResponseEntity.notFound().build();
         }
+
+        Resource file = new FileSystemResource(filePath);
 
         String contentType;
         try {
-            contentType = Files.probeContentType(Paths.get(file.getFile().getAbsolutePath()));
+            contentType = Files.probeContentType(filePath);
         } catch (IOException e) {
-            contentType = URLConnection. guessContentTypeFromName(file.getFilename());
+            contentType = URLConnection.guessContentTypeFromName(file.getFilename());
         }
 
         if (contentType == null) {
@@ -166,6 +153,7 @@ public class FileUploadController {
                 .contentType(MediaType.valueOf(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "inline; filename=\"" + file.getFilename() + "\"")
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache")
                 .body(file);
     }
 

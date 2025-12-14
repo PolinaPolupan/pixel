@@ -16,7 +16,17 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
     const fetchItems = useCallback(async () => {
         try {
             setIsLoading(true);
-            return await graphApi.listFiles('', graphExecutionId, nodeId);
+            const paths = await graphApi.listFiles('', graphExecutionId, nodeId);
+
+            if (graphExecutionId !== null && nodeId !== null) {
+                const prefix = `dump/${graphExecutionId}/${nodeId}/`;
+                return paths
+                    .filter(path => path.startsWith(prefix))
+                    .map(path => path. substring(prefix.length))
+                    .filter(path => path. length > 0);
+            }
+
+            return paths;
         } catch (err) {
             setError?.(err.message);
             console.error('FileExplorer fetchItems error:', err);
@@ -29,7 +39,7 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
     const buildTree = useCallback((paths) => {
         const isFile = path => {
             const segments = path.split('/');
-            const lastSegment = segments[segments. length - 1];
+            const lastSegment = segments[segments.length - 1];
             return /\.(png|jpeg|jpg|gif|txt|json|md)$/i.test(lastSegment);
         };
 
@@ -60,7 +70,7 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
                     const parentPath = currentPath;
                     currentPath = currentPath ?  `${currentPath}/${segment}` : segment;
 
-                    if (! folders[currentPath]) {
+                    if (!folders[currentPath]) {
                         folders[currentPath] = {
                             type: 'folder',
                             name: segment,
@@ -77,31 +87,48 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
                     const fileName = path.substring(lastSlash + 1);
                     const folderPath = path.substring(0, lastSlash);
 
-                    if (!folders[folderPath]) {
+                    if (! folders[folderPath]) {
                         folders[folderPath] = {
                             type: 'folder',
-                            name: folderPath. split('/').pop(),
+                            name:  folderPath. split('/').pop(),
                             path: folderPath,
                             files: [],
-                            folders: []
+                            folders:  []
                         };
                     }
+
+                    const filePath = graphExecutionId !== null && nodeId !== null
+                        ? path
+                        : path;
+
+                    const fullPath = graphExecutionId !== null && nodeId !== null
+                        ? `dump/${graphExecutionId}/${nodeId}/${path}`
+                        : path;
 
                     folders[folderPath].files.push({
                         type: 'file',
                         fileType: getFileType(path),
                         name: fileName,
-                        path: path,
-                        url: graphApi.getFileUrl(path, cacheBuster, graphExecutionId, nodeId)
+                        path:  filePath,
+                        url: graphApi. getFileUrl(fullPath, cacheBuster)
                     });
                 }
             } else if (isFile(path)) {
+                const filePath = graphExecutionId !== null && nodeId !== null
+                    ?  path
+                    : path;
+
+                const fullPath = graphExecutionId !== null && nodeId !== null
+                    ? `dump/${graphExecutionId}/${nodeId}/${path}`
+                    : path;
+
                 rootFiles.push({
                     type: 'file',
                     fileType: getFileType(path),
                     name: path,
-                    path: path,
-                    url: graphApi.getFileUrl(path, cacheBuster, graphExecutionId, nodeId)
+                    path: filePath,
+                    // Don't pass graphExecutionId/nodeId since path already includes dump/...
+                    url: graphApi. getFileUrl(fullPath, cacheBuster)
                 });
             } else {
                 if (!folders[path]) {
@@ -109,7 +136,7 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
                         type: 'folder',
                         name: path,
                         path: path,
-                        files: [],
+                        files:  [],
                         folders: [],
                         parentPath: ''
                     };
@@ -119,10 +146,10 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
 
         folders[''].files = rootFiles;
 
-        Object.values(folders).forEach(folder => {
-            if (folder. path && folder.parentPath !== undefined) {
+        Object. values(folders).forEach(folder => {
+            if (folder.path && folder.parentPath !== undefined) {
                 const parent = folders[folder.parentPath];
-                if (parent && ! parent.folders.some(f => f.path === folder.path)) {
+                if (parent && !parent.folders. some(f => f.path === folder.path)) {
                     parent.folders.push(folder);
                 }
             }
@@ -145,15 +172,18 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
     const downloadAsZip = useCallback(async () => {
         try {
             setIsLoading(true);
-            const zipBlob = await graphApi.downloadZip();
-            saveAs(zipBlob, 'files.zip');
+            const zipBlob = await graphApi.downloadZip('', graphExecutionId, nodeId);
+            const filename = graphExecutionId !== null && nodeId !== null
+                ? `node-${nodeId}-exec-${graphExecutionId}.zip`
+                : 'files.zip';
+            saveAs(zipBlob, filename);
         } catch (err) {
             console.error('ZIP download error:', err);
             setError?. ('Failed to download ZIP:  ' + err.message);
         } finally {
             setIsLoading(false);
         }
-    }, [setError]);
+    }, [setError, graphExecutionId, nodeId]);
 
     const fetchTextContent = useCallback(async (url) => {
         try {
@@ -163,7 +193,7 @@ export function useFileExplorer(graphExecutionId = null, nodeId = null) {
             }
             return await response.text();
         } catch (err) {
-            setError?. (`Failed to load text file: ${err.message}`);
+            setError?.(`Failed to load text file: ${err.message}`);
             return null;
         }
     }, [setError]);
