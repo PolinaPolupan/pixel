@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import DockLayout from 'rc-dock';
 import AppContent from './AppContent.jsx';
@@ -9,69 +9,100 @@ import {NotificationProvider} from '../../services/contexts/NotificationContext.
 import {ProgressProvider} from "../../services/contexts/ProgressContext.jsx";
 import ErrorBoundary from "../ui/ErrorBoundary.jsx";
 
-const defaultLayout = {
-    dockbox: {
-        mode:  'vertical',
-        children: [
-            {
-                mode: 'horizontal',
-                size: 70,
-                children: [
-                    {
-                        tabs: [
-                            {
-                                id:  'flowCanvas',
-                                title: 'Flow Canvas',
-                                content: <AppContent />,
-                                group: 'canvas',
-                            },
-                        ],
-                        size: 70,
-                    },
-                    {
-                        size: 30,
-                        mode: 'vertical',
-                        children: [
-                            {
-                                size: 50,
-                                tabs: [
-                                    {
-                                        id: 'nodeTypes',
-                                        title:  'Node Types',
-                                        content: <NodeTypesPanel />,
-                                    },
-                                ],
-                            },
-                            {
-                                size:  50,
-                                tabs:  [
-                                    {
-                                        id: 'executions',
-                                        title: 'Executions',
-                                        content: <ExecutionsPanel />,
-                                    },
-                                ],
-                            },
-                        ],
-                    }
-                ],
-            },
-            {
-                size: 30,
-                tabs: [
-                    {
-                        id: 'fileExplorer',
-                        title: 'File Explorer',
-                        content: <FileExplorer />,
-                    },
-                ],
-            }
-        ],
-    },
-};
-
 function AppWithSceneContext() {
     const layoutRef = useRef(null);
+
+    const openNodeFiles = useCallback((graphExecutionId, nodeId) => {
+        if (! layoutRef.current) return;
+
+        const tabId = `node-files-${graphExecutionId}-${nodeId}`;
+        const tabTitle = `Node #${nodeId} Files`;
+
+        // Check if tab already exists
+        const existingTab = layoutRef.current. find(tabId);
+        if (existingTab) {
+            layoutRef.current. dockMove(existingTab, null, 'front');
+            return;
+        }
+
+        // Create new tab
+        const newTab = {
+            id: tabId,
+            title: tabTitle,
+            content: (
+                <FileExplorer
+                    graphExecutionId={graphExecutionId}
+                    nodeId={nodeId}
+                    key={tabId}
+                />
+            ),
+            closable: true,
+        };
+
+        // Add tab to file explorer panel
+        layoutRef.current. dockMove(newTab, 'fileExplorer', 'after-tab');
+    }, []);
+
+    const defaultLayout = {
+        dockbox: {
+            mode: 'vertical',
+            children: [
+                {
+                    mode: 'horizontal',
+                    size: 70,
+                    children: [
+                        {
+                            tabs: [
+                                {
+                                    id: 'flowCanvas',
+                                    title: 'Flow Canvas',
+                                    content: <AppContent />,
+                                    group: 'canvas',
+                                },
+                            ],
+                            size: 70,
+                        },
+                        {
+                            size: 30,
+                            mode: 'vertical',
+                            children: [
+                                {
+                                    size: 50,
+                                    tabs: [
+                                        {
+                                            id: 'nodeTypes',
+                                            title: 'Node Types',
+                                            content: <NodeTypesPanel />,
+                                        },
+                                    ],
+                                },
+                                {
+                                    size: 50,
+                                    tabs:  [
+                                        {
+                                            id: 'executions',
+                                            title: 'Executions',
+                                            content: <ExecutionsPanel onViewFiles={openNodeFiles} />,
+                                        },
+                                    ],
+                                },
+                            ],
+                        }
+                    ],
+                },
+                {
+                    size: 30,
+                    tabs: [
+                        {
+                            id: 'fileExplorer',
+                            title: 'File Explorer',
+                            content: <FileExplorer />,
+                        },
+                    ],
+                }
+            ],
+        },
+    };
 
     useEffect(() => {
         if (layoutRef.current) {
@@ -89,7 +120,7 @@ function AppWithSceneContext() {
     const saveLayout = () => {
         if (layoutRef.current) {
             const saved = layoutRef.current.saveLayout();
-            localStorage. setItem('dockLayout', JSON.stringify(saved));
+            localStorage.setItem('dockLayout', JSON.stringify(saved));
         }
     };
 
@@ -100,12 +131,12 @@ function AppWithSceneContext() {
             style={{
                 position: 'absolute',
                 left: 0,
-                top: 0,
+                top:  0,
                 right: 0,
                 bottom: 0,
             }}
             groups={{
-                canvas: { floatable: true, maximizable:  true },
+                canvas: { floatable: true, maximizable: true },
                 explorer: { floatable: true, maximizable: true },
             }}
             dropMode="all"

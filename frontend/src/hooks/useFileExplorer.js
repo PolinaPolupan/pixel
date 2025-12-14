@@ -3,7 +3,7 @@ import {saveAs} from 'file-saver';
 import {graphApi} from '../services/api.js';
 import {useNotification} from "../services/contexts/NotificationContext.jsx";
 
-export function useFileExplorer() {
+export function useFileExplorer(graphExecutionId = null, nodeId = null) {
     const { setError } = useNotification();
     const [items, setItems] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +16,7 @@ export function useFileExplorer() {
     const fetchItems = useCallback(async () => {
         try {
             setIsLoading(true);
-            return await graphApi.listFiles('');
+            return await graphApi.listFiles('', graphExecutionId, nodeId);
         } catch (err) {
             setError?.(err.message);
             console.error('FileExplorer fetchItems error:', err);
@@ -24,12 +24,12 @@ export function useFileExplorer() {
         } finally {
             setIsLoading(false);
         }
-    }, [setError]);
+    }, [setError, graphExecutionId, nodeId]);
 
     const buildTree = useCallback((paths) => {
         const isFile = path => {
             const segments = path.split('/');
-            const lastSegment = segments[segments.length - 1];
+            const lastSegment = segments[segments. length - 1];
             return /\.(png|jpeg|jpg|gif|txt|json|md)$/i.test(lastSegment);
         };
 
@@ -47,7 +47,7 @@ export function useFileExplorer() {
             name: 'root',
             path: '',
             files: [],
-            folders:  []
+            folders: []
         };
 
         paths.forEach(path => {
@@ -60,7 +60,7 @@ export function useFileExplorer() {
                     const parentPath = currentPath;
                     currentPath = currentPath ?  `${currentPath}/${segment}` : segment;
 
-                    if (!folders[currentPath]) {
+                    if (! folders[currentPath]) {
                         folders[currentPath] = {
                             type: 'folder',
                             name: segment,
@@ -73,14 +73,14 @@ export function useFileExplorer() {
                 }
 
                 if (isFile(path)) {
-                    const lastSlash = path. lastIndexOf('/');
+                    const lastSlash = path.lastIndexOf('/');
                     const fileName = path.substring(lastSlash + 1);
-                    const folderPath = path. substring(0, lastSlash);
+                    const folderPath = path.substring(0, lastSlash);
 
                     if (!folders[folderPath]) {
                         folders[folderPath] = {
                             type: 'folder',
-                            name: folderPath.split('/').pop(),
+                            name: folderPath. split('/').pop(),
                             path: folderPath,
                             files: [],
                             folders: []
@@ -92,7 +92,7 @@ export function useFileExplorer() {
                         fileType: getFileType(path),
                         name: fileName,
                         path: path,
-                        url: graphApi. getFileUrl(path, cacheBuster)
+                        url: graphApi.getFileUrl(path, cacheBuster, graphExecutionId, nodeId)
                     });
                 }
             } else if (isFile(path)) {
@@ -101,14 +101,14 @@ export function useFileExplorer() {
                     fileType: getFileType(path),
                     name: path,
                     path: path,
-                    url: graphApi.getFileUrl(path, cacheBuster)
+                    url: graphApi.getFileUrl(path, cacheBuster, graphExecutionId, nodeId)
                 });
             } else {
                 if (!folders[path]) {
                     folders[path] = {
-                        type:  'folder',
+                        type: 'folder',
                         name: path,
-                        path:  path,
+                        path: path,
                         files: [],
                         folders: [],
                         parentPath: ''
@@ -120,16 +120,16 @@ export function useFileExplorer() {
         folders[''].files = rootFiles;
 
         Object.values(folders).forEach(folder => {
-            if (folder.path && folder.parentPath !== undefined) {
+            if (folder. path && folder.parentPath !== undefined) {
                 const parent = folders[folder.parentPath];
-                if (parent && !parent. folders.some(f => f. path === folder.path)) {
+                if (parent && ! parent.folders.some(f => f.path === folder.path)) {
                     parent.folders.push(folder);
                 }
             }
         });
 
         return folders[''];
-    }, [cacheBuster]);
+    }, [cacheBuster, graphExecutionId, nodeId]);
 
     const refreshItems = useCallback(async () => {
         const newCacheBuster = Date.now();
@@ -138,7 +138,7 @@ export function useFileExplorer() {
         const paths = await fetchItems();
         const root = buildTree(paths);
 
-        setItems([... root.folders, ...root.files]);
+        setItems([...root.folders, ...root.files]);
         return root;
     }, [fetchItems, buildTree]);
 
@@ -149,7 +149,7 @@ export function useFileExplorer() {
             saveAs(zipBlob, 'files.zip');
         } catch (err) {
             console.error('ZIP download error:', err);
-            setError?.('Failed to download ZIP: ' + err. message);
+            setError?. ('Failed to download ZIP:  ' + err.message);
         } finally {
             setIsLoading(false);
         }
@@ -158,12 +158,12 @@ export function useFileExplorer() {
     const fetchTextContent = useCallback(async (url) => {
         try {
             const response = await fetch(url);
-            if (!response. ok) {
-                throw new Error(`Failed to fetch text: ${response.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch text:  ${response.statusText}`);
             }
             return await response.text();
         } catch (err) {
-            setError?.(`Failed to load text file: ${err.message}`);
+            setError?. (`Failed to load text file: ${err.message}`);
             return null;
         }
     }, [setError]);
@@ -171,7 +171,7 @@ export function useFileExplorer() {
     const handleFileClick = useCallback(async (item) => {
         setPreviewItem(item);
 
-        if (item. fileType === 'text') {
+        if (item.fileType === 'text') {
             const content = await fetchTextContent(item.url);
             setPreviewContent(content);
         } else {

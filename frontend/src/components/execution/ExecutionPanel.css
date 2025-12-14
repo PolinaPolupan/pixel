@@ -370,3 +370,22 @@
 .execution-json::-webkit-scrollbar-thumb:hover {
     background: #4a4a4a;
 }
+
+.view-files-btn {
+    background:  rgba(66, 135, 245, 0.15);
+    border: 1px solid rgba(66, 135, 245, 0.4);
+    color: #87c3ff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 6px;
+    width: 100%;
+}
+
+.view-files-btn:hover {
+    background: rgba(66, 135, 245, 0.25);
+    border-color: rgba(66, 135, 245, 0.6);
+}

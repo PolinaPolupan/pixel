@@ -3,7 +3,7 @@ import { executionApi } from '../../services/api.js';
 import { IoChevronBack } from 'react-icons/io5';
 import './ExecutionPanel.css';
 
-const ExecutionsPanel = () => {
+const ExecutionsPanel = ({ onViewFiles }) => {
     const [executions, setExecutions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -144,6 +144,12 @@ const ExecutionsPanel = () => {
         return message.substring(0, maxLength) + '...';
     };
 
+    const handleViewFiles = (graphExecutionId, nodeId) => {
+        if (onViewFiles) {
+            onViewFiles(graphExecutionId, nodeId);
+        }
+    };
+
     const filteredExecutions = filterStatus === 'ALL'
         ? executions
         :  executions.filter(e => e.status === filterStatus);
@@ -218,6 +224,13 @@ const ExecutionsPanel = () => {
                                             {node.nodeType || '-'}
                                         </span>
                                     </div>
+
+                                    <button
+                                        className="view-files-btn"
+                                        onClick={() => handleViewFiles(selectedExecution.id, node.id)}
+                                    >
+                                        📁 View Files
+                                    </button>
 
                                     <div className="execution-row">
                                         <span className="execution-label">Started:</span>

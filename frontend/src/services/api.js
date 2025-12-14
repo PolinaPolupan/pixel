@@ -66,9 +66,6 @@ async function apiRequest(endpoint, options = {}, config = ENGINE_CONFIG) {
 }
 
 export const graphApi = {
-    getFileUrl: (filePath, cacheBuster = Date.now()) =>
-        `${ENGINE_CONFIG.BASE_URL}/storage/file?filepath=${encodeURIComponent(filePath)}${cacheBuster ? `&_cb=${cacheBuster}` : ''}`,
-
     uploadInput: async (files) => {
         const formData = new FormData();
         for (const file of files) {
@@ -88,26 +85,42 @@ export const graphApi = {
         return await response.json();
     },
 
-    listFiles: async (folder = '') => {
-        const response = await fetch(`${ENGINE_CONFIG.BASE_URL}/storage/list?folder=${encodeURIComponent(folder)}`);
+    listFiles: async (folder = '', graphExecutionId = null, nodeId = null) => {
+        let endpoint = `/storage/list?folder=${encodeURIComponent(folder)}`;
 
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(error || 'Failed to list files');
+        if (graphExecutionId !== null && nodeId !== null) {
+            endpoint += `&graphExecutionId=${graphExecutionId}&nodeId=${nodeId}`;
         }
 
-        return await response.json();
+        return apiRequest(endpoint);
     },
 
-    downloadZip: async () => {
-        const zipUrl = `${ENGINE_CONFIG.BASE_URL}/storage/zip`;
-        const response = await fetch(zipUrl);
+    getFileUrl: (path, cacheBuster, graphExecutionId = null, nodeId = null) => {
+        let url = `${ENGINE_CONFIG.BASE_URL}/storage/files?filepath=${encodeURIComponent(path)}&t=${cacheBuster}`;
 
-        if (!response.ok) {
-            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        if (graphExecutionId !== null && nodeId !== null) {
+            url += `&graphExecutionId=${graphExecutionId}&nodeId=${nodeId}`;
         }
 
-        return await response.blob();
+        return url;
+    },
+
+    downloadZip: async (folder = '', graphExecutionId = null, nodeId = null) => {
+        let endpoint = `/storage/zip?folder=${encodeURIComponent(folder)}`;
+
+        if (graphExecutionId !== null && nodeId !== null) {
+            endpoint += `&graphExecutionId=${graphExecutionId}&nodeId=${nodeId}`;
+        }
+
+        const response = await fetch(`${ENGINE_CONFIG.BASE_URL}${endpoint}`, {
+            credentials: ENGINE_CONFIG.CREDENTIALS,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to download ZIP');
+        }
+
+        return await response. blob();
     },
 
     processGraph: (graphId) =>
@@ -115,9 +128,9 @@ export const graphApi = {
 
     create: (graphData) =>
         apiRequest(`/graph`, {
-                method: 'POST',
-                body: JSON.stringify(graphData)
-            }),
+            method: 'POST',
+            body: JSON.stringify(graphData)
+        }),
 
     getTaskStatus: (taskId) =>
         apiRequest(`/task/${taskId}/status`)
@@ -129,11 +142,6 @@ export const nodeApi = {
 };
 
 export const executionApi = {
-    /**
-     * Get all executions or filter by graphId
-     * @param {string} graphId - Optional graph ID to filter by
-     * @returns {Promise<Array>} Array of execution objects
-     */
     getAll: async (graphId = null) => {
         const endpoint = graphId
             ?  `/graph_execution?graphId=${encodeURIComponent(graphId)}`
@@ -141,19 +149,11 @@ export const executionApi = {
         return apiRequest(endpoint);
     },
 
-    /**
-     * Get a specific execution by ID
-     * @param {number} id - Execution ID
-     * @returns {Promise<Object>} Execution object
-     */
     getById: async (id) => {
         return apiRequest(`/graph_execution/${id}`);
     },
 
-    /**
-     * Get node executions for a graph execution
-     */
-    getNodeExecutions: async (graphExecutionId) => {
+    getNodeExecutions:  async (graphExecutionId) => {
         return apiRequest(`/node_execution?graphExecutionId=${graphExecutionId}`);
     },
-};
+}

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,5 +108,12 @@ public class FileHelper {
             return prefix + "_" + baseName + extension;
         }
         return filename;
+    }
+
+    public Path getDumpBasePath(Long graphExecutionId, Long nodeId) {
+        return Paths.get(storageService.getRootLocation().toString())
+                .resolve(dumpDir)
+                .resolve(String.valueOf(graphExecutionId))
+                .resolve(String.valueOf(nodeId));
     }
 }

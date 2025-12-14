@@ -5,7 +5,7 @@ import { FilePreview } from './FilePreview.jsx';
 import { useFileExplorer } from '../../hooks/useFileExplorer.js';
 import './FileExplorer.css';
 
-const FileExplorer = () => {
+const FileExplorer = ({ graphExecutionId = null, nodeId = null }) => {
     const {
         items,
         previewItem,
@@ -14,7 +14,7 @@ const FileExplorer = () => {
         handleFileClick,
         closePreview,
         downloadAsZip
-    } = useFileExplorer();
+    } = useFileExplorer(graphExecutionId, nodeId);
 
     const [currentPath, setCurrentPath] = useState([]);
     const [currentItems, setCurrentItems] = useState([]);
@@ -39,7 +39,7 @@ const FileExplorer = () => {
 
     const handleItemClick = (item) => {
         if (item. type === 'folder') {
-            setCurrentPath(prev => [...prev, item.path]);
+            setCurrentPath(prev => [... prev, item.path]);
         } else {
             handleFileClick(item);
         }
@@ -55,8 +55,8 @@ const FileExplorer = () => {
 
     const getBreadcrumbs = () => {
         return currentPath.map(path => {
-            const parts = path. split('/');
-            return parts[parts.length - 1] || path;
+            const parts = path.split('/');
+            return parts[parts. length - 1] || path;
         });
     };
 
@@ -76,7 +76,7 @@ const FileExplorer = () => {
                             <React.Fragment key={index}>
                                 <IoChevronForward size={12} className="breadcrumb-separator" />
                                 <button
-                                    className={`breadcrumb-item ${index === currentPath.length - 1 ? 'active' : ''}`}
+                                    className={`breadcrumb-item ${index === currentPath.length - 1 ? 'active' :  ''}`}
                                     onClick={() => navigateToBreadcrumb(index)}
                                 >
                                     {crumb}
@@ -92,13 +92,15 @@ const FileExplorer = () => {
                         >
                             <IoReload size={16} />
                         </button>
-                        <button
-                            onClick={downloadAsZip}
-                            className="file-explorer-toolbar-btn"
-                            title="Download ZIP"
-                        >
-                            <IoDownload size={16} />
-                        </button>
+                        {! graphExecutionId && ! nodeId && (
+                            <button
+                                onClick={downloadAsZip}
+                                className="file-explorer-toolbar-btn"
+                                title="Download ZIP"
+                            >
+                                <IoDownload size={16} />
+                            </button>
+                        )}
                     </div>
                 </div>
                 <div className="file-explorer-content-horizontal">
