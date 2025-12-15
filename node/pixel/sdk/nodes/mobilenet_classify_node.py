@@ -44,7 +44,7 @@ def preprocess(img: np.ndarray) -> np.ndarray:
 
     img = (img - mean) / std
 
-    img = np.transpose(img, (2, 0, 1))  # HWC → CHW
+    img = np.transpose(img, (2, 0, 1))
     img = np.expand_dims(img, axis=0)
 
     return img.astype(np.float32)
