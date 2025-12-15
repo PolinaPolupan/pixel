@@ -21,8 +21,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../${EXECUTION_GRAPH_DIR}:/app/pixel/${EXECUTION_GRAPH_DIR}
+      - ../${EXECUTION_GRAPH_DIR}:/app/${EXECUTION_GRAPH_DIR}
       - ../node/pixel:/app/pixel
+      - ../models:/app/models
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
       EXECUTION_GRAPH_DIR: ${EXECUTION_GRAPH_DIR}

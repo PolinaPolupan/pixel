@@ -60,3 +60,4 @@ importlib_metadata~=8.7.0
 pyproject_hooks~=1.2.0
 readme_renderer~=44.0
 pydantic_core~=2.33.2
+onnxruntime~=1.23.2

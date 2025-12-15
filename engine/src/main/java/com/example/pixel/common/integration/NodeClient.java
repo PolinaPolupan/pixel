@@ -56,9 +56,10 @@ public class NodeClient {
             return response.getBody();
         } catch (HttpStatusCodeException e) {
             log.error(REQUEST_FAILED_MESSAGE, nodeBaseUrl + endpoint, e.getStatusCode(), e.getResponseBodyAsString());
+            throw e;
         } catch (ResourceAccessException e) {
             log.error(CONNECTION_FAILED_MESSAGE, nodeBaseUrl, e.getMessage());
+            throw e;
         }
-        return null;
     }
 }

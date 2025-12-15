@@ -1,5 +1,6 @@
 import logging
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -8,6 +9,7 @@ import socket
 from starlette.middleware.cors import CORSMiddleware
 import sys
 
+import onnxruntime as ort
 from pixel.server.load_nodes import NODE_REGISTRY, load_nodes_from_directory, get_node
 
 logging.basicConfig(
@@ -17,11 +19,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+MODEL_PATH = "/app/models/mobilenetv2_100_Opset18.onnx"
+SESSION = None
+INPUT_NAME = None
+OUTPUT_NAME = None
+
+def load_model(model_path: str):
+    global SESSION, INPUT_NAME, OUTPUT_NAME
+    SESSION = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
+    INPUT_NAME = SESSION.get_inputs()[0].name
+    OUTPUT_NAME = SESSION.get_outputs()[0].name
+    logger.info(f"Model loaded: {model_path}")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_model(MODEL_PATH)
+    yield
 
 app = FastAPI(
     title="Node Processing Service",
     description="Service for processing different node models in a graph",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -115,6 +134,7 @@ async def health():
         "local_ip": local_ip,
         "registered_nodes_count": nodes_count
     }
+
 
 if __name__ == "__main__":
     import uvicorn
