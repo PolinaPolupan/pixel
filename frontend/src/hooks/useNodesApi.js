@@ -6,13 +6,14 @@ export function useNodesApi() {
     const { nodesConfig, isLoading, error } = useNodesConfig();
 
     const typeCastingRules = useMemo(() => ({
-        'INT': ['FLOAT', 'DOUBLE'],
-        'FLOAT': ['DOUBLE', 'INT'],
-        'DOUBLE': ['FLOAT', 'INT'],
-        'STRING': [],
-        'FILEPATH_ARRAY': [],
-        'STRING_ARRAY': [],
-        'VECTOR2D': []
+        'INT': ['FLOAT', 'DOUBLE', 'DEFAULT'],
+        'FLOAT':  ['DOUBLE', 'INT', 'DEFAULT'],
+        'DOUBLE': ['FLOAT', 'INT', 'DEFAULT'],
+        'STRING': ['DEFAULT'],
+        'FILEPATH_ARRAY': ['DEFAULT'],
+        'STRING_ARRAY': ['DEFAULT'],
+        'VECTOR2D': ['DEFAULT'],
+        'DEFAULT': ['INT', 'FLOAT', 'DOUBLE', 'STRING', 'FILEPATH_ARRAY', 'STRING_ARRAY', 'VECTOR2D']
     }), []);
 
     const nodeReactComponents = useMemo(() => {
@@ -57,8 +58,13 @@ export function useNodesApi() {
 
     const canCastType = useMemo(() => {
         return (sourceType, targetType) => {
+            // Exact match
             if (sourceType === targetType) return true;
 
+            // DEFAULT can connect to anything
+            if (sourceType === 'DEFAULT' || targetType === 'DEFAULT') return true;
+
+            // Check casting rules
             const allowedTargets = typeCastingRules[sourceType] || [];
             const canCast = allowedTargets.includes(targetType);
 
@@ -85,7 +91,7 @@ export function useNodesApi() {
 
         isLoading,
         error,
-        isReady: !isLoading && !error && !!nodesConfig,
+        isReady: ! isLoading && !error && !!nodesConfig,
 
         nodeReactComponents,
         nodeDisplayInfo,

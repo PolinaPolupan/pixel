@@ -82,7 +82,7 @@ class Client:
 
     @classmethod
     def get_file(cls, file_path: str) -> bytes:
-        url = cls._make_engine_url(f"/v1/storage/file")
+        url = cls._make_engine_url(f"/v1/storage/files")
         params = {'filepath': file_path}
         response = cls.session.get(url, params=params)
         response.raise_for_status()

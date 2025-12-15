@@ -76,9 +76,9 @@ function AppContent() {
                 configLoading={isLoading}
             />
 
-            {/*<Panel position="right-center" style={{ margin: '16px' }}>*/}
-            {/*    <DebugPanel />*/}
-            {/*</Panel>*/}
+            <Panel position="right-center" style={{ margin: '16px' }}>
+                <DebugPanel />
+            </Panel>
 
             {error && (
                 <Panel position="top-center">
