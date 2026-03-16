@@ -13,7 +13,7 @@ import { useNotification } from "../../services/contexts/NotificationContext.jsx
 import {useGraphTransformation} from "../../hooks/useGraphTransformation.js";
 import {useCreateNode} from "../../hooks/useCreateNode.js";
 
-function AppContent() {
+function AppContent({ colorMode }) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const reactFlowWrapper = useRef(null);
@@ -67,7 +67,7 @@ function AppContent() {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 isValidConnection={isValidConnection}
-                colorMode="dark"
+                colorMode={colorMode}
             />
 
             <GraphControls

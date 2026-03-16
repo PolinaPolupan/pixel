@@ -1,5 +1,4 @@
-import React from 'react';
-import { ReactFlow, Background } from '@xyflow/react';
+import {Background, ReactFlow} from "@xyflow/react";
 
 export function GraphEditor({
                                 nodes,
@@ -20,7 +19,8 @@ export function GraphEditor({
             onConnect={onConnect}
             isValidConnection={isValidConnection}
             onEdgesChange={onEdgesChange}
-            colorMode={colorMode}
+            colorMode={colorMode}                    // <- this is now "dark" or "light"
+            className={colorMode}                    // <- adds .dark or .light to container
             style={{ width: '100%', height: '100%' }}
             fitView
         >

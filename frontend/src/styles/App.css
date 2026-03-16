@@ -1,6 +1,7 @@
 /* src/styles/App.css */
 @import url("index.css");
-@import url("rc-dock/dist/rc-dock-dark.css");
+@import url("rc-dock/dist/rc-dock.css");
+/*@import url("rc-dock/dist/rc-dock-dark.css");*/
 
 /* ========================================
    DESIGN TOKENS - SYSTEM VARIABLES

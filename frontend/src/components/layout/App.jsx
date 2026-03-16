@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, {useRef, useEffect, useCallback, useState} from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import DockLayout from 'rc-dock';
 import AppContent from './AppContent.jsx';
@@ -11,6 +11,14 @@ import {ProgressProvider} from "../../services/contexts/ProgressContext.jsx";
 import ErrorBoundary from "../ui/ErrorBoundary.jsx";
 
 function AppWithSceneContext() {
+    const [theme, setTheme] = useState("light");
+    useEffect(() => {
+        document.documentElement.classList.remove("light", "dark");
+        document.documentElement.classList.add(theme);
+        document.body.classList.remove("dock-theme-light", "dock-theme-dark");
+        document.body.classList.add(theme === "light" ? "dock-theme-light" : "dock-theme-dark");
+    }, [theme]);
+
     const layoutRef = useRef(null);
 
     const openNodeFiles = useCallback((graphExecutionId, nodeId) => {
@@ -54,7 +62,7 @@ function AppWithSceneContext() {
                                 {
                                     id: 'flowCanvas',
                                     title: 'Flow Canvas',
-                                    content: <AppContent />,
+                                    content: <AppContent colorMode={theme} />,
                                     group: 'canvas',
                                 },
                             ],
@@ -133,23 +141,37 @@ function AppWithSceneContext() {
     };
 
     return (
-        <DockLayout
-            ref={layoutRef}
-            defaultLayout={defaultLayout}
-            style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                right: 0,
-                bottom: 0,
-            }}
-            groups={{
-                canvas: { floatable: true, maximizable: true },
-                explorer: { floatable: true, maximizable: true },
-            }}
-            dropMode="all"
-            onLayoutChange={saveLayout}
-        />
+        <>
+            {/* Toggle button - absolutely positioned */}
+            <button
+                style={{
+                    position: "absolute",
+                    top: 16,
+                    right: 16,
+                    zIndex: 2000
+                }}
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            >
+                Switch to {theme === "light" ? "Dark" : "Light"} Theme
+            </button>
+            <DockLayout
+                ref={layoutRef}
+                defaultLayout={defaultLayout}
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                }}
+                groups={{
+                    canvas: { floatable: true, maximizable: true },
+                    explorer: { floatable: true, maximizable: true },
+                }}
+                dropMode="all"
+                onLayoutChange={saveLayout}
+            />
+        </>
     );
 }
 
