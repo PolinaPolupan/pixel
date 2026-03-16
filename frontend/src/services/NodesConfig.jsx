@@ -3,50 +3,50 @@ import { IoFolderOutline, IoSaveOutline, IoReload, IoArrowDown, IoCloudOutline }
 import { nodeApi } from "./api.js";
 
 const iconComponents = {
-    InputIcon: ({ theme }) => (
+    InputIcon: () => (
         <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IoFolderOutline style={{ fontSize: '16px', color: theme?.colors?.onSurface || '#d8dde2' }} />
+            <IoFolderOutline style={{ fontSize: '16px', color: 'var(--icon-color)' }} />
         </div>
     ),
-    OutputIcon: ({ theme }) => (
+    OutputIcon: () => (
         <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IoSaveOutline style={{ fontSize: '16px', color: theme?.colors?.onSurface || '#d8dde2' }} />
+            <IoSaveOutline style={{ fontSize: '16px', color: 'var(--icon-color)' }} />
         </div>
     ),
-    BlurIcon: ({ theme }) => (
+    CombineIcon: () => (
+        <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IoReload style={{ fontSize: '16px', color: 'var(--icon-color)' }} />
+        </div>
+    ),
+    FloorIcon: () => (
+        <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IoArrowDown style={{ fontSize: '16px', color: 'var(--icon-color)' }} />
+        </div>
+    ),
+    CloudIcon: () => (
+        <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IoCloudOutline style={{ fontSize: '16px', color: 'var(--icon-color)' }} />
+        </div>
+    ),
+    BlurIcon: () => (
         <div style={{
             width: '16px', height: '16px', borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,255,255,0.3), rgba(255,255,255,0))',
-            filter: 'blur(2px)', border: `1px solid ${theme?.colors?.onSurface || '#d8dde2'}`
+            background: 'radial-gradient(circle, rgba(255,255,255,0.15), rgba(255,255,255,0))',
+            filter: 'blur(2px)', border: `1px solid var(--icon-color)`
         }} />
     ),
-    CombineIcon: ({ theme }) => (
-        <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IoReload style={{ fontSize: '16px', color: theme?.colors?.onSurface || '#d8dde2' }} />
-        </div>
-    ),
-    FloorIcon: ({ theme }) => (
-        <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IoArrowDown style={{ fontSize: '16px', color: theme?.colors?.onSurface || '#d8dde2' }} />
-        </div>
-    ),
-    CloudIcon: ({ theme }) => (
-        <div style={{ width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IoCloudOutline style={{ fontSize: '16px', color: theme?.colors?.onSurface || '#d8dde2' }} />
-        </div>
-    ),
-    StringBadge: ({ theme }) => (
+    StringBadge: () => (
         <div style={{
-            width: '16px', height: '16px', borderRadius: '4px', background: theme?.colors?.primary || '#5a6a7a',
-            color: theme?.colors?.onPrimary || '#d8dde2', display: 'flex', alignItems: 'center',
+            width: '16px', height: '16px', borderRadius: '4px', background: 'var(--color-accent, #5a6a7a)',
+            color: 'var(--color-bg-primary, #fff)', display: 'flex', alignItems: 'center',
             justifyContent: 'center', fontSize: '10px', fontWeight: 'bold'
         }}>S</div>
     ),
-    DefaultIcon: ({ theme }) => (
+    DefaultIcon: () => (
         <div style={{
             width: '16px', height: '16px', borderRadius: '4px',
-            background: theme?.colors?.surface || '#2c343a',
-            border: `1px solid ${theme?.colors?.onSurface || '#d8dde2'}`
+            background: 'var(--color-bg-secondary, #2c343a)',
+            border: '1px solid var(--icon-color)'
         }} />
     )
 };

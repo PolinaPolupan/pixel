@@ -12,7 +12,7 @@ const LabeledHandle = (props) => {
         style = {},
         labelStyle = {},
         containerStyle = {},
-        color = 'rgba(255, 255, 255, 0.6)',
+        color = 'var(--color-text-tertiary, rgba(255,255,255,0.6))',
         fontSize = '8px',
         connectionCount = 1,
         parameterType,

@@ -8,9 +8,7 @@ from pixel.core import Metadata
 from pixel.sdk import Client
 from pixel.sdk.models.node_decorator import node
 
-# --------------------------------------------------
-# Session cache (model_path -> InferenceSession)
-# --------------------------------------------------
+
 _SESSIONS: dict[str, ort.InferenceSession] = {}
 
 
@@ -23,9 +21,6 @@ def get_session(model_path: str) -> ort.InferenceSession:
     return _SESSIONS[model_path]
 
 
-# --------------------------------------------------
-# Image preprocessing (ImageNet-style)
-# --------------------------------------------------
 def preprocess(img: np.ndarray, size: int) -> np.ndarray:
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (size, size))
@@ -42,9 +37,6 @@ def preprocess(img: np.ndarray, size: int) -> np.ndarray:
     return img.astype(np.float32)
 
 
-# --------------------------------------------------
-# EXEC
-# --------------------------------------------------
 def onnx_image_exec(
     input: List[str],
     model_path: str,
@@ -84,9 +76,6 @@ def onnx_image_exec(
     return {"vectors": outputs}
 
 
-# --------------------------------------------------
-# VALIDATE
-# --------------------------------------------------
 def onnx_image_validate(
     input: List[str],
     model_path: str,
@@ -103,9 +92,6 @@ def onnx_image_validate(
         raise ValueError("image_size must be > 0")
 
 
-# --------------------------------------------------
-# NODE
-# --------------------------------------------------
 @node(
     tasks={
         "exec": onnx_image_exec,

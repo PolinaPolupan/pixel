@@ -2,9 +2,9 @@
     height: 100%;
     padding: 8px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     overflow-y: auto;
-    background: #1e1e1e;
+    background: var(--color-bg-primary);
 }
 
 .node-category {
@@ -14,24 +14,24 @@
     justify-content: space-between;
     align-items: center;
     transition: background 0.15s;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--color-border-subtle, rgba(170, 170, 170, 0.08));
+    background: var(--color-bg-secondary, rgba(255, 255, 255, 0.02));
 }
 
 .node-category:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--color-bg-tertiary, rgba(255, 255, 255, 0.05));
 }
 
 .node-category-title {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-secondary, rgba(31,35,40,0.8));
     font-size: 12px;
-    font-weight:  500;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .arrow-icon {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--color-text-tertiary, #b0b0b0);
     font-size: 9px;
     transition: transform 0.2s;
 }
@@ -44,13 +44,13 @@
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition:  max-height 0.25s ease, opacity 0.25s ease;
+    transition: max-height 0.25s ease, opacity 0.25s ease;
 }
 
 .node-items-container.expanded {
     max-height: 800px;
     opacity: 1;
-    padding:  4px 0;
+    padding: 4px 0;
 }
 
 .node-item {
@@ -58,15 +58,15 @@
     align-items: center;
     gap: 8px;
     padding: 6px 10px;
-    margin:  2px 0;
+    margin: 2px 0;
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--color-bg-tertiary, rgba(180, 230, 250, 0.02));
     transition: background 0.15s;
     border-left: 2px solid transparent;
 }
 
 .node-item:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--color-border-subtle, rgba(140, 160, 185, 0.11));
 }
 
 .node-item-icon {
@@ -83,14 +83,14 @@
 
 .node-item-name {
     font-size: 11px;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     font-weight: 500;
     margin-bottom: 2px;
 }
 
 .node-item-description {
     font-size: 10px;
-    color: #888;
+    color: var(--color-text-tertiary, #888);
     line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
@@ -100,16 +100,16 @@
 .node-types-panel-loading,
 .node-types-panel-error {
     padding: 20px;
-    text-align:  center;
+    text-align: center;
     font-size: 12px;
 }
 
 .node-types-panel-loading {
-    color: #999;
+    color: var(--color-text-tertiary);
 }
 
 .node-types-panel-error {
-    color: #ff6b6b;
+    color: var(--color-error, #ff6b6b);
 }
 
 /* Scrollbar */
@@ -118,14 +118,14 @@
 }
 
 .node-types-panel::-webkit-scrollbar-track {
-    background:  #1e1e1e;
+    background: var(--color-bg-primary);
 }
 
 .node-types-panel::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius:  3px;
+    background: var(--color-border-medium, #404040);
+    border-radius: 3px;
 }
 
 .node-types-panel::-webkit-scrollbar-thumb:hover {
-    background: #4a4a4a;
+    background: var(--color-border-strong, #4a4a4a);
 }

@@ -1,12 +1,9 @@
-/* ========================================
-   EXECUTIONS PANEL
-   ======================================== */
 .executions-panel {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #1e1e1e;
-    color: #e0e0e0;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     overflow: hidden;
 }
@@ -17,8 +14,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    border-bottom: 1px solid #333;
-    background: #252525;
+    border-bottom: 1px solid var(--color-border-medium);
+    background: var(--color-bg-secondary);
     flex-shrink: 0;
 }
 
@@ -38,7 +35,7 @@
 
 .executions-subtitle {
     font-size: 11px;
-    color: #999;
+    color: var(--color-text-tertiary);
     font-family: 'Monaco', 'Courier New', monospace;
     font-weight: normal;
 }
@@ -47,8 +44,8 @@
 .refresh-btn,
 .back-btn {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #e0e0e0;
+    border: 1px solid var(--color-border-medium);
+    color: var(--color-text-primary);
     padding: 6px;
     border-radius: 4px;
     cursor: pointer;
@@ -59,7 +56,7 @@
 }
 
 .refresh-btn {
-    background: #333;
+    background: var(--color-border-medium);
     padding: 6px 10px;
     min-width: 32px;
     height: 32px;
@@ -68,8 +65,8 @@
 
 .refresh-btn:hover:not(:disabled),
 .back-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: var(--color-border-strong);
+    border-color: var(--color-border-strong);
 }
 
 .refresh-btn:disabled {
@@ -82,16 +79,16 @@
     display:  flex;
     gap: 4px;
     padding: 8px;
-    background: #252525;
-    border-bottom: 1px solid #333;
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-medium);
     flex-shrink: 0;
     overflow-x: auto;
 }
 
 .filter-btn {
-    background: #2a2a2a;
-    border: 1px solid #333;
-    color: #999;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border-medium);
+    color: var(--color-text-tertiary);
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
@@ -102,13 +99,13 @@
 }
 
 .filter-btn:hover {
-    background: #333;
-    color: #e0e0e0;
+    background: var(--color-border-medium);
+    color: var(--color-text-primary);
 }
 
 .filter-btn.active {
-    background: #2196f3;
-    border-color: #2196f3;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
     color: #fff;
 }
 
@@ -132,7 +129,7 @@
 .executions-empty {
     padding: 48px 24px;
     text-align:  center;
-    color: #757575;
+    color: var(--color-text-tertiary);
     font-size:  13px;
 }
 
@@ -140,8 +137,8 @@
    EXECUTION ITEMS
    ======================================== */
 .execution-item {
-    background: #252525;
-    border:  1px solid #333;
+    background: var(--color-bg-secondary);
+    border:  1px solid var(--color-border-medium);
     border-radius: 6px;
     margin-bottom: 8px;
     padding: 12px;
@@ -149,8 +146,8 @@
 }
 
 .execution-item:hover {
-    border-color: #404040;
-    background: #2a2a2a;
+    border-color: var(--color-border-strong);
+    background: var(--color-bg-tertiary);
 }
 
 .execution-item-clickable {
@@ -158,19 +155,19 @@
 }
 
 .execution-item-clickable:hover {
-    border-color: #4287f5;
-    box-shadow: 0 2px 8px rgba(66, 135, 245, 0.2);
+    border-color: var(--color-accent);
+    box-shadow: 0 2px 8px rgba(66, 135, 245, 0.2); /* You can also define an accent shadow variable */
 }
 
 /* Node Execution Specific */
 .node-execution-item {
-    border-left: 3px solid #4287f5 !important;
-    background: #262626 !important;
+    border-left: 3px solid var(--color-accent) !important;
+    background: var(--color-bg-tertiary) !important;
 }
 
 .node-execution-item:hover {
-    border-left-color: #87c3ff !important;
-    background: #2c2c2c !important;
+    border-left-color: #87c3ff !important; /* Or a variable for accent highlight */
+    background: #f4f8fe !important; /* Optionally another theme variable */
 }
 
 /* Header Row */
@@ -182,10 +179,10 @@
 }
 
 .execution-header-left {
-    display: flex ! important;
-    align-items: center ! important;
-    gap: 8px ! important;
-    flex-wrap: wrap ! important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
 }
 
 .execution-status {
@@ -204,13 +201,13 @@
 
 .execution-id {
     font-size: 11px;
-    color: #757575;
+    color: var(--color-text-tertiary);
     font-family: 'Monaco', 'Courier New', monospace;
 }
 
 /* Node Type Badge */
 .execution-node-type-badge {
-    font-family: 'Monaco', 'Courier New', monospace ! important;
+    font-family: 'Monaco', 'Courier New', monospace !important;
     font-size:  10px !important;
     font-weight: 600 !important;
     padding: 4px 10px !important;
@@ -240,12 +237,12 @@
 }
 
 .execution-label {
-    color: #999;
+    color: var(--color-text-tertiary);
     flex-shrink: 0;
 }
 
 .execution-value {
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     font-weight: 500;
     text-align: right;
     overflow: hidden;
@@ -273,7 +270,7 @@
 /* Progress Bar */
 .execution-progress-bar {
     height: 4px;
-    background: #333;
+    background: var(--color-border-medium);
     border-radius: 2px;
     overflow: hidden;
     margin:  4px 0;
@@ -308,33 +305,33 @@
 /* Details Section */
 .execution-details-section {
     margin-top:  8px;
-    border:  1px solid #333;
+    border:  1px solid var(--color-border-medium);
     border-radius: 4px;
     overflow: hidden;
 }
 
 .execution-details-section summary {
     padding: 8px 12px;
-    background: #2a2a2a;
+    background: var(--color-bg-tertiary);
     cursor: pointer;
     font-size: 11px;
     font-weight: 500;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     user-select: none;
     transition: background 0.2s;
 }
 
 .execution-details-section summary:hover {
-    background: #333;
+    background: var(--color-border-medium);
 }
 
 .execution-json {
     margin:  0;
     padding: 12px;
-    background: #1a1a1a;
+    background: #f3f4f9; /* Or a light specific var */
     font-family: 'Monaco', 'Courier New', monospace;
     font-size: 10px;
-    color: #f8f8f2;
+    color: #323232;
     overflow-x: auto;
     line-height: 1.5;
 }
@@ -351,24 +348,24 @@
 
 .executions-list::-webkit-scrollbar-track,
 .execution-json::-webkit-scrollbar-track {
-    background: #1e1e1e;
+    background: var(--color-bg-primary);
 }
 
 .executions-filters::-webkit-scrollbar-track {
-    background: #252525;
+    background: var(--color-bg-secondary);
 }
 
 .executions-list::-webkit-scrollbar-thumb,
 .executions-filters::-webkit-scrollbar-thumb,
 .execution-json::-webkit-scrollbar-thumb {
-    background: #404040;
+    background: var(--color-border-medium);
     border-radius:  4px;
 }
 
 .executions-list::-webkit-scrollbar-thumb:hover,
 .executions-filters::-webkit-scrollbar-thumb:hover,
 .execution-json::-webkit-scrollbar-thumb:hover {
-    background: #4a4a4a;
+    background: var(--color-border-strong);
 }
 
 .view-files-btn {

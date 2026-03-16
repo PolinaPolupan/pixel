@@ -2,8 +2,8 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #1e1e1e;
-    color: #e0e0e0;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -12,12 +12,12 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    border-bottom: 1px solid #333;
-    background: #252525;
+    border-bottom: 1px solid var(--color-border-medium);
+    background: var(--color-bg-secondary);
 }
 
 .connections-header h3 {
-    margin:  0;
+    margin: 0;
     font-size: 14px;
     font-weight: 600;
 }
@@ -28,12 +28,12 @@
 }
 
 .icon-btn {
-    background: #333;
+    background: var(--color-border-medium);
     border: none;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     padding: 6px;
-    border-radius:  4px;
-    cursor:  pointer;
+    border-radius: 4px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -41,15 +41,16 @@
 }
 
 .icon-btn:hover {
-    background: #404040;
+    background: var(--color-border-strong);
 }
 
 .icon-btn.primary {
-    background: #2196f3;
+    background: var(--color-accent);
+    color: #fff;
 }
 
 .icon-btn.primary:hover {
-    background: #1976d2;
+    background: #1976d2; /* You can use a variable if you wish, e.g., var(--color-accent-dark) */
 }
 
 .connections-error {
@@ -68,14 +69,14 @@
 
 .connections-empty {
     padding: 48px 24px;
-    text-align:  center;
-    color: #757575;
+    text-align: center;
+    color: var(--color-text-tertiary);
     font-size: 13px;
 }
 
 .connection-item {
-    background: #252525;
-    border:  1px solid #333;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-medium);
     border-radius: 6px;
     margin-bottom: 8px;
     padding: 12px;
@@ -83,8 +84,8 @@
 }
 
 .connection-item:hover {
-    border-color: #404040;
-    background: #2a2a2a;
+    border-color: var(--color-border-strong);
+    background: var(--color-bg-tertiary);
 }
 
 .connection-header {
@@ -101,18 +102,18 @@
 }
 
 .connection-id {
-    font-weight:  600;
+    font-weight: 600;
     font-size: 13px;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
 }
 
 .connection-type {
-    font-size:  11px;
+    font-size: 11px;
     padding: 2px 8px;
-    background: rgba(33, 150, 243, 0.15);
-    border: 1px solid rgba(33, 150, 243, 0.4);
+    background: rgba(33, 150, 243, 0.15);   /* Optionally make a var */
+    border: 1px solid rgba(33, 150, 243, 0.4); /* or var(--color-accent-border) if defined */
     border-radius: 10px;
-    color: #2196f3;
+    color: var(--color-accent);
     text-transform: uppercase;
 }
 
@@ -144,13 +145,13 @@
     gap: 8px;
 }
 
-.connection-detail . label {
-    color: #999;
+.connection-detail .label {
+    color: var(--color-text-tertiary);
     min-width: 50px;
 }
 
 .connection-detail .value {
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     font-family: 'Monaco', 'Courier New', monospace;
 }
 
@@ -159,7 +160,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    right:  0;
+    right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.7);
     display: flex;
@@ -169,8 +170,8 @@
 }
 
 .connection-form-modal {
-    background: #1e1e1e;
-    border:  1px solid #333;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-medium);
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
@@ -183,8 +184,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px;
-    border-bottom: 1px solid #333;
-    background: #252525;
+    border-bottom: 1px solid var(--color-border-medium);
+    background: var(--color-bg-secondary);
 }
 
 .connection-form-header h4 {
@@ -196,7 +197,7 @@
 .close-btn {
     background: transparent;
     border: none;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     cursor: pointer;
     padding: 4px;
     display: flex;
@@ -205,7 +206,7 @@
 }
 
 .close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.07); /* subtle light/dark neutral */
 }
 
 .connection-form {
@@ -213,7 +214,7 @@
 }
 
 .form-group {
-    margin-bottom:  16px;
+    margin-bottom: 16px;
 }
 
 .form-row {
@@ -227,7 +228,7 @@
     margin-bottom: 6px;
     font-size: 12px;
     font-weight: 500;
-    color: #999;
+    color: var(--color-text-tertiary);
 }
 
 .form-group input,
@@ -235,10 +236,10 @@
 .form-group textarea {
     width: 100%;
     padding: 8px 12px;
-    background: #252525;
-    border: 1px solid #333;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-medium);
     border-radius: 4px;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     font-size: 13px;
     font-family: inherit;
     transition: border-color 0.2s;
@@ -248,7 +249,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #2196f3;
+    border-color: var(--color-accent);
 }
 
 .form-group textarea {
@@ -271,25 +272,25 @@
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition:  all 0.2s;
+    transition: all 0.2s;
 }
 
 .btn-secondary {
-    background: #333;
-    color: #e0e0e0;
+    background: var(--color-border-medium);
+    color: var(--color-text-primary);
 }
 
 .btn-secondary:hover {
-    background:  #404040;
+    background: var(--color-border-strong);
 }
 
 .btn-primary {
-    background:  #2196f3;
+    background: var(--color-accent);
     color: #fff;
 }
 
 .btn-primary:hover {
-    background: #1976d2;
+    background: #1976d2;  /* option: use a new var if you want */
 }
 
 /* Scrollbar */
@@ -300,16 +301,16 @@
 
 .connections-list::-webkit-scrollbar-track,
 .connection-form-modal::-webkit-scrollbar-track {
-    background: #1e1e1e;
+    background: var(--color-bg-primary);
 }
 
 .connections-list::-webkit-scrollbar-thumb,
 .connection-form-modal::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius:  4px;
+    background: var(--color-border-medium);
+    border-radius: 4px;
 }
 
 .connections-list::-webkit-scrollbar-thumb:hover,
 .connection-form-modal::-webkit-scrollbar-thumb:hover {
-    background: #4a4a4a;
+    background: var(--color-border-strong);
 }

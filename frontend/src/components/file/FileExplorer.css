@@ -1,24 +1,23 @@
-/* src/components/file/FileExplorer.css */
 .file-explorer {
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
     display: flex;
     flex-direction: column;
-    background: #1e1e1e;
+    background: var(--color-bg-primary);
 }
 
 .file-explorer-horizontal {
-    overflow:  hidden;
+    overflow: hidden;
 }
 
 .file-explorer-toolbar {
-    display:  flex;
-    justify-content:  space-between;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding:  8px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: #252525;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--color-border-medium);
+    background: var(--color-bg-secondary);
     flex-shrink: 0;
     gap: 12px;
 }
@@ -28,7 +27,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    flex:  1;
+    flex: 1;
     overflow-x: auto;
     overflow-y: hidden;
     padding: 4px 0;
@@ -43,39 +42,39 @@
 }
 
 .file-explorer-breadcrumbs::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--color-border-medium);
     border-radius: 2px;
 }
 
 .breadcrumb-item {
-    background: rgba(255, 255, 255, 0.05);
-    border:  1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
+    background: rgba(100, 100, 130, 0.05); /* low contrast neutral for all themes */
+    border: 1px solid var(--color-border-medium);
+    color: var(--color-text-secondary);
     padding: 4px 10px;
-    border-radius:  3px;
+    border-radius: 3px;
     cursor: pointer;
     font-size: 11px;
     white-space: nowrap;
     transition: all 0.15s;
     display: flex;
     align-items: center;
-    gap:  4px;
+    gap: 4px;
 }
 
 .breadcrumb-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(140, 140, 250, 0.09);
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
 }
 
 .breadcrumb-item.active {
     background: rgba(66, 135, 245, 0.2);
     border-color: rgba(66, 135, 245, 0.4);
-    color: #4287f5;
+    color: var(--color-accent);
 }
 
 .breadcrumb-separator {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--color-border-strong);
     flex-shrink: 0;
 }
 
@@ -88,19 +87,20 @@
 
 .file-explorer-toolbar-btn {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #e0e0e0;
+    border: 1px solid var(--color-border-medium);
+    color: var(--color-text-primary);
     padding: 4px 8px;
-    border-radius:  3px;
-    cursor:  pointer;
+    border-radius: 3px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     transition: all 0.15s;
 }
 
 .file-explorer-toolbar-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.25);
+    background: var(--color-border-medium);
+    border-color: var(--color-border-strong);
+    color: var(--color-text-primary);
 }
 
 /* Content Area */
@@ -129,23 +129,22 @@
     max-width: 100px;
     cursor: pointer;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(100, 120, 150, 0.02);
+    border: 1px solid var(--color-border-medium);
     transition: all 0.15s;
 }
 
 .file-grid-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(66, 135, 245, 0.08);
+    border-color: var(--color-border-strong);
     transform: translateY(-2px);
 }
 
 .file-grid-item.folder.file-grid-item-icon {
     color: #ffd700;
 }
-
 .file-grid-item.file.file-grid-item-icon {
-    color: #4287f5;
+    color: var(--color-accent);
 }
 
 .file-grid-item-icon {
@@ -155,25 +154,25 @@
     width: 40px;
     height: 40px;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(130, 150, 160, 0.03);
 }
 
 .file-grid-item-name {
-    font-size:  11px;
+    font-size: 11px;
     text-align: center;
     word-break: break-word;
     line-height: 1.3;
     max-width: 100%;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp:  2;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
 .file-grid-empty {
     padding: 40px;
-    text-align:  center;
-    color: #666;
+    text-align: center;
+    color: var(--color-text-tertiary);
     font-size: 12px;
 }
 
@@ -181,21 +180,21 @@
     position: relative;
     max-width: 90%;
     max-height: 90%;
-    background: rgba(40, 40, 40, 0.95);
+    background: var(--color-bg-primary);
     padding: 32px;
-    border-radius:  8px;
-    border:  1px solid #333;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-medium);
 }
 
 .file-preview-image {
     max-width: 100%;
-    max-height:  70vh;
+    max-height: 70vh;
     object-fit: contain;
     border-radius: 4px;
 }
 
 .file-preview-close:hover {
-    background:  rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.15);
     transform: scale(1.1);
 }
 
@@ -206,16 +205,16 @@
 }
 
 .file-explorer-content-horizontal::-webkit-scrollbar-track {
-    background: #1e1e1e;
+    background: var(--color-bg-primary);
 }
 
 .file-explorer-content-horizontal::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius:  4px;
+    background: var(--color-border-medium);
+    border-radius: 4px;
 }
 
 .file-explorer-content-horizontal::-webkit-scrollbar-thumb:hover {
-    background: #4a4a4a;
+    background: var(--color-border-strong);
 }
 
 .file-preview-text::-webkit-scrollbar {
@@ -223,16 +222,16 @@
 }
 
 .file-preview-text::-webkit-scrollbar-track {
-    background: #1e1e1e;
+    background: var(--color-bg-primary);
 }
 
 .file-preview-text::-webkit-scrollbar-thumb {
-    background: #404040;
+    background: var(--color-border-medium);
     border-radius: 4px;
 }
 
 .file-preview-text::-webkit-scrollbar-thumb:hover {
-    background:  #4a4a4a;
+    background: var(--color-border-strong);
 }
 
 /* File Preview Modal */
@@ -253,33 +252,33 @@
     position: relative;
     max-width: 90%;
     max-height: 90%;
-    background: rgba(40, 40, 40, 0.95);
+    background: var(--color-bg-primary);
     padding: 32px;
-    border-radius:  8px;
-    border: 1px solid #333;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-medium);
 }
 
 .file-preview-image {
     max-width: 100%;
-    max-height:  70vh;
-    object-fit:  contain;
-    border-radius:  4px;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 4px;
 }
 
 .file-preview-text {
-    background-color: #1e1e1e;
+    background-color: var(--color-bg-primary);
     padding: 20px;
-    border-radius:  4px;
+    border-radius: 4px;
     max-width: 800px;
-    max-height:  70vh;
-    overflow-y:  auto;
+    max-height: 70vh;
+    overflow-y: auto;
     font-family: 'Monaco', 'Courier New', monospace;
     white-space: pre-wrap;
     word-break: break-all;
-    color: #f8f8f2;
+    color: var(--color-text-primary);
     font-size: 13px;
     line-height: 1.5;
-    border: 1px solid #333;
+    border: 1px solid var(--color-border-medium);
 }
 
 .file-preview-close {
@@ -290,8 +289,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #e0e0e0;
-    background: rgba(0, 0, 0, 0.5);
+    color: var(--color-text-primary);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -299,51 +298,17 @@
 }
 
 .file-preview-close:hover {
-    background:  rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.25);
     transform: scale(1.1);
 }
 
-/* Scrollbar styling */
-.file-explorer-content-horizontal::-webkit-scrollbar {
-    height: 8px;
-}
-
-.file-explorer-content-horizontal::-webkit-scrollbar-track {
-    background: #1e1e1e;
-}
-
-.file-explorer-content-horizontal::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius:  4px;
-}
-
-.file-explorer-content-horizontal::-webkit-scrollbar-thumb:hover {
-    background: #4a4a4a;
-}
-
-.file-preview-text::-webkit-scrollbar {
-    width: 8px;
-}
-
-.file-preview-text::-webkit-scrollbar-track {
-    background: #1e1e1e;
-}
-
-.file-preview-text::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius: 4px;
-}
-
-.file-preview-text::-webkit-scrollbar-thumb:hover {
-    background: #4a4a4a;
-}
-
+/* File upload styles */
 .file-upload {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 12px;
     padding: 8px;
     border-radius: 4px;
-    background: rgba(0, 0, 0, 0);
+    background: transparent;
     max-width: 250px;
 }
 
@@ -356,7 +321,7 @@
 
 .file-upload-clear-btn {
     padding: 2px 6px;
-    background: rgba(0, 0, 0, 0);
+    background: transparent;
     color: #d9534f;
     border: 1px solid rgba(217, 83, 79, 0.5);
     border-radius: 2px;
@@ -365,28 +330,28 @@
 }
 
 .file-upload-clear-btn:hover {
-    background:  rgba(217, 83, 79, 0.1);
+    background: rgba(217, 83, 79, 0.1);
     border-color: #d9534f;
 }
 
 .file-upload-clear-btn:disabled {
-    color: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(100, 100, 120, 0.3);
+    border-color: rgba(100, 100, 120, 0.2);
     cursor: not-allowed;
-    background: rgba(0, 0, 0, 0);
+    background: transparent;
 }
 
 .file-upload-stats {
     margin-bottom: 8px;
     padding: 8px 10px;
-    background: rgba(20, 20, 20, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(100, 100, 120, 0.09);
+    border: 1px solid var(--color-border-medium);
     border-radius: 4px;
     font-family: 'Monaco', 'Courier New', monospace;
-    font-size:  11px;
-    color: #e0e0e0;
+    font-size: 11px;
+    color: var(--color-text-primary);
     line-height: 1.6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07);
     animation: fadeIn 0.3s ease-in;
     text-align: left;
 }
@@ -400,7 +365,7 @@
 }
 
 .file-upload-stat-label {
-    color: #569cd6;
+    color: var(--color-accent);  /* highlight */
 }
 
 .file-upload-actions {
@@ -411,22 +376,22 @@
 .file-upload-label {
     display: inline-block;
     padding: 4px 8px;
-    background:  rgba(0, 0, 0, 0);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    border: 1px solid var(--color-border-strong);
     border-radius: 2px;
     cursor: pointer;
     text-align: center;
     transition: border-color 0.2s;
     font-size: 12px;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
 }
 
 .file-upload-label:hover {
-    border-color: rgba(255, 255, 255, 0.5);
+    border-color: var(--color-accent);
 }
 
 .file-upload-label.disabled {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--color-border-medium);
     cursor: not-allowed;
     opacity: 0.6;
 }

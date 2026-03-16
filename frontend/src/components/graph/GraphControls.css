@@ -26,8 +26,8 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgb(194, 255, 212);
+    border: 1px solid var(--color-border-medium);
+    color: #19cf7b; /* or a new variable for accent-success */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -35,15 +35,15 @@
     padding: 0;
     line-height: 1;
     box-sizing: border-box;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.13);
     transition: all 0.2s;
-    background: rgb(0, 110, 0);
+    background: #008a2c; /* or theme var if desired */
     cursor: pointer;
 }
 
 .play-button:hover {
-    background: rgb(0, 200, 0);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: #00c800; /* or a variable for active success */
+    border-color: var(--color-border-strong);
     transform: scale(1.05);
 }
 
@@ -52,14 +52,15 @@
 }
 
 .play-button:disabled {
-    background: rgb(100, 100, 100);
+    background: #bdbdbd;
+    color: #fff;
     cursor: wait;
     transform: scale(1);
 }
 
 .play-button:disabled:hover {
-    background:  rgb(100, 100, 100);
-    border-color: rgba(255, 255, 255, 0.2);
+    background:  #bdbdbd;
+    border-color: var(--color-border-medium);
 }
 
 .progress-bar-container {
@@ -72,13 +73,13 @@
 
 .progress-bar-wrapper {
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--color-bg-tertiary);
     border-radius: 4px;
     overflow: hidden;
     padding: 4px;
     opacity: 1;
     transition: opacity 1s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .progress-bar-wrapper.fade-out {
@@ -87,20 +88,20 @@
 
 .progress-bar-fill {
     height: 8px;
-    background-color:  #4caf50;
+    background-color: #4caf50; /* green, use a theme var if you want */
     border-radius: 4px;
     transition: width 0.3s ease;
 }
 
 .progress-bar-text {
     font-size: 12px;
-    color: #333;
-    margin-top:  4px;
+    color: var(--color-text-primary);
+    margin-top: 4px;
     text-align: center;
 }
 
 .progress-bar-ready {
     font-size: 12px;
-    color: #666;
+    color: var(--color-text-tertiary);
     text-align: center;
 }

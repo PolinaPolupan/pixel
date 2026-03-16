@@ -67,7 +67,7 @@ const ContextMenu = ({
 
     const renderIcon = (IconComponent) => {
         if (! IconComponent) return null;
-        return <IconComponent theme={{ colors: { onSurface: 'white' } }} />;
+        return <IconComponent />;
     };
 
     if (isLoading) {

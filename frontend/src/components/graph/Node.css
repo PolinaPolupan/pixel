@@ -3,7 +3,7 @@
 }
 
 .custom-node-error {
-    color: #ff6b6b;
+    color: var(--color-error, #ff6b6b);
     padding: 12px;
     background: rgba(255, 107, 107, 0.1);
     border: 1px solid rgba(255, 107, 107, 0.3);
@@ -27,7 +27,7 @@
     align-items: center;
     margin: 5px;
     font-size: 13px;
-    color: #e0e0e0;
+    color: var(--color-text-primary);
 }
 
 .input-handle-container {
@@ -45,27 +45,27 @@
     border-radius: 3px;
     font-size: 8px;
     outline: none;
-    background: rgba(0, 0, 0, 0);
-    color: #e0e0e0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-medium);
     transition: all 0.15s;
     -moz-appearance: textfield;
 }
 
 .input-handle-input::-webkit-outer-spin-button,
 .input-handle-input::-webkit-inner-spin-button {
-    -webkit-appearance:  none;
+    -webkit-appearance: none;
     margin: 0;
 }
 
 .input-handle-input:focus {
-    border-color: rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--color-border-strong);
+    background: var(--color-bg-tertiary);
 }
 
 .input-handle-input:disabled {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.5);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-tertiary);
     cursor: not-allowed;
 }
 
@@ -80,7 +80,7 @@
     top: 50%;
     transform: translateY(-50%);
     font-weight: 600;
-    color:  rgba(255, 255, 255, 0.6);
+    color: var(--color-text-tertiary);
     pointer-events: none;
     user-select: none;
 }
@@ -109,5 +109,5 @@
 .labeled-handle {
     width: 10px;
     height: 10px;
-    background: #cccccc;
+    background: var(--color-border-medium);
 }
