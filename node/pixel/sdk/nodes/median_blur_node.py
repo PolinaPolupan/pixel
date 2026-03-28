@@ -2,12 +2,22 @@ from typing import List
 from pixel.core import Metadata
 from pixel.sdk import Client
 from pixel.sdk.models.node_decorator import node
+import cv2
 
 
 def median_blur_exec(input: List[str], ksize: int, meta: Metadata = None):
     output_files = []
     for file in input:
-        output_files.append(Client.store_dump(meta, file))
+        img = Client.load_image(file)
+
+        filtered = cv2.medianBlur(
+            img,
+            (sizeX, sizeY)
+        )
+
+        out_path = Client.store_image(meta, filtered, path=file)
+        output_files.append(out_path)
+
     return {"output": output_files}
 
 def median_blur_validate(input: List[str], ksize: int, meta: Metadata = None):

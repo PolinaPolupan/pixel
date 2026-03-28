@@ -2,6 +2,7 @@ from typing import List
 from pixel.core import Metadata
 from pixel.sdk import Client
 from pixel.sdk.models.node_decorator import node
+import cv2
 
 
 def gaussian_blur_exec(
@@ -12,9 +13,25 @@ def gaussian_blur_exec(
     sigmaY: float = 0.0,
     meta: Metadata = None
 ):
+    sizeX = int(sizeX)
+    sizeY = int(sizeY)
+    sigmaX = float(sigmaX)
+    sigmaY = float(sigmaY)
+
     output_files = []
     for file in input:
-        output_files.append(Client.store_dump(meta, file))
+        img = Client.load_image(file)
+
+        filtered = cv2.GaussianBlur(
+            img,
+            (sizeX, sizeY),
+            sigmaX=sigmaX,
+            sigmaY=sigmaY
+        )
+
+        out_path = Client.store_image(meta, filtered, path=file)
+        output_files.append(out_path)
+
     return {"output": output_files}
 
 def gaussian_blur_validate(
