@@ -14,6 +14,8 @@ services:
       - ../${DATA_DIR}:/app/${DATA_DIR}
     depends_on:
       - node
+    networks:
+      - pixel-net
 
   node:
     build:
@@ -21,12 +23,16 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../${EXECUTION_GRAPH_DIR}:/app/${EXECUTION_GRAPH_DIR}
-      - ../node/pixel:/app/pixel
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../node:/app
+      - ../${EXECUTION_GRAPH_DIR}:/app/execution_graph
       - ../models:/app/models
     environment:
       ENGINE_SERVICE_URL: ${ENGINE_SERVICE_URL}
       EXECUTION_GRAPH_DIR: ${EXECUTION_GRAPH_DIR}
+      HOST_PROJECT_ROOT: ${PWD}/..
+    networks:
+      - pixel-net
 
   frontend:
     build:
@@ -40,3 +46,10 @@ services:
     stdin_open: true
     tty: true
     command: npm run dev
+    networks:
+      - pixel-net
+
+networks:
+  pixel-net:
+    name: pixel-net
+    driver: bridge

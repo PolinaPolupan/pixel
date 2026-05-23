@@ -10,6 +10,8 @@ from starlette.middleware.cors import CORSMiddleware
 import sys
 
 import onnxruntime as ort
+
+from pixel.server.docker_executor import execute_in_docker
 from pixel.server.load_nodes import NODE_REGISTRY, load_nodes_from_directory, get_node
 
 logging.basicConfig(
@@ -77,7 +79,11 @@ async def exec_node(request: Request):
         logger.info(f"Executing node: {data.get('meta', {}).get('type')}")
 
         node = get_node(data)
-        outputs = node.exec_params(data)
+        outputs = {}
+        if node.metadata.get("image"):
+            execute_in_docker(node, data)
+        else:
+            outputs = node.exec_params(data)
 
         return {"outputs": outputs}
     except Exception as e:

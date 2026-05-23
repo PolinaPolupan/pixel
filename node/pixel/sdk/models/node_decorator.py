@@ -10,6 +10,7 @@ def node(
         description: str = None,
         color: str = "#808080",
         icon: str = None,
+        image: str = None,
         required_packages: List[str] = None,
         inputs: Dict[str, Dict[str, Any]] = None,
         outputs: Dict[str, Dict[str, Any]] = None,
@@ -47,6 +48,7 @@ def node(
         node_metadata = {
             "inputs": node_inputs,
             "outputs": node_outputs,
+            "image": image,
             "display": {
                 "name": display_name or auto_display_name,
                 "category": category or "Other",

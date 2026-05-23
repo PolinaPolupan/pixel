@@ -5,6 +5,8 @@ services:
       SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
     depends_on:
       - redis
+    networks:
+      - pixel-net
 
   redis:
     image: "redislabs/redismod"
@@ -12,6 +14,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - pixel-net
 
 volumes:
   redis_data:
